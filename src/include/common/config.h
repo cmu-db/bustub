@@ -36,10 +36,10 @@ extern std::chrono::duration<int64_t> LOG_TIMEOUT;
 #define BUCKET_SIZE 50                                        // size of extendible hash bucket
 #define BUFFER_POOL_SIZE 10                                   // size of buffer pool
 
-using frame_id_t = int32_t; // frame id type
-using page_id_t = int32_t;  // page id type
-using txn_id_t = int32_t;   // transaction id type
-using lsn_t = int32_t;      // log sequence number type
+using frame_id_t = int32_t;  // frame id type
+using page_id_t = int32_t;   // page id type
+using txn_id_t = int32_t;    // transaction id type
+using lsn_t = int32_t;       // log sequence number type
 using oid_t = uint16_t;
 
 }  // namespace bustub

@@ -32,11 +32,17 @@ before_script:
   - if [[ "$DOCKER" = true ]]; then
       docker exec build /bin/sh -c "mkdir -p /repo/build" &&
       docker exec -e CMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" build /bin/sh -c "cd /repo/build && cmake -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE .." &&
+      docker exec build /bin/sh -c "cd /repo/build && make check-format" &&
+      docker exec build /bin/sh -c "cd /repo/build && make check-lint" &&
+      docker exec build /bin/sh -c "cd /repo/build && make check-clang-tidy" &&
       docker exec build /bin/sh -c "cd /repo/build && make check-tests";
     else
       mkdir build &&
       cd build &&
       cmake -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE .. &&
+      make check-format &&
+      make check-lint &&
+      make check-clang-tidy &&
       make check-tests;
     fi
 
