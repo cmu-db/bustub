@@ -1,0 +1,48 @@
+sudo: required
+language: cpp
+matrix:
+  fast_finish: true
+  include:
+    - os: linux
+      dist: trusty
+      env:
+        - NAME="ubuntu-18.04/gcc-7.3.0 (Debug/packages.sh)" CMAKE_BUILD_TYPE=debug DOCKER=true
+      install:
+        - docker pull ubuntu:18.04
+        - docker run -itd --name build ubuntu:18.04
+        - docker cp . build:/repo
+    - os: linux
+      dist: trusty
+      env:
+        - NAME="ubuntu-18.04/gcc-7.3.0 (Debug/Dockerfile)" CMAKE_BUILD_TYPE=debug DOCKER=true
+      install:
+        - docker build -t cmu-db/bustub .
+        - docker run -itd --name build cmu-db/bustub
+        - docker cp . build:/repo
+    - os: linux
+      dist: trusty
+      env:
+        - NAME="ubuntu-18.04/clang-8.0.0 (Debug/Dockerfile)" CMAKE_BUILD_TYPE=debug DOCKER=true
+      install:
+        - docker build -t cmu-db/bustub .
+        - docker run -itd -e "CC=/usr/bin/clang-8" -e "CXX=/usr/bin/clang++-8" --name build cmu-db/bustub
+        - docker cp . build:/repo
+
+before_script:
+  - if [[ "$DOCKER" = true ]]; then
+      docker exec build /bin/sh -c "mkdir -p /repo/build" &&
+      docker exec -e CMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" build /bin/sh -c "cd /repo/build && cmake -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE .." &&
+      docker exec build /bin/sh -c "cd /repo/build && make check-tests";
+    else
+      mkdir build &&
+      cd build &&
+      cmake -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE .. &&
+      make check-tests;
+    fi
+
+script:
+  - if [[ "$DOCKER" = true ]]; then
+      docker exec build /bin/sh -c "cd /repo/build && make -j4";
+    else
+      make -j4;
+    fi

@@ -1,0 +1,53 @@
+{
+    Handle GFLAGS leaks - Debug mode
+        Memcheck:Leak
+        ...
+        fun:_ZNSs12_S_constructIPKcEEPcT_S3_RKSaIcESt20forward_iterator_tag
+        fun:_ZNSsC1EPKcRKSaIcE
+        fun:_ZN3fLS25dont_pass0toDEFINE_stringEPcPKc
+        ...
+}
+
+{
+    Handle GFLAGS leaks  - Release mode
+        Memcheck:Leak
+        ...
+        fun:_ZNSsC1EPKcRKSaIcE
+        fun:_GLOBAL__sub_I_config.cpp
+        ...
+}
+
+{
+    Handle init leak (32 bytes)
+        Memcheck:Leak
+        ...
+        fun:_GLOBAL__sub_I_configuration.cpp
+        fun:call_init.part.0
+        fun:call_init
+        fun:_dl_init
+        ...
+}
+
+{
+    Handles invalid free in NetworkAddress::Parse because of 'getaddrinfo'
+        Memcheck:Free
+        fun:free
+        fun:__libc_freeres
+        fun:_vgnU_freeres
+        fun:__run_exit_handlers
+        fun:exit
+        fun:(below main)
+}
+
+{
+   Handles leaks in libpg_query
+        Memcheck:Leak
+        match-leak-kinds: definite
+        ...
+        fun:AllocSetContextCreate
+        fun:MemoryContextInit
+        fun:pg_query_init
+        fun:pg_query_enter_memory_context
+        ...
+}
+
