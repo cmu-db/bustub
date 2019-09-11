@@ -7,6 +7,10 @@
 BusTub is a relational database management system built at [Carnegie Mellon University](https://db.cs.cmu.edu) for the [Introduction to Database Systems](https://15445.courses.cs.cmu.edu) (15-445/645) course. This system was developed for educational purposes and should not be used in production environments.
 
 ## Build
+
+### Linux / Mac
+To ensure that you have the proper packages installed on your machine, run `sudo build_support/packages.sh`. Then run
+
 ```
 mkdir build
 cd build
