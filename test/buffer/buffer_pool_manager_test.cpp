@@ -51,7 +51,7 @@ TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
   for (int i = 0; i < 5; ++i) {
     EXPECT_EQ(true, bpm.UnpinPage(i, true));
   }
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < 4; ++i) {
     EXPECT_NE(nullptr, bpm.NewPage(&page_id_temp));
   }
 
