@@ -56,7 +56,7 @@ bool BufferPoolManager::FlushPage(page_id_t page_id) {
   return false;
 }
 
-Page *BufferPoolManager::NewPage(page_id_t *page_id) {
+Page *BufferPoolManager::NewPage(page_id_t &page_id) {
   // 0.   Make sure you call DiskManager::AllocatePage!
   // 1.   If all the pages in the buffer pool are pinned, return nullptr.
   // 2.   Pick a victim page P from either the free list or the replacer. Always pick from the free list first.

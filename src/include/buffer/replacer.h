@@ -29,7 +29,7 @@ class Replacer {
    * @param[out] frame_id id of frame that was removed, nullptr if no victim was found
    * @return true if a victim frame was found, false otherwise
    */
-  virtual bool Victim(frame_id_t *frame_id) = 0;
+  virtual bool Victim(frame_id_t &frame_id) = 0;
 
   /**
    * Pins a frame, indicating that it should not be victimized until it is unpinned.

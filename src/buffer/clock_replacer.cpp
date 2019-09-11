@@ -18,7 +18,7 @@ ClockReplacer::ClockReplacer(size_t num_pages) {}
 
 ClockReplacer::~ClockReplacer() = default;
 
-bool ClockReplacer::Victim(frame_id_t *frame_id) { return false; }
+bool ClockReplacer::Victim(frame_id_t &frame_id) { return false; }
 
 void ClockReplacer::Pin(frame_id_t frame_id) {}
 
