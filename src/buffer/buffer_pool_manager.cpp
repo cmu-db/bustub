@@ -21,7 +21,6 @@ BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager
     : pool_size_(pool_size), disk_manager_(disk_manager), log_manager_(log_manager) {
   // We allocate a consecutive memory space for the buffer pool.
   pages_ = new Page[pool_size_];
-  page_table_ = new std::unordered_map<page_id_t, page_id_t>();
   replacer_ = new ClockReplacer(pool_size);
 
   // Initially, every page is in the free list.
@@ -33,7 +32,6 @@ BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager
 
 BufferPoolManager::~BufferPoolManager() {
   delete[] pages_;
-  delete page_table_;
   delete replacer_;
   delete free_list_;
 }
