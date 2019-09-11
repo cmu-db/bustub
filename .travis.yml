@@ -11,6 +11,7 @@ matrix:
         - docker pull ubuntu:18.04
         - docker run -itd --name build ubuntu:18.04
         - docker cp . build:/repo
+        - docker exec build /bin/sh -c "echo 'y' | /repo/build_support/packages.sh"
     - os: linux
       dist: trusty
       env:
