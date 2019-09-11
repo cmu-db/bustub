@@ -11,7 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include <cstdio>
-#include <thread>
+#include <thread>  // NOLINT
 #include <vector>
 
 #include "buffer/clock_replacer.h"
