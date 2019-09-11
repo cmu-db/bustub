@@ -37,7 +37,7 @@ class ClockReplacer : public Replacer {
    */
   ~ClockReplacer() override;
 
-  bool Victim(frame_id_t &frame_id) override;
+  bool Victim(frame_id_t *frame_id) override;
 
   void Pin(frame_id_t frame_id) override;
 

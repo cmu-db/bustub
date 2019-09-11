@@ -71,7 +71,7 @@ class BufferPoolManager {
    * @param[out] page_id id of created page
    * @return nullptr if no new pages could be created, otherwise pointer to new page
    */
-  Page *NewPage(page_id_t &page_id);
+  Page *NewPage(page_id_t *page_id);
 
   /**
    * Deletes a page from the buffer pool.

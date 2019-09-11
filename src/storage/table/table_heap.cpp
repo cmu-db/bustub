@@ -30,7 +30,7 @@ TableHeap::TableHeap(BufferPoolManager *buffer_pool_manager, LockManager *lock_m
                      Transaction *txn)
     : buffer_pool_manager_(buffer_pool_manager), lock_manager_(lock_manager), log_manager_(log_manager) {
   // Initialize the first table page.
-  auto first_page = static_cast<TablePage *>(buffer_pool_manager_->NewPage(first_page_id_));
+  auto first_page = static_cast<TablePage *>(buffer_pool_manager_->NewPage(&first_page_id_));
   assert(first_page != nullptr);
   first_page->WLatch();
   LOG_DEBUG("new table page created %d", first_page_id_);
@@ -61,7 +61,7 @@ bool TableHeap::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn) {
       cur_page = static_cast<TablePage *>(buffer_pool_manager_->FetchPage(next_page_id));
       cur_page->WLatch();
     } else {  // Create new page
-      auto new_page = static_cast<TablePage *>(buffer_pool_manager_->NewPage(next_page_id));
+      auto new_page = static_cast<TablePage *>(buffer_pool_manager_->NewPage(&next_page_id));
       if (new_page == nullptr) {
         cur_page->WUnlatch();
         buffer_pool_manager_->UnpinPage(cur_page->GetPageId(), false);

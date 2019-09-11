@@ -19,7 +19,7 @@
 namespace bustub {
 
 // NOLINTNEXTLINE
-TEST(BufferPoolManagerTest, SampleTest) {
+TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
   const std::string db_name = "test.db";
   const size_t buffer_pool_size = 10;
 
@@ -27,7 +27,7 @@ TEST(BufferPoolManagerTest, SampleTest) {
   BufferPoolManager bpm{buffer_pool_size, disk_manager};
 
   page_id_t page_id_temp;
-  auto *page0 = bpm.NewPage(page_id_temp);
+  auto *page0 = bpm.NewPage(&page_id_temp);
 
   // Scenario: The buffer pool is empty. We should be able to create a new page.
   ASSERT_NE(nullptr, page0);
@@ -39,12 +39,12 @@ TEST(BufferPoolManagerTest, SampleTest) {
 
   // Scenario: We should be able to create new pages until we fill up the buffer pool.
   for (size_t i = 1; i < buffer_pool_size; ++i) {
-    EXPECT_NE(nullptr, bpm.NewPage(page_id_temp));
+    EXPECT_NE(nullptr, bpm.NewPage(&page_id_temp));
   }
 
   // Scenario: Once the buffer pool is full, we should not be able to create any new pages.
   for (size_t i = buffer_pool_size; i < buffer_pool_size * 2; ++i) {
-    EXPECT_EQ(nullptr, bpm.NewPage(page_id_temp));
+    EXPECT_EQ(nullptr, bpm.NewPage(&page_id_temp));
   }
 
   // Scenario: After unpinning pages {0, 1, 2, 3, 4} and pinning another 4 new pages,
@@ -53,7 +53,7 @@ TEST(BufferPoolManagerTest, SampleTest) {
     EXPECT_EQ(true, bpm.UnpinPage(i, true));
   }
   for (int i = 0; i < 4; ++i) {
-    EXPECT_NE(nullptr, bpm.NewPage(page_id_temp));
+    EXPECT_NE(nullptr, bpm.NewPage(&page_id_temp));
   }
 
   // Scenario: We should be able to fetch the data we wrote a while ago.
@@ -61,7 +61,7 @@ TEST(BufferPoolManagerTest, SampleTest) {
   EXPECT_EQ(0, strcmp(page0->GetData(), "Hello"));
   EXPECT_EQ(true, bpm.UnpinPage(0, true));
   // NewPage again, and now all buffers are pinned. Page 0 would be failed to fetch.
-  EXPECT_NE(nullptr, bpm.NewPage(page_id_temp));
+  EXPECT_NE(nullptr, bpm.NewPage(&page_id_temp));
   EXPECT_EQ(nullptr, bpm.FetchPage(0));
 
   // Shutdown the disk manager and remove the temporary file we created.
