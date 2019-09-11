@@ -25,11 +25,19 @@ cmake -DCMAKE_BUILD_TYPE=Debug ..
 make
 ```
 
+### Windows
+If you are using a rather new version of Windows 10, you can use the Windows Subsystem for Linux (WSL) to develop, build, and test Bustub. All you need is to [Install WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10). You can just choose "Ubuntu" (no specific version) in Microsoft Store. Then, enter WSL and follow the above instructions.
+
+If you are using CLion, it also [works with WSL](https://blog.jetbrains.com/clion/2018/01/clion-and-linux-toolchain-on-windows-are-now-friends).
+
+
 ## Testing
 ```
 cd build
 make check-tests
 ```
+
+
 ## TODO
 * update: when size exceed that page, table heap returns false and delete/insert tuple (rid will change and need to delete/insert from index)
 * delete empty page from table heap when delete tuple
