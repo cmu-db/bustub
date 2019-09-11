@@ -7,7 +7,7 @@ file(GLOB BUSTUB_TEST_SOURCES "${PROJECT_SOURCE_DIR}/test/*/*test.cpp")
 # valgrind
 find_program(VALGRIND_BIN valgrind)
 if ("${VALGRIND_BIN}" STREQUAL "VALGRIND_BIN-NOTFOUND")
-    message(FATAL_ERROR "BusTub/test couldn't find valgrind.")
+    message(WARNING "BusTub/test couldn't find valgrind.")
 else()
     message(STATUS "BusTub/test found valgrind at ${VALGRIND_BIN}")
 endif()

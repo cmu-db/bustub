@@ -49,9 +49,7 @@ before_script:
       mkdir build &&
       cd build &&
       cmake -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE .. &&
-      make check-format &&
       make check-lint &&
-      make check-clang-tidy &&
       make check-tests;
     fi
 

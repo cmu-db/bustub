@@ -27,7 +27,7 @@ find_program(CLANG_FORMAT_BIN
         NAMES clang-format clang-format-8
         HINTS "${BUSTUB_CLANG_SEARCH_PATH}")
 if ("${CLANG_FORMAT_BIN}" STREQUAL "CLANG_FORMAT_BIN-NOTFOUND")
-    message(FATAL_ERROR "BusTub/main couldn't find clang-format.")
+    message(WARNING "BusTub/main couldn't find clang-format.")
 else()
     message(STATUS "BusTub/main found clang-format at ${CLANG_FORMAT_BIN}")
 endif()
@@ -37,7 +37,7 @@ find_program(CLANG_TIDY_BIN
         NAMES clang-tidy clang-tidy-8
         HINTS "${BUSTUB_CLANG_SEARCH_PATH}")
 if ("${CLANG_TIDY_BIN}" STREQUAL "CLANG_TIDY_BIN-NOTFOUND")
-    message(FATAL_ERROR "BusTub/main couldn't find clang-tidy.")
+    message(WARNING "BusTub/main couldn't find clang-tidy.")
 else()
     # Output compile_commands.json
     set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
@@ -49,7 +49,7 @@ find_program(CPPLINT_BIN
         NAMES cpplint cpplint.py
         HINTS "${BUSTUB_BUILD_SUPPORT_DIR}")
 if ("${CPPLINT_BIN}" STREQUAL "CPPLINT_BIN-NOTFOUND")
-    message(FATAL_ERROR "BusTub/main ouldn't find cpplint.")
+    message(WARNING "BusTub/main couldn't find cpplint.")
 else()
     message(STATUS "BusTub/main found cpplint at ${CPPLINT_BIN}")
 endif()
