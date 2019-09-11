@@ -42,6 +42,7 @@ jobs:
 workflows:
   version: 2
   all:
-    - install
-    - build
-    - test
+    jobs:
+      - install
+      - build
+      - test
