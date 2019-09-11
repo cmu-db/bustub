@@ -3,6 +3,14 @@ language: cpp
 matrix:
   fast_finish: true
   include:
+    - os: osx
+      osx_image: xcode10.1
+      compiler: clang
+      env:
+        - NAME="macos-10.14/AppleClang-1001.0.46.4 (Debug/packages.sh)" CMAKE_BUILD_TYPE=debug
+      install:
+        - echo 'y' | ./build_support/packages.sh
+        - export LLVM_DIR=/usr/local/Cellar/llvm/8.0.1
     - os: linux
       dist: trusty
       env:
@@ -11,6 +19,7 @@ matrix:
         - docker pull ubuntu:18.04
         - docker run -itd --name build ubuntu:18.04
         - docker cp . build:/repo
+        - docker exec build /bin/sh -c "echo 'y' | /repo/build_support/packages.sh"
     - os: linux
       dist: trusty
       env:
@@ -32,11 +41,15 @@ before_script:
   - if [[ "$DOCKER" = true ]]; then
       docker exec build /bin/sh -c "mkdir -p /repo/build" &&
       docker exec -e CMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" build /bin/sh -c "cd /repo/build && cmake -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE .." &&
+      docker exec build /bin/sh -c "cd /repo/build && make check-format" &&
+      docker exec build /bin/sh -c "cd /repo/build && make check-lint" &&
+      docker exec build /bin/sh -c "cd /repo/build && make check-clang-tidy" &&
       docker exec build /bin/sh -c "cd /repo/build && make check-tests";
     else
       mkdir build &&
       cd build &&
       cmake -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE .. &&
+      make check-lint &&
       make check-tests;
     fi
 
