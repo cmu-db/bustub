@@ -27,5 +27,7 @@ TEST(HashTableTest, BasicTest) {
   std::vector<int> vals;
   EXPECT_FALSE(ht.GetValue(nullptr, 0, &vals));
   disk_manager->ShutDown();
+  delete bpm;
+  delete disk_manager;
 }
 }  // namespace bustub
