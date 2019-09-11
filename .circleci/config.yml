@@ -1,43 +1,43 @@
 version: 2
-  jobs:
-    install:
-      docker:
-       - image: ubuntu:18.04
-      steps:
-       # install dependencies
-       # TODO (Chenyao): I'm not sure which packages are useful. Trim unused packages to speed up.
-       - run: apt-get -y update && \
-              apt-get -y install \
-              build-essential \
-              clang-8 \
-              clang-format-8 \
-              clang-tidy-8 \
-              cmake \
-              doxygen \
-              git \
-              g++-7 \
-              libjemalloc-dev \
-              libevent-dev \
-              libpq-dev \
-              libsqlite3-dev
-              libtbb-dev \
-              llvm-8 \
-              pkg-config \
-              postgresql-client \
-              sqlite3 \
-              valgrind \
-              zlib1g-dev
+jobs:
+  install:
+    docker:
+     - image: ubuntu:18.04
+    steps:
+     # install dependencies
+     # TODO (Chenyao): I'm not sure which packages are useful. Trim unused packages to speed up.
+     - run: apt-get -y update && \
+            apt-get -y install \
+            build-essential \
+            clang-8 \
+            clang-format-8 \
+            clang-tidy-8 \
+            cmake \
+            doxygen \
+            git \
+            g++-7 \
+            libjemalloc-dev \
+            libevent-dev \
+            libpq-dev \
+            libsqlite3-dev
+            libtbb-dev \
+            llvm-8 \
+            pkg-config \
+            postgresql-client \
+            sqlite3 \
+            valgrind \
+            zlib1g-dev
   
-    build:
-      steps:
-       - checkout
-       - run: mkdir build
-       - run: cd build && cmake -DCMAKE_BUILD_TYPE=Debug ..
-       - run: cd build && make -j
+  build:
+    steps:
+     - checkout
+     - run: mkdir build
+     - run: cd build && cmake -DCMAKE_BUILD_TYPE=Debug ..
+     - run: cd build && make -j
 
-    test:
-      steps:
-       - run: cd build && make check-tests
+  test:
+    steps:
+     - run: cd build && make check-tests
 
 workflows:
   version: 2
