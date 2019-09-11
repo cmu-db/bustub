@@ -5,7 +5,8 @@
        - image: ubuntu:18.04
      steps:
        - checkout
+       - run: apt -y install cmake
        - run: mkdir build
        - run: cd build
        - run: cmake -DCMAKE_BUILD_TYPE=Debug ..
-       - run: make
+       - run: make -j
