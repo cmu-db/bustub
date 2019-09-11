@@ -8,7 +8,7 @@ BusTub is a relational database management system built at [Carnegie Mellon Univ
 
 ## Build
 
-#### Linux / Mac
+### Linux / Mac
 To ensure that you have the proper packages installed on your machine, run `sudo build_support/packages.sh`. Then run
 
 ```
