@@ -1,0 +1,40 @@
+version: 2
+jobs:
+  build_test:
+    docker:
+     - image: ubuntu:18.04
+    steps:
+     # install dependencies
+     # TODO (Chenyao): I'm not sure which packages are useful. Trim unused packages to speed up.
+     - run: apt-get -y update &&
+            apt-get -y install
+              build-essential
+              clang-8
+              clang-format-8
+              clang-tidy-8
+              cmake
+              doxygen
+              git
+              g++-7
+              libjemalloc-dev
+              libevent-dev
+              libpq-dev
+              libsqlite3-dev
+              libtbb-dev
+              llvm-8
+              pkg-config
+              postgresql-client
+              sqlite3
+              valgrind
+              zlib1g-dev
+     - checkout
+     - run: mkdir build
+     - run: cd build && cmake -DCMAKE_BUILD_TYPE=Debug ..
+     - run: cd build && make -j
+     - run: cd build && make check-tests
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - build_test
