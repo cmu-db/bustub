@@ -48,7 +48,7 @@ TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
   }
 
   // Scenario: After unpinning pages {0, 1, 2, 3, 4} and pinning another 4 new pages,
-  // there would still be one cache frame left for reading page 0.
+  // there would still be one buffer page left for reading page 0.
   for (int i = 0; i < 5; ++i) {
     EXPECT_EQ(true, bpm.UnpinPage(i, true));
   }
@@ -59,8 +59,10 @@ TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
   // Scenario: We should be able to fetch the data we wrote a while ago.
   page0 = bpm.FetchPage(0);
   EXPECT_EQ(0, strcmp(page0->GetData(), "Hello"));
+  
+  // Scenario: If we unpin page 0 and then make a new page, all the buffer pages should
+  // now be pinned. Fetching page 0 should fail.
   EXPECT_EQ(true, bpm.UnpinPage(0, true));
-  // NewPage again, and now all buffers are pinned. Page 0 would be failed to fetch.
   EXPECT_NE(nullptr, bpm.NewPage(&page_id_temp));
   EXPECT_EQ(nullptr, bpm.FetchPage(0));
 
