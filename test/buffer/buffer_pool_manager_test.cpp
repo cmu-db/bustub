@@ -47,7 +47,8 @@ TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
     EXPECT_EQ(nullptr, bpm.NewPage(&page_id_temp));
   }
 
-  // Scenario: We will evict page0 by unpinning pages {0, 1, 2, 3, 4, 5} and pinning another 5 new pages.
+  // Scenario: After unpinning pages {0, 1, 2, 3, 4} and pinning another 4 new pages,
+  // there would still be one cache frame left for reading page 0.
   for (int i = 0; i < 5; ++i) {
     EXPECT_EQ(true, bpm.UnpinPage(i, true));
   }
@@ -58,6 +59,10 @@ TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
   // Scenario: We should be able to fetch the data we wrote a while ago.
   page0 = bpm.FetchPage(0);
   EXPECT_EQ(0, strcmp(page0->GetData(), "Hello"));
+  EXPECT_EQ(true, bpm.UnpinPage(0, true));
+  // NewPage again, and now all buffers are pinned. Page 0 would be failed to fetch.
+  EXPECT_NE(nullptr, bpm.NewPage(&page_id_temp));
+  EXPECT_EQ(nullptr, bpm.FetchPage(0));
 
   // Shutdown the disk manager and remove the temporary file we created.
   disk_manager->ShutDown();
