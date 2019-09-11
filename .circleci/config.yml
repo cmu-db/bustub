@@ -32,3 +32,9 @@ jobs:
      - run: cd build && cmake -DCMAKE_BUILD_TYPE=Debug ..
      - run: cd build && make -j
      - run: cd build && make check-tests
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - build_test
