@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.10)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)   # For clang-tidy.
 
 set(CMAKE_CXX_STANDARD 17)              # Compile as C++17
@@ -6,14 +6,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)     # Require C++17 support
 
 project(BusTub
         VERSION 2019.1
-        DESCRIPTION "The BusTub Relational Database Management System (Educational)."
-        HOMEPAGE_URL "https://github.com/cmu-db/bustub"
+        DESCRIPTION "The BusTub Relational Database Management System (Educational) @ https://github.com/cmu-db/bustub"
         LANGUAGES C CXX
         )
 
 # Expected directory structure.
 set(BUSTUB_BUILD_SUPPORT_DIR "${CMAKE_SOURCE_DIR}/build_support")
-set(BUSTUB_CLANG_SEARCH_PATH "/usr/local/bin" "/usr/bin" "/usr/local/opt/llvm/bin" "/usr/local/opt/llvm@8/bin")
+set(BUSTUB_CLANG_SEARCH_PATH "/usr/local/bin" "/usr/bin" "/usr/local/opt/llvm/bin" "/usr/local/opt/llvm@8/bin"
+        "/usr/local/Cellar/llvm/8.0.1/bin")
 
 ######################################################################################################################
 # DEPENDENCIES
@@ -27,7 +27,7 @@ find_program(CLANG_FORMAT_BIN
         NAMES clang-format clang-format-8
         HINTS "${BUSTUB_CLANG_SEARCH_PATH}")
 if ("${CLANG_FORMAT_BIN}" STREQUAL "CLANG_FORMAT_BIN-NOTFOUND")
-    message(FATAL_ERROR "BusTub/main couldn't find clang-format.")
+    message(WARNING "BusTub/main couldn't find clang-format.")
 else()
     message(STATUS "BusTub/main found clang-format at ${CLANG_FORMAT_BIN}")
 endif()
@@ -37,7 +37,7 @@ find_program(CLANG_TIDY_BIN
         NAMES clang-tidy clang-tidy-8
         HINTS "${BUSTUB_CLANG_SEARCH_PATH}")
 if ("${CLANG_TIDY_BIN}" STREQUAL "CLANG_TIDY_BIN-NOTFOUND")
-    message(FATAL_ERROR "BusTub/main couldn't find clang-tidy.")
+    message(WARNING "BusTub/main couldn't find clang-tidy.")
 else()
     # Output compile_commands.json
     set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
@@ -49,7 +49,7 @@ find_program(CPPLINT_BIN
         NAMES cpplint cpplint.py
         HINTS "${BUSTUB_BUILD_SUPPORT_DIR}")
 if ("${CPPLINT_BIN}" STREQUAL "CPPLINT_BIN-NOTFOUND")
-    message(FATAL_ERROR "BusTub/main ouldn't find cpplint.")
+    message(WARNING "BusTub/main couldn't find cpplint.")
 else()
     message(STATUS "BusTub/main found cpplint at ${CPPLINT_BIN}")
 endif()
