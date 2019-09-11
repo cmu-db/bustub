@@ -65,7 +65,6 @@ install_mac() {
   # Update Homebrew.
   brew update
   # Install packages.
-  brew ls --versions clang-format || brew install clang-format
   brew ls --versions cmake || brew install cmake
   brew ls --versions coreutils || brew install coreutils
   brew ls --versions doxygen || brew install doxygen
