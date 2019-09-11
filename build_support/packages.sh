@@ -85,8 +85,9 @@ install_linux() {
       doxygen \
       git \
       g++-7 \
-      zlib1g-dev \
-      pkg-config
+      pkg-config \
+      valgrind \
+      zlib1g-dev
 }
 
 main "$@"

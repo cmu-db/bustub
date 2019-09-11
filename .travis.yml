@@ -3,6 +3,14 @@ language: cpp
 matrix:
   fast_finish: true
   include:
+    - os: osx
+      osx_image: xcode10.1
+      compiler: clang
+      env:
+        - NAME="macos-10.14/AppleClang-1001.0.46.4 (Debug/packages.sh)" CMAKE_BUILD_TYPE=debug
+      install:
+        - echo 'y' | ./build_support/packages.sh
+        - export LLVM_DIR=/usr/local/Cellar/llvm/8.0.1
     - os: linux
       dist: trusty
       env:
