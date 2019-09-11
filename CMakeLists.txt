@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)     # Require C++17 support
 project(BusTub
         VERSION 2019.1
         DESCRIPTION "The BusTub Relational Database Management System (Educational)."
-        HOMEPAGE_URL "https://github.com/cmu-db/bustub"
+        #HOMEPAGE_URL "https://github.com/cmu-db/bustub"
         LANGUAGES C CXX
         )
 
