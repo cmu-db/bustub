@@ -22,7 +22,7 @@ namespace bustub {
 TEST(ClockReplacerTest, DISABLED_SampleTest) {
   ClockReplacer clock_replacer(7);
   
-  // push element into replacer
+  // Scenario: unpin six elements, i.e. add them to the replacer.
   clock_replacer.Unpin(1);
   clock_replacer.Unpin(2);
   clock_replacer.Unpin(3);
@@ -32,7 +32,7 @@ TEST(ClockReplacerTest, DISABLED_SampleTest) {
   clock_replacer.Unpin(1);
   EXPECT_EQ(6, clock_replacer.Size());
   
-  // pop element from replacer
+  // Scenario: get three victims from the clock.
   int value;
   clock_replacer.Victim(&value);
   EXPECT_EQ(1, value);
@@ -41,14 +41,16 @@ TEST(ClockReplacerTest, DISABLED_SampleTest) {
   clock_replacer.Victim(&value);
   EXPECT_EQ(3, value);
   
-  // Pin elements in replacer, 3 has already evicted so has no effect.
+  // Scenario: pin elements in the replacer.
+  // Note that 3 has already been victimized, so pinning 3 should have no effect.
   clock_replacer.Pin(3);
   clock_replacer.Pin(4);
   EXPECT_EQ(2, clock_replacer.Size());
-  // Unpin 4, its reference bit should be set to 1
+  
+  // Scenario: unpin 4. We expect that the reference bit of 4 will be set to 1.
   clock_replacer.Unpin(4);
 
-  // pop element from replacer after removal
+  // Scenario: continue looking for victims. We expect these victims.
   clock_replacer.Victim(&value);
   EXPECT_EQ(5, value);
   clock_replacer.Victim(&value);
