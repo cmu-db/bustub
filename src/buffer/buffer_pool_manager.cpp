@@ -32,7 +32,6 @@ BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager
 BufferPoolManager::~BufferPoolManager() {
   delete[] pages_;
   delete replacer_;
-  delete free_list_;
 }
 
 Page *BufferPoolManager::FetchPageImpl(page_id_t page_id) {
