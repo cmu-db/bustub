@@ -7,6 +7,21 @@
 
 BusTub is a relational database management system built at [Carnegie Mellon University](https://db.cs.cmu.edu) for the [Introduction to Database Systems](https://15445.courses.cs.cmu.edu) (15-445/645) course. This system was developed for educational purposes and should not be used in production environments.
 
+# WARNING: IF YOU ARE A STUDENT IN THE CLASS, DO NOT DIRECTLY FORK THIS REPO. DO NOT PUSH PROJECT SOLUTIONS PUBLICLY. THIS IS AN ACADEMIC INTEGRITY VIOLATION AND CAN LEAD TO GETTING YOUR DEGREE REVOKED, EVEN AFTER YOU GRADUATE.
+
+## Cloning this repo
+
+To create a private BusTub,
+
+1. Go to `github.com/new` to create a new github repo. Pick a name, e.g. `private-bustub`, and **make sure it is private**.
+2. On your development machine, clone the public BusTub, i.e. `git clone --depth 1 git@github.com:cmu-db/bustub.git`.
+3. We will [mirror](https://git-scm.com/docs/git-push#Documentation/git-push.txt---mirror) the public BusTub repo into your own private BusTub repo. Suppose your GitHub name is `student` and your repo name is `private-bustub`. Then `cd bustub` followed by `git push --mirror git@github.com:student/private-bustub.git`. This copies everything in the public BusTub repo into your own private repo. You can now `cd ..` and `rm -rf bustub`.
+4. Clone your own private repo, `git clone git@github.com:student/private-bustub.git`.
+5. Add the public BusTub as a remote. `git remote add public git@github.com:cmu-db/bustub.git`
+6. You can pull in changes from the public BusTub with `git pull public master`.
+
+We suggest working on your projects in separate branches. If you don't understand how Git branches work, [learn how](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging). If you don't do this, you might lose all your work at some point in the semester, and nobody will be able to help you.
+
 ## Build
 
 ### Linux / Mac
