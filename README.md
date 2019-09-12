@@ -7,6 +7,18 @@
 
 BusTub is a relational database management system built at [Carnegie Mellon University](https://db.cs.cmu.edu) for the [Introduction to Database Systems](https://15445.courses.cs.cmu.edu) (15-445/645) course. This system was developed for educational purposes and should not be used in production environments.
 
+# WARNING: DO NOT DIRECTLY FORK THIS REPO! IT'S GONNA BE PUBLIC!
+
+Please follow [the directions](<https://medium.com/@bilalbayasut/github-how-to-make-a-fork-of-public-repository-private-6ee8cacaf9d3>) to "make a private fork" in your account if you want. Generally, it's fine as long as you can pull the latest changes from this repo, and your repo is not visible to others. We don't care where your repo is. 
+
+After you made your own repo, please add this repo as a remote:
+
+`git remote add public https://github.com/cmu-db/bustub.git`
+
+And then you can pull the latest update to your `master` branch by
+
+`git pull public master`
+
 ## Build
 
 ### Linux / Mac
