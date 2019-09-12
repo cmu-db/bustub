@@ -165,7 +165,7 @@ class BufferPoolManager {
   /** Replacer to find unpinned pages for replacement. */
   Replacer *replacer_;
   /** List of free pages. */
-  std::list<page_id_t> *free_list_;
+  std::list<frame_id_t> free_list_;
   /** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */
   std::mutex latch_;
 };
