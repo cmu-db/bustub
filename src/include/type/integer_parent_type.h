@@ -171,4 +171,5 @@ Value IntegerParentType::ModuloValue(const Value &left, const Value &right) cons
   }
   return Value(right.GetTypeId(), quot2);
 }
+
 }  // namespace bustub

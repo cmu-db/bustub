@@ -98,9 +98,7 @@ class ValueFactory {
       case TypeId::VARCHAR:
         ret_value = GetVarcharValue(nullptr, false, nullptr);
         break;
-      default: {
-        throw Exception(ExceptionType::UNKNOWN_TYPE, "Attempting to create invalid null type");
-      }
+      default: { throw Exception(ExceptionType::UNKNOWN_TYPE, "Attempting to create invalid null type"); }
     }
     return ret_value;
   }
