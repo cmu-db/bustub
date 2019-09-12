@@ -7,17 +7,20 @@
 
 BusTub is a relational database management system built at [Carnegie Mellon University](https://db.cs.cmu.edu) for the [Introduction to Database Systems](https://15445.courses.cs.cmu.edu) (15-445/645) course. This system was developed for educational purposes and should not be used in production environments.
 
-# WARNING: DO NOT DIRECTLY FORK THIS REPO! IT'S GONNA BE PUBLIC!
+# WARNING: DO NOT DIRECTLY FORK THIS REPO. DO NOT PUSH PROJECT SOLUTIONS. THIS IS AN ACADEMIC INTEGRITY VIOLATION AND CAN LEAD TO GETTING YOUR DEGREE REVOKED, EVEN AFTER YOU GRADUATE.
 
-Please follow [the directions](<https://medium.com/@bilalbayasut/github-how-to-make-a-fork-of-public-repository-private-6ee8cacaf9d3>) to "make a private fork" in your account if you want. Generally, it's fine as long as you can pull the latest changes from this repo, and your repo is not visible to others. We don't care where your repo is. 
+## Cloning this repo
 
-After you made your own repo, please add this repo as a remote:
+To create a private BusTub,
 
-`git remote add public https://github.com/cmu-db/bustub.git`
+1. Go to `github.com/new` to create a new github repo. Pick a name, e.g. `private-bustub`, and **make sure it is private**.
+2. On your development machine, clone the public BusTub, i.e. `git clone --depth 1 git@github.com:cmu-db/bustub.git`.
+3. We will [mirror](https://git-scm.com/docs/git-push#Documentation/git-push.txt---mirror) the public BusTub repo into your own private BusTub repo. Suppose your GitHub name is `student` and your repo name is `private-bustub`. Then `cd bustub` followed by `git push --mirror git@github.com:student/private-bustub.git`. This copies everything in the public BusTub repo into your own private repo. You can now `cd ..` and `rm -rf bustub`.
+4. Clone your own private repo, `git clone git@github.com:student/private-bustub.git`.
+5. Add the public BusTub as a remote. `git remote add public git@github.com:cmu-db/bustub.git`
+6. You can pull in changes from the public BusTub with `git pull public master`.
 
-And then you can pull the latest update to your `master` branch by
-
-`git pull public master`
+We suggest working on your projects in separate branches. If you don't understand how Git branches work, [learn how](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging). If you don't do this, you might lose all your work at some point in the semester, and nobody will be able to help you.
 
 ## Build
 
