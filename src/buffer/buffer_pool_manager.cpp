@@ -24,9 +24,8 @@ BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager
   replacer_ = new ClockReplacer(pool_size);
 
   // Initially, every page is in the free list.
-  free_list_ = new std::list<page_id_t>;
   for (size_t i = 0; i < pool_size_; ++i) {
-    free_list_->push_back(static_cast<int>(i));
+    free_list_.emplace_back(static_cast<int>(i));
   }
 }
 
