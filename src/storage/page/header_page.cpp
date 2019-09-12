@@ -96,7 +96,7 @@ int HeaderPage::FindRecord(const std::string &name) {
   int record_num = GetRecordCount();
 
   for (int i = 0; i < record_num; i++) {
-    char *raw_name = reinterpret_cast<char *>(GetData() + (4 + i * 36));
+    auto raw_name = reinterpret_cast<char *>(GetData() + (4 + i * 36));
     if (strcmp(raw_name, name.c_str()) == 0) {
       return i;
     }

@@ -154,7 +154,7 @@ std::string StringUtil::Format(std::string fmt_str, ...) {
 
   while (true) {
     // Wrap the plain char array into the unique_ptr.
-    formatted.reset(new char[n]);
+    formatted = std::make_unique<char[]>(n);
     strcpy(&formatted[0], fmt_str.c_str());  // NOLINT
     va_start(ap, fmt_str);
     final_n = vsnprintf(&formatted[0], static_cast<size_t>(n), fmt_str.c_str(), ap);

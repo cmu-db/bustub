@@ -77,8 +77,8 @@ class IntegerParentType : public NumericType {
 
 template <class T1, class T2>
 Value IntegerParentType::AddValue(const Value &left, const Value &right) const {
-  T1 x = left.GetAs<T1>();
-  T2 y = right.GetAs<T2>();
+  auto x = left.GetAs<T1>();
+  auto y = right.GetAs<T2>();
   auto sum1 = static_cast<T1>(x + y);
   auto sum2 = static_cast<T2>(x + y);
 
@@ -100,8 +100,8 @@ Value IntegerParentType::AddValue(const Value &left, const Value &right) const {
 
 template <class T1, class T2>
 Value IntegerParentType::SubtractValue(const Value &left, const Value &right) const {
-  T1 x = left.GetAs<T1>();
-  T2 y = right.GetAs<T2>();
+  auto x = left.GetAs<T1>();
+  auto y = right.GetAs<T2>();
   auto diff1 = static_cast<T1>(x - y);
   auto diff2 = static_cast<T2>(x - y);
   if ((x - y) != diff1 && (x - y) != diff2) {
@@ -122,8 +122,8 @@ Value IntegerParentType::SubtractValue(const Value &left, const Value &right) co
 
 template <class T1, class T2>
 Value IntegerParentType::MultiplyValue(const Value &left, const Value &right) const {
-  T1 x = left.GetAs<T1>();
-  T2 y = right.GetAs<T2>();
+  auto x = left.GetAs<T1>();
+  auto y = right.GetAs<T2>();
   auto prod1 = static_cast<T1>(x * y);
   auto prod2 = static_cast<T2>(x * y);
   if ((x * y) != prod1 && (x * y) != prod2) {
@@ -144,8 +144,8 @@ Value IntegerParentType::MultiplyValue(const Value &left, const Value &right) co
 
 template <class T1, class T2>
 Value IntegerParentType::DivideValue(const Value &left, const Value &right) const {
-  T1 x = left.GetAs<T1>();
-  T2 y = right.GetAs<T2>();
+  auto x = left.GetAs<T1>();
+  auto y = right.GetAs<T2>();
   if (y == 0) {
     throw Exception(ExceptionType::DIVIDE_BY_ZERO, "Division by zero.");
   }
@@ -159,8 +159,8 @@ Value IntegerParentType::DivideValue(const Value &left, const Value &right) cons
 
 template <class T1, class T2>
 Value IntegerParentType::ModuloValue(const Value &left, const Value &right) const {
-  T1 x = left.GetAs<T1>();
-  T2 y = right.GetAs<T2>();
+  auto x = left.GetAs<T1>();
+  auto y = right.GetAs<T2>();
   if (y == 0) {
     throw Exception(ExceptionType::DIVIDE_BY_ZERO, "Division by zero.");
   }
@@ -171,4 +171,5 @@ Value IntegerParentType::ModuloValue(const Value &left, const Value &right) cons
   }
   return Value(right.GetTypeId(), quot2);
 }
+
 }  // namespace bustub

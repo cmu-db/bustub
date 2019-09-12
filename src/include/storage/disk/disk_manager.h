@@ -98,7 +98,7 @@ class DiskManager {
   inline bool HasFlushLogFuture() { return flush_log_f_ != nullptr; }
 
  private:
-  int GetFileSize(const std::string &name);
+  int GetFileSize(const std::string &file_name);
   // stream to write log file
   std::fstream log_io_;
   std::string log_name_;
