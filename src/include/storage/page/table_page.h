@@ -20,7 +20,7 @@
 #include "storage/page/page.h"
 #include "storage/table/tuple.h"
 
-#define DELETE_MASK (1 << (8 * sizeof(uint32_t) - 1))
+static constexpr uint64_t DELETE_MASK = (1 << (8 * sizeof(uint32_t) - 1));
 
 namespace bustub {
 
