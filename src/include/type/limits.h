@@ -56,5 +56,5 @@ static constexpr uint32_t BUSTUB_VARCHAR_MAX_LEN = UINT_MAX;
 static constexpr uint32_t BUSTUB_TEXT_MAX_LEN = 1000000000;
 
 // Objects (i.e., VARCHAR) with length prefix of -1 are NULL
-#define OBJECTLENGTH_NULL (-1)
+static constexpr int OBJECTLENGTH_NULL = -1;
 }  // namespace bustub
