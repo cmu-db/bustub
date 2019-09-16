@@ -54,13 +54,13 @@ static constexpr cstr past_last_slash(cstr a) { return past_last_slash(a, a); }
   })
 
 // Log levels.
-static constexpr int LOG_LEVEL_OFF =  1000;
-static constexpr int LOG_LEVEL_ERROR =  500;
-static constexpr int LOG_LEVEL_WARN =  400;
-static constexpr int LOG_LEVEL_INFO =  300;
-static constexpr int LOG_LEVEL_DEBUG =  200;
-static constexpr int LOG_LEVEL_TRACE =  100;
-static constexpr int LOG_LEVEL_ALL =  0;
+static constexpr int LOG_LEVEL_OFF = 1000;
+static constexpr int LOG_LEVEL_ERROR = 500;
+static constexpr int LOG_LEVEL_WARN = 400;
+static constexpr int LOG_LEVEL_INFO = 300;
+static constexpr int LOG_LEVEL_DEBUG = 200;
+static constexpr int LOG_LEVEL_TRACE = 100;
+static constexpr int LOG_LEVEL_ALL = 0;
 
 #define LOG_LOG_TIME_FORMAT "%Y-%m-%d %H:%M:%S"
 #define LOG_OUTPUT_STREAM stdout
@@ -72,10 +72,10 @@ static constexpr int LOG_LEVEL_ALL =  0;
 // given.")
 #ifndef NDEBUG
 // #pragma message("LOG_LEVEL_DEBUG is used instead as DEBUG option is on.")
-static constexpr int LOG_LEVEL =  LOG_LEVEL_DEBUG;
+static constexpr int LOG_LEVEL = LOG_LEVEL_DEBUG;
 #else
 // #pragma message("LOG_LEVEL_WARN is used instead as DEBUG option is off.")
-static constexpr int LOG_LEVEL =  LOG_LEVEL_INFO;
+static constexpr int LOG_LEVEL = LOG_LEVEL_INFO;
 #endif
 // #pragma message("Give LOG_LEVEL compile option to overwrite the default
 // level.")
