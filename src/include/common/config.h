@@ -27,7 +27,7 @@ extern std::atomic<bool> ENABLE_LOGGING;
 /** If ENABLE_LOGGING is true, the log should be flushed to disk every LOG_TIMEOUT. */
 extern std::chrono::duration<int64_t> LOG_TIMEOUT;
 
-static constexpr int INVALID_PAGE_ID = 1;                                     // invalid page id
+static constexpr int INVALID_PAGE_ID = -1;                                    // invalid page id
 static constexpr int INVALID_TXN_ID = -1;                                     // invalid transaction id
 static constexpr int INVALID_LSN = -1;                                        // invalid log sequence number
 static constexpr int HEADER_PAGE_ID = 0;                                      // the header page id
