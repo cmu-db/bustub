@@ -20,7 +20,7 @@ namespace bustub {
 
 class TimestampType : public Type {
  public:
-  static constexpr uint64_t kUsecsPerDate = 86400000000UL;
+  static constexpr uint64_t K_USECS_PER_DATE = 86400000000UL;
 
   ~TimestampType() override = default;
   TimestampType();

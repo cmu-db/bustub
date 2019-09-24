@@ -19,13 +19,13 @@
 namespace bustub {
 
 /** Cycle detection is performed every CYCLE_DETECTION_INTERVAL milliseconds. */
-extern std::chrono::milliseconds CYCLE_DETECTION_INTERVAL;
+extern std::chrono::milliseconds cycle_detection_interval;
 
 /** True if logging should be enabled, false otherwise. */
-extern std::atomic<bool> ENABLE_LOGGING;
+extern std::atomic<bool> enable_logging;
 
 /** If ENABLE_LOGGING is true, the log should be flushed to disk every LOG_TIMEOUT. */
-extern std::chrono::duration<int64_t> LOG_TIMEOUT;
+extern std::chrono::duration<int64_t> log_timeout;
 
 static constexpr int INVALID_PAGE_ID = -1;                                    // invalid page id
 static constexpr int INVALID_TXN_ID = -1;                                     // invalid transaction id

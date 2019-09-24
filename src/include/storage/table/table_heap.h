@@ -108,12 +108,12 @@ class TableHeap {
   /**
    * Return the begin iterator of the table.
    */
-  TableIterator begin(Transaction *txn);
+  TableIterator Begin(Transaction *txn);
 
   /**
    * Return the end iterator of the table.
    */
-  TableIterator end();
+  TableIterator End();
 
   /**
    * Return the id of the first page of this table.

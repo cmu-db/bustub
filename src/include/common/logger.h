@@ -41,11 +41,11 @@ namespace bustub {
 // https://blog.galowicz.de/2016/02/20/short_file_macro/
 using cstr = const char *;
 
-static constexpr cstr past_last_slash(cstr a, cstr b) {
-  return *a == '\0' ? b : *b == '/' ? past_last_slash(a + 1, a + 1) : past_last_slash(a + 1, b);
+static constexpr cstr PastLastSlash(cstr a, cstr b) {
+  return *a == '\0' ? b : *b == '/' ? PastLastSlash(a + 1, a + 1) : PastLastSlash(a + 1, b);
 }
 
-static constexpr cstr past_last_slash(cstr a) { return past_last_slash(a, a); }
+static constexpr cstr PastLastSlash(cstr a) { return PastLastSlash(a, a); }
 
 #define __SHORT_FILE__                              \
   ({                                                \
@@ -86,7 +86,7 @@ static constexpr int LOG_LEVEL = LOG_LEVEL_INFO;
 #define __FUNCTION__ ""
 #endif
 
-void outputLogHeader_(const char *file, int line, const char *func, int level);
+void OutputLogHeader(const char *file, int line, const char *func, int level);
 
 // Two convenient macros for debugging
 // 1. Logging macros.
@@ -169,7 +169,7 @@ void outputLogHeader_(const char *file, int line, const char *func, int level);
 
 // Output log message header in this format: [type] [file:line:function] time -
 // ex: [ERROR] [somefile.cpp:123:doSome()] 2008/07/06 10:00:00 -
-inline void outputLogHeader_(const char *file, int line, const char *func, int level) {
+inline void OutputLogHeader(const char *file, int line, const char *func, int level) {
   time_t t = ::time(nullptr);
   tm *curTime = localtime(&t);  // NOLINT
   char time_str[32];            // FIXME

@@ -67,7 +67,7 @@ class GenericKey {
   }
 
   // actual location of data, extends past the end.
-  char data[KeySize];
+  char data_[KeySize];
 };
 
 /**

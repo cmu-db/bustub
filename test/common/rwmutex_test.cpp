@@ -36,7 +36,7 @@ class Counter {
 
  private:
   int count_{0};
-  RWMutex mutex{};
+  RWMutex mutex_{};
 };
 
 // NOLINTNEXTLINE

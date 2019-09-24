@@ -19,7 +19,7 @@
 
 namespace bustub {
 
-std::unordered_map<txn_id_t, Transaction *> TransactionManager::txn_map_ = {};
+std::unordered_map<txn_id_t, Transaction *> TransactionManager::txn_map = {};
 
 Transaction *TransactionManager::Begin(Transaction *txn) {
   // Acquire the global transaction latch in shared mode.
@@ -29,11 +29,11 @@ Transaction *TransactionManager::Begin(Transaction *txn) {
     txn = new Transaction(next_txn_id_++);
   }
 
-  if (ENABLE_LOGGING) {
+  if (enable_logging) {
     // TODO(student): Add logging here.
   }
 
-  txn_map_[txn->GetTransactionId()] = txn;
+  txn_map[txn->GetTransactionId()] = txn;
   return txn;
 }
 
@@ -53,7 +53,7 @@ void TransactionManager::Commit(Transaction *txn) {
   }
   write_set->clear();
 
-  if (ENABLE_LOGGING) {
+  if (enable_logging) {
     // TODO(student): add logging here
   }
 
@@ -83,7 +83,7 @@ void TransactionManager::Abort(Transaction *txn) {
   }
   write_set->clear();
 
-  if (ENABLE_LOGGING) {
+  if (enable_logging) {
     // TODO(student): add logging here
   }
 
