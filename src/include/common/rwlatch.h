@@ -4,7 +4,7 @@
 //
 // rwmutex.h
 //
-// Identification: src/include/common/rwmutex.h
+// Identification: src/include/common/rwlatch.h
 //
 // Copyright (c) 2015-2019, Carnegie Mellon University Database Group
 //
@@ -21,35 +21,35 @@
 namespace bustub {
 
 /**
- * RWMutex is a reader-writer lock backed by std::mutex.
+ * Reader-Writer latch backed by std::mutex.
  */
-class RWMutex {
+class ReaderWriterLatch {
   using mutex_t = std::mutex;
   using cond_t = std::condition_variable;
   static const uint32_t max_readers_ = UINT_MAX;
 
  public:
-  RWMutex() = default;
-  ~RWMutex() { std::lock_guard<mutex_t> guard(mutex_); }
+  ReaderWriterLatch() = default;
+  ~ReaderWriterLatch() { std::lock_guard<mutex_t> guard(mutex_); }
 
-  DISALLOW_COPY(RWMutex);
+  DISALLOW_COPY(ReaderWriterLatch);
 
   /**
-   * Acquire a write lock.
+   * Acquire a write latch.
    */
   void WLock() {
-    std::unique_lock<mutex_t> lock(mutex_);
+    std::unique_lock<mutex_t> latch(mutex_);
     while (writer_entered_) {
-      reader_.wait(lock);
+      reader_.wait(latch);
     }
     writer_entered_ = true;
     while (reader_count_ > 0) {
-      writer_.wait(lock);
+      writer_.wait(latch);
     }
   }
 
   /**
-   * Release a write lock.
+   * Release a write latch.
    */
   void WUnlock() {
     std::lock_guard<mutex_t> guard(mutex_);
@@ -58,18 +58,18 @@ class RWMutex {
   }
 
   /**
-   * Acquire a read lock.
+   * Acquire a read latch.
    */
   void RLock() {
-    std::unique_lock<mutex_t> lock(mutex_);
+    std::unique_lock<mutex_t> latch(mutex_);
     while (writer_entered_ || reader_count_ == max_readers_) {
-      reader_.wait(lock);
+      reader_.wait(latch);
     }
     reader_count_++;
   }
 
   /**
-   * Release a read lock.
+   * Release a read latch.
    */
   void RUnlock() {
     std::lock_guard<mutex_t> guard(mutex_);
