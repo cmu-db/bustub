@@ -78,7 +78,7 @@ class LinearProbeHashTable {
   KeyComparator comparator_;
 
   /* Readers = {insert, remove}, Writers = {resize} */
-  RWMutex table_latch_;
+  ReaderWriterLatch table_latch_;
 };
 
 }  // namespace bustub

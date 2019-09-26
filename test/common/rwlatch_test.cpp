@@ -2,9 +2,9 @@
 //
 //                         BusTub
 //
-// rwmutex_test.cpp
+// rwlatch_test.cpp
 //
-// Identification: test/common/rwmutex_test.cpp
+// Identification: test/common/rwlatch_test.cpp
 //
 // Copyright (c) 2015-2019, Carnegie Mellon University Database Group
 //
@@ -13,7 +13,7 @@
 #include <thread>  // NOLINT
 #include <vector>
 
-#include "common/rwmutex.h"
+#include "common/rwlatch.h"
 #include "gtest/gtest.h"
 
 namespace bustub {
@@ -36,11 +36,11 @@ class Counter {
 
  private:
   int count_{0};
-  RWMutex mutex{};
+  ReaderWriterLatch mutex{};
 };
 
 // NOLINTNEXTLINE
-TEST(RWMutexTest, BasicTest) {
+TEST(RWLatchTest, BasicTest) {
   int num_threads = 100;
   Counter counter{};
   counter.Add(5);

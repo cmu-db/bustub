@@ -101,7 +101,7 @@ class TransactionManager {
   LogManager *log_manager_ __attribute__((__unused__));
 
   /** The global transaction latch is used for checkpointing. */
-  RWMutex global_txn_latch_;
+  ReaderWriterLatch global_txn_latch_;
 };
 
 }  // namespace bustub
