@@ -41,10 +41,10 @@ VarlenType::VarlenType(TypeId type) : Type(type) {}
 VarlenType::~VarlenType() = default;
 
 // Access the raw variable length data
-const char *VarlenType::GetData(const Value &val) const { return val.value_.varlen; }
+const char *VarlenType::GetData(const Value &val) const { return val.value_.varlen_; }
 
 // Get the length of the variable length data (including the length field)
-uint32_t VarlenType::GetLength(const Value &val) const { return val.size_.len; }
+uint32_t VarlenType::GetLength(const Value &val) const { return val.size_.len_; }
 
 CmpBool VarlenType::CompareEquals(const Value &left, const Value &right) const {
   assert(left.CheckComparable(right));
@@ -162,7 +162,7 @@ void VarlenType::SerializeTo(const Value &val, char *storage) const {
     return;
   }
   memcpy(storage, &len, sizeof(uint32_t));
-  memcpy(storage + sizeof(uint32_t), val.value_.varlen, len);
+  memcpy(storage + sizeof(uint32_t), val.value_.varlen_, len);
 }
 
 // Deserialize a value of the given type from the given storage space.

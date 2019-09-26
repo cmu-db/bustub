@@ -31,14 +31,14 @@ class GenericKey {
  public:
   inline void SetFromKey(const Tuple &tuple) {
     // intialize to 0
-    memset(data, 0, KeySize);
-    memcpy(data, tuple.GetData(), tuple.GetLength());
+    memset(data_, 0, KeySize);
+    memcpy(data_, tuple.GetData(), tuple.GetLength());
   }
 
   // NOTE: for test purpose only
   inline void SetFromInteger(int64_t key) {
-    memset(data, 0, KeySize);
-    memcpy(data, &key, sizeof(int64_t));
+    memset(data_, 0, KeySize);
+    memcpy(data_, &key, sizeof(int64_t));
   }
 
   inline Value ToValue(Schema *schema, uint32_t column_idx) const {
@@ -47,17 +47,17 @@ class GenericKey {
     const TypeId column_type = col.GetType();
     const bool is_inlined = col.IsInlined();
     if (is_inlined) {
-      data_ptr = (data + col.GetOffset());
+      data_ptr = (data_ + col.GetOffset());
     } else {
-      int32_t offset = *reinterpret_cast<int32_t *>(const_cast<char *>(data + col.GetOffset()));
-      data_ptr = (data + offset);
+      int32_t offset = *reinterpret_cast<int32_t *>(const_cast<char *>(data_ + col.GetOffset()));
+      data_ptr = (data_ + offset);
     }
     return Value::DeserializeFrom(data_ptr, column_type);
   }
 
   // NOTE: for test purpose only
   // interpret the first 8 bytes as int64_t from data vector
-  inline int64_t ToString() const { return *reinterpret_cast<int64_t *>(const_cast<char *>(data)); }
+  inline int64_t ToString() const { return *reinterpret_cast<int64_t *>(const_cast<char *>(data_)); }
 
   // NOTE: for test purpose only
   // interpret the first 8 bytes as int64_t from data vector
@@ -67,7 +67,7 @@ class GenericKey {
   }
 
   // actual location of data, extends past the end.
-  char data[KeySize];
+  char data_[KeySize];
 };
 
 /**

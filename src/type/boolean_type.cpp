@@ -16,7 +16,7 @@
 #include "type/boolean_type.h"
 
 namespace bustub {
-#define BOOLEAN_COMPARE_FUNC(OP) GetCmpBool(left.value_.boolean OP right.CastAs(TypeId::BOOLEAN).value_.boolean)
+#define BOOLEAN_COMPARE_FUNC(OP) GetCmpBool(left.value_.boolean_ OP right.CastAs(TypeId::BOOLEAN).value_.boolean_)
 
 BooleanType::BooleanType() : Type(TypeId::BOOLEAN) {}
 
@@ -76,17 +76,17 @@ CmpBool BooleanType::CompareGreaterThanEquals(const Value &left, const Value &ri
 
 std::string BooleanType::ToString(const Value &val) const {
   assert(GetTypeId() == TypeId::BOOLEAN);
-  if (val.value_.boolean == 1) {
+  if (val.value_.boolean_ == 1) {
     return "true";
   }
-  if (val.value_.boolean == 0) {
+  if (val.value_.boolean_ == 0) {
     return "false";
   }
   return "boolean_null";
 }
 
 void BooleanType::SerializeTo(const Value &val, char *storage) const {
-  *reinterpret_cast<int8_t *>(storage) = val.value_.boolean;
+  *reinterpret_cast<int8_t *>(storage) = val.value_.boolean_;
 }
 
 // Deserialize a value of the given type from the given storage space.
@@ -95,7 +95,7 @@ Value BooleanType::DeserializeFrom(const char *storage) const {
   return Value(TypeId::BOOLEAN, val);
 }
 
-Value BooleanType::Copy(const Value &val) const { return Value(TypeId::BOOLEAN, val.value_.boolean); }
+Value BooleanType::Copy(const Value &val) const { return Value(TypeId::BOOLEAN, val.value_.boolean_); }
 
 Value BooleanType::CastAs(const Value &val, const TypeId type_id) const {
   switch (type_id) {

@@ -166,7 +166,7 @@ bool TableHeap::DeleteTableHeap() {
   return true;
 }
 
-TableIterator TableHeap::begin(Transaction *txn) {
+TableIterator TableHeap::Begin(Transaction *txn) {
   // Start an iterator from the first page.
   auto page = static_cast<TablePage *>(buffer_pool_manager_->FetchPage(first_page_id_));
   page->RLatch();
@@ -179,6 +179,6 @@ TableIterator TableHeap::begin(Transaction *txn) {
   return TableIterator(this, rid, txn);
 }
 
-TableIterator TableHeap::end() { return TableIterator(this, RID(INVALID_PAGE_ID, -1), nullptr); }
+TableIterator TableHeap::End() { return TableIterator(this, RID(INVALID_PAGE_ID, -1), nullptr); }
 
 }  // namespace bustub

@@ -42,7 +42,7 @@ std::vector<std::pair<txn_id_t, txn_id_t>> LockManager::GetEdgeList() {
 void LockManager::RunCycleDetection() {
   BUSTUB_ASSERT(Detection(), "Detection should be enabled!");
   while (enable_cycle_detection_) {
-    std::this_thread::sleep_for(CYCLE_DETECTION_INTERVAL);
+    std::this_thread::sleep_for(cycle_detection_interval);
     {
       std::unique_lock<std::mutex> l(latch_);
       // TODO(student): remove the continue and add your cycle detection and abort code here

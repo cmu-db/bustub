@@ -22,7 +22,7 @@ namespace bustub {
 //===--------------------------------------------------------------------===//
 // Type Tests
 //===--------------------------------------------------------------------===//
-const std::vector<TypeId> typeTestTypes = {
+const std::vector<TypeId> TYPE_TEST_TYPES = {
     TypeId::BOOLEAN, TypeId::TINYINT, TypeId::SMALLINT, TypeId::INTEGER, TypeId::BIGINT, TypeId::DECIMAL,
 };
 
@@ -54,7 +54,7 @@ TEST(TypeTests, InvalidTypeTest) {
 
 // NOLINTNEXTLINE
 TEST(TypeTests, GetInstanceTest) {
-  for (auto col_type : typeTestTypes) {
+  for (auto col_type : TYPE_TEST_TYPES) {
     auto t = Type::GetInstance(col_type);
     EXPECT_NE(nullptr, t);
     EXPECT_EQ(col_type, t->GetTypeId());
@@ -64,9 +64,9 @@ TEST(TypeTests, GetInstanceTest) {
 
 // NOLINTNEXTLINE
 TEST(TypeTests, MaxValueTest) {
-  for (auto col_type : typeTestTypes) {
-    auto maxVal = Type::GetMaxValue(col_type);
-    EXPECT_FALSE(maxVal.IsNull());
+  for (auto col_type : TYPE_TEST_TYPES) {
+    auto max_val = Type::GetMaxValue(col_type);
+    EXPECT_FALSE(max_val.IsNull());
     // NOTE: We should not be allowed to create a value that is greater than
     // the max value.
   }
@@ -74,9 +74,9 @@ TEST(TypeTests, MaxValueTest) {
 
 // NOLINTNEXTLINE
 TEST(TypeTests, MinValueTest) {
-  for (auto col_type : typeTestTypes) {
-    auto minVal = Type::GetMinValue(col_type);
-    EXPECT_FALSE(minVal.IsNull());
+  for (auto col_type : TYPE_TEST_TYPES) {
+    auto min_val = Type::GetMinValue(col_type);
+    EXPECT_FALSE(min_val.IsNull());
     // NOTE: We should not be allowed to create a value that is less than
     // the min value.
   }

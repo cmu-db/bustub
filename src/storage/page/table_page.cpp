@@ -21,7 +21,7 @@ namespace bustub {
 void TablePage::Init(page_id_t page_id, size_t page_size, page_id_t prev_page_id, LogManager *log_manager,
                      Transaction *txn) {
   memcpy(GetData(), &page_id, 4);  // set page_id
-  if (ENABLE_LOGGING) {
+  if (enable_logging) {
     LogRecord log_record = LogRecord(txn->GetTransactionId(), txn->GetPrevLSN(), LogRecordType::NEWPAGE, prev_page_id);
     lsn_t lsn = log_manager->AppendLogRecord(&log_record);
     SetLSN(lsn);
@@ -58,7 +58,7 @@ bool TablePage::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn, Lock
   for (i = 0; i < GetTupleCount(); ++i) {
     if (GetTupleSize(i) == 0) {  // empty slot
       rid->Set(GetPageId(), i);
-      if (ENABLE_LOGGING) {
+      if (enable_logging) {
         assert(txn->GetSharedLockSet()->find(*rid) == txn->GetSharedLockSet()->end() &&
                txn->GetExclusiveLockSet()->find(*rid) == txn->GetExclusiveLockSet()->end());
       }
@@ -80,7 +80,7 @@ bool TablePage::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn, Lock
     SetTupleCount(GetTupleCount() + 1);
   }
   // write the log after set rid
-  if (ENABLE_LOGGING) {
+  if (enable_logging) {
     // acquire the exclusive lock
     bool locked = lock_manager->LockExclusive(txn, *rid);
     BUSTUB_ASSERT(locked, "Locking a new tuple should always work");
@@ -101,7 +101,7 @@ bool TablePage::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn, Lock
 bool TablePage::MarkDelete(const RID &rid, Transaction *txn, LockManager *lock_manager, LogManager *log_manager) {
   uint32_t slot_num = rid.GetSlotNum();
   if (slot_num >= GetTupleCount()) {
-    if (ENABLE_LOGGING) {
+    if (enable_logging) {
       txn->SetState(TransactionState::ABORTED);
     }
     return false;
@@ -109,13 +109,13 @@ bool TablePage::MarkDelete(const RID &rid, Transaction *txn, LockManager *lock_m
 
   uint32_t tuple_size = GetTupleSize(slot_num);
   if (IsDeleted(tuple_size)) {
-    if (ENABLE_LOGGING) {
+    if (enable_logging) {
       txn->SetState(TransactionState::ABORTED);
     }
     return false;
   }
 
-  if (ENABLE_LOGGING) {
+  if (enable_logging) {
     // acquire exclusive lock
     // if has shared lock
     if (txn->GetSharedLockSet()->find(rid) != txn->GetSharedLockSet()->end()) {
@@ -147,14 +147,14 @@ bool TablePage::UpdateTuple(const Tuple &new_tuple, Tuple *old_tuple, const RID 
   BUSTUB_ASSERT(new_tuple.size_ > 0, "Cannot have empty tuples");
   uint32_t slot_num = rid.GetSlotNum();
   if (slot_num >= GetTupleCount()) {
-    if (ENABLE_LOGGING) {
+    if (enable_logging) {
       txn->SetState(TransactionState::ABORTED);
     }
     return false;
   }
   uint32_t tuple_size = GetTupleSize(slot_num);  // old tuple size
   if (IsDeleted(tuple_size)) {
-    if (ENABLE_LOGGING) {
+    if (enable_logging) {
       txn->SetState(TransactionState::ABORTED);
     }
     return false;
@@ -175,7 +175,7 @@ bool TablePage::UpdateTuple(const Tuple &new_tuple, Tuple *old_tuple, const RID 
   old_tuple->rid_ = rid;
   old_tuple->allocated_ = true;
 
-  if (ENABLE_LOGGING) {
+  if (enable_logging) {
     // acquire exclusive lock
     // if has shared lock
     if (txn->GetSharedLockSet()->find(rid) != txn->GetSharedLockSet()->end()) {
@@ -234,7 +234,7 @@ void TablePage::ApplyDelete(const RID &rid, Transaction *txn, LogManager *log_ma
   delete_tuple.rid_ = rid;
   delete_tuple.allocated_ = true;
 
-  if (ENABLE_LOGGING) {
+  if (enable_logging) {
     // must already grab the exclusive lock
     assert(txn->GetExclusiveLockSet()->find(rid) != txn->GetExclusiveLockSet()->end());
 
@@ -267,7 +267,7 @@ void TablePage::ApplyDelete(const RID &rid, Transaction *txn, LogManager *log_ma
  * This function is called when abort a transaction
  */
 void TablePage::RollbackDelete(const RID &rid, Transaction *txn, LogManager *log_manager) {
-  if (ENABLE_LOGGING) {
+  if (enable_logging) {
     // must have already grab the exclusive lock
     assert(txn->GetExclusiveLockSet()->find(rid) != txn->GetExclusiveLockSet()->end());
 
@@ -292,20 +292,20 @@ void TablePage::RollbackDelete(const RID &rid, Transaction *txn, LogManager *log
 bool TablePage::GetTuple(const RID &rid, Tuple *tuple, Transaction *txn, LockManager *lock_manager) {
   uint32_t slot_num = rid.GetSlotNum();
   if (slot_num >= GetTupleCount()) {
-    if (ENABLE_LOGGING) {
+    if (enable_logging) {
       txn->SetState(TransactionState::ABORTED);
     }
     return false;
   }
   uint32_t tuple_size = GetTupleSize(slot_num);
   if (IsDeleted(tuple_size)) {
-    if (ENABLE_LOGGING) {
+    if (enable_logging) {
       txn->SetState(TransactionState::ABORTED);
     }
     return false;
   }
 
-  if (ENABLE_LOGGING) {
+  if (enable_logging) {
     // acquire shared lock
     if (txn->GetExclusiveLockSet()->find(rid) == txn->GetExclusiveLockSet()->end() &&
         txn->GetSharedLockSet()->find(rid) == txn->GetSharedLockSet()->end() && !lock_manager->LockShared(txn, rid)) {

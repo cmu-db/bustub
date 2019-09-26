@@ -411,11 +411,11 @@ class ValueFactory {
               (str[26] != '+' && str[26] != '-')) {
             throw Exception("Timestamp format error.");
           }
-          bool isDigit[29] = {true,  true, true, true,  false, true, true,  false, true, true,
-                              false, true, true, false, true,  true, false, true,  true, false,
-                              true,  true, true, true,  true,  true, false, true,  true};
+          bool is_digit[29] = {true,  true, true, true,  false, true, true,  false, true, true,
+                               false, true, true, false, true,  true, false, true,  true, false,
+                               true,  true, true, true,  true,  true, false, true,  true};
           for (int i = 0; i < 29; i++) {
-            if (isDigit[i]) {
+            if (is_digit[i]) {
               if (str[i] < '0' || str[i] > '9') {
                 throw Exception("Timestamp format error.");
               }

@@ -23,7 +23,7 @@
 
 namespace bustub {
 
-Type *Type::kTypes[] = {
+Type *Type::k_types[] = {
     new Type(TypeId::INVALID),        new BooleanType(), new TinyintType(), new SmallintType(),
     new IntegerType(TypeId::INTEGER), new BigintType(),  new DecimalType(), new VarlenType(TypeId::VARCHAR),
 };

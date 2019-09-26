@@ -41,7 +41,7 @@ class Value {
   friend class VarlenType;
 
  public:
-  explicit Value(const TypeId type) : manage_data_(false), type_id_(type) { size_.len = BUSTUB_VALUE_NULL; }
+  explicit Value(const TypeId type) : manage_data_(false), type_id_(type) { size_.len_ = BUSTUB_VALUE_NULL; }
   // BOOLEAN and TINYINT
   Value(TypeId type, int8_t i);
   // DECIMAL
@@ -63,8 +63,8 @@ class Value {
   Value(const Value &other);
   Value &operator=(Value other);
   ~Value();
-  // nothrow
-  friend void swap(Value &first, Value &second) {
+  // NOLINTNEXTLINE
+  friend void Swap(Value &first, Value &second) {
     std::swap(first.value_, second.value_);
     std::swap(first.size_, second.size_);
     std::swap(first.manage_data_, second.manage_data_);
@@ -118,7 +118,7 @@ class Value {
 
   inline Value OperateNull(const Value &o) const { return Type::GetInstance(type_id_)->OperateNull(*this, o); }
   inline bool IsZero() const { return Type::GetInstance(type_id_)->IsZero(*this); }
-  inline bool IsNull() const { return size_.len == BUSTUB_VALUE_NULL; }
+  inline bool IsNull() const { return size_.len_ == BUSTUB_VALUE_NULL; }
 
   // Serialize this value into the given storage space. The inlined parameter
   // indicates whether we are allowed to inline this value into the storage
@@ -140,20 +140,20 @@ class Value {
  protected:
   // The actual value item
   union Val {
-    int8_t boolean;
-    int8_t tinyint;
-    int16_t smallint;
-    int32_t integer;
-    int64_t bigint;
-    double decimal;
-    uint64_t timestamp;
-    char *varlen;
-    const char *const_varlen;
+    int8_t boolean_;
+    int8_t tinyint_;
+    int16_t smallint_;
+    int32_t integer_;
+    int64_t bigint_;
+    double decimal_;
+    uint64_t timestamp_;
+    char *varlen_;
+    const char *const_varlen_;
   } value_;
 
   union {
-    uint32_t len;
-    TypeId elem_type_id;
+    uint32_t len_;
+    TypeId elem_type_id_;
   } size_;
 
   bool manage_data_;

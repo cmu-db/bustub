@@ -97,7 +97,7 @@ TEST(LockManagerTest, DISABLED_BasicCycleTest) {
 // NOLINTNEXTLINE
 TEST(LockManagerTest, DISABLED_BasicDeadlockDetectionTest) {
   LockManager lock_mgr{TwoPLMode::REGULAR, DeadlockMode::DETECTION};
-  CYCLE_DETECTION_INTERVAL = std::chrono::milliseconds(500);
+  cycle_detection_interval = std::chrono::milliseconds(500);
   TransactionManager txn_mgr{&lock_mgr};
   RID rid0{0, 0};
   RID rid1{1, 1};
@@ -139,7 +139,7 @@ TEST(LockManagerTest, DISABLED_BasicDeadlockDetectionTest) {
   });
 
   // Sleep for enough time to break cycle
-  std::this_thread::sleep_for(CYCLE_DETECTION_INTERVAL * 2);
+  std::this_thread::sleep_for(cycle_detection_interval * 2);
 
   t0.join();
   t1.join();

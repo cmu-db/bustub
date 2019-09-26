@@ -58,7 +58,7 @@ class TransactionManager {
    */
 
   /** The transaction map is a global list of all the running transactions in the system. */
-  static std::unordered_map<txn_id_t, Transaction *> txn_map_;
+  static std::unordered_map<txn_id_t, Transaction *> txn_map;
 
   /**
    * Locates and returns the transaction with the given transaction ID.
@@ -66,8 +66,8 @@ class TransactionManager {
    * @return the transaction with the given transaction id
    */
   static Transaction *GetTransaction(txn_id_t txn_id) {
-    assert(TransactionManager::txn_map_.find(txn_id) != TransactionManager::txn_map_.end());
-    auto *res = TransactionManager::txn_map_[txn_id];
+    assert(TransactionManager::txn_map.find(txn_id) != TransactionManager::txn_map.end());
+    auto *res = TransactionManager::txn_map[txn_id];
     assert(res != nullptr);
     return res;
   }

@@ -25,12 +25,12 @@ Value::Value(const Value &other) {
   value_ = other.value_;
   switch (type_id_) {
     case TypeId::VARCHAR:
-      if (size_.len == BUSTUB_VALUE_NULL) {
-        value_.varlen = nullptr;
+      if (size_.len_ == BUSTUB_VALUE_NULL) {
+        value_.varlen_ = nullptr;
       } else {
         if (manage_data_) {
-          value_.varlen = new char[size_.len];
-          memcpy(value_.varlen, other.value_.varlen, size_.len);
+          value_.varlen_ = new char[size_.len_];
+          memcpy(value_.varlen_, other.value_.varlen_, size_.len_);
         } else {
           value_ = other.value_;
         }
@@ -42,7 +42,7 @@ Value::Value(const Value &other) {
 }
 
 Value &Value::operator=(Value other) {
-  swap(*this, other);
+  Swap(*this, other);
   return *this;
 }
 
@@ -50,24 +50,24 @@ Value &Value::operator=(Value other) {
 Value::Value(TypeId type, int8_t i) : Value(type) {
   switch (type) {
     case TypeId::BOOLEAN:
-      value_.boolean = i;
-      size_.len = (value_.boolean == BUSTUB_BOOLEAN_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.boolean_ = i;
+      size_.len_ = (value_.boolean_ == BUSTUB_BOOLEAN_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::TINYINT:
-      value_.tinyint = i;
-      size_.len = (value_.tinyint == BUSTUB_INT8_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.tinyint_ = i;
+      size_.len_ = (value_.tinyint_ == BUSTUB_INT8_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::SMALLINT:
-      value_.smallint = i;
-      size_.len = (value_.smallint == BUSTUB_INT16_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.smallint_ = i;
+      size_.len_ = (value_.smallint_ == BUSTUB_INT16_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::INTEGER:
-      value_.integer = i;
-      size_.len = (value_.integer == BUSTUB_INT32_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.integer_ = i;
+      size_.len_ = (value_.integer_ == BUSTUB_INT32_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::BIGINT:
-      value_.bigint = i;
-      size_.len = (value_.bigint == BUSTUB_INT64_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.bigint_ = i;
+      size_.len_ = (value_.bigint_ == BUSTUB_INT64_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     default:
       throw Exception(ExceptionType::INCOMPATIBLE_TYPE, "Invalid Type for one-byte Value constructor");
@@ -78,28 +78,28 @@ Value::Value(TypeId type, int8_t i) : Value(type) {
 Value::Value(TypeId type, int16_t i) : Value(type) {
   switch (type) {
     case TypeId::BOOLEAN:
-      value_.boolean = i;
-      size_.len = (value_.boolean == BUSTUB_BOOLEAN_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.boolean_ = i;
+      size_.len_ = (value_.boolean_ == BUSTUB_BOOLEAN_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::TINYINT:
-      value_.tinyint = i;
-      size_.len = (value_.tinyint == BUSTUB_INT8_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.tinyint_ = i;
+      size_.len_ = (value_.tinyint_ == BUSTUB_INT8_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::SMALLINT:
-      value_.smallint = i;
-      size_.len = (value_.smallint == BUSTUB_INT16_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.smallint_ = i;
+      size_.len_ = (value_.smallint_ == BUSTUB_INT16_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::INTEGER:
-      value_.integer = i;
-      size_.len = (value_.integer == BUSTUB_INT32_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.integer_ = i;
+      size_.len_ = (value_.integer_ == BUSTUB_INT32_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::BIGINT:
-      value_.bigint = i;
-      size_.len = (value_.bigint == BUSTUB_INT64_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.bigint_ = i;
+      size_.len_ = (value_.bigint_ == BUSTUB_INT64_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::TIMESTAMP:
-      value_.timestamp = i;
-      size_.len = (value_.timestamp == BUSTUB_TIMESTAMP_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.timestamp_ = i;
+      size_.len_ = (value_.timestamp_ == BUSTUB_TIMESTAMP_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     default:
       throw Exception(ExceptionType::INCOMPATIBLE_TYPE, "Invalid Type for two-byte Value constructor");
@@ -110,31 +110,31 @@ Value::Value(TypeId type, int16_t i) : Value(type) {
 Value::Value(TypeId type, int32_t i) : Value(type) {
   switch (type) {
     case TypeId::BOOLEAN:
-      value_.boolean = i;
-      size_.len = (value_.boolean == BUSTUB_BOOLEAN_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.boolean_ = i;
+      size_.len_ = (value_.boolean_ == BUSTUB_BOOLEAN_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::TINYINT:
-      value_.tinyint = i;
-      size_.len = (value_.tinyint == BUSTUB_INT8_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.tinyint_ = i;
+      size_.len_ = (value_.tinyint_ == BUSTUB_INT8_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::SMALLINT:
-      value_.smallint = i;
-      size_.len = (value_.smallint == BUSTUB_INT16_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.smallint_ = i;
+      size_.len_ = (value_.smallint_ == BUSTUB_INT16_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::INTEGER:
-      value_.integer = i;
-      size_.len = (value_.integer == BUSTUB_INT32_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.integer_ = i;
+      size_.len_ = (value_.integer_ == BUSTUB_INT32_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::BIGINT:
-      value_.bigint = i;
-      size_.len = (value_.bigint == BUSTUB_INT64_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.bigint_ = i;
+      size_.len_ = (value_.bigint_ == BUSTUB_INT64_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::TIMESTAMP:
-      value_.timestamp = i;
-      size_.len = (value_.timestamp == BUSTUB_TIMESTAMP_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.timestamp_ = i;
+      size_.len_ = (value_.timestamp_ == BUSTUB_TIMESTAMP_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     default:
-      throw Exception(ExceptionType::INCOMPATIBLE_TYPE, "Invalid Type for integer Value constructor");
+      throw Exception(ExceptionType::INCOMPATIBLE_TYPE, "Invalid Type for integer_ Value constructor");
   }
 }
 
@@ -142,28 +142,28 @@ Value::Value(TypeId type, int32_t i) : Value(type) {
 Value::Value(TypeId type, int64_t i) : Value(type) {
   switch (type) {
     case TypeId::BOOLEAN:
-      value_.boolean = i;
-      size_.len = (value_.boolean == BUSTUB_BOOLEAN_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.boolean_ = i;
+      size_.len_ = (value_.boolean_ == BUSTUB_BOOLEAN_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::TINYINT:
-      value_.tinyint = i;
-      size_.len = (value_.tinyint == BUSTUB_INT8_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.tinyint_ = i;
+      size_.len_ = (value_.tinyint_ == BUSTUB_INT8_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::SMALLINT:
-      value_.smallint = i;
-      size_.len = (value_.smallint == BUSTUB_INT16_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.smallint_ = i;
+      size_.len_ = (value_.smallint_ == BUSTUB_INT16_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::INTEGER:
-      value_.integer = i;
-      size_.len = (value_.integer == BUSTUB_INT32_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.integer_ = i;
+      size_.len_ = (value_.integer_ == BUSTUB_INT32_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::BIGINT:
-      value_.bigint = i;
-      size_.len = (value_.bigint == BUSTUB_INT64_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.bigint_ = i;
+      size_.len_ = (value_.bigint_ == BUSTUB_INT64_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::TIMESTAMP:
-      value_.timestamp = i;
-      size_.len = (value_.timestamp == BUSTUB_TIMESTAMP_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.timestamp_ = i;
+      size_.len_ = (value_.timestamp_ == BUSTUB_TIMESTAMP_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     default:
       throw Exception(ExceptionType::INCOMPATIBLE_TYPE, "Invalid Type for eight-byte Value constructor");
@@ -174,15 +174,15 @@ Value::Value(TypeId type, int64_t i) : Value(type) {
 Value::Value(TypeId type, uint64_t i) : Value(type) {
   switch (type) {
     case TypeId::BIGINT:
-      value_.boolean = i;
-      size_.len = (value_.boolean == BUSTUB_BOOLEAN_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.boolean_ = i;
+      size_.len_ = (value_.boolean_ == BUSTUB_BOOLEAN_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::TIMESTAMP:
-      value_.timestamp = i;
-      size_.len = (value_.timestamp == BUSTUB_TIMESTAMP_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.timestamp_ = i;
+      size_.len_ = (value_.timestamp_ == BUSTUB_TIMESTAMP_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     default:
-      throw Exception(ExceptionType::INCOMPATIBLE_TYPE, "Invalid Type for timestamp Value constructor");
+      throw Exception(ExceptionType::INCOMPATIBLE_TYPE, "Invalid Type for timestamp_ Value constructor");
   }
 }
 
@@ -190,8 +190,8 @@ Value::Value(TypeId type, uint64_t i) : Value(type) {
 Value::Value(TypeId type, double d) : Value(type) {
   switch (type) {
     case TypeId::DECIMAL:
-      value_.decimal = d;
-      size_.len = (value_.decimal == BUSTUB_DECIMAL_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.decimal_ = d;
+      size_.len_ = (value_.decimal_ == BUSTUB_DECIMAL_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     default:
       throw Exception(ExceptionType::INCOMPATIBLE_TYPE, "Invalid Type for double Value constructor");
@@ -202,8 +202,8 @@ Value::Value(TypeId type, double d) : Value(type) {
 Value::Value(TypeId type, float f) : Value(type) {
   switch (type) {
     case TypeId::DECIMAL:
-      value_.decimal = f;
-      size_.len = (value_.decimal == BUSTUB_DECIMAL_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.decimal_ = f;
+      size_.len_ = (value_.decimal_ == BUSTUB_DECIMAL_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     default:
       throw Exception(ExceptionType::INCOMPATIBLE_TYPE, "Invalid Type for float value constructor");
@@ -215,20 +215,20 @@ Value::Value(TypeId type, const char *data, uint32_t len, bool manage_data) : Va
   switch (type) {
     case TypeId::VARCHAR:
       if (data == nullptr) {
-        value_.varlen = nullptr;
-        size_.len = BUSTUB_VALUE_NULL;
+        value_.varlen_ = nullptr;
+        size_.len_ = BUSTUB_VALUE_NULL;
       } else {
         manage_data_ = manage_data;
         if (manage_data_) {
           assert(len < BUSTUB_VARCHAR_MAX_LEN);
-          value_.varlen = new char[len];
-          assert(value_.varlen != nullptr);
-          size_.len = len;
-          memcpy(value_.varlen, data, len);
+          value_.varlen_ = new char[len];
+          assert(value_.varlen_ != nullptr);
+          size_.len_ = len;
+          memcpy(value_.varlen_, data, len);
         } else {
           // FUCK YOU GCC I do what I want.
-          value_.const_varlen = data;
-          size_.len = len;
+          value_.const_varlen_ = data;
+          size_.len_ = len;
         }
       }
       break;
@@ -243,10 +243,10 @@ Value::Value(TypeId type, const std::string &data) : Value(type) {
       manage_data_ = true;
       // TODO(TAs): How to represent a null string here?
       uint32_t len = static_cast<uint32_t>(data.length()) + 1;
-      value_.varlen = new char[len];
-      assert(value_.varlen != nullptr);
-      size_.len = len;
-      memcpy(value_.varlen, data.c_str(), len);
+      value_.varlen_ = new char[len];
+      assert(value_.varlen_ != nullptr);
+      size_.len_ = len;
+      memcpy(value_.varlen_, data.c_str(), len);
       break;
     }
     default:
@@ -259,7 +259,7 @@ Value::~Value() {
   switch (type_id_) {
     case TypeId::VARCHAR:
       if (manage_data_) {
-        delete[] value_.varlen;
+        delete[] value_.varlen_;
       }
       break;
     default:

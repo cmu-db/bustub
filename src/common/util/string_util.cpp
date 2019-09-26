@@ -102,19 +102,19 @@ std::string StringUtil::Prefix(const std::string &str, const std::string &prefix
 
 std::string StringUtil::FormatSize(uint64_t bytes) {
   // http://ubuntuforums.org/showpost.php?p=10215516&postcount=5
-  double BASE = 1024;
-  double KB = BASE;
-  double MB = KB * BASE;
-  double GB = MB * BASE;
+  double base = 1024;
+  double kb = base;
+  double mb = kb * base;
+  double gb = mb * base;
 
   std::ostringstream os;
 
-  if (bytes >= GB) {
-    os << std::fixed << std::setprecision(2) << (bytes / GB) << " GB";
-  } else if (bytes >= MB) {
-    os << std::fixed << std::setprecision(2) << (bytes / MB) << " MB";
-  } else if (bytes >= KB) {
-    os << std::fixed << std::setprecision(2) << (bytes / KB) << " KB";
+  if (bytes >= gb) {
+    os << std::fixed << std::setprecision(2) << (bytes / gb) << " GB";
+  } else if (bytes >= mb) {
+    os << std::fixed << std::setprecision(2) << (bytes / mb) << " MB";
+  } else if (bytes >= kb) {
+    os << std::fixed << std::setprecision(2) << (bytes / kb) << " KB";
   } else {
     os << std::to_string(bytes) + " bytes";
   }
@@ -122,11 +122,11 @@ std::string StringUtil::FormatSize(uint64_t bytes) {
 }
 
 std::string StringUtil::Bold(const std::string &str) {
-  std::string SET_PLAIN_TEXT = "\033[0;0m";
-  std::string SET_BOLD_TEXT = "\033[0;1m";
+  std::string set_plain_text = "\033[0;0m";
+  std::string set_bold_text = "\033[0;1m";
 
   std::ostringstream os;
-  os << SET_BOLD_TEXT << str << SET_PLAIN_TEXT;
+  os << set_bold_text << str << set_plain_text;
   return (os.str());
 }
 
