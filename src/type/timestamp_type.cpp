@@ -96,7 +96,7 @@ std::string TimestampType::ToString(const Value &val) const {
   if (val.IsNull()) {
     return "timestamp_null";
   }
-  uint64_t tm = val.value_.timestamp;
+  uint64_t tm = val.value_.timestamp_;
   auto micro = static_cast<uint32_t>(tm % 1000000);
   tm /= 1000000;
   auto second = static_cast<uint32_t>(tm % 100000);
@@ -131,7 +131,7 @@ std::string TimestampType::ToString(const Value &val) const {
 }
 
 void TimestampType::SerializeTo(const Value &val, char *storage) const {
-  *reinterpret_cast<uint64_t *>(storage) = val.value_.timestamp;
+  *reinterpret_cast<uint64_t *>(storage) = val.value_.timestamp_;
 }
 
 // Deserialize a value of the given type from the given storage space.

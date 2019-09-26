@@ -19,54 +19,54 @@
 #include "type/tinyint_type.h"
 
 namespace bustub {
-#define TINYINT_COMPARE_FUNC(OP)                                         \
-  switch (right.GetTypeId()) {                                           \
-    case TypeId::TINYINT:                                                \
-      return GetCmpBool(left.value_.tinyint OP right.GetAs<int8_t>());   \
-    case TypeId::SMALLINT:                                               \
-      return GetCmpBool(left.value_.tinyint OP right.GetAs<int16_t>());  \
-    case TypeId::INTEGER:                                                \
-      return GetCmpBool(left.value_.tinyint OP right.GetAs<int32_t>());  \
-    case TypeId::BIGINT:                                                 \
-      return GetCmpBool(left.value_.tinyint OP right.GetAs<int64_t>());  \
-    case TypeId::DECIMAL:                                                \
-      return GetCmpBool(left.value_.tinyint OP right.GetAs<double>());   \
-    case TypeId::VARCHAR: {                                              \
-      auto r_value = right.CastAs(TypeId::TINYINT);                      \
-      return GetCmpBool(left.value_.tinyint OP r_value.GetAs<int8_t>()); \
-    }                                                                    \
-    default:                                                             \
-      break;                                                             \
+#define TINYINT_COMPARE_FUNC(OP)                                          \
+  switch (right.GetTypeId()) {                                            \
+    case TypeId::TINYINT:                                                 \
+      return GetCmpBool(left.value_.tinyint_ OP right.GetAs<int8_t>());   \
+    case TypeId::SMALLINT:                                                \
+      return GetCmpBool(left.value_.tinyint_ OP right.GetAs<int16_t>());  \
+    case TypeId::INTEGER:                                                 \
+      return GetCmpBool(left.value_.tinyint_ OP right.GetAs<int32_t>());  \
+    case TypeId::BIGINT:                                                  \
+      return GetCmpBool(left.value_.tinyint_ OP right.GetAs<int64_t>());  \
+    case TypeId::DECIMAL:                                                 \
+      return GetCmpBool(left.value_.tinyint_ OP right.GetAs<double>());   \
+    case TypeId::VARCHAR: {                                               \
+      auto r_value = right.CastAs(TypeId::TINYINT);                       \
+      return GetCmpBool(left.value_.tinyint_ OP r_value.GetAs<int8_t>()); \
+    }                                                                     \
+    default:                                                              \
+      break;                                                              \
   }  // SWITCH
 
-#define TINYINT_MODIFY_FUNC(METHOD, OP)                                            \
-  switch (right.GetTypeId()) {                                                     \
-    case TypeId::TINYINT:                                                          \
-      /* NOLINTNEXTLINE */                                                         \
-      return METHOD<int8_t, int8_t>(left, right);                                  \
-    case TypeId::SMALLINT:                                                         \
-      /* NOLINTNEXTLINE */                                                         \
-      return METHOD<int8_t, int16_t>(left, right);                                 \
-    case TypeId::INTEGER:                                                          \
-      /* NOLINTNEXTLINE */                                                         \
-      return METHOD<int8_t, int32_t>(left, right);                                 \
-    case TypeId::BIGINT:                                                           \
-      /* NOLINTNEXTLINE */                                                         \
-      return METHOD<int8_t, int64_t>(left, right);                                 \
-    case TypeId::DECIMAL:                                                          \
-      return Value(TypeId::DECIMAL, left.value_.tinyint OP right.GetAs<double>()); \
-    case TypeId::VARCHAR: {                                                        \
-      auto r_value = right.CastAs(TypeId::TINYINT);                                \
-      /* NOLINTNEXTLINE  */                                                        \
-      return METHOD<int8_t, int8_t>(left, r_value);                                \
-    }                                                                              \
-    default:                                                                       \
-      break;                                                                       \
+#define TINYINT_MODIFY_FUNC(METHOD, OP)                                             \
+  switch (right.GetTypeId()) {                                                      \
+    case TypeId::TINYINT:                                                           \
+      /* NOLINTNEXTLINE */                                                          \
+      return METHOD<int8_t, int8_t>(left, right);                                   \
+    case TypeId::SMALLINT:                                                          \
+      /* NOLINTNEXTLINE */                                                          \
+      return METHOD<int8_t, int16_t>(left, right);                                  \
+    case TypeId::INTEGER:                                                           \
+      /* NOLINTNEXTLINE */                                                          \
+      return METHOD<int8_t, int32_t>(left, right);                                  \
+    case TypeId::BIGINT:                                                            \
+      /* NOLINTNEXTLINE */                                                          \
+      return METHOD<int8_t, int64_t>(left, right);                                  \
+    case TypeId::DECIMAL:                                                           \
+      return Value(TypeId::DECIMAL, left.value_.tinyint_ OP right.GetAs<double>()); \
+    case TypeId::VARCHAR: {                                                         \
+      auto r_value = right.CastAs(TypeId::TINYINT);                                 \
+      /* NOLINTNEXTLINE  */                                                         \
+      return METHOD<int8_t, int8_t>(left, r_value);                                 \
+    }                                                                               \
+    default:                                                                        \
+      break;                                                                        \
   }  // SWITCH
 
 TinyintType::TinyintType() : IntegerParentType(TINYINT) {}
 
-bool TinyintType::IsZero(const Value &val) const { return (val.value_.tinyint == 0); }
+bool TinyintType::IsZero(const Value &val) const { return (val.value_.tinyint_ == 0); }
 
 Value TinyintType::Add(const Value &left, const Value &right) const {
   assert(left.CheckInteger());
@@ -141,7 +141,7 @@ Value TinyintType::Modulo(const Value &left, const Value &right) const {
     case TypeId::BIGINT:
       return ModuloValue<int8_t, int64_t>(left, right);
     case TypeId::DECIMAL:
-      return Value(TypeId::DECIMAL, ValMod(left.value_.tinyint, right.GetAs<double>()));
+      return Value(TypeId::DECIMAL, ValMod(left.value_.tinyint_, right.GetAs<double>()));
     case TypeId::VARCHAR: {
       auto r_value = right.CastAs(TypeId::TINYINT);
       return ModuloValue<int8_t, int8_t>(left, r_value);
@@ -159,10 +159,10 @@ Value TinyintType::Sqrt(const Value &val) const {
     return Value(TypeId::DECIMAL, BUSTUB_DECIMAL_NULL);
   }
 
-  if (val.value_.tinyint < 0) {
+  if (val.value_.tinyint_ < 0) {
     throw Exception(ExceptionType::DECIMAL, "Cannot take square root of a negative number.");
   }
-  return Value(TypeId::DECIMAL, std::sqrt(val.value_.tinyint));
+  return Value(TypeId::DECIMAL, std::sqrt(val.value_.tinyint_));
 
   throw Exception("type error");
 }
@@ -263,11 +263,11 @@ std::string TinyintType::ToString(const Value &val) const {
   if (val.IsNull()) {
     return "tinyint_null";
   }
-  return std::to_string(val.value_.tinyint);
+  return std::to_string(val.value_.tinyint_);
 }
 
 void TinyintType::SerializeTo(const Value &val, char *storage) const {
-  *reinterpret_cast<int8_t *>(storage) = val.value_.tinyint;
+  *reinterpret_cast<int8_t *>(storage) = val.value_.tinyint_;
 }
 
 // Deserialize a value of the given type from the given storage space.
@@ -278,7 +278,7 @@ Value TinyintType::DeserializeFrom(const char *storage) const {
 
 Value TinyintType::Copy(const Value &val) const {
   assert(val.CheckInteger());
-  return Value(TypeId::TINYINT, val.value_.tinyint);
+  return Value(TypeId::TINYINT, val.value_.tinyint_);
 }
 
 Value TinyintType::CastAs(const Value &val, const TypeId type_id) const {

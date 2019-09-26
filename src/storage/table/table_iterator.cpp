@@ -24,12 +24,12 @@ TableIterator::TableIterator(TableHeap *table_heap, RID rid, Transaction *txn)
 }
 
 const Tuple &TableIterator::operator*() {
-  assert(*this != table_heap_->end());
+  assert(*this != table_heap_->End());
   return *tuple_;
 }
 
 Tuple *TableIterator::operator->() {
-  assert(*this != table_heap_->end());
+  assert(*this != table_heap_->End());
   return tuple_;
 }
 
@@ -55,7 +55,7 @@ TableIterator &TableIterator::operator++() {
   }
   tuple_->rid_ = next_tuple_rid;
 
-  if (*this != table_heap_->end()) {
+  if (*this != table_heap_->End()) {
     table_heap_->GetTuple(tuple_->rid_, tuple_, txn_);
   }
   // release until copy the tuple
