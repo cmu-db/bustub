@@ -16,7 +16,7 @@
 #include <iostream>
 
 #include "common/config.h"
-#include "common/rwmutex.h"
+#include "common/rwlatch.h"
 
 namespace bustub {
 
@@ -97,7 +97,7 @@ class Page {
   page_id_t page_id_ = INVALID_PAGE_ID;
   int pin_count_ = 0;
   bool is_dirty_ = false;
-  RWMutex rwlatch_;
+  ReaderWriterLatch rwlatch_;
 };
 
 }  // namespace bustub
