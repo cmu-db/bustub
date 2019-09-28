@@ -16,39 +16,22 @@
 namespace bustub {
 
 INDEX_TEMPLATE_ARGUMENTS
-KeyType HASH_TABLE_BLOCK_TYPE::KeyAt(size_t bucket_ind) const {
-  // TODO
-  return {};
-}
+KeyType HASH_TABLE_BLOCK_TYPE::KeyAt(size_t bucket_ind) const { return {}; }
 
 INDEX_TEMPLATE_ARGUMENTS
-ValueType HASH_TABLE_BLOCK_TYPE::ValueAt(size_t bucket_ind) const {
-  // TODO
-  return {};
-}
+ValueType HASH_TABLE_BLOCK_TYPE::ValueAt(size_t bucket_ind) const { return {}; }
 
 INDEX_TEMPLATE_ARGUMENTS
-bool HASH_TABLE_BLOCK_TYPE::Insert(size_t bucket_ind, const KeyType &key, const ValueType &value) {
-  // TODO
-  return false;
-}
+bool HASH_TABLE_BLOCK_TYPE::Insert(size_t bucket_ind, const KeyType &key, const ValueType &value) { return false; }
 
 INDEX_TEMPLATE_ARGUMENTS
-void HASH_TABLE_BLOCK_TYPE::Remove(size_t bucket_ind) {
-  // TODO
-}
+void HASH_TABLE_BLOCK_TYPE::Remove(size_t bucket_ind) {}
 
 INDEX_TEMPLATE_ARGUMENTS
-bool HASH_TABLE_BLOCK_TYPE::IsOccupied(size_t bucket_ind) {
-  // TODO
-  return false;
-}
+bool HASH_TABLE_BLOCK_TYPE::IsOccupied(size_t bucket_ind) { return false; }
 
 INDEX_TEMPLATE_ARGUMENTS
-bool HASH_TABLE_BLOCK_TYPE::IsReadable(size_t bucket_ind) {
-  // TODO
-  return false;
-}
+bool HASH_TABLE_BLOCK_TYPE::IsReadable(size_t bucket_ind) { return false; }
 
 template class HashTableBlockPage<int, int, IntComparator>;
 template class HashTableBlockPage<GenericKey<4>, RID, GenericComparator<4>>;
