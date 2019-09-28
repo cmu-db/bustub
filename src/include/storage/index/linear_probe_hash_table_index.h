@@ -1,0 +1,47 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// linear_probe_hash_table_index.h
+//
+// Identification: src/include/storage/index/linear_probe_hash_table_index.h
+//
+// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
+#pragma once
+
+#include <map>
+#include <string>
+#include <vector>
+
+#include "container/hash/linear_probe_hash_table.h"
+#include "storage/index/index.h"
+
+namespace bustub {
+
+#define HASH_TABLE_INDEX_TYPE LinearProbeHashTableIndex<KeyType, ValueType, KeyComparator>
+
+INDEX_TEMPLATE_ARGUMENTS
+class LinearProbeHashTableIndex : public Index {
+ public:
+  LinearProbeHashTableIndex(IndexMetadata *metadata, BufferPoolManager *buffer_pool_manager, size_t num_buckets,
+                            void (*hash_fn)(const void *, const int, const uint32_t, void *));
+
+  ~LinearProbeHashTableIndex() override = default;
+
+  void InsertEntry(const Tuple &key, RID rid, Transaction *transaction) override;
+
+  void DeleteEntry(const Tuple &key, RID rid, Transaction *transaction) override;
+
+  void ScanKey(const Tuple &key, std::vector<RID> *result, Transaction *transaction) override;
+
+ protected:
+  // comparator for key
+  KeyComparator comparator_;
+  // container
+  LinearProbeHashTable<KeyType, ValueType, KeyComparator> container_;
+};
+
+}  // namespace bustub

@@ -133,7 +133,7 @@ class Index {
   virtual void InsertEntry(const Tuple &key, RID rid, Transaction *transaction) = 0;
 
   // delete the index entry linked to given tuple
-  virtual void DeleteEntry(const Tuple &key, Transaction *transaction) = 0;
+  virtual void DeleteEntry(const Tuple &key, RID rid, Transaction *transaction) = 0;
 
   virtual void ScanKey(const Tuple &key, std::vector<RID> *result, Transaction *transaction) = 0;
 

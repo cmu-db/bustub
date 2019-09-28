@@ -26,8 +26,9 @@ namespace bustub {
 #define HASH_TABLE_TYPE LinearProbeHashTable<KeyType, ValueType, KeyComparator>
 
 /**
- * LinearProbeHashTable is a linear probing hash table that is backed by a buffer pool manager. It supports non-unique
- * keys, inserts, and deletes. The hash table dynamically grows whenever it is full.
+ * Implementation of linear probing hash table that is backed by a buffer pool
+ * manager. Non-unique keys are supported. Supports insert and delete. The
+ * table dynamically grows once full.
  */
 INDEX_TEMPLATE_ARGUMENTS
 class LinearProbeHashTable {
@@ -38,31 +39,36 @@ class LinearProbeHashTable {
    * @param buffer_pool_manager buffer pool manager to be used
    * @param comparator comparator for keys
    * @param num_buckets initial number of buckets contained by this hash table
+   * @param hash_fn
    */
   explicit LinearProbeHashTable(const std::string &name, BufferPoolManager *buffer_pool_manager,
-                                const KeyComparator &comparator, size_t num_buckets);
+                                const KeyComparator &comparator, size_t num_buckets,
+                                void (*hash_fn)(const void *, const int, const uint32_t, void *));
 
   /**
    * Inserts a key-value pair into the hash table.
    * @param transaction the current transaction
    * @param key the key to create
    * @param value the value to be associated with the key
+   * @return true if insert succeeded, false otherwise
    */
-  void Insert(Transaction *transaction, const KeyType &key, const ValueType &value);
+  bool Insert(Transaction *transaction, const KeyType &key, const ValueType &value);
 
   /**
    * Deletes the associated value for the given key.
    * @param transaction the current transaction
    * @param key the key to delete
+   * @param value the value to delete
+   * @return true if remove succeeded, false otherwise
    */
-  void Remove(Transaction *transaction, const KeyType &key);
+  bool Remove(Transaction *transaction, const KeyType &key, const ValueType &value);
 
   /**
    * Performs a point query on the hash table.
    * @param transaction the current transaction
    * @param key the key to look up
-   * @param[out] result the value associated with a given key
-   * @return the value associated with the given key
+   * @param[out] result the value(s) associated with a given key
+   * @return the value(s) associated with the given key
    */
   bool GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result);
 
@@ -72,13 +78,23 @@ class LinearProbeHashTable {
    */
   void Resize(size_t initial_size);
 
+  /**
+   * Gets the size of the hash table
+   * @return current size of the hash table
+   */
+  size_t GetSize();
+
  private:
+  // member variable
   page_id_t header_page_id_;
   BufferPoolManager *buffer_pool_manager_;
   KeyComparator comparator_;
 
-  /* Readers = {insert, remove}, Writers = {resize} */
+  // Readers includes inserts and removes, writer is only resize
   ReaderWriterLatch table_latch_;
+
+  // Hash function
+  void (*hash_fn_)(const void *, const int, const uint32_t, void *);
 };
 
 }  // namespace bustub

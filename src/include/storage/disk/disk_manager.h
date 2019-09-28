@@ -88,6 +88,9 @@ class DiskManager {
   /** @return true iff the in-memory content has not been flushed yet */
   bool GetFlushState() const;
 
+  /** @return the number of disk writes */
+  int GetNumWrites() const;
+
   /**
    * Sets the future which is used to check for non-blocking flushes.
    * @param f the non-blocking flush check
@@ -107,6 +110,7 @@ class DiskManager {
   std::string file_name_;
   std::atomic<page_id_t> next_page_id_;
   int num_flushes_;
+  int num_writes_;
   bool flush_log_;
   std::future<void> *flush_log_f_;
 };
