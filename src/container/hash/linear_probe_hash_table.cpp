@@ -31,7 +31,9 @@ HASH_TABLE_TYPE::LinearProbeHashTable(const std::string &name, BufferPoolManager
  * SEARCH
  *****************************************************************************/
 INDEX_TEMPLATE_ARGUMENTS
-bool HASH_TABLE_TYPE::GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result) { return false; }
+bool HASH_TABLE_TYPE::GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result) {
+  return false;
+}
 /*****************************************************************************
  * INSERTION
  *****************************************************************************/
