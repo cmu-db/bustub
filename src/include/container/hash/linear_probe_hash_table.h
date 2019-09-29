@@ -45,8 +45,7 @@ class LinearProbeHashTable : public HashTable<KeyType, ValueType, KeyComparator>
    * @param hash_fn the hash function
    */
   explicit LinearProbeHashTable(const std::string &name, BufferPoolManager *buffer_pool_manager,
-                                const KeyComparator &comparator, size_t num_buckets,
-                                const HashFunction<KeyType> &hash_fn);
+                                const KeyComparator &comparator, size_t num_buckets, HashFunction<KeyType> hash_fn);
 
   /**
    * Inserts a key-value pair into the hash table.

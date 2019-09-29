@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "common/exception.h"
@@ -24,8 +25,8 @@ namespace bustub {
 INDEX_TEMPLATE_ARGUMENTS
 HASH_TABLE_TYPE::LinearProbeHashTable(const std::string &name, BufferPoolManager *buffer_pool_manager,
                                       const KeyComparator &comparator, size_t num_buckets,
-                                      const HashFunction<KeyType> &hash_fn)
-    : buffer_pool_manager_(buffer_pool_manager), comparator_(comparator), hash_fn_(hash_fn) {}
+                                      HashFunction<KeyType> hash_fn)
+    : buffer_pool_manager_(buffer_pool_manager), comparator_(comparator), hash_fn_(std::move(hash_fn)) {}
 
 /*****************************************************************************
  * SEARCH
