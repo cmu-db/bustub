@@ -29,7 +29,7 @@ static char *buffer_used = nullptr;
  * @input db_file: database file name
  */
 DiskManager::DiskManager(const std::string &db_file)
-    : file_name_(db_file), next_page_id_(0), num_flushes_(0), flush_log_(false), flush_log_f_(nullptr) {
+    : file_name_(db_file), next_page_id_(0), num_flushes_(0), num_writes_(0), flush_log_(false), flush_log_f_(nullptr) {
   std::string::size_type n = file_name_.find('.');
   if (n == std::string::npos) {
     LOG_DEBUG("wrong file format");
@@ -74,6 +74,7 @@ void DiskManager::ShutDown() {
 void DiskManager::WritePage(page_id_t page_id, const char *page_data) {
   size_t offset = static_cast<size_t>(page_id) * PAGE_SIZE;
   // set write cursor to offset
+  num_writes_ += 1;
   db_io_.seekp(offset);
   db_io_.write(page_data, PAGE_SIZE);
   // check for I/O error
@@ -182,6 +183,11 @@ void DiskManager::DeallocatePage(__attribute__((unused)) page_id_t page_id) {}
  * Returns number of flushes made so far
  */
 int DiskManager::GetNumFlushes() const { return num_flushes_; }
+
+/**
+ * Returns number of Writes made so far
+ */
+int DiskManager::GetNumWrites() const { return num_writes_; }
 
 /**
  * Returns true if the log is currently being flushed
