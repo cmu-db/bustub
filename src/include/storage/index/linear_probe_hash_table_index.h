@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 
+#include "container/hash/hash_function.h"
 #include "container/hash/linear_probe_hash_table.h"
 #include "storage/index/index.h"
 
@@ -27,7 +28,7 @@ INDEX_TEMPLATE_ARGUMENTS
 class LinearProbeHashTableIndex : public Index {
  public:
   LinearProbeHashTableIndex(IndexMetadata *metadata, BufferPoolManager *buffer_pool_manager, size_t num_buckets,
-                            void (*hash_fn)(const void *, const int, const uint32_t, void *));
+                            const HashFunction<KeyType> &hash_fn);
 
   ~LinearProbeHashTableIndex() override = default;
 

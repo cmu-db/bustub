@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "common/logger.h"
+#include "container/hash/hash_function.h"
 #include "container/hash/linear_probe_hash_table.h"
 #include "gtest/gtest.h"
 #include "murmur3/MurmurHash3.h"
@@ -25,7 +26,7 @@ TEST(HashTableTest, DISABLED_SampleTest) {
   DiskManager *disk_manager = new DiskManager("test.db");
   auto *bpm = new BufferPoolManager(50, disk_manager);
 
-  LinearProbeHashTable<int, int, IntComparator> ht("blah", bpm, IntComparator(), 1000, &murmur3::MurmurHash3_x64_128);
+  LinearProbeHashTable<int, int, IntComparator> ht("blah", bpm, IntComparator(), 1000, HashFunction<int>());
 
   // insert a few values
   for (int i = 0; i < 5; i++) {

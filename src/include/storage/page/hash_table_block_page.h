@@ -30,6 +30,8 @@ namespace bustub {
  * | KEY(1) + VALUE(1) | KEY(2) + VALUE(2) | ... | KEY(n) + VALUE(n)
  *  ----------------------------------------------------------------
  *
+ *  Here '+' means concatenation.
+ *
  */
 INDEX_TEMPLATE_ARGUMENTS
 class HashTableBlockPage {
@@ -62,7 +64,7 @@ class HashTableBlockPage {
    * @param bucket_ind index to write the key and value to
    * @param key key to insert
    * @param value value to insert
-   * @return If the value is inserted succesfully, it returns true. If the
+   * @return If the value is inserted successfully, it returns true. If the
    * index is marked as occupied before the key and value can be inserted,
    * Insert returns false.
    */

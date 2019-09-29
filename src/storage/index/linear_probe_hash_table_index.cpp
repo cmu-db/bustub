@@ -8,8 +8,7 @@ namespace bustub {
  */
 INDEX_TEMPLATE_ARGUMENTS
 HASH_TABLE_INDEX_TYPE::LinearProbeHashTableIndex(IndexMetadata *metadata, BufferPoolManager *buffer_pool_manager,
-                                                 size_t num_buckets,
-                                                 void (*hash_fn)(const void *, const int, const uint32_t, void *))
+                                                 size_t num_buckets, const HashFunction<KeyType> &hash_fn)
     : Index(metadata),
       comparator_(metadata->GetKeySchema()),
       container_(metadata->GetName(), buffer_pool_manager, comparator_, num_buckets, hash_fn) {}

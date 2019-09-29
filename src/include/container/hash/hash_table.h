@@ -12,34 +12,46 @@
 
 #pragma once
 
+#include <queue>
+#include <string>
+#include <vector>
+
+#include "concurrency/transaction.h"
+#include "storage/page/hash_table_page_defs.h"
+
 namespace bustub {
 
-template <typename K, typename V>
+INDEX_TEMPLATE_ARGUMENTS
 class HashTable {
  public:
   virtual ~HashTable() = default;
 
   /**
-   * Find the value associated with a key.
-   * @param key key to lookup
-   * @param[out] value output value
-   * @return true iff the key was found
+   * Inserts a key-value pair into the hash table.
+   * @param transaction the current transaction
+   * @param key the key to create
+   * @param value the value to be associated with the key
+   * @return true if insert succeeded, false otherwise
    */
-  virtual bool Find(const K &key, V *value) = 0;
+  virtual bool Insert(Transaction *transaction, const KeyType &key, const ValueType &value) = 0;
 
   /**
-   * Remove a key from the hash table
-   * @param key key to remove
-   * @return true iff the key was found and removed
+   * Deletes the associated value for the given key.
+   * @param transaction the current transaction
+   * @param key the key to delete
+   * @param value the value to delete
+   * @return true if remove succeeded, false otherwise
    */
-  virtual bool Remove(const K &key) = 0;
+  virtual bool Remove(Transaction *transaction, const KeyType &key, const ValueType &value) = 0;
 
   /**
-   * Insert a key-value pair in the hash table. You can assume that the key is not duplicated.
-   * @param key key to insert
-   * @param value value associated with the key
+   * Performs a point query on the hash table.
+   * @param transaction the current transaction
+   * @param key the key to look up
+   * @param[out] result the value(s) associated with a given key
+   * @return the value(s) associated with the given key
    */
-  virtual void Insert(const K &key, const V &value) = 0;
+  virtual bool GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result) = 0;
 };
 
 }  // namespace bustub
