@@ -25,7 +25,7 @@ namespace bustub {
 // NOLINTNEXTLINE
 TEST(HashTablePageTest, DISABLED_HeaderPageSampleTest) {
   DiskManager *disk_manager = new DiskManager("test.db");
-  auto *bpm = new BufferPoolManager(3, disk_manager);
+  auto *bpm = new BufferPoolManager(5, disk_manager);
 
   // get a header page from the BufferPoolManager
   page_id_t header_page_id = INVALID_PAGE_ID;
@@ -50,12 +50,16 @@ TEST(HashTablePageTest, DISABLED_HeaderPageSampleTest) {
 
   // unpin the header page now that we are done
   bpm->UnpinPage(header_page_id, true, nullptr);
+  disk_manager->ShutDown();
+  remove("test.db");
+  delete disk_manager;
+  delete bpm;
 }
 
 // NOLINTNEXTLINE
 TEST(HashTablePageTest, DISABLED_BlockPageSampleTest) {
-  auto *disk_manager = new DiskManager("test.db");
-  auto *bpm = new BufferPoolManager(3, disk_manager);
+  DiskManager *disk_manager = new DiskManager("test.db");
+  auto *bpm = new BufferPoolManager(5, disk_manager);
 
   // get a block page from the BufferPoolManager
   page_id_t block_page_id = INVALID_PAGE_ID;
@@ -97,6 +101,10 @@ TEST(HashTablePageTest, DISABLED_BlockPageSampleTest) {
 
   // unpin the header page now that we are done
   bpm->UnpinPage(block_page_id, true, nullptr);
+  disk_manager->ShutDown();
+  remove("test.db");
+  delete disk_manager;
+  delete bpm;
 }
 
 }  // namespace bustub

@@ -14,7 +14,6 @@
 #include <vector>
 
 #include "common/logger.h"
-#include "container/hash/hash_function.h"
 #include "container/hash/linear_probe_hash_table.h"
 #include "gtest/gtest.h"
 #include "murmur3/MurmurHash3.h"
@@ -23,7 +22,7 @@ namespace bustub {
 
 // NOLINTNEXTLINE
 TEST(HashTableTest, DISABLED_SampleTest) {
-  DiskManager *disk_manager = new DiskManager("test.db");
+  auto *disk_manager = new DiskManager("test.db");
   auto *bpm = new BufferPoolManager(50, disk_manager);
 
   LinearProbeHashTable<int, int, IntComparator> ht("blah", bpm, IntComparator(), 1000, HashFunction<int>());
@@ -99,6 +98,10 @@ TEST(HashTableTest, DISABLED_SampleTest) {
       EXPECT_TRUE(ht.Remove(nullptr, i, 2 * i));
     }
   }
+  disk_manager->ShutDown();
+  remove("test.db");
+  delete disk_manager;
+  delete bpm;
 }
 
 }  // namespace bustub
