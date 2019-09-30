@@ -22,7 +22,7 @@
 
 namespace bustub {
 
-INDEX_TEMPLATE_ARGUMENTS
+template <typename KeyType, typename ValueType, typename KeyComparator>
 HASH_TABLE_TYPE::LinearProbeHashTable(const std::string &name, BufferPoolManager *buffer_pool_manager,
                                       const KeyComparator &comparator, size_t num_buckets,
                                       HashFunction<KeyType> hash_fn)
@@ -31,33 +31,39 @@ HASH_TABLE_TYPE::LinearProbeHashTable(const std::string &name, BufferPoolManager
 /*****************************************************************************
  * SEARCH
  *****************************************************************************/
-INDEX_TEMPLATE_ARGUMENTS
+template <typename KeyType, typename ValueType, typename KeyComparator>
 bool HASH_TABLE_TYPE::GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result) {
   return false;
 }
 /*****************************************************************************
  * INSERTION
  *****************************************************************************/
-INDEX_TEMPLATE_ARGUMENTS
-bool HASH_TABLE_TYPE::Insert(Transaction *transaction, const KeyType &key, const ValueType &value) { return false; }
+template <typename KeyType, typename ValueType, typename KeyComparator>
+bool HASH_TABLE_TYPE::Insert(Transaction *transaction, const KeyType &key, const ValueType &value) {
+  return false;
+}
 
 /*****************************************************************************
  * REMOVE
  *****************************************************************************/
-INDEX_TEMPLATE_ARGUMENTS
-bool HASH_TABLE_TYPE::Remove(Transaction *transaction, const KeyType &key, const ValueType &value) { return false; }
+template <typename KeyType, typename ValueType, typename KeyComparator>
+bool HASH_TABLE_TYPE::Remove(Transaction *transaction, const KeyType &key, const ValueType &value) {
+  return false;
+}
 
 /*****************************************************************************
  * RESIZE
  *****************************************************************************/
-INDEX_TEMPLATE_ARGUMENTS
+template <typename KeyType, typename ValueType, typename KeyComparator>
 void HASH_TABLE_TYPE::Resize(size_t initial_size) {}
 
 /*****************************************************************************
  * GETSIZE
  *****************************************************************************/
-INDEX_TEMPLATE_ARGUMENTS
-size_t HASH_TABLE_TYPE::GetSize() { return 0; }
+template <typename KeyType, typename ValueType, typename KeyComparator>
+size_t HASH_TABLE_TYPE::GetSize() {
+  return 0;
+}
 
 template class LinearProbeHashTable<int, int, IntComparator>;
 

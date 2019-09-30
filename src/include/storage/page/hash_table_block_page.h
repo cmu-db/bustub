@@ -33,7 +33,7 @@ namespace bustub {
  *  Here '+' means concatenation.
  *
  */
-INDEX_TEMPLATE_ARGUMENTS
+template <typename KeyType, typename ValueType, typename KeyComparator>
 class HashTableBlockPage {
  public:
   // Delete all constructor / destructor to ensure memory safety
@@ -45,7 +45,7 @@ class HashTableBlockPage {
    * @param bucket_ind the index in the block to get the key at
    * @return key at index bucket_ind of the block
    */
-  KeyType KeyAt(size_t bucket_ind) const;
+  KeyType KeyAt(slot_offset_t bucket_ind) const;
 
   /**
    * Gets the value at an index in the block.
@@ -53,7 +53,7 @@ class HashTableBlockPage {
    * @param bucket_ind the index in the block to get the value at
    * @return value at index bucket_ind of the block
    */
-  ValueType ValueAt(size_t bucket_ind) const;
+  ValueType ValueAt(slot_offset_t bucket_ind) const;
 
   /**
    * Attempts to insert a key and value into an index in the block.
@@ -68,14 +68,14 @@ class HashTableBlockPage {
    * index is marked as occupied before the key and value can be inserted,
    * Insert returns false.
    */
-  bool Insert(size_t bucket_ind, const KeyType &key, const ValueType &value);
+  bool Insert(slot_offset_t bucket_ind, const KeyType &key, const ValueType &value);
 
   /**
    * Removes a key and value at index.
    *
    * @param bucket_ind ind to remove the value
    */
-  void Remove(size_t bucket_ind);
+  void Remove(slot_offset_t bucket_ind);
 
   /**
    * Returns whether or not an index is occupied (key/value pair or tombstone)
@@ -83,7 +83,7 @@ class HashTableBlockPage {
    * @param bucket_ind index to look at
    * @return true if the index is occupied, false otherwise
    */
-  bool IsOccupied(size_t bucket_ind);
+  bool IsOccupied(slot_offset_t bucket_ind);
 
   /**
    * Returns whether or not an index is readable (valid key/value pair)
@@ -91,7 +91,7 @@ class HashTableBlockPage {
    * @param bucket_ind index to look at
    * @return true if the index is readable, false otherwise
    */
-  bool IsReadable(size_t bucket_ind);
+  bool IsReadable(slot_offset_t bucket_ind);
 
  private:
   std::atomic_char occupied_[(BLOCK_ARRAY_SIZE - 1) / 8 + 1];

@@ -31,10 +31,14 @@ TEST(HashTablePageTest, DISABLED_HeaderPageSampleTest) {
   page_id_t header_page_id = INVALID_PAGE_ID;
   auto header_page = reinterpret_cast<HashTableHeaderPage *>(bpm->NewPage(&header_page_id, nullptr));
 
-  // set total number of (key, value) pairs
+  // set some fields
   for (unsigned i = 0; i < 11; i++) {
     header_page->SetSize(i);
     EXPECT_EQ(i, header_page->GetSize());
+    header_page->SetPageId(i);
+    EXPECT_EQ(i, header_page->GetPageId());
+    header_page->SetLSN(i);
+    EXPECT_EQ(i, header_page->GetLSN());
   }
 
   // add a few hypothetical block pages
