@@ -60,14 +60,14 @@ class HashTableHeaderPage {
   /**
    * @return the lsn of this page
    */
-  uint32_t GetLSN() const;
+  lsn_t GetLSN() const;
 
   /**
    * Sets the LSN of this page
    *
    * @param lsn the log sequence number for the lsn field to be set to
    */
-  void SetLSN(uint32_t lsn);
+  void SetLSN(lsn_t lsn);
 
   /**
    * Adds a block page_id to the end of header page
