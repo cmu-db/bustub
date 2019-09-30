@@ -33,7 +33,7 @@ namespace bustub {
  * manager. Non-unique keys are supported. Supports insert and delete. The
  * table dynamically grows once full.
  */
-INDEX_TEMPLATE_ARGUMENTS
+template <typename KeyType, typename ValueType, typename KeyComparator>
 class LinearProbeHashTable : public HashTable<KeyType, ValueType, KeyComparator> {
  public:
   /**

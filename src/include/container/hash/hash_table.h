@@ -21,7 +21,7 @@
 
 namespace bustub {
 
-INDEX_TEMPLATE_ARGUMENTS
+template <typename KeyType, typename ValueType, typename KeyComparator>
 class HashTable {
  public:
   virtual ~HashTable() = default;

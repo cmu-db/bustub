@@ -19,6 +19,10 @@ page_id_t HashTableHeaderPage::GetPageId() const { return 0; }
 
 void HashTableHeaderPage::SetPageId(bustub::page_id_t page_id) {}
 
+lsn_t HashTableHeaderPage::GetLSN() const { return 0; }
+
+void HashTableHeaderPage::SetLSN(lsn_t lsn) {}
+
 void HashTableHeaderPage::AddBlockPageId(page_id_t page_id) {}
 
 size_t HashTableHeaderPage::NumBlocks() { return 0; }

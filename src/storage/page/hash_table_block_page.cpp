@@ -15,24 +15,35 @@
 
 namespace bustub {
 
-INDEX_TEMPLATE_ARGUMENTS
-KeyType HASH_TABLE_BLOCK_TYPE::KeyAt(size_t bucket_ind) const { return {}; }
+template <typename KeyType, typename ValueType, typename KeyComparator>
+KeyType HASH_TABLE_BLOCK_TYPE::KeyAt(slot_offset_t bucket_ind) const {
+  return {};
+}
 
-INDEX_TEMPLATE_ARGUMENTS
-ValueType HASH_TABLE_BLOCK_TYPE::ValueAt(size_t bucket_ind) const { return {}; }
+template <typename KeyType, typename ValueType, typename KeyComparator>
+ValueType HASH_TABLE_BLOCK_TYPE::ValueAt(slot_offset_t bucket_ind) const {
+  return {};
+}
 
-INDEX_TEMPLATE_ARGUMENTS
-bool HASH_TABLE_BLOCK_TYPE::Insert(size_t bucket_ind, const KeyType &key, const ValueType &value) { return false; }
+template <typename KeyType, typename ValueType, typename KeyComparator>
+bool HASH_TABLE_BLOCK_TYPE::Insert(slot_offset_t bucket_ind, const KeyType &key, const ValueType &value) {
+  return false;
+}
 
-INDEX_TEMPLATE_ARGUMENTS
-void HASH_TABLE_BLOCK_TYPE::Remove(size_t bucket_ind) {}
+template <typename KeyType, typename ValueType, typename KeyComparator>
+void HASH_TABLE_BLOCK_TYPE::Remove(slot_offset_t bucket_ind) {}
 
-INDEX_TEMPLATE_ARGUMENTS
-bool HASH_TABLE_BLOCK_TYPE::IsOccupied(size_t bucket_ind) { return false; }
+template <typename KeyType, typename ValueType, typename KeyComparator>
+bool HASH_TABLE_BLOCK_TYPE::IsOccupied(slot_offset_t bucket_ind) {
+  return false;
+}
 
-INDEX_TEMPLATE_ARGUMENTS
-bool HASH_TABLE_BLOCK_TYPE::IsReadable(size_t bucket_ind) { return false; }
+template <typename KeyType, typename ValueType, typename KeyComparator>
+bool HASH_TABLE_BLOCK_TYPE::IsReadable(slot_offset_t bucket_ind) {
+  return false;
+}
 
+// DO NOT REMOVE ANYTHING BELOW THIS LINE
 template class HashTableBlockPage<int, int, IntComparator>;
 template class HashTableBlockPage<GenericKey<4>, RID, GenericComparator<4>>;
 template class HashTableBlockPage<GenericKey<8>, RID, GenericComparator<8>>;

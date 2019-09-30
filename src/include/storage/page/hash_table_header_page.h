@@ -58,6 +58,18 @@ class HashTableHeaderPage {
   void SetPageId(page_id_t page_id);
 
   /**
+   * @return the lsn of this page
+   */
+  lsn_t GetLSN() const;
+
+  /**
+   * Sets the LSN of this page
+   *
+   * @param lsn the log sequence number for the lsn field to be set to
+   */
+  void SetLSN(lsn_t lsn);
+
+  /**
    * Adds a block page_id to the end of header page
    *
    * @param page_id page_id to be added
@@ -78,6 +90,7 @@ class HashTableHeaderPage {
   size_t NumBlocks();
 
  private:
+  __attribute__((unused)) uint32_t lsn_;
   __attribute__((unused)) size_t size_;
   __attribute__((unused)) page_id_t page_id_;
   __attribute__((unused)) size_t next_ind_;
