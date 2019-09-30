@@ -25,7 +25,7 @@ namespace bustub {
 // NOLINTNEXTLINE
 TEST(HashTablePageTest, DISABLED_HeaderPageSampleTest) {
   DiskManager *disk_manager = new DiskManager("test.db");
-  auto *bpm = new BufferPoolManager(5, disk_manager);
+  auto *bpm = new BufferPoolManager(3, disk_manager);
 
   // get a header page from the BufferPoolManager
   page_id_t header_page_id = INVALID_PAGE_ID;
@@ -42,7 +42,7 @@ TEST(HashTablePageTest, DISABLED_HeaderPageSampleTest) {
   }
 
   // add a few hypothetical block pages
-  for (unsigned i = 0; i < 10; i++) {
+  for (int i = 0; i < 10; i++) {
     header_page->AddBlockPageId(i);
     EXPECT_EQ(i + 1, header_page->NumBlocks());
   }
