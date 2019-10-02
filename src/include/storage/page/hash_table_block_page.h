@@ -83,7 +83,7 @@ class HashTableBlockPage {
    * @param bucket_ind index to look at
    * @return true if the index is occupied, false otherwise
    */
-  bool IsOccupied(slot_offset_t bucket_ind);
+  bool IsOccupied(slot_offset_t bucket_ind) const;
 
   /**
    * Returns whether or not an index is readable (valid key/value pair)
@@ -91,7 +91,7 @@ class HashTableBlockPage {
    * @param bucket_ind index to look at
    * @return true if the index is readable, false otherwise
    */
-  bool IsReadable(slot_offset_t bucket_ind);
+  bool IsReadable(slot_offset_t bucket_ind) const;
 
  private:
   std::atomic_char occupied_[(BLOCK_ARRAY_SIZE - 1) / 8 + 1];
