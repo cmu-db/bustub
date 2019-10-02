@@ -34,12 +34,12 @@ template <typename KeyType, typename ValueType, typename KeyComparator>
 void HASH_TABLE_BLOCK_TYPE::Remove(slot_offset_t bucket_ind) {}
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-bool HASH_TABLE_BLOCK_TYPE::IsOccupied(slot_offset_t bucket_ind) {
+bool HASH_TABLE_BLOCK_TYPE::IsOccupied(slot_offset_t bucket_ind) const {
   return false;
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-bool HASH_TABLE_BLOCK_TYPE::IsReadable(slot_offset_t bucket_ind) {
+bool HASH_TABLE_BLOCK_TYPE::IsReadable(slot_offset_t bucket_ind)  const {
   return false;
 }
 
