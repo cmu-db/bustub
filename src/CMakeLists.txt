@@ -1,4 +1,5 @@
-file(GLOB_RECURSE bustub_sources ${PROJECT_SOURCE_DIR}/src/*/*.cpp)
+# This is hacky :(
+file(GLOB_RECURSE bustub_sources ${PROJECT_SOURCE_DIR}/src/*/*.cpp ${PROJECT_SOURCE_DIR}/src/*/*/*.cpp)
 add_library(bustub_shared SHARED ${bustub_sources})
 
 ######################################################################################################################

@@ -21,6 +21,7 @@
 #include "type/type.h"
 
 namespace bustub {
+class AbstractExpression;
 
 class Column {
   friend class Schema;
@@ -30,9 +31,10 @@ class Column {
    * Non-variable-length constructor for creating a Column.
    * @param column_name name of the column
    * @param type type of the column
+   * @param expr expression used to create this column
    */
-  Column(std::string column_name, TypeId type)
-      : column_name_(std::move(column_name)), column_type_(type), fixed_length_(TypeSize(type)) {
+  Column(std::string column_name, TypeId type, const AbstractExpression *expr = nullptr)
+      : column_name_(std::move(column_name)), column_type_(type), fixed_length_(TypeSize(type)), expr_{expr} {
     BUSTUB_ASSERT(type != TypeId::VARCHAR, "Wrong constructor for VARCHAR type.");
   }
 
@@ -41,9 +43,10 @@ class Column {
    * @param column_name name of the column
    * @param type type of column
    * @param length length of the varlen
+   * @param expr expression used to create this column
    */
-  Column(std::string column_name, TypeId type, uint32_t length)
-      : column_name_(std::move(column_name)), column_type_(type), fixed_length_(TypeSize(type)) {
+  Column(std::string column_name, TypeId type, uint32_t length, const AbstractExpression *expr = nullptr)
+      : column_name_(std::move(column_name)), column_type_(type), fixed_length_(TypeSize(type)), expr_{expr} {
     BUSTUB_ASSERT(type == TypeId::VARCHAR, "Wrong constructor for non-VARCHAR type.");
   }
 
@@ -75,6 +78,9 @@ class Column {
 
   /** @return a string representation of this column */
   std::string ToString() const;
+
+  /** @return the expression used to create this column */
+  const AbstractExpression *GetExpr() const { return expr_; }
 
  private:
   /**
@@ -119,6 +125,9 @@ class Column {
 
   /** Column offset in the tuple. */
   uint32_t column_offset_{0};
+
+  /** Expression used to create this column **/
+  const AbstractExpression *expr_;
 };
 
 }  // namespace bustub

@@ -114,6 +114,12 @@ class Transaction {
   /** @return the set of resources under an exclusive lock */
   inline std::shared_ptr<std::unordered_set<RID>> GetExclusiveLockSet() { return exclusive_lock_set_; }
 
+  /** @return true if rid is shared locked by this transaction */
+  bool IsSharedLocked(const RID &rid) { return shared_lock_set_->find(rid) != shared_lock_set_->end(); }
+
+  /** @return true if rid is exclusively locked by this transaction */
+  bool IsExclusiveLocked(const RID &rid) { return exclusive_lock_set_->find(rid) != exclusive_lock_set_->end(); }
+
   /** @return the current state of the transaction */
   inline TransactionState GetState() { return state_; }
 

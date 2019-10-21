@@ -42,7 +42,7 @@ class Tuple {
   explicit Tuple(RID rid) : rid_(rid) {}
 
   // constructor for creating a new tuple based on input value
-  Tuple(std::vector<Value> values, Schema *schema);
+  Tuple(std::vector<Value> values, const Schema *schema);
 
   // copy constructor, deep copy
   Tuple(const Tuple &other);
@@ -74,20 +74,20 @@ class Tuple {
 
   // Get the value of a specified column (const)
   // checks the schema to see how to return the Value.
-  Value GetValue(Schema *schema, uint32_t column_idx) const;
+  Value GetValue(const Schema *schema, uint32_t column_idx) const;
 
   // Is the column value null ?
-  inline bool IsNull(Schema *schema, uint32_t column_idx) const {
+  inline bool IsNull(const Schema *schema, uint32_t column_idx) const {
     Value value = GetValue(schema, column_idx);
     return value.IsNull();
   }
   inline bool IsAllocated() { return allocated_; }
 
-  std::string ToString(Schema *schema) const;
+  std::string ToString(const Schema *schema) const;
 
  private:
   // Get the starting storage address of specific column
-  const char *GetDataPtr(Schema *schema, uint32_t column_idx) const;
+  const char *GetDataPtr(const Schema *schema, uint32_t column_idx) const;
 
   bool allocated_{false};  // is allocated?
   RID rid_{};              // if pointing to the table heap, the rid is valid
