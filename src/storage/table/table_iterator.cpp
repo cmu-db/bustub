@@ -45,7 +45,7 @@ TableIterator &TableIterator::operator++() {
     while (cur_page->GetNextPageId() != INVALID_PAGE_ID) {
       auto next_page = static_cast<TablePage *>(buffer_pool_manager->FetchPage(cur_page->GetNextPageId()));
       cur_page->RUnlatch();
-      buffer_pool_manager->UnpinPage(cur_page->GetPageId(), false);
+      buffer_pool_manager->UnpinPage(cur_page->GetTablePageId(), false);
       cur_page = next_page;
       cur_page->RLatch();
       if (cur_page->GetFirstTupleRid(&next_tuple_rid)) {
@@ -60,7 +60,7 @@ TableIterator &TableIterator::operator++() {
   }
   // release until copy the tuple
   cur_page->RUnlatch();
-  buffer_pool_manager->UnpinPage(cur_page->GetPageId(), false);
+  buffer_pool_manager->UnpinPage(cur_page->GetTablePageId(), false);
   return *this;
 }
 

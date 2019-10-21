@@ -39,14 +39,14 @@ class Schema {
   }
 
   /** @return all the columns in the schema */
-  const std::vector<Column> &GetColumns() { return columns_; }
+  const std::vector<Column> &GetColumns() const { return columns_; }
 
   /**
    * Returns a specific column from the schema.
    * @param col_idx index of requested column
    * @return requested column
    */
-  const Column &GetColumn(const uint32_t col_idx) { return columns_[col_idx]; }
+  const Column &GetColumn(const uint32_t col_idx) const { return columns_[col_idx]; }
 
   /**
    * @param col_name name of the wanted column

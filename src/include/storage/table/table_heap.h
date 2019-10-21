@@ -21,8 +21,8 @@
 namespace bustub {
 
 /**
- * A table heap represents a physical table on disk.
- * This is simply a doubly linked list of pages.
+ * TableHeap represents a physical table on disk.
+ * This is just a doubly-linked list of pages.
  */
 class TableHeap {
   friend class TableIterator;
@@ -31,17 +31,17 @@ class TableHeap {
   ~TableHeap() = default;
 
   /**
-   * Create a table heap without a transaction
+   * Create a table heap without a transaction. (open table)
    * @param buffer_pool_manager the buffer pool manager
    * @param lock_manager the lock manager
    * @param log_manager the log manager
-   * @param first_page_id the id of the first page.
+   * @param first_page_id the id of the first page
    */
   TableHeap(BufferPoolManager *buffer_pool_manager, LockManager *lock_manager, LogManager *log_manager,
             page_id_t first_page_id);
 
   /**
-   * Create a table heap with a transaction
+   * Create a table heap with a transaction. (create table)
    * @param buffer_pool_manager the buffer pool manager
    * @param lock_manager the lock manager
    * @param log_manager the log manager
@@ -51,11 +51,11 @@ class TableHeap {
             Transaction *txn);
 
   /**
-   * Insert a tuple into the table. If tuple is too large (>~page_size), return false
+   * Insert a tuple into the table. If the tuple is too large (>= page_size), return false.
    * @param tuple tuple to insert
-   * @param rid output resource id of the tuple
-   * @param txn transaction performing the insert
-   * @return true if the insert is successful
+   * @param[out] rid the rid of the inserted tuple
+   * @param txn the transaction performing the insert
+   * @return true iff the insert is successful
    */
   bool InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn);
 
@@ -63,11 +63,10 @@ class TableHeap {
    * Mark the tuple as deleted. The actual delete will occur when ApplyDelete is called.
    * @param rid resource id of the tuple of delete
    * @param txn transaction performing the delete
-   * @return true iff the deleted is successful (i.e the tuple exists)
+   * @return true iff the delete is successful (i.e the tuple exists)
    */
   bool MarkDelete(const RID &rid, Transaction *txn);  // for delete
 
-  //
   /**
    * if the new tuple is too large to fit in the old page, return false (will delete and insert)
    * @param tuple new tuple
@@ -100,31 +99,20 @@ class TableHeap {
    */
   bool GetTuple(const RID &rid, Tuple *tuple, Transaction *txn);
 
-  /**
-   * Delete the table
-   */
-  bool DeleteTableHeap();
-
-  /**
-   * Return the begin iterator of the table.
-   */
+  /** @return the begin iterator of this table */
   TableIterator Begin(Transaction *txn);
 
-  /**
-   * Return the end iterator of the table.
-   */
+  /** @return the end iterator of this table */
   TableIterator End();
 
-  /**
-   * Return the id of the first page of this table.
-   */
+  /** @return the id of the first page of this table */
   inline page_id_t GetFirstPageId() const { return first_page_id_; }
 
  private:
   BufferPoolManager *buffer_pool_manager_;
   LockManager *lock_manager_;
   LogManager *log_manager_;
-  page_id_t first_page_id_;
+  page_id_t first_page_id_{};
 };
 
 }  // namespace bustub

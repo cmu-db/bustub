@@ -14,7 +14,11 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <iostream>
 #include <string>
+
+#include "common/macros.h"
+#include "type/value.h"
 
 namespace bustub {
 
@@ -45,12 +49,54 @@ class HashUtil {
 
   template <typename T>
   static inline hash_t Hash(const T *ptr) {
-    return HashBytes(reinterpret_cast<char *>(ptr), sizeof(T));
+    return HashBytes(reinterpret_cast<const char *>(ptr), sizeof(T));
   }
 
   template <typename T>
   static inline hash_t HashPtr(const T *ptr) {
-    return HashBytes(reinterpret_cast<char *>(&ptr), sizeof(void *));
+    return HashBytes(reinterpret_cast<const char *>(&ptr), sizeof(void *));
+  }
+
+  /** @return the hash of the value */
+  static inline hash_t HashValue(const Value *val) {
+    switch (val->GetTypeId()) {
+      case TypeId::TINYINT: {
+        auto raw = static_cast<int64_t>(val->GetAs<int8_t>());
+        return Hash<int64_t>(&raw);
+      }
+      case TypeId::SMALLINT: {
+        auto raw = static_cast<int64_t>(val->GetAs<int16_t>());
+        return Hash<int64_t>(&raw);
+      }
+      case TypeId::INTEGER: {
+        auto raw = static_cast<int64_t>(val->GetAs<int32_t>());
+        return Hash<int64_t>(&raw);
+      }
+      case TypeId::BIGINT: {
+        auto raw = static_cast<int64_t>(val->GetAs<int64_t>());
+        return Hash<int64_t>(&raw);
+      }
+      case TypeId::BOOLEAN: {
+        auto raw = val->GetAs<bool>();
+        return Hash<bool>(&raw);
+      }
+      case TypeId::DECIMAL: {
+        auto raw = val->GetAs<double>();
+        return Hash<double>(&raw);
+      }
+      case TypeId::VARCHAR: {
+        auto raw = val->GetData();
+        auto len = val->GetLength();
+        return HashBytes(raw, len);
+      }
+      case TypeId::TIMESTAMP: {
+        auto raw = val->GetAs<uint64_t>();
+        return Hash<uint64_t>(&raw);
+      }
+      default: {
+        BUSTUB_ASSERT(false, "Unsupported type.");
+      }
+    }
   }
 };
 

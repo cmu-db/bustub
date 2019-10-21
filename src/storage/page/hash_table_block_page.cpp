@@ -39,7 +39,7 @@ bool HASH_TABLE_BLOCK_TYPE::IsOccupied(slot_offset_t bucket_ind) const {
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-bool HASH_TABLE_BLOCK_TYPE::IsReadable(slot_offset_t bucket_ind)  const {
+bool HASH_TABLE_BLOCK_TYPE::IsReadable(slot_offset_t bucket_ind) const {
   return false;
 }
 
