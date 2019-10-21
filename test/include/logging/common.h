@@ -33,7 +33,7 @@ Tuple ConstructTuple(Schema *schema) {
 
   for (uint32_t i = 0; i < schema->GetColumnCount(); i++) {
     // get type
-    const auto col = schema->GetColumn(i);
+    const auto &col = schema->GetColumn(i);
     TypeId type = col.GetType();
     switch (type) {
       case TypeId::BOOLEAN:

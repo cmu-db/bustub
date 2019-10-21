@@ -37,7 +37,7 @@ class ExecutorContext {
 
   DISALLOW_COPY_AND_MOVE(ExecutorContext);
 
-  ~ExecutorContext() {}
+  ~ExecutorContext() = default;
 
   /** @return the running transaction */
   Transaction *GetTransaction() const { return transaction_; }
