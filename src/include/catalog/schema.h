@@ -60,7 +60,7 @@ class Schema {
    * @return the index of a column with the given name, throws an exception if it does not exist
    */
   uint32_t GetColIdx(const std::string &col_name) const {
-    for (uint32_t i = 0; i < col_name.size(); ++i) {
+    for (uint32_t i = 0; i < columns_.size(); ++i) {
       if (columns_[i].GetName() == col_name) {
         return i;
       }
