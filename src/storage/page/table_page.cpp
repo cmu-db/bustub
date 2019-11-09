@@ -146,7 +146,7 @@ bool TablePage::UpdateTuple(const Tuple &new_tuple, Tuple *old_tuple, const RID 
     return false;
   }
   // If there is not enuogh space to update, we need to update via delete followed by an insert (not enough space).
-  if (GetFreeSpaceRemaining() < new_tuple.size_ - tuple_size) {
+  if (GetFreeSpaceRemaining() + tuple_size < new_tuple.size_) {
     return false;
   }
 
