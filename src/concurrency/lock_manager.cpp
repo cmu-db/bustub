@@ -17,13 +17,27 @@
 
 namespace bustub {
 
-bool LockManager::LockShared(Transaction *txn, const RID &rid) { return false; }
+bool LockManager::LockShared(Transaction *txn, const RID &rid) {
+  txn->GetSharedLockSet()->emplace(rid);
+  return true;
+}
 
-bool LockManager::LockExclusive(Transaction *txn, const RID &rid) { return false; }
+bool LockManager::LockExclusive(Transaction *txn, const RID &rid) {
+  txn->GetExclusiveLockSet()->emplace(rid);
+  return true;
+}
 
-bool LockManager::LockUpgrade(Transaction *txn, const RID &rid) { return false; }
+bool LockManager::LockUpgrade(Transaction *txn, const RID &rid) {
+  txn->GetSharedLockSet()->erase(rid);
+  txn->GetExclusiveLockSet()->emplace(rid);
+  return true;
+}
 
-bool LockManager::Unlock(Transaction *txn, const RID &rid) { return false; }
+bool LockManager::Unlock(Transaction *txn, const RID &rid) {
+  txn->GetSharedLockSet()->erase(rid);
+  txn->GetExclusiveLockSet()->erase(rid);
+  return true;
+}
 
 void LockManager::AddEdge(txn_id_t t1, txn_id_t t2) { assert(Detection()); }
 
