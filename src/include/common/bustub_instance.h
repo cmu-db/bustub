@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// bustub_instance.h
+//
+// Identification: src/include/common/bustub_instance.h
+//
+// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <string>
 
 #include "common/config.h"
@@ -11,7 +23,7 @@ namespace bustub {
 
 class BustubInstance {
  public:
-  explicit BustubInstance(std::string db_file_name) {
+  explicit BustubInstance(const std::string &db_file_name) {
     enable_logging = false;
 
     // storage related
