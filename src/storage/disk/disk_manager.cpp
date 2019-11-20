@@ -22,7 +22,7 @@
 
 namespace bustub {
 
-static char *buffer_used = nullptr;
+static char *buffer_used;
 
 /**
  * Constructor: open/create a single database file & log file
@@ -58,6 +58,7 @@ DiskManager::DiskManager(const std::string &db_file)
     // reopen with original mode
     db_io_.open(db_file, std::ios::binary | std::ios::in | std::ios::out);
   }
+  buffer_used = nullptr;
 }
 
 /**
