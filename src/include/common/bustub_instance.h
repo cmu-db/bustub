@@ -12,12 +12,12 @@
 
 #include <string>
 
-#include "common/config.h"
 #include "buffer/buffer_pool_manager.h"
-#include "recovery/log_manager.h"
-#include "recovery/checkpoint_manager.h"
-#include "storage/disk/disk_manager.h"
+#include "common/config.h"
 #include "concurrency/lock_manager.h"
+#include "recovery/checkpoint_manager.h"
+#include "recovery/log_manager.h"
+#include "storage/disk/disk_manager.h"
 
 namespace bustub {
 
@@ -32,8 +32,7 @@ class BustubInstance {
     // log related
     log_manager_ = new LogManager(disk_manager_);
 
-    buffer_pool_manager_ =
-        new BufferPoolManager(BUFFER_POOL_SIZE, disk_manager_, log_manager_);
+    buffer_pool_manager_ = new BufferPoolManager(BUFFER_POOL_SIZE, disk_manager_, log_manager_);
 
     // txn related
     lock_manager_ = new LockManager(TwoPLMode::STRICT, DeadlockMode::PREVENTION);  // S2PL
