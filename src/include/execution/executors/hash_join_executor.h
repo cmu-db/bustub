@@ -96,17 +96,16 @@ class HashJoinExecutor : public AbstractExecutor {
    * @param right the right child, used by convention to probe the hash table
    */
   HashJoinExecutor(ExecutorContext *exec_ctx, const HashJoinPlanNode *plan, std::unique_ptr<AbstractExecutor> &&left,
-                   std::unique_ptr<AbstractExecutor> &&right)
-      : AbstractExecutor(exec_ctx) {}
+                   std::unique_ptr<AbstractExecutor> &&right);
 
   /** @return the JHT in use. Do not modify this function, otherwise you will get a zero. */
   // Uncomment me! const HT *GetJHT() const { return &jht_; }
 
-  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); }
+  const Schema *GetOutputSchema() override;
 
-  void Init() override {}
+  void Init() override;
 
-  bool Next(Tuple *tuple) override { return false; }
+  bool Next(Tuple *tuple) override;
 
   /**
    * Hashes a tuple by evaluating it against every expression on the given schema, combining all non-null hashes.
@@ -115,20 +114,7 @@ class HashJoinExecutor : public AbstractExecutor {
    * @param exprs expressions to evaluate the tuple with
    * @return the hashed tuple
    */
-  hash_t HashValues(const Tuple *tuple, const Schema *schema, const std::vector<const AbstractExpression *> &exprs) {
-    hash_t curr_hash = 0;
-    // For every expression,
-    for (const auto &expr : exprs) {
-      // We evaluate the tuple on the expression and schema.
-      Value val = expr->Evaluate(tuple, schema);
-      // If this produces a value,
-      if (!val.IsNull()) {
-        // We combine the hash of that value into our current hash.
-        curr_hash = HashUtil::CombineHashes(curr_hash, HashUtil::HashValue(&val));
-      }
-    }
-    return curr_hash;
-  }
+  hash_t HashValues(const Tuple *tuple, const Schema *schema, const std::vector<const AbstractExpression *> &exprs);
 
  private:
   /** The hash join plan node. */

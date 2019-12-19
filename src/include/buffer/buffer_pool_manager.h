@@ -162,9 +162,12 @@ class BufferPoolManager {
   LogManager *log_manager_ __attribute__((__unused__));
   /** Page table for keeping track of buffer pool pages. */
   std::unordered_map<page_id_t, frame_id_t> page_table_;
-  /** Replacer to find unpinned pages for replacement. */
+  /** Replacer to find unpinned pages for replacement. 
+   * It is a holder for pages that can be evicted. 
+   * Page ids should not be used for indexing. You use frame ids for that.*/
   Replacer *replacer_;
-  /** List of free pages. */
+  /** List of includes the frames that are unpinned and available to be used. 
+   * Pages are flushed first before adding to the free list. */
   std::list<frame_id_t> free_list_;
   /** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */
   std::mutex latch_;
