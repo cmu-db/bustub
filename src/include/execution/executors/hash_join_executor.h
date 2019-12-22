@@ -114,7 +114,20 @@ class HashJoinExecutor : public AbstractExecutor {
    * @param exprs expressions to evaluate the tuple with
    * @return the hashed tuple
    */
-  hash_t HashValues(const Tuple *tuple, const Schema *schema, const std::vector<const AbstractExpression *> &exprs);
+  hash_t HashValues(const Tuple *tuple, const Schema *schema, const std::vector<const AbstractExpression *> &exprs) {
+    hash_t curr_hash = 0;
+    // For every expression,
+    for (const auto &expr : exprs) {
+      // We evaluate the tuple on the expression and schema.
+      Value val = expr->Evaluate(tuple, schema);
+      // If this produces a value,
+      if (!val.IsNull()) {
+        // We combine the hash of that value into our current hash.
+        curr_hash = HashUtil::CombineHashes(curr_hash, HashUtil::HashValue(&val));
+      }
+    }
+    return curr_hash;
+  }
 
  private:
   /** The hash join plan node. */
