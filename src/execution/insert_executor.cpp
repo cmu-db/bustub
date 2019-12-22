@@ -9,8 +9,7 @@
 // Copyright (c) 2015-19, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
-
-#pragma once
+#include <memory>
 
 #include "execution/executors/insert_executor.h"
 

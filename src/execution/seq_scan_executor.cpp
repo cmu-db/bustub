@@ -9,8 +9,6 @@
 // Copyright (c) 2015-19, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
-
-#pragma once
 #include "execution/executors/seq_scan_executor.h"
 
 namespace bustub {

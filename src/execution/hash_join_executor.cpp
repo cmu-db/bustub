@@ -9,14 +9,15 @@
 // Copyright (c) 2015-19, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
-
-#pragma once
+#include<memory>
+#include<vector>
 
 #include "execution/executors/hash_join_executor.h"
 
 namespace bustub {
 
-HashJoinExecutor::HashJoinExecutor(ExecutorContext *exec_ctx, const HashJoinPlanNode *plan, std::unique_ptr<AbstractExecutor> &&left,
+HashJoinExecutor::HashJoinExecutor(ExecutorContext *exec_ctx,
+                  const HashJoinPlanNode *plan, std::unique_ptr<AbstractExecutor> &&left,
                    std::unique_ptr<AbstractExecutor> &&right)
       : AbstractExecutor(exec_ctx) {}
 
@@ -30,7 +31,9 @@ void HashJoinExecutor::Init() {}
 bool HashJoinExecutor::Next(Tuple *tuple) { return false; }
 
 
-hash_t HashJoinExecutor::HashValues(const Tuple *tuple, const Schema *schema, const std::vector<const AbstractExpression *> &exprs) {
+hash_t HashJoinExecutor::HashValues(const Tuple *tuple,
+                                    const Schema *schema,
+                                    const std::vector<const AbstractExpression *> &exprs) {
   hash_t curr_hash = 0;
   // For every expression,
   for (const auto &expr : exprs) {
@@ -44,4 +47,4 @@ hash_t HashJoinExecutor::HashValues(const Tuple *tuple, const Schema *schema, co
   }
     return curr_hash;
 }
-} 
+}  // namespace bustub
