@@ -166,7 +166,7 @@ class AggregationExecutor : public AbstractExecutor {
   /** Do not use or remove this function, otherwise you will get zero points. */
   const AbstractExecutor *GetChildExecutor() const;
 
-  const Schema *GetOutputSchema();
+  const Schema *GetOutputSchema() override;
 
   void Init() override;
 
