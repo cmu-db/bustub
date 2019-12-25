@@ -14,7 +14,6 @@
 #include <string>
 
 #include "buffer/buffer_pool_manager.h"
-#include "gtest/gtest.h"
 
 namespace bustub {
 
@@ -33,16 +32,17 @@ TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
   EXPECT_EQ(0, page_id_temp);
 
   char random_binary_data[PAGE_SIZE];
-  for (int i = 0; i < PAGE_SIZE; ++i) {
-    random_binary_data[i] = rand() % 256;
+  unsigned int seed = 15645;
+  for (char &i : random_binary_data) {
+    i = static_cast<char>(rand_r(&seed) % 256);
   }
 
   random_binary_data[PAGE_SIZE / 2] = '\0';
   random_binary_data[PAGE_SIZE - 1] = '\0';
 
   // Scenario: Once we have a page, we should be able to read and write content.
-  strncpy(page0->GetData(), random_binary_data, PAGE_SIZE);
-  EXPECT_EQ(0, strcmp(page0->GetData(), random_binary_data));
+  std::strncpy(page0->GetData(), random_binary_data, PAGE_SIZE);
+  EXPECT_EQ(0, std::strcmp(page0->GetData(), random_binary_data));
 
   // Scenario: We should be able to create new pages until we fill up the buffer pool.
   for (size_t i = 1; i < buffer_pool_size; ++i) {
@@ -68,7 +68,7 @@ TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
   page0 = bpm->FetchPage(0);
   EXPECT_EQ(0, strcmp(page0->GetData(), random_binary_data));
   EXPECT_EQ(true, bpm->UnpinPage(0, true));
-  
+
   // Shutdown the disk manager and remove the temporary file we created.
   disk_manager->ShutDown();
   remove("test.db");

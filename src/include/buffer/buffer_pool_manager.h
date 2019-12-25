@@ -17,20 +17,117 @@
 #include <unordered_map>
 
 #include "buffer/clock_replacer.h"
+#include "gtest/gtest.h"
 #include "recovery/log_manager.h"
 #include "storage/disk/disk_manager.h"
 #include "storage/page/page.h"
 
 namespace bustub {
 
+enum FuncType { FetchPage, UnpinPage, FlushPage, NewPage, DeletePage, FlushAllPages };
+
 /**
  * BufferPoolManager reads disk pages to and from its internal buffer pool.
  */
 class BufferPoolManager {
+ private:
+  struct Counter {
+    // 0-FetchPage  1-UnpinPage  2-FlushPage 3-NewPage 4-DeletePage
+    // 5-FlushAllPages
+    static const int num_types = 6;
+    int counts[num_types];
+
+    void Reset() {
+      for (int &count : counts) {
+        count = 0;
+      }
+    }
+
+    void AddCount(FuncType func_type) { ++counts[func_type]; }
+
+    // Make sure fetch page function only calls fetch page once and
+    // does not call other functions
+    void CheckFetchPage() {
+      EXPECT_EQ(counts[0], 1) << "has to call FetchPage once";
+      for (int i = 1; i < num_types; ++i) {
+        EXPECT_EQ(counts[i], 0) << "FetchPage Should not call other functions";
+      }
+    }
+
+    void CheckUnpinPage() {
+      EXPECT_EQ(counts[1], 1) << "has to call UnpinPage once";
+      for (int i = 0; i < num_types; ++i) {
+        if (i != 1) {
+          EXPECT_EQ(counts[i], 0) << "UnPinPage Should not call other functions";
+        }
+      }
+    }
+
+    void CheckFlushPage() {
+      EXPECT_EQ(counts[2], 1) << "has to call FlushPage once";
+      for (int i = 0; i < num_types; ++i) {
+        if (i != 2) {
+          EXPECT_EQ(counts[i], 0) << "FlushPage Should not call other functions";
+        }
+      }
+    }
+
+    void CheckNewPage() {
+      EXPECT_EQ(counts[3], 1) << "has to call NewPage once";
+      for (int i = 0; i < num_types; ++i) {
+        if (i != 3) {
+          EXPECT_EQ(counts[i], 0) << "NewPage Should not call other functions";
+        }
+      }
+    }
+
+    void CheckDeletePage() {
+      EXPECT_EQ(counts[4], 1) << "has to call DeletePage once";
+      for (int i = 0; i < num_types; ++i) {
+        if (i != 4) {
+          EXPECT_EQ(counts[i], 0) << "DeletePage Should not call other functions";
+        }
+      }
+    }
+
+    void CheckFlushAllPages() {
+      for (int i = 1; i < 5; ++i) {
+        EXPECT_EQ(counts[i], 0) << "FlushAllPage Should not call other functions";
+      }
+      EXPECT_EQ(counts[5], 1) << "has to call FlushAllPage once";
+    }
+  };
+
  public:
   enum class CallbackType { BEFORE, AFTER };
-  using bufferpool_callback_fn = void (*)(enum CallbackType, const page_id_t page_id);
+  using bufferpool_callback_fn = void (BufferPoolManager::*)(enum CallbackType type, FuncType func_type);
 
+  void counter_callback(enum CallbackType type, FuncType func_type) {
+    if (type == CallbackType::BEFORE) {
+      counter.Reset();
+    } else {
+      switch (func_type) {
+        case FuncType::FetchPage:
+          counter.CheckFetchPage();
+          break;
+        case FuncType::UnpinPage:
+          counter.CheckUnpinPage();
+          break;
+        case FuncType::FlushPage:
+          counter.CheckFlushPage();
+          break;
+        case FuncType::NewPage:
+          counter.CheckNewPage();
+          break;
+        case FuncType::DeletePage:
+          counter.CheckDeletePage();
+          break;
+        case FuncType::FlushAllPages:
+          counter.CheckFlushAllPages();
+          break;
+      }
+    }
+  }
   /**
    * Creates a new BufferPoolManager.
    * @param pool_size the size of the buffer pool
@@ -44,51 +141,52 @@ class BufferPoolManager {
    */
   ~BufferPoolManager();
 
-  /** Grading function. Do not modify! */
-  Page *FetchPage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) {
-    GradingCallback(callback, CallbackType::BEFORE, page_id);
+  /** Grading function. Do not modify/call! */
+  Page *FetchPage(page_id_t page_id, bufferpool_callback_fn callback = &BufferPoolManager::counter_callback) {
+    GradingCallback(callback, CallbackType::BEFORE, FuncType::FetchPage, page_id);
     auto *result = FetchPageImpl(page_id);
-    GradingCallback(callback, CallbackType::AFTER, page_id);
+    GradingCallback(callback, CallbackType::AFTER, FuncType::FetchPage, page_id);
     return result;
   }
 
-  /** Grading function. Do not modify! */
-  bool UnpinPage(page_id_t page_id, bool is_dirty, bufferpool_callback_fn callback = nullptr) {
-    GradingCallback(callback, CallbackType::BEFORE, page_id);
+  /** Grading function. Do not modify/call! */
+  bool UnpinPage(page_id_t page_id, bool is_dirty,
+                 bufferpool_callback_fn callback = &BufferPoolManager::counter_callback) {
+    GradingCallback(callback, CallbackType::BEFORE, FuncType::UnpinPage, page_id);
     auto result = UnpinPageImpl(page_id, is_dirty);
-    GradingCallback(callback, CallbackType::AFTER, page_id);
+    GradingCallback(callback, CallbackType::AFTER, FuncType::UnpinPage, page_id);
     return result;
   }
 
-  /** Grading function. Do not modify! */
-  bool FlushPage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) {
-    GradingCallback(callback, CallbackType::BEFORE, page_id);
+  /** Grading function. Do not modify/call! */
+  bool FlushPage(page_id_t page_id, bufferpool_callback_fn callback = &BufferPoolManager::counter_callback) {
+    GradingCallback(callback, CallbackType::BEFORE, FuncType::FlushPage, page_id);
     auto result = FlushPageImpl(page_id);
-    GradingCallback(callback, CallbackType::AFTER, page_id);
+    GradingCallback(callback, CallbackType::AFTER, FuncType::FlushPage, page_id);
     return result;
   }
 
-  /** Grading function. Do not modify! */
-  Page *NewPage(page_id_t *page_id, bufferpool_callback_fn callback = nullptr) {
-    GradingCallback(callback, CallbackType::BEFORE, INVALID_PAGE_ID);
+  /** Grading function. Do not modify/call! */
+  Page *NewPage(page_id_t *page_id, bufferpool_callback_fn callback = &BufferPoolManager::counter_callback) {
+    GradingCallback(callback, CallbackType::BEFORE, FuncType::NewPage, INVALID_PAGE_ID);
     auto *result = NewPageImpl(page_id);
-    GradingCallback(callback, CallbackType::AFTER, *page_id);
+    GradingCallback(callback, CallbackType::AFTER, FuncType::NewPage, *page_id);
     return result;
   }
 
-  /** Grading function. Do not modify! */
-  bool DeletePage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) {
-    GradingCallback(callback, CallbackType::BEFORE, page_id);
+  /** Grading function. Do not modify/call! */
+  bool DeletePage(page_id_t page_id, bufferpool_callback_fn callback = &BufferPoolManager::counter_callback) {
+    GradingCallback(callback, CallbackType::BEFORE, FuncType::DeletePage, page_id);
     auto result = DeletePageImpl(page_id);
-    GradingCallback(callback, CallbackType::AFTER, page_id);
+    GradingCallback(callback, CallbackType::AFTER, FuncType::DeletePage, page_id);
     return result;
   }
 
-  /** Grading function. Do not modify! */
-  void FlushAllPages(bufferpool_callback_fn callback = nullptr) {
-    GradingCallback(callback, CallbackType::BEFORE, INVALID_PAGE_ID);
+  /** Grading function. Do not modify/call! */
+  void FlushAllPages(bufferpool_callback_fn callback = &BufferPoolManager::counter_callback) {
+    GradingCallback(callback, CallbackType::BEFORE, FuncType::FlushAllPages, INVALID_PAGE_ID);
     FlushAllPagesImpl();
-    GradingCallback(callback, CallbackType::AFTER, INVALID_PAGE_ID);
+    GradingCallback(callback, CallbackType::AFTER, FuncType::FlushAllPages, INVALID_PAGE_ID);
   }
 
   /** @return pointer to all the pages in the buffer pool */
@@ -105,9 +203,10 @@ class BufferPoolManager {
    * @param callback_type BEFORE or AFTER
    * @param page_id the page id to invoke the callback with
    */
-  void GradingCallback(bufferpool_callback_fn callback, CallbackType callback_type, page_id_t page_id) {
+  void GradingCallback(bufferpool_callback_fn callback, CallbackType callback_type, FuncType func_type,
+                       page_id_t page_id) {
     if (callback != nullptr) {
-      callback(callback_type, page_id);
+      (this->*callback)(callback_type, func_type);
     }
   }
 
@@ -152,6 +251,8 @@ class BufferPoolManager {
    */
   void FlushAllPagesImpl();
 
+  // For grading. Do not modify!
+  Counter counter;
   /** Number of pages in the buffer pool. */
   size_t pool_size_;
   /** Array of buffer pool pages. */
@@ -162,13 +263,10 @@ class BufferPoolManager {
   LogManager *log_manager_ __attribute__((__unused__));
   /** Page table for keeping track of buffer pool pages. */
   std::unordered_map<page_id_t, frame_id_t> page_table_;
-  /** Replacer to find unpinned pages for replacement. 
-   * It is a holder for pages that can be evicted. 
-   * Page ids should not be used for indexing. You use frame ids for that.*/
+  /** Replacer to find unpinned pages for replacement. */
   Replacer *replacer_;
-  /** List of includes the frames that are unpinned and available to be used. 
-   * Pages are flushed first before adding to the free list. */
-  std::list<frame_id_t> free_list_;
+  /** List of free pages. */
+  std::list<page_id_t> free_list_;
   /** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */
   std::mutex latch_;
 };
