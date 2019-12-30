@@ -173,10 +173,22 @@ class AggregationExecutor : public AbstractExecutor {
   bool Next(Tuple *tuple) override;
 
   /** @return the tuple as an AggregateKey */
-  AggregateKey MakeKey(const Tuple *tuple);
+  AggregateKey MakeKey(const Tuple *tuple) {
+    std::vector<Value> keys;
+    for (const auto &expr : plan_->GetGroupBys()) {
+      keys.emplace_back(expr->Evaluate(tuple, child_->GetOutputSchema()));
+    }
+    return {keys};
+  }
 
   /** @return the tuple as an AggregateValue */
-  AggregateValue MakeVal(const Tuple *tuple);
+  AggregateValue MakeVal(const Tuple *tuple) {
+    std::vector<Value> vals;
+    for (const auto &expr : plan_->GetAggregates()) {
+      vals.emplace_back(expr->Evaluate(tuple, child_->GetOutputSchema()));
+    }
+    return {vals};
+  }
 
  private:
   /** The aggregation plan node. */

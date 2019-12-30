@@ -101,7 +101,7 @@ class HashJoinExecutor : public AbstractExecutor {
   /** @return the JHT in use. Do not modify this function, otherwise you will get a zero. */
   // Uncomment me! const HT *GetJHT() const { return &jht_; }
 
-  const Schema *GetOutputSchema() override;
+  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); }
 
   void Init() override;
 

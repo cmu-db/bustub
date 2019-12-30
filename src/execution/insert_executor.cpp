@@ -16,8 +16,8 @@
 namespace bustub {
 
 InsertExecutor::InsertExecutor(ExecutorContext *exec_ctx, const InsertPlanNode *plan,
-                 std::unique_ptr<AbstractExecutor> &&child_executor)
-      : AbstractExecutor(exec_ctx) {}
+                               std::unique_ptr<AbstractExecutor> &&child_executor)
+    : AbstractExecutor(exec_ctx) {}
 
 const Schema *InsertExecutor::GetOutputSchema() { return plan_->OutputSchema(); }
 
