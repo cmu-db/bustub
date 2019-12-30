@@ -10,14 +10,15 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "buffer/buffer_pool_manager.h"
 #include <cstdio>
 #include <string>
-
-#include "buffer/buffer_pool_manager.h"
+#include "gtest/gtest.h"
 
 namespace bustub {
 
-TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
+// NOLINTNEXTLINE
+TEST(BufferPoolManagerTest, DISABLE_BinaryDataTest) {
   const std::string db_name = "test.db";
   const size_t buffer_pool_size = 10;
 
@@ -78,7 +79,7 @@ TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
 }
 
 // NOLINTNEXTLINE
-TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
+TEST(BufferPoolManagerTest, DISABLE_SampleTest) {
   const std::string db_name = "test.db";
   const size_t buffer_pool_size = 10;
 

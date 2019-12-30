@@ -42,22 +42,13 @@ Page *BufferPoolManager::FetchPageImpl(page_id_t page_id) {
   // 2.     If R is dirty, write it back to the disk.
   // 3.     Delete R from the page table and insert P.
   // 4.     Update P's metadata, read in the page content from disk, and then return a pointer to P.
-
-  // For grading. Do not Modify!
-  counter.AddCount(FuncType::FetchPage);
   return nullptr;
 }
 
-bool BufferPoolManager::UnpinPageImpl(page_id_t page_id, bool is_dirty) {
-  // For grading. Do not Modify!
-  counter.AddCount(FuncType::UnpinPage);
-  return false;
-}
+bool BufferPoolManager::UnpinPageImpl(page_id_t page_id, bool is_dirty) { return false; }
 
 bool BufferPoolManager::FlushPageImpl(page_id_t page_id) {
   // Make sure you call DiskManager::WritePage!
-  // For grading. Do not Modify!
-  counter.AddCount(FuncType::FlushPage);
   return false;
 }
 
@@ -67,9 +58,6 @@ Page *BufferPoolManager::NewPageImpl(page_id_t *page_id) {
   // 2.   Pick a victim page P from either the free list or the replacer. Always pick from the free list first.
   // 3.   Update P's metadata, zero out memory and add P to the page table.
   // 4.   Set the page ID output parameter. Return a pointer to P.
-
-  // For grading. Do not Modify!
-  counter.AddCount(FuncType::NewPage);
   return nullptr;
 }
 
@@ -79,16 +67,11 @@ bool BufferPoolManager::DeletePageImpl(page_id_t page_id) {
   // 1.   If P does not exist, return true.
   // 2.   If P exists, but has a non-zero pin-count, return false. Someone is using the page.
   // 3.   Otherwise, P can be deleted. Remove P from the page table, reset its metadata and return it to the free list.
-
-  // For grading. Do not Modify!
-  counter.AddCount(FuncType::DeletePage);
   return false;
 }
 
 void BufferPoolManager::FlushAllPagesImpl() {
   // You can do it!
-  // For grading. Do not Modify!
-  counter.AddCount(FuncType::FlushAllPages);
 }
 
 }  // namespace bustub
