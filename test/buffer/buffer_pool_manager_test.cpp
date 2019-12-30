@@ -18,6 +18,7 @@
 namespace bustub {
 
 // NOLINTNEXTLINE
+// Check whether pages containing terminal characters can be recovered
 TEST(BufferPoolManagerTest, DISABLE_BinaryDataTest) {
   const std::string db_name = "test.db";
   const size_t buffer_pool_size = 10;
@@ -33,11 +34,13 @@ TEST(BufferPoolManagerTest, DISABLE_BinaryDataTest) {
   EXPECT_EQ(0, page_id_temp);
 
   char random_binary_data[PAGE_SIZE];
+  // Generate random binary data
   unsigned int seed = 15645;
   for (char &i : random_binary_data) {
     i = static_cast<char>(rand_r(&seed) % 256);
   }
 
+  // Insert terminal characters both in the middle and at end
   random_binary_data[PAGE_SIZE / 2] = '\0';
   random_binary_data[PAGE_SIZE - 1] = '\0';
 

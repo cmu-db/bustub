@@ -37,7 +37,7 @@ class SeqScanExecutor : public AbstractExecutor {
 
   bool Next(Tuple *tuple) override;
 
-  const Schema *GetOutputSchema() override;
+  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); }
 
  private:
   /** The sequential scan plan node to be executed. */

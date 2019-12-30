@@ -19,6 +19,4 @@ void SeqScanExecutor::Init() {}
 
 bool SeqScanExecutor::Next(Tuple *tuple) { return false; }
 
-const Schema *SeqScanExecutor::GetOutputSchema() { return plan_->OutputSchema(); }
-
 }  // namespace bustub
