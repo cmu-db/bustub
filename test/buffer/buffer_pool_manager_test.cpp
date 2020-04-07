@@ -34,7 +34,7 @@ TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
   EXPECT_EQ(0, page_id_temp);
 
   // Scenario: Once we have a page, we should be able to read and write content.
-  snprintf(page0->GetData(), sizeof(page0->GetData()), "Hello");
+  snprintf(page0->GetData(), PAGE_SIZE, "Hello");
   EXPECT_EQ(0, strcmp(page0->GetData(), "Hello"));
 
   // Scenario: We should be able to create new pages until we fill up the buffer pool.
