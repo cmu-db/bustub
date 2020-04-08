@@ -34,16 +34,15 @@ class InsertExecutor : public AbstractExecutor {
    * @param child_executor the child executor to obtain insert values from, can be nullptr
    */
   InsertExecutor(ExecutorContext *exec_ctx, const InsertPlanNode *plan,
-                 std::unique_ptr<AbstractExecutor> &&child_executor)
-      : AbstractExecutor(exec_ctx) {}
+                 std::unique_ptr<AbstractExecutor> &&child_executor);
 
-  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); }
+  const Schema *GetOutputSchema() override;
 
-  void Init() override {}
+  void Init() override;
 
   // Note that Insert does not make use of the tuple pointer being passed in.
   // We return false if the insert failed for any reason, and return true if all inserts succeeded.
-  bool Next([[maybe_unused]] Tuple *tuple) override { return false; }
+  bool Next([[maybe_unused]] Tuple *tuple) override;
 
  private:
   /** The insert plan node to be executed. */

@@ -31,6 +31,9 @@ class TableIterator {
  public:
   TableIterator(TableHeap *table_heap, RID rid, Transaction *txn);
 
+  TableIterator(const TableIterator &other)
+  :table_heap_(other.table_heap_), tuple_(new Tuple(*other.tuple_)), txn_(other.txn_) {}
+
   ~TableIterator() { delete tuple_; }
 
   inline bool operator==(const TableIterator &itr) const { return tuple_->rid_.Get() == itr.tuple_->rid_.Get(); }
