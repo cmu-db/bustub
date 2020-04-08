@@ -48,7 +48,7 @@ DiskManager::DiskManager(const std::string &db_file)
     log_io_.open(log_name_, std::ios::binary | std::ios::in | std::ios::app | std::ios::out);
   }
 
-  db_io_.open(db_file, std::ios::binary | std::ios::in | std::ios::out | std::ios::out);
+  db_io_.open(db_file, std::ios::binary | std::ios::in | std::ios::out);
   // directory or file does not exist
   if (!db_io_.is_open()) {
     db_io_.clear();
