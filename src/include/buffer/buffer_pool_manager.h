@@ -97,7 +97,7 @@ class BufferPoolManager {
   /** @return size of the buffer pool */
   size_t GetPoolSize() { return pool_size_; }
 
- private:
+ protected:
   /**
    * Grading function. Do not modify!
    * Invokes the callback function if it is not null.

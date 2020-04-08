@@ -31,11 +31,11 @@ class SeqScanExecutor : public AbstractExecutor {
    * @param exec_ctx the executor context
    * @param plan the sequential scan plan to be executed
    */
-  SeqScanExecutor(ExecutorContext *exec_ctx, const SeqScanPlanNode *plan) : AbstractExecutor(exec_ctx) {}
+  SeqScanExecutor(ExecutorContext *exec_ctx, const SeqScanPlanNode *plan);
 
-  void Init() override {}
+  void Init() override;
 
-  bool Next(Tuple *tuple) override { return false; }
+  bool Next(Tuple *tuple) override;
 
   const Schema *GetOutputSchema() override { return plan_->OutputSchema(); }
 
