@@ -17,6 +17,7 @@
 #include <string>
 #include <thread>  // NOLINT
 
+#include "common/exception.h"
 #include "common/logger.h"
 #include "storage/disk/disk_manager.h"
 
@@ -30,7 +31,7 @@ static char *buffer_used;
  */
 DiskManager::DiskManager(const std::string &db_file)
     : file_name_(db_file), next_page_id_(0), num_flushes_(0), num_writes_(0), flush_log_(false), flush_log_f_(nullptr) {
-  std::string::size_type n = file_name_.find('.');
+  std::string::size_type n = file_name_.rfind('.');
   if (n == std::string::npos) {
     LOG_DEBUG("wrong file format");
     return;
@@ -46,6 +47,9 @@ DiskManager::DiskManager(const std::string &db_file)
     log_io_.close();
     // reopen with original mode
     log_io_.open(log_name_, std::ios::binary | std::ios::in | std::ios::app | std::ios::out);
+    if (!log_io_.is_open()) {
+      throw Exception("can't open dblog file");
+    }
   }
 
   db_io_.open(db_file, std::ios::binary | std::ios::in | std::ios::out);
@@ -57,6 +61,9 @@ DiskManager::DiskManager(const std::string &db_file)
     db_io_.close();
     // reopen with original mode
     db_io_.open(db_file, std::ios::binary | std::ios::in | std::ios::out);
+    if (!db_io_.is_open()) {
+      throw Exception("can't open db file");
+    }
   }
   buffer_used = nullptr;
 }
@@ -94,16 +101,21 @@ void DiskManager::ReadPage(page_id_t page_id, char *page_data) {
   int offset = page_id * PAGE_SIZE;
   // check if read beyond file length
   if (offset > GetFileSize(file_name_)) {
-    LOG_DEBUG("I/O error while reading");
+    LOG_DEBUG("I/O error reading past end of file");
     // std::cerr << "I/O error while reading" << std::endl;
   } else {
     // set read cursor to offset
     db_io_.seekp(offset);
     db_io_.read(page_data, PAGE_SIZE);
+    if (db_io_.bad()) {
+      LOG_DEBUG("I/O error while reading");
+      return;
+    }
     // if file ends before reading PAGE_SIZE
     int read_count = db_io_.gcount();
     if (read_count < PAGE_SIZE) {
       LOG_DEBUG("Read less than a page");
+      db_io_.clear();
       // std::cerr << "Read less than a page" << std::endl;
       memset(page_data + read_count, 0, PAGE_SIZE - read_count);
     }
@@ -157,6 +169,11 @@ bool DiskManager::ReadLog(char *log_data, int size, int offset) {
   }
   log_io_.seekp(offset);
   log_io_.read(log_data, size);
+
+  if (log_io_.bad()) {
+    LOG_DEBUG("I/O error while reading log");
+    return false;
+  }
   // if log file ends before reading "size"
   int read_count = log_io_.gcount();
   if (read_count < size) {
