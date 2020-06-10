@@ -174,8 +174,8 @@ Value::Value(TypeId type, int64_t i) : Value(type) {
 Value::Value(TypeId type, uint64_t i) : Value(type) {
   switch (type) {
     case TypeId::BIGINT:
-      value_.boolean_ = i;
-      size_.len_ = (value_.boolean_ == BUSTUB_BOOLEAN_NULL ? BUSTUB_VALUE_NULL : 0);
+      value_.bigint_ = i;
+      size_.len_ = (value_.bigint_ == BUSTUB_INT64_NULL ? BUSTUB_VALUE_NULL : 0);
       break;
     case TypeId::TIMESTAMP:
       value_.timestamp_ = i;
