@@ -99,12 +99,13 @@ class LogRecord {
   }
 
   // constructor for NEWPAGE type
-  LogRecord(txn_id_t txn_id, lsn_t prev_lsn, LogRecordType log_record_type, page_id_t prev_page_id)
+  LogRecord(txn_id_t txn_id, lsn_t prev_lsn, LogRecordType log_record_type, page_id_t prev_page_id, page_id_t page_id)
       : size_(HEADER_SIZE),
         txn_id_(txn_id),
         prev_lsn_(prev_lsn),
         log_record_type_(log_record_type),
-        prev_page_id_(prev_page_id) {
+        prev_page_id_(prev_page_id),
+        page_id_(page_id) {
     // calculate log record size, header size + sizeof(prev_page_id) + sizeof(page_id)
     size_ = HEADER_SIZE + sizeof(page_id_t) * 2;
   }
