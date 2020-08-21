@@ -49,7 +49,7 @@ class Matrix {
   virtual void matImport(T *arr) = 0;
 
   // P0: Add implementation
-  ~Matrix() {}
+  virtual ~Matrix() = default;
 };
 
 template <typename T>
@@ -59,22 +59,22 @@ class RowMatrix : public Matrix<T> {
   RowMatrix(int r, int c) : Matrix<T>(r, c) {}
 
   // P0: Add implementation
-  int getRows() { return 0; }
+  int getRows() override { return 0; }
 
   // P0: Add implementation
-  int getColumns() { return 0; }
+  int getColumns() override { return 0; }
 
   // P0: Add implementation
-  T getElem(int i, int j) { return data[i][j]; }
+  T getElem(int i, int j) override { return data[i][j]; }
 
   // P0: Add implementation
-  void setElem(int i, int j, T val) {}
+  void setElem(int i, int j, T val) override {}
 
   // P0: Add implementation
-  void matImport(T *arr) {}
+  void matImport(T *arr) override {}
 
   // P0: Add implementation
-  ~RowMatrix() {}
+  ~RowMatrix() override = default;
 
  private:
   // 2D array containing the elements of the matrix in row-major format
