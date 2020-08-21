@@ -22,8 +22,8 @@ void TablePage::Init(page_id_t page_id, uint32_t page_size, page_id_t prev_page_
   memcpy(GetData(), &page_id, sizeof(page_id));
   // Log that we are creating a new page.
   if (enable_logging) {
-    LogRecord log_record = LogRecord(txn->GetTransactionId(), txn->GetPrevLSN(), LogRecordType::NEWPAGE, prev_page_id,
-                                     page_id);
+    LogRecord log_record =
+        LogRecord(txn->GetTransactionId(), txn->GetPrevLSN(), LogRecordType::NEWPAGE, prev_page_id, page_id);
     lsn_t lsn = log_manager->AppendLogRecord(&log_record);
     SetLSN(lsn);
     txn->SetPrevLSN(lsn);
