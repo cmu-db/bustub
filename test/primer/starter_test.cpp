@@ -2,11 +2,11 @@
 //
 //                         BusTub
 //
-// clock_replacer_test.cpp
+// starter_test.cpp
 //
-// Identification: test/buffer/clock_replacer_test.cpp
+// Identification: test/primer/starter_test.cpp
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2020, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

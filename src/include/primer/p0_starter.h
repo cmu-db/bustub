@@ -2,11 +2,11 @@
 //
 //                         BusTub
 //
-// clock_replacer.h
+// p0_starter.h
 //
-// Identification: src/include/buffer/clock_replacer.h
+// Identification: src/include/primer/p0_starter.h
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2020, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -80,6 +80,8 @@ class RowMatrix : public Matrix<T> {
   // 2D array containing the elements of the matrix in row-major format
   // P0: Allocate the array of row pointers in the constructor. Use these pointers
   // to point to corresponding elements of the 'linear' array.
+  // data should contain pointers to the rows in the linear array to make elements addressable using two dimensions.
+  // NOTE : Do not duplicate elements stored in linear.
   // Don't forget to free up the array in the destructor.
   T **data;
 };
