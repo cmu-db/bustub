@@ -4,7 +4,7 @@
 //
 // p0_starter.h
 //
-// Identification: src/include/buffer/p0_starter.h
+// Identification: src/include/primer/p0_starter.h
 //
 // Copyright (c) 2015-2020, Carnegie Mellon University Database Group
 //
