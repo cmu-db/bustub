@@ -2,11 +2,11 @@
 //
 //                         BusTub
 //
-// clock_replacer.h
+// p0_starter.h
 //
-// Identification: src/include/buffer/clock_replacer.h
+// Identification: src/include/buffer/p0_starter.h
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2020, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
