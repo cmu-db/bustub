@@ -4,9 +4,9 @@
 //
 // starter_test.cpp
 //
-// Identification: test/buffer/starter_test.cpp
+// Identification: test/include/starter_test.cpp
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2020, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
