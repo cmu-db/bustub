@@ -14,7 +14,7 @@ BusTub is a relational database management system built at [Carnegie Mellon Univ
 To create a private BusTub,
 
 1. Go to `github.com/new` to create a new github repo. Pick a name, e.g. `private-bustub`, and **make sure it is private**.
-2. On your development machine, clone the public BusTub, i.e. `git clone --depth 1 git@github.com:cmu-db/bustub.git`.
+2. On your development machine, clone the public BusTub, i.e. `git clone git@github.com:cmu-db/bustub.git`.
 3. We will [mirror](https://git-scm.com/docs/git-push#Documentation/git-push.txt---mirror) the public BusTub repo into your own private BusTub repo. Suppose your GitHub name is `student` and your repo name is `private-bustub`. Then `cd bustub` followed by `git push --mirror git@github.com:student/private-bustub.git`. This copies everything in the public BusTub repo into your own private repo. You can now `cd ..` and `rm -rf bustub`.
 4. Clone your own private repo, `git clone git@github.com:student/private-bustub.git`.
 5. Add the public BusTub as a remote. `git remote add public git@github.com:cmu-db/bustub.git`
