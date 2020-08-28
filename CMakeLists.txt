@@ -67,10 +67,6 @@ add_subdirectory("${CMAKE_BINARY_DIR}/googletest-src" "${CMAKE_BINARY_DIR}/googl
 # COMPILER SETUP
 ######################################################################################################################
 
-# Store a truncated path in the pre-processor macro __BUSTUBFILE__.
-# Source: http://stackoverflow.com/a/16658858
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__BUSTUBFILE__='\"$(subst ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
-
 # Compiler flags.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wall -Wextra -Werror -march=native")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-attributes") #TODO: remove
