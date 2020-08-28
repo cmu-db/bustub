@@ -32,6 +32,16 @@ Checks:     '
             -modernize-use-nodiscard,
             -modernize-avoid-c-arrays,
             -readability-magic-numbers,
+            -bugprone-branch-clone,
+            -bugprone-signed-char-misuse,
+            -bugprone-unhandled-self-assignment,
+            -clang-diagnostic-implicit-int-float-conversion,
+            -modernize-use-auto,
+            -modernize-use-trailing-return-type,
+            -readability-convert-member-functions-to-static,
+            -readability-make-member-function-const,
+            -readability-qualified-auto,
+            -readability-redundant-access-specifiers,
             '
 # TODO(WAN): To be enabled in Fall 2020.
 #CheckOptions:
@@ -64,3 +74,8 @@ AnalyzeTemporaryDtors: true
 #     We use C-style arrays in page.h, type.h and logger.h. They're a little more ergonomic than std::array. Thoughts?
 # -readability-magic-numbers,
 #     Let's not deal with people doing ridiculous things to hack around this. If it bites them, it bites them.
+# -bugprone-branch-clone, -bugprone-signed-char-misuse, -bugprone-unhandled-self-assignment,
+# -clang-diagnostic-implicit-int-float-conversion, -modernize-use-auto, -modernize-use-trailing-return-type,
+# -readability-convert-member-functions-to-static, -readability-make-member-function-const, -readability-qualified-auto,
+# -readability-redundant-access-specifiers
+#    Not available on clang-8. Disable for forward compatibility with students running modern clang versions.
