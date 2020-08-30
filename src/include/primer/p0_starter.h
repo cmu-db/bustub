@@ -14,6 +14,8 @@
 
 #include <memory>
 
+namespace bustub {
+
 /*
  * The base class defining a Matrix
  */
@@ -115,3 +117,4 @@ class RowMatrixOperations {
     return std::unique_ptr<RowMatrix<T>>(nullptr);
   }
 };
+}  // namespace bustub

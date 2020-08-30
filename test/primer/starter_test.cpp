@@ -15,6 +15,8 @@
 #include "gtest/gtest.h"
 #include "primer/p0_starter.h"
 
+namespace bustub {
+
 TEST(StarterTest, SampleTest) {
   int a = 1;
   EXPECT_EQ(a, 1);
@@ -77,3 +79,4 @@ TEST(StarterTest, DISABLED_MultiplyMatricesTest) {
     }
   }
 }
+}  // namespace bustub
