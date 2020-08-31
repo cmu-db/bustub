@@ -54,9 +54,9 @@ enum class LogRecordType {
  * | HEADER | tuple_rid | tuple_size | old_tuple_data | tuple_size | new_tuple_data |
  *-----------------------------------------------------------------------------------
  * For new page type log record
- *--------------------------
- * | HEADER | prev_page_id |
- *--------------------------
+ *------------------------------------
+ * | HEADER | prev_page_id | page_id |
+ *------------------------------------
  */
 class LogRecord {
   friend class LogManager;

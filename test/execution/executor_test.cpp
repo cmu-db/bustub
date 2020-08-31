@@ -255,7 +255,7 @@ TEST_F(ExecutorTest, DISABLED_SimpleSelectInsertTest) {
 
 // NOLINTNEXTLINE
 TEST_F(ExecutorTest, DISABLED_SimpleHashJoinTest) {
-  // INSERT INTO empty_table2 SELECT colA, colB FROM test_1 WHERE colA < 500
+  // SELECT colA, colB, col1, col2 FROM test_1 JOIN test_2 ON colA = col1
   std::unique_ptr<AbstractPlanNode> scan_plan1;
   const Schema *out_schema1;
   {
