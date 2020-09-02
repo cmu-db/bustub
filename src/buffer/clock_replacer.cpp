@@ -11,7 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "buffer/clock_replacer.h"
-
+#include <iostream>
 namespace bustub {
 
 const size_t UINT64_BITS = 8 * sizeof(uint64_t);
@@ -43,12 +43,10 @@ void unset_bit(std::unique_ptr<uint64_t[]> &arr, int32_t bit) {
 ClockReplacer::ClockReplacer(size_t num_pages) : max_pages(num_pages), current_id(0) {
   // 表示目前的页面都在pin着
   //  pins.resize(num_pages, 1);
-  pin_count.resize(num_pages, 1);
-  in.resize(num_pages, false);
   size = 0;
-  //  size = max_pages;
   // 计算需要多少个uint64_t
   refs = std::make_unique<uint64_t[]>((num_pages + UINT64_BITS - 1) / UINT64_BITS);
+  in = std::make_unique<uint64_t[]>((num_pages + UINT64_BITS - 1) / UINT64_BITS);
 }
 
 ClockReplacer::~ClockReplacer() = default;
@@ -56,18 +54,20 @@ ClockReplacer::~ClockReplacer() = default;
 bool ClockReplacer::Victim(frame_id_t *frame_id) {
   // victim当有frame可驱逐的时候返回其id,true
   // 否则返回false
-  if (size == max_pages) {
+  if (size == 0) {
     return false;
   }
-  // 找到pin_count == 0 AND refs == 0
+  // 找到in = 1 AND refs == 0
   while (true) {
-    if (in[current_id]) {
+    // 只能驱逐在里面的
+    if (get_bit(in, current_id)) {
       if (get_bit(refs, current_id)) {
         unset_bit(refs, current_id);
       } else {
-        in[current_id] = false;
+        unset_bit(in, current_id);
         size--;
         *frame_id = current_id;
+        // std::cout << current_id << " out\n";
         current_id++;
         current_id %= max_pages;
         return true;
@@ -83,10 +83,14 @@ void ClockReplacer::Pin(frame_id_t frame_id) {
   if (frame_id < 0 || frame_id >= int32_t(max_pages)) {
     return;
   }
-  if (!in[frame_id]) {
+  if (!get_bit(in, frame_id)) {
     return;
   }
-  pin_count[frame_id]++;
+  // pin_count[frame_id]++;
+  unset_bit(refs, frame_id);
+  unset_bit(in, frame_id);
+  size--;
+  // std::cout << frame_id << " out\n";
 }
 
 void ClockReplacer::Unpin(frame_id_t frame_id) {
@@ -94,13 +98,12 @@ void ClockReplacer::Unpin(frame_id_t frame_id) {
     return;
   }
   // 将frame加入到这里面
-  set_bit(refs, frame_id);
-  if (in[frame_id]) {
-    set_bit(refs, frame_id);
-  } else {
+  if (!get_bit(in, frame_id)) {
     size++;
   }
-  in[frame_id] = true;
+  set_bit(refs, frame_id);
+  set_bit(in, frame_id);
+  // std::cout << frame_id << " in\n";
 }
 
 size_t ClockReplacer::Size() { return size; }

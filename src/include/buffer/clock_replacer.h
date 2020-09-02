@@ -52,12 +52,12 @@ class ClockReplacer : public Replacer {
   const size_t max_pages;
   // 记录当前的可驱逐数目
   // 使用frame进行操作，初始化都不能victim
-  std::vector<size_t> pin_count;
   std::unique_ptr<uint64_t[]> refs;
-  std::vector<bool> in;
+  std::unique_ptr<uint64_t[]> in;
 
   // 记录内部可驱逐个数
   size_t size;
+  // 记录下标状态
   frame_id_t current_id;
 };
 
