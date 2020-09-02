@@ -13,6 +13,7 @@
 #pragma once
 
 #include <list>
+#include <memory>
 #include <mutex>  // NOLINT
 #include <vector>
 
@@ -47,6 +48,17 @@ class ClockReplacer : public Replacer {
 
  private:
   // TODO(student): implement me!
+  // 最多page记录
+  const size_t max_pages;
+  // 记录当前的可驱逐数目
+  // 使用frame进行操作，初始化都不能victim
+  std::vector<size_t> pin_count;
+  std::unique_ptr<uint64_t[]> refs;
+  std::vector<bool> in;
+
+  // 记录内部可驱逐个数
+  size_t size;
+  frame_id_t current_id;
 };
 
 }  // namespace bustub
