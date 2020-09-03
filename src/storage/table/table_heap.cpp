@@ -85,7 +85,7 @@ bool TableHeap::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn) {
   // We are not, in fact, double unlatching. See the invariant above.
   cur_page->WUnlatch();
   buffer_pool_manager_->UnpinPage(cur_page->GetTablePageId(), true);
-  // Update the transaction's write set.
+  // Update the transaction's write set.init
   txn->GetWriteSet()->emplace_back(*rid, WType::INSERT, Tuple{}, this);
   return true;
 }

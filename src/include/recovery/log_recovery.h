@@ -16,6 +16,7 @@
 #include <mutex>  // NOLINT
 #include <unordered_map>
 
+#include <utility>
 #include "buffer/buffer_pool_manager.h"
 #include "concurrency/lock_manager.h"
 #include "recovery/log_record.h"
