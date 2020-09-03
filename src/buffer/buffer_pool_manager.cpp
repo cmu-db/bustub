@@ -42,21 +42,24 @@ Page *BufferPoolManager::FetchPageImpl(page_id_t page_id) {
   // 2.     If R is dirty, write it back to the disk.
   // 3.     Delete R from the page table and insert P.
   // 4.     Update P's metadata, read in the page content from disk, and then return a pointer to P.
-  if (page_table_.count(page_id)) {
+  if (page_table_.count(page_id) != 0U) {
     frame_id_t frame_id = page_table_[page_id];
     replacer_->Pin(frame_id);
-    return pages_ + frame_id;
+    Page *page = pages_ + frame_id;
+    page->pin_count_++;
+    return page;
   }
   // 查找一个空页或者淘汰一个
   frame_id_t empty_frame;
-  Page* page = nullptr;
+  Page *page;
   if (free_list_.empty()) {
     // 空队列已空，从缓存中获取
     if (!replacer_->Victim(&empty_frame)) {
       return nullptr;
     }
     // 获取page_id驱逐
-    page_id_t old_page_id = page_table_[page->GetPageId()];
+    page = pages_ + empty_frame;
+    page_id_t old_page_id = page->page_id_;
     // dirty将其写回disk
     if (page->IsDirty()) {
       FlushPage(old_page_id);
@@ -66,13 +69,15 @@ Page *BufferPoolManager::FetchPageImpl(page_id_t page_id) {
     // 去前面一个
     empty_frame = free_list_.front();
     free_list_.pop_front();
+    page = pages_ + empty_frame;
   }
-  page = pages_ + empty_frame;
+  page->ResetMemory();
   // 设置一下page_table_
   page_table_[page_id] = empty_frame;
   page->page_id_ = page_id;
+  page->pin_count_ = 1;
   // 获取到了一个空页，读取空页
-  disk_manager_->ReadPage(page_id, (char*)page);
+  disk_manager_->ReadPage(page_id, reinterpret_cast<char *>(page));
 
   return page;
 }
@@ -94,12 +99,12 @@ bool BufferPoolManager::UnpinPageImpl(page_id_t page_id, bool is_dirty) {
 bool BufferPoolManager::FlushPageImpl(page_id_t page_id) {
   // Make sure you call DiskManager::WritePage!
   // 判断是否存在
-  if (!page_table_.count(page_id)) {
+  if (page_table_.count(page_id) == 0U) {
     return false;
   }
   frame_id_t frame_id = page_table_[page_id];
   Page *page = pages_ + frame_id;
-  disk_manager_->WritePage(page_id, (char*)page);
+  disk_manager_->WritePage(page_id, reinterpret_cast<char *>(page));
   return true;
 }
 
@@ -110,7 +115,32 @@ Page *BufferPoolManager::NewPageImpl(page_id_t *page_id) {
   // 3.   Update P's metadata, zero out memory and add P to the page table.
   // 4.   Set the page ID output parameter. Return a pointer to P.
   // 找一个空的page
-  return nullptr;
+  Page *page;
+  *page_id = INVALID_PAGE_ID;
+  frame_id_t frame_id;
+  //  page_id_t page_id;
+  if (free_list_.empty()) {
+    // 从replacer取一个
+    if (!replacer_->Victim(&frame_id)) {
+      return nullptr;
+    }
+    page = pages_ + frame_id;
+    if (page->is_dirty_) {
+      FlushPage(page->page_id_);
+    }
+    page_table_.erase(page->page_id_);
+  } else {
+    // 从freelist取一个
+    frame_id = free_list_.front();
+    free_list_.pop_front();
+    page = pages_ + frame_id;
+  }
+  page->ResetMemory();
+  page->page_id_ = *page_id = disk_manager_->AllocatePage();
+  page->pin_count_ = 1;
+  page_table_[page->page_id_] = frame_id;
+
+  return page;
 }
 
 bool BufferPoolManager::DeletePageImpl(page_id_t page_id) {
@@ -120,11 +150,31 @@ bool BufferPoolManager::DeletePageImpl(page_id_t page_id) {
   // 2.   If P exists, but has a non-zero pin-count, return false. Someone is using the page.
   // 3.   Otherwise, P can be deleted. Remove P from the page table, reset its metadata and return it to the free list.
   // 向free_list添加一个page
-  return false;
+  if (page_table_.count(page_id) == 0U) {
+    return true;
+  }
+  Page *page = pages_ + page_table_[page_id];
+  // 有人在用，返回false
+  if (page->GetPinCount() != 0) {
+    return false;
+  }
+  // 加入free list
+  free_list_.emplace_back(page_table_[page_id]);
+  page_table_.erase(page_id);
+  // 清除磁盘数据和内存数据
+  disk_manager_->DeallocatePage(page_id);
+  page->ResetMemory();
+
+  return true;
 }
 
 void BufferPoolManager::FlushAllPagesImpl() {
   // You can do it!
+  // 将所有dirty页刷入磁盘
+  for (auto &idx : page_table_) {
+    // 获取page
+    FlushPage(idx.first);
+  }
 }
 
 }  // namespace bustub
