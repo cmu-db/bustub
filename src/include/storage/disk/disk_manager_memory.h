@@ -30,7 +30,7 @@ class DiskManagerMemory : public DiskManager {
  public:
   DiskManagerMemory();
 
-  ~DiskManagerMemory() override = default;
+  ~DiskManagerMemory() override {free(memory_);};
 
   /**
    * Write a page to the database file.
