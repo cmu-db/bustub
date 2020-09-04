@@ -6,7 +6,7 @@
 //
 // Identification: src/storage/disk/disk_manager.cpp
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2020, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -26,11 +26,16 @@ namespace bustub {
 static char *buffer_used;
 
 /**
+ * Constructor: used for memory based manager
+ */
+DiskManager::DiskManager() = default;
+
+/**
  * Constructor: open/create a single database file & log file
  * @input db_file: database file name
  */
 DiskManager::DiskManager(const std::string &db_file)
-    : file_name_(db_file), next_page_id_(0), num_flushes_(0), num_writes_(0), flush_log_(false), flush_log_f_(nullptr) {
+    : file_name_(db_file), next_page_id_(0), flush_log_f_(nullptr) {
   std::string::size_type n = file_name_.rfind('.');
   if (n == std::string::npos) {
     LOG_DEBUG("wrong file format");
