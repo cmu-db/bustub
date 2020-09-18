@@ -80,3 +80,38 @@ If you are using CLion, it also [works with WSL](https://blog.jetbrains.com/clio
 $ cd build
 $ make check-tests
 ```
+
+## Build environment
+
+If you have trouble getting cmake or make to run, an easy solution is to create a virtual container to build in. There are two options available:
+
+### Vagrant
+Run these commands:
+
+```
+$ sudo apt update
+$ sudo apt install vagrant virtualbox
+$ cd scripts
+$ vagrant up
+```
+
+This will start a Vagrant box running Ubuntu 20.02 in the background with all the packages needed. To access it, type
+
+```
+$ vagrant ssh
+```
+
+to open a shell within the box. You can find Bustub's code mounted at `/bustub` and run the commands mentioned above like normal.
+
+### Docker
+Run these commands:
+
+```
+$ sudo apt update
+$ sudo apt install docker
+$ docker build .
+$ docker create -t -i --name btub -v $(pwd):/bustub bustub bash
+$ docker start -a -i btub
+```
+
+This will dump you into a shell inside the docker container. You can find Bustub's code mounted at `/bustub` and run the commands mentioned above like normal.
