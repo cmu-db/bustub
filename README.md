@@ -86,11 +86,15 @@ $ make check-tests
 If you have trouble getting cmake or make to run, an easy solution is to create a virtual container to build in. There are two options available:
 
 ### Vagrant
-Run these commands:
-
+First, make sure you have Vagrant and Virtualbox installed
 ```
 $ sudo apt update
 $ sudo apt install vagrant virtualbox
+```
+
+From the repository directory, run this command to create and start a Vagrant box:
+
+```
 $ vagrant up
 ```
 
@@ -103,14 +107,23 @@ $ vagrant ssh
 to open a shell within the box. You can find Bustub's code mounted at `/bustub` and run the commands mentioned above like normal.
 
 ### Docker
-Run these commands:
-
+First, make sure that you have docker installed:
 ```
 $ sudo apt update
 $ sudo apt install docker
-$ docker build .
-$ docker create -t -i --name btub -v $(pwd):/bustub bustub bash
-$ docker start -a -i btub
 ```
 
-This will dump you into a shell inside the docker container. You can find Bustub's code mounted at `/bustub` and run the commands mentioned above like normal.
+From the repository directory, run these commands to create a Docker image and container:
+
+```
+$ docker build .
+$ docker create -t -i --name bustub -v $(pwd):/bustub bustub bash
+```
+
+This will create a Docker image and container. To run it, type:
+
+```
+$ docker start -a -i bustub
+```
+
+to open a shell within the box. You can find Bustub's code mounted at `/bustub` and run the commands mentioned above like normal.
