@@ -91,7 +91,6 @@ Run these commands:
 ```
 $ sudo apt update
 $ sudo apt install vagrant virtualbox
-$ cd scripts
 $ vagrant up
 ```
 
