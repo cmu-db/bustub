@@ -116,7 +116,7 @@ $ sudo apt install docker
 From the repository directory, run these commands to create a Docker image and container:
 
 ```
-$ docker build .
+$ docker build . -t bustub
 $ docker create -t -i --name bustub -v $(pwd):/bustub bustub bash
 ```
 
