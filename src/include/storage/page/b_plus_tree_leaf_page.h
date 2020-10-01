@@ -54,7 +54,7 @@ class BPlusTreeLeafPage : public BPlusTreePage {
 
   // insert and delete methods
   int Insert(const KeyType &key, const ValueType &value, const KeyComparator &comparator);
-  bool Lookup(const KeyType &key, const ValueType &value, const KeyComparator &comparator) const;
+  bool Lookup(const KeyType &key, ValueType *value, const KeyComparator &comparator) const;
   int RemoveAndDeleteRecord(const KeyType &key, const KeyComparator &comparator);
   // Split and Merge utility methods
   void MoveHalfTo(BPlusTreeLeafPage *recipient, BufferPoolManager *buffer_pool_manager /* Unused */);

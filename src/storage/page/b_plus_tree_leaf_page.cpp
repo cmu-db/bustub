@@ -100,8 +100,7 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyHalfFrom(MappingType *items, int size) {}
  * If the key does not exist, then return false
  */
 INDEX_TEMPLATE_ARGUMENTS
-bool B_PLUS_TREE_LEAF_PAGE_TYPE::Lookup(const KeyType &key, const ValueType &value,
-                                        const KeyComparator &comparator) const {
+bool B_PLUS_TREE_LEAF_PAGE_TYPE::Lookup(const KeyType &key, ValueType *value, const KeyComparator &comparator) const {
   return false;
 }
 
