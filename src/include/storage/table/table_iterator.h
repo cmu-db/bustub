@@ -33,6 +33,13 @@ class TableIterator {
 
   TableIterator(const TableIterator &other)
       : table_heap_(other.table_heap_), tuple_(new Tuple(*other.tuple_)), txn_(other.txn_) {}
+  
+  TableIterator& operator=(const TableIterator &other) {
+    table_heap_ = other.table_heap_;
+    tuple_ = new Tuple(*other.tuple_);
+    txn_ = other.txn_;
+    return *this;
+  }
 
   ~TableIterator() { delete tuple_; }
 
