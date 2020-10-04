@@ -43,6 +43,8 @@ enum class ExceptionType {
   DIVIDE_BY_ZERO = 6,
   /** Incompatible type. */
   INCOMPATIBLE_TYPE = 8,
+  /** Out of memory error */
+  OUT_OF_MEMORY = 9,
   /** Method not implemented. */
   NOT_IMPLEMENTED = 11,
 };
@@ -79,6 +81,8 @@ class Exception : public std::runtime_error {
         return "Divide by Zero";
       case ExceptionType::INCOMPATIBLE_TYPE:
         return "Incompatible type";
+      case ExceptionType::OUT_OF_MEMORY:
+        return "Out of Memory";
       case ExceptionType::NOT_IMPLEMENTED:
         return "Not implemented";
       default:
