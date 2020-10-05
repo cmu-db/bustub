@@ -49,14 +49,16 @@ class BPlusTreeInternalPage : public BPlusTreePage {
   void Remove(int index);
   ValueType RemoveAndReturnOnlyChild();
 
-  void MoveHalfTo(BPlusTreeInternalPage *recipient, BufferPoolManager *buffer_pool_manager);
-  void MoveAllTo(BPlusTreeInternalPage *recipient, int index_in_parent, BufferPoolManager *buffer_pool_manager);
-  void MoveFirstToEndOf(BPlusTreeInternalPage *recipient, BufferPoolManager *buffer_pool_manager);
-  void MoveLastToFrontOf(BPlusTreeInternalPage *recipient, int parent_index, BufferPoolManager *buffer_pool_manager);
+  // Split and Merge utility methods
+  void MoveAllTo(BPlusTreeInternalPage *recipient, const KeyType &middle_key, BufferPoolManager *buffer_pool_manager);
+  void MoveHalfTo(BPlusTreeInternalPage *recipient, const KeyType &middle_key, BufferPoolManager *buffer_pool_manager);
+  void MoveFirstToEndOf(BPlusTreeInternalPage *recipient, const KeyType &middle_key,
+                        BufferPoolManager *buffer_pool_manager);
+  void MoveLastToFrontOf(BPlusTreeInternalPage *recipient, const KeyType &middle_key,
+                         BufferPoolManager *buffer_pool_manager);
 
  private:
-  void CopyHalfFrom(MappingType *items, int size, BufferPoolManager *buffer_pool_manager);
-  void CopyAllFrom(MappingType *items, int size, BufferPoolManager *buffer_pool_manager);
+  void CopyNFrom(MappingType *items, int size, BufferPoolManager *buffer_pool_manager);
   void CopyLastFrom(const MappingType &pair, BufferPoolManager *buffer_pool_manager);
   void CopyFirstFrom(const MappingType &pair, int parent_index, BufferPoolManager *buffer_pool_manager);
   MappingType array[0];

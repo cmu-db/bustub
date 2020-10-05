@@ -97,12 +97,15 @@ int B_PLUS_TREE_INTERNAL_PAGE_TYPE::InsertNodeAfter(const ValueType &old_value, 
  * Remove half of key & value pairs from this page to "recipient" page
  */
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveHalfTo(BPlusTreeInternalPage *recipient,
+void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveHalfTo(BPlusTreeInternalPage *recipient, const KeyType &middle_key,
                                                 BufferPoolManager *buffer_pool_manager) {}
 
+/* Copy entries into me, starting from {items} and copy {size} entries.
+ * Since it is an internal page, for all entries (pages) moved, their parents page now changes to me.
+ * So I need to 'adopt' them by changing their parent page id, which needs to be persisted with BufferPoolManger
+ */
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyHalfFrom(MappingType *items, int size,
-                                                  BufferPoolManager *buffer_pool_manager) {}
+void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyNFrom(MappingType *items, int size, BufferPoolManager *buffer_pool_manager) {}
 
 /*****************************************************************************
  * REMOVE
@@ -125,39 +128,54 @@ ValueType B_PLUS_TREE_INTERNAL_PAGE_TYPE::RemoveAndReturnOnlyChild() { return IN
  * MERGE
  *****************************************************************************/
 /*
- * Remove all of key & value pairs from this page to "recipient" page, then
- * update relavent key & value pair in its parent page.
+ * Remove all of key & value pairs from this page to "recipient" page.
+ * The middle_key is the separation key you should get from the parent. You need
+ * to make sure the middle key is added to the recipient to maintain the invariant.
+ * You also need to use BufferPoolManager to persist changes to the parent page id for those
+ * pages that are moved to the recipient
  */
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveAllTo(BPlusTreeInternalPage *recipient, int index_in_parent,
+void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveAllTo(BPlusTreeInternalPage *recipient, const KeyType &middle_key,
                                                BufferPoolManager *buffer_pool_manager) {}
-
-INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyAllFrom(MappingType *items, int size, BufferPoolManager *buffer_pool_manager) {
-}
 
 /*****************************************************************************
  * REDISTRIBUTE
  *****************************************************************************/
 /*
- * Remove the first key & value pair from this page to tail of "recipient"
- * page, then update relavent key & value pair in its parent page.
+ * Remove the first key & value pair from this page to tail of "recipient" page.
+ *
+ * The middle_key is the separation key you should get from the parent. You need
+ * to make sure the middle key is added to the recipient to maintain the invariant.
+ * You also need to use BufferPoolManager to persist changes to the parent page id for those
+ * pages that are moved to the recipient
  */
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveFirstToEndOf(BPlusTreeInternalPage *recipient,
+void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveFirstToEndOf(BPlusTreeInternalPage *recipient, const KeyType &middle_key,
                                                       BufferPoolManager *buffer_pool_manager) {}
 
+/* Append an entry at the end.
+ * Since it is an internal page, the moved entry(page)'s parent needs to be updated.
+ * So I need to 'adopt' it by changing its parent page id, which needs to be persisted with BufferPoolManger
+ */
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyLastFrom(const MappingType &pair, BufferPoolManager *buffer_pool_manager) {}
 
 /*
- * Remove the last key & value pair from this page to head of "recipient"
- * page, then update relavent key & value pair in its parent page.
+ * Remove the last key & value pair from this page to head of "recipient" page.
+ *
+ * The middle_key is the separation key you should get from the parent. You need
+ * to make sure the middle key is added to the recipient to maintain the invariant.
+ * You also need to use BufferPoolManager to persist changes to the parent page id for those
+ * pages that are moved to the recipient
  */
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveLastToFrontOf(BPlusTreeInternalPage *recipient, int parent_index,
+void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveLastToFrontOf(BPlusTreeInternalPage *recipient, const KeyType &middle_key,
                                                        BufferPoolManager *buffer_pool_manager) {}
 
+/* Append an entry at the beginning.
+ * Since it is an internal page, the moved entry(page)'s parent needs to be updated.
+ * So I need to 'adopt' it by changing its parent page id, which needs to be persisted with BufferPoolManger
+ */
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyFirstFrom(const MappingType &pair, int parent_index,
                                                    BufferPoolManager *buffer_pool_manager) {}

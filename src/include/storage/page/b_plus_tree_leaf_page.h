@@ -56,17 +56,17 @@ class BPlusTreeLeafPage : public BPlusTreePage {
   int Insert(const KeyType &key, const ValueType &value, const KeyComparator &comparator);
   bool Lookup(const KeyType &key, ValueType *value, const KeyComparator &comparator) const;
   int RemoveAndDeleteRecord(const KeyType &key, const KeyComparator &comparator);
+
   // Split and Merge utility methods
-  void MoveHalfTo(BPlusTreeLeafPage *recipient, BufferPoolManager *buffer_pool_manager /* Unused */);
-  void MoveAllTo(BPlusTreeLeafPage *recipient, int index_in_parent /* Unused */, BufferPoolManager *bpm /* Unused */);
-  void MoveFirstToEndOf(BPlusTreeLeafPage *recipient, BufferPoolManager *buffer_pool_manager);
-  void MoveLastToFrontOf(BPlusTreeLeafPage *recipient, int parentIndex, BufferPoolManager *buffer_pool_manager);
+  void MoveHalfTo(BPlusTreeLeafPage *recipient);
+  void MoveAllTo(BPlusTreeLeafPage *recipient);
+  void MoveFirstToEndOf(BPlusTreeLeafPage *recipient);
+  void MoveLastToFrontOf(BPlusTreeLeafPage *recipient);
 
  private:
-  void CopyHalfFrom(MappingType *items, int size);
-  void CopyAllFrom(MappingType *items, int size);
+  void CopyNFrom(MappingType *items, int size);
   void CopyLastFrom(const MappingType &item);
-  void CopyFirstFrom(const MappingType &item, int parentIndex, BufferPoolManager *buffer_pool_manager);
+  void CopyFirstFrom(const MappingType &item);
   page_id_t next_page_id_;
   MappingType array[0];
 };
