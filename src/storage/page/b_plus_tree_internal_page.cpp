@@ -97,7 +97,7 @@ int B_PLUS_TREE_INTERNAL_PAGE_TYPE::InsertNodeAfter(const ValueType &old_value, 
  * Remove half of key & value pairs from this page to "recipient" page
  */
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveHalfTo(BPlusTreeInternalPage *recipient, const KeyType &middle_key,
+void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveHalfTo(BPlusTreeInternalPage *recipient,
                                                 BufferPoolManager *buffer_pool_manager) {}
 
 /* Copy entries into me, starting from {items} and copy {size} entries.
@@ -163,13 +163,11 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyLastFrom(const MappingType &pair, Buffe
 /*
  * Remove the last key & value pair from this page to head of "recipient" page.
  *
- * The middle_key is the separation key you should get from the parent. You need
- * to make sure the middle key is added to the recipient to maintain the invariant.
  * You also need to use BufferPoolManager to persist changes to the parent page id for those
  * pages that are moved to the recipient
  */
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveLastToFrontOf(BPlusTreeInternalPage *recipient, const KeyType &middle_key,
+void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveLastToFrontOf(BPlusTreeInternalPage *recipient,
                                                        BufferPoolManager *buffer_pool_manager) {}
 
 /* Append an entry at the beginning.
