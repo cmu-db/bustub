@@ -12,6 +12,7 @@
 
 #include "buffer/buffer_pool_manager.h"
 #include <cstdio>
+#include <random>
 #include <string>
 #include "gtest/gtest.h"
 
@@ -22,6 +23,10 @@ namespace bustub {
 TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
   const std::string db_name = "test.db";
   const size_t buffer_pool_size = 10;
+
+  std::random_device r;
+  std::default_random_engine rng(r());
+  std::uniform_int_distribution<char> uniform_dist(0);
 
   auto *disk_manager = new DiskManager(db_name);
   auto *bpm = new BufferPoolManager(buffer_pool_size, disk_manager);
@@ -35,9 +40,8 @@ TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
 
   char random_binary_data[PAGE_SIZE];
   // Generate random binary data
-  unsigned int seed = 15645;
   for (char &i : random_binary_data) {
-    i = static_cast<char>(rand_r(&seed) % 256);
+    i = uniform_dist(rng);
   }
 
   // Insert terminal characters both in the middle and at end
