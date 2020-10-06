@@ -10,6 +10,15 @@ project(BusTub
         LANGUAGES C CXX
         )
 
+# People keep running CMake in the wrong folder, completely nuking their project or creating weird bugs.
+# This checks if you're running CMake from a folder that already has CMakeLists.txt.
+# Importantly, this catches the common case of running it from the root directory.
+file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" PATH_TO_CMAKELISTS_TXT)
+if (EXISTS "${PATH_TO_CMAKELISTS_TXT}")
+    message(FATAL_ERROR "Run CMake from a build subdirectory! \"mkdir build ; cd build ; cmake ..\" \
+    Some junk files were created in this folder (CMakeCache.txt, CMakeFiles); you should delete those.")
+endif ()
+
 # Expected directory structure.
 set(BUSTUB_BUILD_SUPPORT_DIR "${CMAKE_SOURCE_DIR}/build_support")
 set(BUSTUB_CLANG_SEARCH_PATH "/usr/local/bin" "/usr/bin" "/usr/local/opt/llvm/bin" "/usr/local/opt/llvm@8/bin"
