@@ -166,11 +166,11 @@ class AggregationExecutor : public AbstractExecutor {
   /** Do not use or remove this function, otherwise you will get zero points. */
   const AbstractExecutor *GetChildExecutor() const;
 
-  const Schema *GetOutputSchema() override;
+  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); };
 
   void Init() override;
 
-  bool Next(Tuple *tuple) override;
+  bool Next(Tuple *tuple, RID *rid) override;
 
   /** @return the tuple as an AggregateKey */
   AggregateKey MakeKey(const Tuple *tuple) {
