@@ -54,9 +54,9 @@ class ExecutionEngine {
   }
 
  private:
-  BufferPoolManager *bpm_;       // NOLINT
-  TransactionManager *txn_mgr_;  // NOLINT
-  SimpleCatalog *catalog_;       // NOLINT
+  [[maybe_unused]] BufferPoolManager *bpm_;
+  [[maybe_unused]] TransactionManager *txn_mgr_;
+  [[maybe_unused]] SimpleCatalog *catalog_;
 };
 
 }  // namespace bustub
