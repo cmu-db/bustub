@@ -260,6 +260,7 @@ TEST_F(ExecutorTest, DISABLED_SimpleSelectInsertTest) {
 
 // NOLINTNEXTLINE
 TEST_F(ExecutorTest, DISABLED_SimpleNestedLoopJoinTest) {
+  // SELECT test_1.colA, test_1.colB, test_2.col1, test_2.col3 FROM test_1 JOIN test_2 ON test_1.colA = test_2.col1
   std::unique_ptr<AbstractPlanNode> scan_plan1;
   const Schema *out_schema1;
   {
@@ -276,8 +277,8 @@ TEST_F(ExecutorTest, DISABLED_SimpleNestedLoopJoinTest) {
     auto table_info = GetExecutorContext()->GetCatalog()->GetTable("test_2");
     auto &schema = table_info->schema_;
     auto col1 = MakeColumnValueExpression(schema, 0, "col1");
-    auto col5 = MakeColumnValueExpression(schema, 0, "col5");
-    out_schema2 = MakeOutputSchema({{"col1", col1}, {"col5", col5}});
+    auto col3 = MakeColumnValueExpression(schema, 0, "col3");
+    out_schema2 = MakeOutputSchema({{"col1", col1}, {"col3", col3}});
     scan_plan2 = std::make_unique<SeqScanPlanNode>(out_schema2, nullptr, table_info->oid_);
   }
   std::unique_ptr<NestedLoopJoinPlanNode> join_plan;
@@ -288,9 +289,9 @@ TEST_F(ExecutorTest, DISABLED_SimpleNestedLoopJoinTest) {
     auto colB = MakeColumnValueExpression(*out_schema1, 0, "colB");
     // col1 and col2 have a tuple index of 1 because they are the right side of the join
     auto col1 = MakeColumnValueExpression(*out_schema2, 1, "col1");
-    auto col5 = MakeColumnValueExpression(*out_schema2, 1, "col5");
+    auto col3 = MakeColumnValueExpression(*out_schema2, 1, "col3");
     auto predicate = MakeComparisonExpression(colA, col1, ComparisonType::Equal);
-    out_final = MakeOutputSchema({{"colA", colA}, {"colB", colB}, {"col1", col1}, {"col5", col5}});
+    out_final = MakeOutputSchema({{"colA", colA}, {"colB", colB}, {"col1", col1}, {"col3", col3}});
     join_plan = std::make_unique<NestedLoopJoinPlanNode>(
         out_final, std::vector<const AbstractPlanNode *>{scan_plan1.get(), scan_plan2.get()}, predicate);
   }
@@ -300,12 +301,10 @@ TEST_F(ExecutorTest, DISABLED_SimpleNestedLoopJoinTest) {
   ASSERT_EQ(result_set.size(), 100);
   std::cout << "ColA, ColB, Col1, Col3" << std::endl;
   for (const auto &tuple : result_set) {
-    auto col_5_index = out_final->GetColIdx("col5");
-    auto col5_val = tuple.GetValue(out_final, col_5_index).GetAs<int32_t>();
     std::cout << tuple.GetValue(out_final, out_final->GetColIdx("colA")).GetAs<int32_t>() << ", "
               << tuple.GetValue(out_final, out_final->GetColIdx("colB")).GetAs<int32_t>() << ", "
-              << tuple.GetValue(out_final, out_final->GetColIdx("col1")).GetAs<int16_t>() << ", " << col5_val
-              << std::endl;
+              << tuple.GetValue(out_final, out_final->GetColIdx("col1")).GetAs<int16_t>() << ", "
+              << tuple.GetValue(out_final, out_final->GetColIdx("col3")).GetAs<int32_t>() << ", " << std::endl;
   }
 }
 
@@ -362,7 +361,7 @@ TEST_F(ExecutorTest, DISABLED_SimpleAggregationTest) {
 
 // NOLINTNEXTLINE
 TEST_F(ExecutorTest, DISABLED_SimpleGroupByAggregation) {
-  // SELECT count(colA), colB, sum(C) FROM test_1 Group By colB HAVING count(colA) > 100
+  // SELECT count(colA), colB, sum(colC) FROM test_1 Group By colB HAVING count(colA) > 100
   std::unique_ptr<AbstractPlanNode> scan_plan;
   const Schema *scan_schema;
   {
