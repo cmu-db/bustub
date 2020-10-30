@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "catalog/simple_catalog.h"
+#include "catalog/catalog.h"
 #include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
 

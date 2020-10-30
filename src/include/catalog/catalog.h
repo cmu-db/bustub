@@ -54,10 +54,10 @@ struct IndexInfo {
 };
 
 /**
- * SimpleCatalog is a non-persistent catalog that is designed for the executor to use.
+ * Catalog is a non-persistent catalog that is designed for the executor to use.
  * It handles table creation and table lookup.
  */
-class SimpleCatalog {
+class Catalog {
  public:
   /**
    * Creates a new catalog object.
@@ -65,7 +65,7 @@ class SimpleCatalog {
    * @param lock_manager the lock manager in use by the system
    * @param log_manager the log manager in use by the system
    */
-  SimpleCatalog(BufferPoolManager *bpm, LockManager *lock_manager, LogManager *log_manager)
+  Catalog(BufferPoolManager *bpm, LockManager *lock_manager, LogManager *log_manager)
       : bpm_{bpm}, lock_manager_{lock_manager}, log_manager_{log_manager} {}
 
   /**

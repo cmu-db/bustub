@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "buffer/buffer_pool_manager.h"
-#include "catalog/simple_catalog.h"
+#include "catalog/catalog.h"
 #include "concurrency/transaction_manager.h"
 #include "execution/executor_context.h"
 #include "execution/executor_factory.h"
@@ -24,7 +24,7 @@
 namespace bustub {
 class ExecutionEngine {
  public:
-  ExecutionEngine(BufferPoolManager *bpm, TransactionManager *txn_mgr, SimpleCatalog *catalog)
+  ExecutionEngine(BufferPoolManager *bpm, TransactionManager *txn_mgr, Catalog *catalog)
       : bpm_(bpm), txn_mgr_(txn_mgr), catalog_(catalog) {}
 
   DISALLOW_COPY_AND_MOVE(ExecutionEngine);
@@ -56,7 +56,7 @@ class ExecutionEngine {
  private:
   [[maybe_unused]] BufferPoolManager *bpm_;
   [[maybe_unused]] TransactionManager *txn_mgr_;
-  [[maybe_unused]] SimpleCatalog *catalog_;
+  [[maybe_unused]] Catalog *catalog_;
 };
 
 }  // namespace bustub

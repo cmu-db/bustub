@@ -16,7 +16,7 @@
 #include <utility>
 #include <vector>
 
-#include "catalog/simple_catalog.h"
+#include "catalog/catalog.h"
 #include "concurrency/transaction.h"
 #include "storage/page/tmp_tuple_page.h"
 
@@ -32,7 +32,7 @@ class ExecutorContext {
    * @param catalog the catalog that the executor should use
    * @param bpm the buffer pool manager that the executor should use
    */
-  ExecutorContext(Transaction *transaction, SimpleCatalog *catalog, BufferPoolManager *bpm)
+  ExecutorContext(Transaction *transaction, Catalog *catalog, BufferPoolManager *bpm)
       : transaction_(transaction), catalog_{catalog}, bpm_{bpm} {}
 
   DISALLOW_COPY_AND_MOVE(ExecutorContext);
@@ -43,7 +43,7 @@ class ExecutorContext {
   Transaction *GetTransaction() const { return transaction_; }
 
   /** @return the catalog */
-  SimpleCatalog *GetCatalog() { return catalog_; }
+  Catalog *GetCatalog() { return catalog_; }
 
   /** @return the buffer pool manager */
   BufferPoolManager *GetBufferPoolManager() { return bpm_; }
@@ -56,7 +56,7 @@ class ExecutorContext {
 
  private:
   Transaction *transaction_;
-  SimpleCatalog *catalog_;
+  Catalog *catalog_;
   BufferPoolManager *bpm_;
 };
 
