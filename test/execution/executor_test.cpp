@@ -43,11 +43,11 @@ class ExecutorTest : public ::testing::Test {
   // This function is called before every test.
   void SetUp() override {
     ::testing::Test::SetUp();
-    // For each test, we create a new DiskManager, BufferPoolManager, TransactionManager, and SimpleCatalog.
+    // For each test, we create a new DiskManager, BufferPoolManager, TransactionManager, and Catalog.
     disk_manager_ = std::make_unique<DiskManager>("executor_test.db");
     bpm_ = std::make_unique<BufferPoolManager>(32, disk_manager_.get());
     txn_mgr_ = std::make_unique<TransactionManager>(lock_manager_.get(), log_manager_.get());
-    catalog_ = std::make_unique<SimpleCatalog>(bpm_.get(), lock_manager_.get(), log_manager_.get());
+    catalog_ = std::make_unique<Catalog>(bpm_.get(), lock_manager_.get(), log_manager_.get());
     // Begin a new transaction, along with its executor context.
     txn_ = txn_mgr_->Begin();
     exec_ctx_ = std::make_unique<ExecutorContext>(txn_, catalog_.get(), bpm_.get());
@@ -73,7 +73,7 @@ class ExecutorTest : public ::testing::Test {
   ExecutionEngine *GetExecutionEngine() { return execution_engine_.get(); }
   Transaction *GetTxn() { return txn_; }
   TransactionManager *GetTxnManager() { return txn_mgr_.get(); }
-  SimpleCatalog *GetCatalog() { return catalog_.get(); }
+  Catalog *GetCatalog() { return catalog_.get(); }
   BufferPoolManager *GetBPM() { return bpm_.get(); }
 
   // The below helper functions are useful for testing.
@@ -124,7 +124,7 @@ class ExecutorTest : public ::testing::Test {
   std::unique_ptr<LogManager> log_manager_ = nullptr;
   std::unique_ptr<LockManager> lock_manager_ = nullptr;
   std::unique_ptr<BufferPoolManager> bpm_;
-  std::unique_ptr<SimpleCatalog> catalog_;
+  std::unique_ptr<Catalog> catalog_;
   std::unique_ptr<ExecutorContext> exec_ctx_;
   std::unique_ptr<ExecutionEngine> execution_engine_;
   std::vector<std::unique_ptr<AbstractExpression>> allocated_exprs_;
