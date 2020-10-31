@@ -39,9 +39,10 @@ class AbstractExecutor {
   /**
    * Produces the next tuple from this executor.
    * @param[out] tuple the next tuple produced by this executor
+   * @param[out] rid the next tuple rid produced by this executor
    * @return true if a tuple was produced, false if there are no more tuples
    */
-  virtual bool Next(Tuple *tuple) = 0;
+  virtual bool Next(Tuple *tuple, RID *rid) = 0;
 
   /** @return the schema of the tuples that this executor produces */
   virtual const Schema *GetOutputSchema() = 0;

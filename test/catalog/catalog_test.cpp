@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "buffer/buffer_pool_manager.h"
-#include "catalog/simple_catalog.h"
+#include "catalog/catalog.h"
 #include "gtest/gtest.h"
 #include "type/value_factory.h"
 
@@ -25,7 +25,7 @@ namespace bustub {
 TEST(CatalogTest, DISABLED_CreateTableTest) {
   auto disk_manager = new DiskManager("catalog_test.db");
   auto bpm = new BufferPoolManager(32, disk_manager);
-  auto catalog = new SimpleCatalog(bpm, nullptr, nullptr);
+  auto catalog = new Catalog(bpm, nullptr, nullptr);
   std::string table_name = "potato";
 
   // The table shouldn't exist in the catalog yet.
