@@ -171,13 +171,21 @@ bool TableHeap::GetTuple(const RID &rid, Tuple *tuple, Transaction *txn) {
 
 TableIterator TableHeap::Begin(Transaction *txn) {
   // Start an iterator from the first page.
-  auto page = static_cast<TablePage *>(buffer_pool_manager_->FetchPage(first_page_id_));
-  page->RLatch();
+  // TODO(Wuwen): Hacky fix for now. Removing empty pages is a better way to handle this.
   RID rid;
-  // If this fails because there is no tuple, then RID will be the default-constructed value, which means EOF.
-  page->GetFirstTupleRid(&rid);
-  page->RUnlatch();
-  buffer_pool_manager_->UnpinPage(first_page_id_, false);
+  auto page_id = first_page_id_;
+  while (page_id != INVALID_PAGE_ID) {
+    auto page = static_cast<TablePage *>(buffer_pool_manager_->FetchPage(page_id));
+    page->RLatch();
+    // If this fails because there is no tuple, then RID will be the default-constructed value, which means EOF.
+    auto found_tuple = page->GetFirstTupleRid(&rid);
+    page->RUnlatch();
+    buffer_pool_manager_->UnpinPage(page_id, false);
+    if (found_tuple) {
+      break;
+    }
+    page_id = page->GetNextPageId();
+  }
   return TableIterator(this, rid, txn);
 }
 

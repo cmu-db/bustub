@@ -19,10 +19,8 @@ InsertExecutor::InsertExecutor(ExecutorContext *exec_ctx, const InsertPlanNode *
                                std::unique_ptr<AbstractExecutor> &&child_executor)
     : AbstractExecutor(exec_ctx) {}
 
-const Schema *InsertExecutor::GetOutputSchema() { return plan_->OutputSchema(); }
-
 void InsertExecutor::Init() {}
 
-bool InsertExecutor::Next([[maybe_unused]] Tuple *tuple) { return false; }
+bool InsertExecutor::Next([[maybe_unused]] Tuple *tuple, RID *rid) { return false; }
 
 }  // namespace bustub

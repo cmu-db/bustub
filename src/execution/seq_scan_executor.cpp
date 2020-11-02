@@ -17,6 +17,6 @@ SeqScanExecutor::SeqScanExecutor(ExecutorContext *exec_ctx, const SeqScanPlanNod
 
 void SeqScanExecutor::Init() {}
 
-bool SeqScanExecutor::Next(Tuple *tuple) { return false; }
+bool SeqScanExecutor::Next(Tuple *tuple, RID *rid) { return false; }
 
 }  // namespace bustub
