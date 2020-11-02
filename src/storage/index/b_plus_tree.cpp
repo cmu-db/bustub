@@ -352,6 +352,7 @@ void BPLUSTREE_TYPE::ToGraph(BPlusTreePage *page, BufferPoolManager *bpm, std::o
           out << "{rank=same " << internal_prefix << sibling_page->GetPageId() << " " << internal_prefix
               << child_page->GetPageId() << "};\n";
         }
+        bpm->UnpinPage(sibling_page->GetPageId(), false);
       }
     }
   }
