@@ -262,7 +262,7 @@ TEST_F(ExecutorTest, DISABLED_SimpleSelectInsertTest) {
 }
 
 // NOLINTNEXTLINE
-TEST_F(ExecutorTest, SimpleRawInsertWithIndexTest) {
+TEST_F(ExecutorTest, DISABLED_SimpleRawInsertWithIndexTest) {
   // INSERT INTO empty_table2 VALUES (100, 10), (101, 11), (102, 12)
   // Create Values to insert
   std::vector<Value> val1{ValueFactory::GetIntegerValue(100), ValueFactory::GetIntegerValue(10)};
@@ -329,7 +329,7 @@ TEST_F(ExecutorTest, SimpleRawInsertWithIndexTest) {
 }
 
 // NOLINTNEXTLINE
-TEST_F(ExecutorTest, SimpleDeleteTest) {
+TEST_F(ExecutorTest, DISABLED_SimpleDeleteTest) {
   // SELECT colA FROM test_1 WHERE colA == 50
   // DELETE FROM test_1 WHERE colA == 50
   // SELECT colA FROM test_1 WHERE colA == 50
