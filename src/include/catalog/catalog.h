@@ -97,6 +97,7 @@ class Catalog {
    * @param keysize size of the key
    * @return a pointer to the metadata of the new table
    */
+  template <class KeyType, class ValueType, class KeyComparator>
   IndexInfo *CreateIndex(Transaction *txn, const std::string &index_name, const std::string &table_name,
                          const Schema &schema, const Schema &key_schema, const std::vector<uint32_t> &key_attrs,
                          size_t keysize) {
