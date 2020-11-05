@@ -48,6 +48,13 @@ class TableIterator {
 
   TableIterator operator++(int);
 
+  TableIterator &operator=(const TableIterator &other) {
+    table_heap_ = other.table_heap_;
+    *tuple_ = *other.tuple_;
+    txn_ = other.txn_;
+    return *this;
+  }
+
  private:
   TableHeap *table_heap_;
   Tuple *tuple_;

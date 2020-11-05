@@ -16,11 +16,10 @@ namespace bustub {
  * Constructor
  */
 INDEX_TEMPLATE_ARGUMENTS
-BPLUSTREE_INDEX_TYPE::BPlusTreeIndex(IndexMetadata *metadata, BufferPoolManager *buffer_pool_manager,
-                                     page_id_t root_page_id)
+BPLUSTREE_INDEX_TYPE::BPlusTreeIndex(IndexMetadata *metadata, BufferPoolManager *buffer_pool_manager)
     : Index(metadata),
       comparator_(metadata->GetKeySchema()),
-      container_(metadata->GetName(), buffer_pool_manager, comparator_, root_page_id) {}
+      container_(metadata->GetName(), buffer_pool_manager, comparator_) {}
 
 INDEX_TEMPLATE_ARGUMENTS
 void BPLUSTREE_INDEX_TYPE::InsertEntry(const Tuple &key, RID rid, Transaction *transaction) {
@@ -48,6 +47,9 @@ void BPLUSTREE_INDEX_TYPE::ScanKey(const Tuple &key, std::vector<RID> *result, T
 
   container_.GetValue(index_key, result, transaction);
 }
+
+INDEX_TEMPLATE_ARGUMENTS
+INDEXITERATOR_TYPE BPLUSTREE_INDEX_TYPE::GetBeginIterator() { return container_.begin(); }
 
 INDEX_TEMPLATE_ARGUMENTS
 INDEXITERATOR_TYPE BPLUSTREE_INDEX_TYPE::GetBeginIterator(const KeyType &key) { return container_.Begin(key); }
