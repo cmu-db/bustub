@@ -49,9 +49,9 @@ class NestedIndexJoinPlanNode : public AbstractPlanNode {
   /** @return the plan node for the outer table of the nested index join */
   const AbstractPlanNode *GetChildPlan() const { return GetChildAt(0); }
 
-  table_oid_t GetInnerTableOid() { return inner_table_oid_; }
+  table_oid_t GetInnerTableOid() const { return inner_table_oid_; }
 
-  std::string GetIndexName() { return index_name_; }
+  const std::string &GetIndexName() const { return index_name_; }
 
  private:
   /** The nested index join predicate. */
