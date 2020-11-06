@@ -276,7 +276,7 @@ TEST_F(ExecutorTest, DISABLED_SimpleRawInsertWithIndexTest) {
   Schema *key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema);
   auto index_info = GetExecutorContext()->GetCatalog()->CreateIndex<GenericKey<8>, RID, GenericComparator<8>>(
-      GetTxn(), "index1", "empty_table2", table_info->schema_, *key_schema, {0}, 1);
+      GetTxn(), "index1", "empty_table2", table_info->schema_, *key_schema, {0}, 8);
 
   GetExecutionEngine()->Execute(&insert_plan, nullptr, GetTxn(), GetExecutorContext());
 
@@ -348,7 +348,7 @@ TEST_F(ExecutorTest, DISABLED_SimpleDeleteTest) {
   GenericComparator<8> comparator(key_schema);
   auto index_info = GetExecutorContext()->GetCatalog()->CreateIndex<GenericKey<8>, RID, GenericComparator<8>>(
       GetTxn(), "index1", "test_1", GetExecutorContext()->GetCatalog()->GetTable("test_1")->schema_, *key_schema, {0},
-      1);
+      8);
 
   // Execute
   std::vector<Tuple> result_set;
