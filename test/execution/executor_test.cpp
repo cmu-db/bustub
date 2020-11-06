@@ -326,6 +326,7 @@ TEST_F(ExecutorTest, DISABLED_SimpleRawInsertWithIndexTest) {
     std::cout << indexed_tuple.GetValue(out_schema, out_schema->GetColIdx("colA")).GetAs<int32_t>() << ", "
               << indexed_tuple.GetValue(out_schema, out_schema->GetColIdx("colB")).GetAs<int32_t>() << std::endl;
   }
+  delete key_schema;
 }
 
 // NOLINTNEXTLINE
@@ -379,6 +380,8 @@ TEST_F(ExecutorTest, DISABLED_SimpleDeleteTest) {
 
   index_info->index_->ScanKey(index_key, &rids, GetTxn());
   ASSERT_TRUE(rids.empty());
+
+  delete key_schema;
 }
 
 // NOLINTNEXTLINE
