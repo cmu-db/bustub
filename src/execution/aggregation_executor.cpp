@@ -22,10 +22,8 @@ AggregationExecutor::AggregationExecutor(ExecutorContext *exec_ctx, const Aggreg
 
 const AbstractExecutor *AggregationExecutor::GetChildExecutor() const { return child_.get(); }
 
-const Schema *AggregationExecutor::GetOutputSchema() { return plan_->OutputSchema(); }
-
 void AggregationExecutor::Init() {}
 
-bool AggregationExecutor::Next(Tuple *tuple) { return false; }
+bool AggregationExecutor::Next(Tuple *tuple, RID *rid) { return false; }
 
 }  // namespace bustub

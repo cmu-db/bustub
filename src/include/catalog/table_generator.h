@@ -3,7 +3,7 @@
 #include <utility>
 #include <vector>
 
-#include "catalog/simple_catalog.h"
+#include "catalog/catalog.h"
 #include "execution/executor_context.h"
 #include "storage/table/table_heap.h"
 

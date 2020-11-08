@@ -35,7 +35,7 @@ class SeqScanExecutor : public AbstractExecutor {
 
   void Init() override;
 
-  bool Next(Tuple *tuple) override;
+  bool Next(Tuple *tuple, RID *rid) override;
 
   const Schema *GetOutputSchema() override { return plan_->OutputSchema(); }
 
