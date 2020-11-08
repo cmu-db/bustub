@@ -123,9 +123,9 @@ class Catalog {
   std::atomic<table_oid_t> next_table_oid_{0};
   /** indexes_: index identifiers -> index metadata. Note that indexes_ owns all index metadata */
   std::unordered_map<index_oid_t, std::unique_ptr<IndexInfo>> indexes_;
-  /** index_names_: table identifiers -> index names -> index identifiers */
+  /** index_names_: table name -> index names -> index identifiers */
   std::unordered_map<std::string, std::unordered_map<std::string, index_oid_t>> index_names_;
   /** The next index identifier to be used */
-  std::atomic<table_oid_t> next_index_oid_{0};
+  std::atomic<index_oid_t> next_index_oid_{0};
 };
 }  // namespace bustub

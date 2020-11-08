@@ -96,6 +96,14 @@ void TableGenerator::GenerateTestTables() {
         {"col3", TypeId::BIGINT, false, Dist::Uniform, 0, 1024},
         {"col4", TypeId::INTEGER, true, Dist::Uniform, 0, 2048}}},
 
+      // Table 3
+      {"test_3",
+       TEST2_SIZE,
+       {{"col1", TypeId::INTEGER, false, Dist::Serial, 0, 0},
+        {"col2", TypeId::INTEGER, true, Dist::Uniform, 10, 19},
+        {"col3", TypeId::BIGINT, false, Dist::Uniform, 0, 1024},
+        {"col4", TypeId::INTEGER, true, Dist::Uniform, 0, 2048}}},
+
       // Empty table with two columns
       {"empty_table2",
        0,
