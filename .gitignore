@@ -257,3 +257,6 @@ docs/dev
 
 # Config files
 *.conf
+
+# Vagrant
+.vagrant
