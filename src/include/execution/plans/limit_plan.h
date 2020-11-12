@@ -27,8 +27,8 @@ class LimitPlanNode : public AbstractPlanNode {
    * @param limit the number of output tuples
    * @param offset the number of rows to be skipped
    */
-  LimitPlanNode(const AbstractPlanNode *child, size_t limit, size_t offset)
-      : AbstractPlanNode(nullptr, {child}), limit_(limit), offset_(offset) {}
+  LimitPlanNode(const Schema *output_schema, const AbstractPlanNode *child, size_t limit, size_t offset)
+      : AbstractPlanNode(output_schema, {child}), limit_(limit), offset_(offset) {}
 
   PlanType GetType() const override { return PlanType::Limit; }
 
