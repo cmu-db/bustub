@@ -37,18 +37,25 @@ namespace bustub {
 enum class TransactionState { GROWING, SHRINKING, COMMITTED, ABORTED };
 
 /**
+ * Transaction isolation level.
+ */
+enum class IsolationLevel { READ_UNCOMMITED, REPEATABLE_READ, READ_COMMITED };
+
+/**
  * Type of write operation.
  */
 enum class WType { INSERT = 0, DELETE, UPDATE };
 
 class TableHeap;
+class Catalog;
+using table_oid_t = uint32_t;
 
 /**
  * WriteRecord tracks information related to a write.
  */
-class WriteRecord {
+class TableWriteRecord {
  public:
-  WriteRecord(RID rid, WType wtype, const Tuple &tuple, TableHeap *table)
+  TableWriteRecord(RID rid, WType wtype, const Tuple &tuple, TableHeap *table)
       : rid_(rid), wtype_(wtype), tuple_(tuple), table_(table) {}
 
   RID rid_;
@@ -60,19 +67,86 @@ class WriteRecord {
 };
 
 /**
+ * WriteRecord tracks information related to a write.
+ */
+class IndexWriteRecord {
+ public:
+  IndexWriteRecord(RID rid, table_oid_t table_oid, WType wtype, const Tuple &tuple, size_t index, Catalog *catalog)
+      : rid_(rid), table_oid_(table_oid), wtype_(wtype), tuple_(tuple), index_(index), catalog_(catalog) {}
+
+  /** The rid is the value stored in the index. */
+  RID rid_;
+  /** Table oid is used to.  */
+  table_oid_t table_oid_;
+  /** Write type. */
+  WType wtype_;
+  /** The tuple is used to construct an index key. */
+  Tuple tuple_;
+  /** The old tuple is only used for the update operation. */
+  Tuple old_tuple_;
+  /** Each table has an index list, this is the identifier of an index into the list. */
+  size_t index_;
+  /** The catalog contains metadata required to locate index. */
+  Catalog *catalog_;
+};
+
+/**
+ * Reason to a transaction abortion
+ */
+enum class AbortReason { LOCK_ON_SHRINKING, UNLOCK_ON_SHRINKING, UPGRADE_CONFLICT, DEADLOCK };
+
+/**
+ * TransactionAbortException is thrown when state of a transaction is changed to ABORTED
+ */
+class TransactionAbortException : public std::exception {
+    txn_id_t txn_id_;
+    AbortReason abort_reason_;
+public:
+    explicit TransactionAbortException(txn_id_t txn_id, AbortReason abort_reason)
+    : txn_id_(txn_id), abort_reason_(abort_reason) {
+    }
+    txn_id_t GetTransactionId() {
+        return txn_id_;
+    }
+    AbortReason GetAbortReason() {
+        return abort_reason_;
+    }
+    std::string GetInfo()
+    {
+        switch (abort_reason_)
+        {
+        case AbortReason::LOCK_ON_SHRINKING:
+            return "Transaction " + std::to_string(txn_id_) + " aborted because it can not take locks in the shrinking state\n";
+            break;
+        case AbortReason::UNLOCK_ON_SHRINKING:
+            return "Transaction " + std::to_string(txn_id_) + " aborted because it can not excute unlock in the shrinking state\n";
+            break;
+        case AbortReason::UPGRADE_CONFLICT:
+            return "Transaction " + std::to_string(txn_id_) + " aborted because another transaction is already waiting to upgrade its lock\n";
+            break;
+        case AbortReason::DEADLOCK:
+            return "Transaction " + std::to_string(txn_id_) + " aborted on deadlock\n";
+        default:
+            break;
+        }
+    }
+};
+
+/**
  * Transaction tracks information related to a transaction.
  */
 class Transaction {
  public:
-  explicit Transaction(txn_id_t txn_id)
+  explicit Transaction(txn_id_t txn_id, IsolationLevel isolation_level = IsolationLevel::READ_UNCOMMITED)
       : state_(TransactionState::GROWING),
+        isolation_level_(isolation_level),
         thread_id_(std::this_thread::get_id()),
         txn_id_(txn_id),
         prev_lsn_(INVALID_LSN),
         shared_lock_set_{new std::unordered_set<RID>},
         exclusive_lock_set_{new std::unordered_set<RID>} {
     // Initialize the sets that will be tracked.
-    write_set_ = std::make_shared<std::deque<WriteRecord>>();
+    table_write_set_ = std::make_shared<std::deque<TableWriteRecord>>();
     page_set_ = std::make_shared<std::deque<bustub::Page *>>();
     deleted_page_set_ = std::make_shared<std::unordered_set<page_id_t>>();
   }
@@ -87,11 +161,29 @@ class Transaction {
   /** @return the id of this transaction */
   inline txn_id_t GetTransactionId() const { return txn_id_; }
 
-  /** @return the list of of write records of this transaction */
-  inline std::shared_ptr<std::deque<WriteRecord>> GetWriteSet() { return write_set_; }
+  /** @return the isolation level of this transaction */
+  inline IsolationLevel GetIsolationLevel() const { return isolation_level_; }
+
+  /** @return the list of table write records of this transaction */
+  inline std::shared_ptr<std::deque<TableWriteRecord>> GetWriteSet() { return table_write_set_; }
+
+  /** @return the list of index write records of this transaction */
+  inline std::shared_ptr<std::deque<IndexWriteRecord>> GetIndexWriteSet() { return index_write_set_; }
 
   /** @return the page set */
   inline std::shared_ptr<std::deque<Page *>> GetPageSet() { return page_set_; }
+
+  /**
+   * Adds a tuple write record into the table write set.
+   * @param write_record write record to be added
+   */
+  inline void AppendTableWriteRecord(TableWriteRecord write_record) { table_write_set_->push_back(write_record); }
+
+  /**
+   * Adds an index write record into the index write set.
+   * @param write_record write record to be added
+   */
+  inline void AppendTableWriteRecord(IndexWriteRecord write_record) { index_write_set_->push_back(write_record); }
 
   /**
    * Adds a page into the page set.
@@ -141,13 +233,17 @@ class Transaction {
  private:
   /** The current transaction state. */
   TransactionState state_;
+  /** The isolation level of the transaction. */
+  IsolationLevel isolation_level_;
   /** The thread ID, used in single-threaded transactions. */
   std::thread::id thread_id_;
   /** The ID of this transaction. */
   txn_id_t txn_id_;
 
-  /** The undo set of the transaction. */
-  std::shared_ptr<std::deque<WriteRecord>> write_set_;
+  /** The undo set of table tuples. */
+  std::shared_ptr<std::deque<TableWriteRecord>> table_write_set_;
+  /** The undo set of indexes. */
+  std::shared_ptr<std::deque<IndexWriteRecord>> index_write_set_;
   /** The LSN of the last record written by the transaction. */
   lsn_t prev_lsn_;
 

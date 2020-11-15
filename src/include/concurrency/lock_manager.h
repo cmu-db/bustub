@@ -62,7 +62,7 @@ class LockManager {
    * @param two_pl_mode 2-phase locking mode
    * @param deadlock_mode deadlock policy
    */
-  explicit LockManager(TwoPLMode two_pl_mode, DeadlockMode deadlock_mode = DeadlockMode::PREVENTION)
+  explicit LockManager(TwoPLMode two_pl_mode, DeadlockMode deadlock_mode = DeadlockMode::DETECTION)
       : two_pl_mode_(two_pl_mode), deadlock_mode_(deadlock_mode) {
     // If Detection() is enabled, we should launch a background cycle detection thread.
     if (Detection()) {
