@@ -147,6 +147,7 @@ class Transaction {
         exclusive_lock_set_{new std::unordered_set<RID>} {
     // Initialize the sets that will be tracked.
     table_write_set_ = std::make_shared<std::deque<TableWriteRecord>>();
+    index_write_set_ = std::make_shared<std::deque<IndexWriteRecord>>();
     page_set_ = std::make_shared<std::deque<bustub::Page *>>();
     deleted_page_set_ = std::make_shared<std::unordered_set<page_id_t>>();
   }
