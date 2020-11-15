@@ -39,7 +39,7 @@ enum class TransactionState { GROWING, SHRINKING, COMMITTED, ABORTED };
 /**
  * Transaction isolation level.
  */
-enum class IsolationLevel { READ_UNCOMMITED, REPEATABLE_READ, READ_COMMITED };
+enum class IsolationLevel { READ_UNCOMMITTED, REPEATABLE_READ, READ_COMMITTED };
 
 /**
  * Type of write operation.
@@ -76,7 +76,7 @@ class IndexWriteRecord {
 
   /** The rid is the value stored in the index. */
   RID rid_;
-  /** Table oid is used to.  */
+  /** Table oid. */
   table_oid_t table_oid_;
   /** Write type. */
   WType wtype_;
