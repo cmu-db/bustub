@@ -93,7 +93,7 @@ void TransactionManager::Abort(Transaction *txn) {
     std::vector<IndexInfo *> index_list_ =catalog->GetTableIndexes(table_info->name_);
     BUSTUB_ASSERT(index_list_.size() > item.index_, "index out of range!");
     IndexInfo *index_info = index_list_[item.index_];
-    auto new_key = item.tuple_.KeyFromTuple(table_info->schema_, index_info->index_metadata_->GetKeySchema(), index_info->index_metadata_->GetKeyAttrs());
+    auto new_key = item.tuple_.KeyFromTuple(table_info->schema_, *(index_info->index_->GetKeySchema()), index_info->index_->GetKeyAttrs());
     if (item.wtype_ == WType::DELETE) {
       index_info->index_->InsertEntry(new_key, item.rid_, txn);
     } else if (item.wtype_ == WType::INSERT) {
@@ -101,7 +101,7 @@ void TransactionManager::Abort(Transaction *txn) {
     } else if (item.wtype_ == WType::UPDATE) {
       // Delete the new key and insert the old key
       index_info->index_->DeleteEntry(new_key, item.rid_, txn);
-      auto old_key = item.old_tuple_.KeyFromTuple(table_info->schema_, index_info->index_metadata_->GetKeySchema(), index_info->index_metadata_->GetKeyAttrs());
+      auto old_key = item.old_tuple_.KeyFromTuple(table_info->schema_, *(index_info->index_->GetKeySchema()), index_info->index_->GetKeyAttrs());
       index_info->index_->InsertEntry(new_key, item.rid_, txn);
     }
   }

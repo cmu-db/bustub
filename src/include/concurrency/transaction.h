@@ -137,7 +137,7 @@ public:
  */
 class Transaction {
  public:
-  explicit Transaction(txn_id_t txn_id, IsolationLevel isolation_level = IsolationLevel::READ_UNCOMMITED)
+  explicit Transaction(txn_id_t txn_id, IsolationLevel isolation_level = IsolationLevel::READ_UNCOMMITTED)
       : state_(TransactionState::GROWING),
         isolation_level_(isolation_level),
         thread_id_(std::this_thread::get_id()),
