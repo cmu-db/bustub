@@ -28,12 +28,6 @@ namespace bustub {
 
 class TransactionManager;
 
-/** Two-Phase Locking mode. */
-enum class TwoPLMode { REGULAR, STRICT };
-
-/** Deadlock mode. */
-enum class DeadlockMode { PREVENTION, DETECTION };
-
 /**
  * LockManager handles transactions asking for locks on records.
  */
@@ -62,23 +56,18 @@ class LockManager {
    * @param two_pl_mode 2-phase locking mode
    * @param deadlock_mode deadlock policy
    */
-  explicit LockManager(TwoPLMode two_pl_mode, DeadlockMode deadlock_mode = DeadlockMode::DETECTION)
-      : two_pl_mode_(two_pl_mode), deadlock_mode_(deadlock_mode) {
+  explicit LockManager() {
     // If Detection() is enabled, we should launch a background cycle detection thread.
-    if (Detection()) {
-      enable_cycle_detection_ = true;
-      cycle_detection_thread_ = new std::thread(&LockManager::RunCycleDetection, this);
-      LOG_INFO("Cycle detection thread launched");
-    }
+    enable_cycle_detection_ = true;
+    cycle_detection_thread_ = new std::thread(&LockManager::RunCycleDetection, this);
+    LOG_INFO("Cycle detection thread launched");
   }
 
   ~LockManager() {
-    if (Detection()) {
-      enable_cycle_detection_ = false;
-      cycle_detection_thread_->join();
-      delete cycle_detection_thread_;
-      LOG_INFO("Cycle detection thread stopped");
-    }
+    enable_cycle_detection_ = false;
+    cycle_detection_thread_->join();
+    delete cycle_detection_thread_;
+    LOG_INFO("Cycle detection thread stopped");
   }
 
   /*
@@ -146,12 +135,6 @@ class LockManager {
   void RunCycleDetection();
 
  private:
-  TwoPLMode two_pl_mode_ __attribute__((__unused__));
-  DeadlockMode deadlock_mode_;
-
-  bool Detection() { return deadlock_mode_ == DeadlockMode::DETECTION; }
-  bool Prevention() { return deadlock_mode_ == DeadlockMode::PREVENTION; }
-
   std::mutex latch_;
   std::atomic<bool> enable_cycle_detection_;
   std::thread *cycle_detection_thread_;
