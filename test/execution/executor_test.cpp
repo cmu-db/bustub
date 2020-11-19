@@ -35,6 +35,7 @@
 #include "execution/plans/seq_scan_plan.h"
 #include "gtest/gtest.h"
 #include "storage/b_plus_tree_test_util.h"  // NOLINT
+#include "storage/table/tuple.h"
 #include "type/value_factory.h"
 
 namespace bustub {
@@ -312,16 +313,18 @@ TEST_F(ExecutorTest, DISABLED_SimpleRawInsertWithIndexTest) {
   std::vector<RID> rids;
 
   // Get RID from index, fetch tuple and then compare
-  for (size_t i = 0; i < result_set.size(); ++i) {
-    index_info->index_->ScanKey(result_set[i], &rids, GetTxn());
+  for (auto &table_tuple : result_set) {
+    rids.clear();
+    auto index_key = table_tuple.KeyFromTuple(schema, index_info->key_schema_, index_info->index_->GetKeyAttrs());
+    index_info->index_->ScanKey(index_key, &rids, GetTxn());
     Tuple indexed_tuple;
-    auto fetch_tuple = table_info->table_->GetTuple(rids[i], &indexed_tuple, GetTxn());
+    auto fetch_tuple = table_info->table_->GetTuple(rids[0], &indexed_tuple, GetTxn());
 
     ASSERT_TRUE(fetch_tuple);
     ASSERT_EQ(indexed_tuple.GetValue(out_schema, out_schema->GetColIdx("colA")).GetAs<int32_t>(),
-              result_set[i].GetValue(out_schema, out_schema->GetColIdx("colA")).GetAs<int32_t>());
+              table_tuple.GetValue(out_schema, out_schema->GetColIdx("colA")).GetAs<int32_t>());
     ASSERT_EQ(indexed_tuple.GetValue(out_schema, out_schema->GetColIdx("colB")).GetAs<int32_t>(),
-              result_set[i].GetValue(out_schema, out_schema->GetColIdx("colB")).GetAs<int32_t>());
+              table_tuple.GetValue(out_schema, out_schema->GetColIdx("colB")).GetAs<int32_t>());
 
     std::cout << indexed_tuple.GetValue(out_schema, out_schema->GetColIdx("colA")).GetAs<int32_t>() << ", "
               << indexed_tuple.GetValue(out_schema, out_schema->GetColIdx("colB")).GetAs<int32_t>() << std::endl;
