@@ -54,7 +54,7 @@ class LockManager {
   /**
    * Creates a new lock manager configured for the deadlock detection policy.
    */
-  explicit LockManager() {
+  LockManager() {
     enable_cycle_detection_ = true;
     cycle_detection_thread_ = new std::thread(&LockManager::RunCycleDetection, this);
     LOG_INFO("Cycle detection thread launched");

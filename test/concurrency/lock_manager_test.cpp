@@ -3,7 +3,7 @@
  */
 
 #include <random>
-#include <thread> // NOLINT
+#include <thread>  // NOLINT
 
 #include "common/config.h"
 #include "concurrency/lock_manager.h"
