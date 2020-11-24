@@ -105,4 +105,4 @@ class TransactionManager {
   ReaderWriterLatch global_txn_latch_;
 };
 
-}  // namespace bustub 
+}  // namespace bustub

@@ -34,8 +34,9 @@ class ExecutorContext {
    * @param txn_mgr the transaction manager that the executor should use
    * @param lock_mgr the lock manager that the executor should use
    */
-  ExecutorContext(Transaction *transaction, Catalog *catalog, BufferPoolManager *bpm, TransactionManager *txn_mgr, LockManager *lock_mgr)
-      : transaction_(transaction), catalog_{catalog}, bpm_{bpm}, txn_mgr_(txn_mgr), lock_mgr_(lock_mgr)  {}
+  ExecutorContext(Transaction *transaction, Catalog *catalog, BufferPoolManager *bpm, TransactionManager *txn_mgr,
+                  LockManager *lock_mgr)
+      : transaction_(transaction), catalog_{catalog}, bpm_{bpm}, txn_mgr_(txn_mgr), lock_mgr_(lock_mgr) {}
 
   DISALLOW_COPY_AND_MOVE(ExecutorContext);
 

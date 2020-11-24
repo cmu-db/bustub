@@ -38,7 +38,7 @@ namespace bustub {
  *    |          v
  * GROWING  -> COMMITTED     ABORTED
  *    |_________________________^
- * 
+ *
  **/
 enum class TransactionState { GROWING, SHRINKING, COMMITTED, ABORTED };
 
@@ -78,7 +78,8 @@ class TableWriteRecord {
  */
 class IndexWriteRecord {
  public:
-  IndexWriteRecord(RID rid, table_oid_t table_oid, WType wtype, const Tuple &tuple, index_oid_t index_oid, Catalog *catalog)
+  IndexWriteRecord(RID rid, table_oid_t table_oid, WType wtype, const Tuple &tuple, index_oid_t index_oid,
+                   Catalog *catalog)
       : rid_(rid), table_oid_(table_oid), wtype_(wtype), tuple_(tuple), index_oid_(index_oid), catalog_(catalog) {}
 
   /** The rid is the value stored in the index. */
@@ -100,7 +101,13 @@ class IndexWriteRecord {
 /**
  * Reason to a transaction abortion
  */
-enum class AbortReason { LOCK_ON_SHRINKING, UNLOCK_ON_SHRINKING, UPGRADE_CONFLICT, DEADLOCK, LOCKSHARED_ON_READ_UNCOMMITTED };
+enum class AbortReason {
+  LOCK_ON_SHRINKING,
+  UNLOCK_ON_SHRINKING,
+  UPGRADE_CONFLICT,
+  DEADLOCK,
+  LOCKSHARED_ON_READ_UNCOMMITTED
+};
 
 /**
  * TransactionAbortException is thrown when state of a transaction is changed to ABORTED
@@ -262,4 +269,4 @@ class Transaction {
   std::shared_ptr<std::unordered_set<RID>> exclusive_lock_set_;
 };
 
-}  // namespace bustub 
+}  // namespace bustub

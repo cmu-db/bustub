@@ -54,8 +54,7 @@ class LockManager {
   /**
    * Creates a new lock manager configured for the deadlock detection policy.
    */
-  explicit LockManager()
-  {
+  explicit LockManager() {
     enable_cycle_detection_ = true;
     cycle_detection_thread_ = new std::thread(&LockManager::RunCycleDetection, this);
     LOG_INFO("Cycle detection thread launched");
@@ -143,4 +142,4 @@ class LockManager {
   std::unordered_map<txn_id_t, std::vector<txn_id_t>> waits_for_;
 };
 
-}  // namespace bustub 
+}  // namespace bustub

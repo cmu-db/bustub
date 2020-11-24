@@ -39,17 +39,13 @@ bool LockManager::Unlock(Transaction *txn, const RID &rid) {
   return true;
 }
 
-void LockManager::AddEdge(txn_id_t t1, txn_id_t t2) { }
+void LockManager::AddEdge(txn_id_t t1, txn_id_t t2) {}
 
-void LockManager::RemoveEdge(txn_id_t t1, txn_id_t t2) { }
+void LockManager::RemoveEdge(txn_id_t t1, txn_id_t t2) {}
 
-bool LockManager::HasCycle(txn_id_t &txn_id) {
-  return false;
-}
+bool LockManager::HasCycle(txn_id_t &txn_id) { return false; }
 
-std::vector<std::pair<txn_id_t, txn_id_t>> LockManager::GetEdgeList() {
-  return {};
-}
+std::vector<std::pair<txn_id_t, txn_id_t>> LockManager::GetEdgeList() { return {}; }
 
 void LockManager::RunCycleDetection() {
   while (enable_cycle_detection_) {
