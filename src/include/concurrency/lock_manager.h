@@ -52,12 +52,10 @@ class LockManager {
 
  public:
   /**
-   * Creates a new lock manager configured for the given type of 2-phase locking and deadlock policy.
-   * @param two_pl_mode 2-phase locking mode
-   * @param deadlock_mode deadlock policy
+   * Creates a new lock manager configured for the deadlock detection policy.
    */
-  explicit LockManager() {
-    // If Detection() is enabled, we should launch a background cycle detection thread.
+  explicit LockManager()
+  {
     enable_cycle_detection_ = true;
     cycle_detection_thread_ = new std::thread(&LockManager::RunCycleDetection, this);
     LOG_INFO("Cycle detection thread launched");
@@ -126,7 +124,7 @@ class LockManager {
    * @param[out] txn_id if the graph has a cycle, will contain the newest transaction ID
    * @return false if the graph has no cycle, otherwise stores the newest transaction ID in the cycle to txn_id
    */
-  bool HasCycle(txn_id_t *txn_id);
+  bool HasCycle(txn_id_t &txn_id);
 
   /** @return the set of all edges in the graph, used for testing only! */
   std::vector<std::pair<txn_id_t, txn_id_t>> GetEdgeList();
@@ -145,4 +143,4 @@ class LockManager {
   std::unordered_map<txn_id_t, std::vector<txn_id_t>> waits_for_;
 };
 
-}  // namespace bustub
+}  // namespace bustub 

@@ -26,13 +26,19 @@
 namespace bustub {
 
 /**
- * Transaction states:
+ * Transaction states for 2PL:
  *
  *     _________________________
  *    |                         v
  * GROWING -> SHRINKING -> COMMITTED   ABORTED
  *    |__________|________________________^
  *
+ * Transaction states for Non-2PL:
+ *     __________
+ *    |          v
+ * GROWING  -> COMMITTED     ABORTED
+ *    |_________________________^
+ * 
  **/
 enum class TransactionState { GROWING, SHRINKING, COMMITTED, ABORTED };
 
@@ -49,6 +55,7 @@ enum class WType { INSERT = 0, DELETE, UPDATE };
 class TableHeap;
 class Catalog;
 using table_oid_t = uint32_t;
+using index_oid_t = uint32_t;
 
 /**
  * WriteRecord tracks information related to a write.
@@ -71,8 +78,8 @@ class TableWriteRecord {
  */
 class IndexWriteRecord {
  public:
-  IndexWriteRecord(RID rid, table_oid_t table_oid, WType wtype, const Tuple &tuple, size_t index, Catalog *catalog)
-      : rid_(rid), table_oid_(table_oid), wtype_(wtype), tuple_(tuple), index_(index), catalog_(catalog) {}
+  IndexWriteRecord(RID rid, table_oid_t table_oid, WType wtype, const Tuple &tuple, index_oid_t index_oid, Catalog *catalog)
+      : rid_(rid), table_oid_(table_oid), wtype_(wtype), tuple_(tuple), index_oid_(index_oid), catalog_(catalog) {}
 
   /** The rid is the value stored in the index. */
   RID rid_;
@@ -85,7 +92,7 @@ class IndexWriteRecord {
   /** The old tuple is only used for the update operation. */
   Tuple old_tuple_;
   /** Each table has an index list, this is the identifier of an index into the list. */
-  size_t index_;
+  index_oid_t index_oid_;
   /** The catalog contains metadata required to locate index. */
   Catalog *catalog_;
 };
@@ -93,43 +100,39 @@ class IndexWriteRecord {
 /**
  * Reason to a transaction abortion
  */
-enum class AbortReason { LOCK_ON_SHRINKING, UNLOCK_ON_SHRINKING, UPGRADE_CONFLICT, DEADLOCK };
+enum class AbortReason { LOCK_ON_SHRINKING, UNLOCK_ON_SHRINKING, UPGRADE_CONFLICT, DEADLOCK, LOCKSHARED_ON_READ_UNCOMMITTED };
 
 /**
  * TransactionAbortException is thrown when state of a transaction is changed to ABORTED
  */
 class TransactionAbortException : public std::exception {
-    txn_id_t txn_id_;
-    AbortReason abort_reason_;
-public:
-    explicit TransactionAbortException(txn_id_t txn_id, AbortReason abort_reason)
-    : txn_id_(txn_id), abort_reason_(abort_reason) {
+  txn_id_t txn_id_;
+  AbortReason abort_reason_;
+
+ public:
+  explicit TransactionAbortException(txn_id_t txn_id, AbortReason abort_reason)
+      : txn_id_(txn_id), abort_reason_(abort_reason) {}
+  txn_id_t GetTransactionId() { return txn_id_; }
+  AbortReason GetAbortReason() { return abort_reason_; }
+  std::string GetInfo() {
+    switch (abort_reason_) {
+      case AbortReason::LOCK_ON_SHRINKING:
+        return "Transaction " + std::to_string(txn_id_) +
+               " aborted because it can not take locks in the shrinking state\n";
+      case AbortReason::UNLOCK_ON_SHRINKING:
+        return "Transaction " + std::to_string(txn_id_) +
+               " aborted because it can not excute unlock in the shrinking state\n";
+      case AbortReason::UPGRADE_CONFLICT:
+        return "Transaction " + std::to_string(txn_id_) +
+               " aborted because another transaction is already waiting to upgrade its lock\n";
+      case AbortReason::DEADLOCK:
+        return "Transaction " + std::to_string(txn_id_) + " aborted on deadlock\n";
+      case AbortReason::LOCKSHARED_ON_READ_UNCOMMITTED:
+        return "Transaction " + std::to_string(txn_id_) + " aborted on lockshared on READ_UNCOMMITTED\n";
     }
-    txn_id_t GetTransactionId() {
-        return txn_id_;
-    }
-    AbortReason GetAbortReason() {
-        return abort_reason_;
-    }
-    std::string GetInfo()
-    {
-        switch (abort_reason_)
-        {
-        case AbortReason::LOCK_ON_SHRINKING:
-            return "Transaction " + std::to_string(txn_id_) + " aborted because it can not take locks in the shrinking state\n";
-            break;
-        case AbortReason::UNLOCK_ON_SHRINKING:
-            return "Transaction " + std::to_string(txn_id_) + " aborted because it can not excute unlock in the shrinking state\n";
-            break;
-        case AbortReason::UPGRADE_CONFLICT:
-            return "Transaction " + std::to_string(txn_id_) + " aborted because another transaction is already waiting to upgrade its lock\n";
-            break;
-        case AbortReason::DEADLOCK:
-            return "Transaction " + std::to_string(txn_id_) + " aborted on deadlock\n";
-        default:
-            break;
-        }
-    }
+    // Todo: Should fail with unreachable.
+    return "";
+  }
 };
 
 /**
@@ -137,7 +140,7 @@ public:
  */
 class Transaction {
  public:
-  explicit Transaction(txn_id_t txn_id, IsolationLevel isolation_level = IsolationLevel::READ_UNCOMMITTED)
+  explicit Transaction(txn_id_t txn_id, IsolationLevel isolation_level = IsolationLevel::REPEATABLE_READ)
       : state_(TransactionState::GROWING),
         isolation_level_(isolation_level),
         thread_id_(std::this_thread::get_id()),
@@ -259,4 +262,4 @@ class Transaction {
   std::shared_ptr<std::unordered_set<RID>> exclusive_lock_set_;
 };
 
-}  // namespace bustub
+}  // namespace bustub 
