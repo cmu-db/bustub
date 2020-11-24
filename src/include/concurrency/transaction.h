@@ -188,13 +188,13 @@ class Transaction {
    * Adds a tuple write record into the table write set.
    * @param write_record write record to be added
    */
-  inline void AppendTableWriteRecord(TableWriteRecord write_record) { table_write_set_->push_back(write_record); }
+  inline void AppendTableWriteRecord(const TableWriteRecord &write_record) { table_write_set_->push_back(write_record); }
 
   /**
    * Adds an index write record into the index write set.
    * @param write_record write record to be added
    */
-  inline void AppendTableWriteRecord(IndexWriteRecord write_record) { index_write_set_->push_back(write_record); }
+  inline void AppendTableWriteRecord(const IndexWriteRecord &write_record) { index_write_set_->push_back(write_record); }
 
   /**
    * Adds a page into the page set.

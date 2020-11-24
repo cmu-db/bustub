@@ -200,9 +200,9 @@ TEST(LockManagerTest, DISABLED_BasicCycleTest) {
   lock_mgr.AddEdge(1, 0);
   EXPECT_EQ(2, lock_mgr.GetEdgeList().size());
 
-  txn_id_t txn;
+  txn_id_t *txn = nullptr;
   EXPECT_EQ(true, lock_mgr.HasCycle(txn));
-  EXPECT_EQ(1, txn);
+  EXPECT_EQ(true, txn != nullptr && *txn == 1);
 
   lock_mgr.RemoveEdge(1, 0);
   EXPECT_EQ(false, lock_mgr.HasCycle(txn));
