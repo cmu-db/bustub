@@ -50,11 +50,13 @@ class ExecutorTest : public ::testing::Test {
     bpm_ = std::make_unique<BufferPoolManager>(32, disk_manager_.get());
     page_id_t page_id;
     bpm_->NewPage(&page_id);
+    lock_manager_ = std::make_unique<LockManager>();
     txn_mgr_ = std::make_unique<TransactionManager>(lock_manager_.get(), log_manager_.get());
     catalog_ = std::make_unique<Catalog>(bpm_.get(), lock_manager_.get(), log_manager_.get());
     // Begin a new transaction, along with its executor context.
     txn_ = txn_mgr_->Begin();
-    exec_ctx_ = std::make_unique<ExecutorContext>(txn_, catalog_.get(), bpm_.get());
+    exec_ctx_ =
+        std::make_unique<ExecutorContext>(txn_, catalog_.get(), bpm_.get(), txn_mgr_.get(), lock_manager_.get());
     // Generate some test tables.
     TableGenerator gen{exec_ctx_.get()};
     gen.GenerateTestTables();
@@ -79,6 +81,7 @@ class ExecutorTest : public ::testing::Test {
   TransactionManager *GetTxnManager() { return txn_mgr_.get(); }
   Catalog *GetCatalog() { return catalog_.get(); }
   BufferPoolManager *GetBPM() { return bpm_.get(); }
+  LockManager *GetLockManager() { return lock_manager_.get(); }
 
   // The below helper functions are useful for testing.
 
@@ -126,7 +129,7 @@ class ExecutorTest : public ::testing::Test {
   Transaction *txn_{nullptr};
   std::unique_ptr<DiskManager> disk_manager_;
   std::unique_ptr<LogManager> log_manager_ = nullptr;
-  std::unique_ptr<LockManager> lock_manager_ = nullptr;
+  std::unique_ptr<LockManager> lock_manager_;
   std::unique_ptr<BufferPoolManager> bpm_;
   std::unique_ptr<Catalog> catalog_;
   std::unique_ptr<ExecutorContext> exec_ctx_;
@@ -366,14 +369,9 @@ TEST_F(ExecutorTest, DISABLED_SimpleDeleteTest) {
   ASSERT_EQ(result_set.size(), 1);
   Tuple index_key = Tuple(result_set[0]);
 
-  auto txn = GetTxnManager()->Begin();
-  auto exec_ctx = std::make_unique<ExecutorContext>(txn, GetCatalog(), GetBPM());
   std::unique_ptr<AbstractPlanNode> delete_plan;
   { delete_plan = std::make_unique<DeletePlanNode>(scan_plan1.get(), table_info->oid_); }
-  GetExecutionEngine()->Execute(delete_plan.get(), nullptr, txn, exec_ctx.get());
-
-  GetTxnManager()->Commit(txn);
-  delete txn;
+  GetExecutionEngine()->Execute(delete_plan.get(), nullptr, GetTxn(), GetExecutorContext());
 
   result_set.clear();
   GetExecutionEngine()->Execute(scan_plan1.get(), &result_set, GetTxn(), GetExecutorContext());

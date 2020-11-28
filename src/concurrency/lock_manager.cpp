@@ -39,22 +39,15 @@ bool LockManager::Unlock(Transaction *txn, const RID &rid) {
   return true;
 }
 
-void LockManager::AddEdge(txn_id_t t1, txn_id_t t2) { assert(Detection()); }
+void LockManager::AddEdge(txn_id_t t1, txn_id_t t2) {}
 
-void LockManager::RemoveEdge(txn_id_t t1, txn_id_t t2) { assert(Detection()); }
+void LockManager::RemoveEdge(txn_id_t t1, txn_id_t t2) {}
 
-bool LockManager::HasCycle(txn_id_t *txn_id) {
-  BUSTUB_ASSERT(Detection(), "Detection should be enabled!");
-  return false;
-}
+bool LockManager::HasCycle(txn_id_t *txn_id) { return false; }
 
-std::vector<std::pair<txn_id_t, txn_id_t>> LockManager::GetEdgeList() {
-  BUSTUB_ASSERT(Detection(), "Detection should be enabled!");
-  return {};
-}
+std::vector<std::pair<txn_id_t, txn_id_t>> LockManager::GetEdgeList() { return {}; }
 
 void LockManager::RunCycleDetection() {
-  BUSTUB_ASSERT(Detection(), "Detection should be enabled!");
   while (enable_cycle_detection_) {
     std::this_thread::sleep_for(cycle_detection_interval);
     {

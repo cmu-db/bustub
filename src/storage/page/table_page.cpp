@@ -308,7 +308,7 @@ bool TablePage::GetTuple(const RID &rid, Tuple *tuple, Transaction *txn, LockMan
 bool TablePage::GetFirstTupleRid(RID *first_rid) {
   // Find and return the first valid tuple.
   for (uint32_t i = 0; i < GetTupleCount(); ++i) {
-    if (GetTupleSize(i) > 0) {
+    if (!IsDeleted(GetTupleSize(i))) {
       first_rid->Set(GetTablePageId(), i);
       return true;
     }
@@ -321,7 +321,7 @@ bool TablePage::GetNextTupleRid(const RID &cur_rid, RID *next_rid) {
   BUSTUB_ASSERT(cur_rid.GetPageId() == GetTablePageId(), "Wrong table!");
   // Find and return the first valid tuple after our current slot number.
   for (auto i = cur_rid.GetSlotNum() + 1; i < GetTupleCount(); ++i) {
-    if (GetTupleSize(i) > 0) {
+    if (!IsDeleted(GetTupleSize(i))) {
       next_rid->Set(GetTablePageId(), i);
       return true;
     }

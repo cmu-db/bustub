@@ -35,7 +35,7 @@ class BustubInstance {
     buffer_pool_manager_ = new BufferPoolManager(BUFFER_POOL_SIZE, disk_manager_, log_manager_);
 
     // txn related
-    lock_manager_ = new LockManager(TwoPLMode::STRICT, DeadlockMode::PREVENTION);  // S2PL
+    lock_manager_ = new LockManager();
     transaction_manager_ = new TransactionManager(lock_manager_, log_manager_);
 
     // checkpoints

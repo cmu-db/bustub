@@ -36,10 +36,11 @@ class TransactionManager {
 
   /**
    * Begins a new transaction.
-   * @param txn an optional transaction object to be initialized, otherwise a new transaction is created
+   * @param txn an optional transaction object to be initialized, otherwise a new transaction is created.
+   * @param isolation_level an optional isolation level of the transaction.
    * @return an initialized transaction
    */
-  Transaction *Begin(Transaction *txn = nullptr);
+  Transaction *Begin(Transaction *txn = nullptr, IsolationLevel isolation_level = IsolationLevel::REPEATABLE_READ);
 
   /**
    * Commits a transaction.

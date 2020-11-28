@@ -28,12 +28,6 @@ namespace bustub {
 
 class TransactionManager;
 
-/** Two-Phase Locking mode. */
-enum class TwoPLMode { REGULAR, STRICT };
-
-/** Deadlock mode. */
-enum class DeadlockMode { PREVENTION, DETECTION };
-
 /**
  * LockManager handles transactions asking for locks on records.
  */
@@ -58,27 +52,19 @@ class LockManager {
 
  public:
   /**
-   * Creates a new lock manager configured for the given type of 2-phase locking and deadlock policy.
-   * @param two_pl_mode 2-phase locking mode
-   * @param deadlock_mode deadlock policy
+   * Creates a new lock manager configured for the deadlock detection policy.
    */
-  explicit LockManager(TwoPLMode two_pl_mode, DeadlockMode deadlock_mode = DeadlockMode::PREVENTION)
-      : two_pl_mode_(two_pl_mode), deadlock_mode_(deadlock_mode) {
-    // If Detection() is enabled, we should launch a background cycle detection thread.
-    if (Detection()) {
-      enable_cycle_detection_ = true;
-      cycle_detection_thread_ = new std::thread(&LockManager::RunCycleDetection, this);
-      LOG_INFO("Cycle detection thread launched");
-    }
+  LockManager() {
+    enable_cycle_detection_ = true;
+    cycle_detection_thread_ = new std::thread(&LockManager::RunCycleDetection, this);
+    LOG_INFO("Cycle detection thread launched");
   }
 
   ~LockManager() {
-    if (Detection()) {
-      enable_cycle_detection_ = false;
-      cycle_detection_thread_->join();
-      delete cycle_detection_thread_;
-      LOG_INFO("Cycle detection thread stopped");
-    }
+    enable_cycle_detection_ = false;
+    cycle_detection_thread_->join();
+    delete cycle_detection_thread_;
+    LOG_INFO("Cycle detection thread stopped");
   }
 
   /*
@@ -146,12 +132,6 @@ class LockManager {
   void RunCycleDetection();
 
  private:
-  TwoPLMode two_pl_mode_ __attribute__((__unused__));
-  DeadlockMode deadlock_mode_;
-
-  bool Detection() { return deadlock_mode_ == DeadlockMode::DETECTION; }
-  bool Prevention() { return deadlock_mode_ == DeadlockMode::PREVENTION; }
-
   std::mutex latch_;
   std::atomic<bool> enable_cycle_detection_;
   std::thread *cycle_detection_thread_;
