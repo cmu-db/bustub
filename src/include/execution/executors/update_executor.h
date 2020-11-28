@@ -80,7 +80,7 @@ class UpdateExecutor : public AbstractExecutor {
   const UpdatePlanNode *plan_;
   /** Metadata identifying the table that should be updated. */
   const TableMetadata *table_info_;
-  /** The child executor to obtain value from, can be nullptr. */
+  /** The child executor to obtain value from. */
   std::unique_ptr<AbstractExecutor> child_executor_;
 };
 }  // namespace bustub
