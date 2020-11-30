@@ -223,7 +223,7 @@ TEST(LockManagerTest, DISABLED_BasicDeadlockDetectionTest) {
     // Lock and sleep
     bool res = lock_mgr.LockExclusive(txn0, rid0);
     EXPECT_EQ(true, res);
-    EXPECT_EQ(TransactionState::GROWING, txn1->GetState());
+    EXPECT_EQ(TransactionState::GROWING, txn0->GetState());
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     // This will block
