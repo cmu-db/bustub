@@ -25,6 +25,8 @@ jobs:
      - run: cd build && cmake -DCMAKE_BUILD_TYPE=Debug ..
      # 2020-12-01: We only want to buid with 2 cores to prevent us from running out of memory
      - run: cd build && make -j 2 
+     - run: cd build && make check-lint
+     - run: cd build && make check-clang-tidy
      - run: cd build && make check-tests
 
 workflows:
