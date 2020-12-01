@@ -17,20 +17,16 @@ jobs:
               git
               g++-7
               libjemalloc-dev
-              libevent-dev
-              libpq-dev
-              libsqlite3-dev
-              libtbb-dev
               llvm-8
               pkg-config
-              postgresql-client
-              sqlite3
               valgrind
-              zlib1g-dev
      - checkout
      - run: mkdir build
      - run: cd build && cmake -DCMAKE_BUILD_TYPE=Debug ..
-     - run: cd build && make -j
+     # 2020-12-01: We only want to buid with 2 cores to prevent us from running out of memory
+     - run: cd build && make -j 2 
+     - run: cd build && make check-lint
+     - run: cd build && make check-clang-tidy
      - run: cd build && make check-tests
 
 workflows:
