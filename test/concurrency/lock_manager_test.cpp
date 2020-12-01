@@ -3,7 +3,7 @@
  */
 
 #include <random>
-#include <thread> // NOLINT
+#include <thread>  // NOLINT
 
 #include "common/config.h"
 #include "concurrency/lock_manager.h"
@@ -201,11 +201,11 @@ TEST(LockManagerTest, DISABLED_BasicCycleTest) {
   EXPECT_EQ(2, lock_mgr.GetEdgeList().size());
 
   txn_id_t txn;
-  EXPECT_EQ(true, lock_mgr.HasCycle(txn));
+  EXPECT_EQ(true, lock_mgr.HasCycle(&txn));
   EXPECT_EQ(1, txn);
 
   lock_mgr.RemoveEdge(1, 0);
-  EXPECT_EQ(false, lock_mgr.HasCycle(txn));
+  EXPECT_EQ(false, lock_mgr.HasCycle(&txn));
 }
 
 TEST(LockManagerTest, DISABLED_BasicDeadlockDetectionTest) {
