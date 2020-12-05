@@ -106,6 +106,9 @@ void TwoPLTest() {
 
   try {
     lock_mgr.LockShared(txn, rid0);
+    CheckAborted(txn);
+    // Size shouldn't change here
+    CheckTxnLockSize(txn, 0, 1);
   } catch (TransactionAbortException &e) {
     // std::cout << e.GetInfo() << std::endl;
     CheckAborted(txn);
@@ -246,6 +249,8 @@ TEST(LockManagerTest, DISABLED_BasicDeadlockDetectionTest) {
     // This will block
     try {
       res = lock_mgr.LockExclusive(txn1, rid0);
+      EXPECT_EQ(TransactionState::ABORTED, txn1->GetState());
+      txn_mgr.Abort(txn1);
     } catch (TransactionAbortException &e) {
       // std::cout << e.GetInfo() << std::endl;
       EXPECT_EQ(TransactionState::ABORTED, txn1->GetState());
