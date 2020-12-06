@@ -93,7 +93,7 @@ void TransactionManager::Abort(Transaction *txn) {
       index_info->index_->DeleteEntry(new_key, item.rid_, txn);
       auto old_key = item.old_tuple_.KeyFromTuple(table_info->schema_, *(index_info->index_->GetKeySchema()),
                                                   index_info->index_->GetKeyAttrs());
-      index_info->index_->InsertEntry(new_key, item.rid_, txn);
+      index_info->index_->InsertEntry(old_key, item.rid_, txn);
     }
     index_write_set->pop_back();
   }

@@ -106,6 +106,9 @@ void TwoPLTest() {
 
   try {
     lock_mgr.LockShared(txn, rid0);
+    CheckAborted(txn);
+    // Size shouldn't change here
+    CheckTxnLockSize(txn, 0, 1);
   } catch (TransactionAbortException &e) {
     // std::cout << e.GetInfo() << std::endl;
     CheckAborted(txn);
@@ -200,12 +203,12 @@ TEST(LockManagerTest, DISABLED_BasicCycleTest) {
   lock_mgr.AddEdge(1, 0);
   EXPECT_EQ(2, lock_mgr.GetEdgeList().size());
 
-  txn_id_t *txn = nullptr;
-  EXPECT_EQ(true, lock_mgr.HasCycle(txn));
-  EXPECT_EQ(true, txn != nullptr && *txn == 1);
+  txn_id_t txn;
+  EXPECT_EQ(true, lock_mgr.HasCycle(&txn));
+  EXPECT_EQ(1, txn);
 
   lock_mgr.RemoveEdge(1, 0);
-  EXPECT_EQ(false, lock_mgr.HasCycle(txn));
+  EXPECT_EQ(false, lock_mgr.HasCycle(&txn));
 }
 
 TEST(LockManagerTest, DISABLED_BasicDeadlockDetectionTest) {
@@ -223,7 +226,7 @@ TEST(LockManagerTest, DISABLED_BasicDeadlockDetectionTest) {
     // Lock and sleep
     bool res = lock_mgr.LockExclusive(txn0, rid0);
     EXPECT_EQ(true, res);
-    EXPECT_EQ(TransactionState::GROWING, txn1->GetState());
+    EXPECT_EQ(TransactionState::GROWING, txn0->GetState());
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     // This will block
@@ -246,6 +249,8 @@ TEST(LockManagerTest, DISABLED_BasicDeadlockDetectionTest) {
     // This will block
     try {
       res = lock_mgr.LockExclusive(txn1, rid0);
+      EXPECT_EQ(TransactionState::ABORTED, txn1->GetState());
+      txn_mgr.Abort(txn1);
     } catch (TransactionAbortException &e) {
       // std::cout << e.GetInfo() << std::endl;
       EXPECT_EQ(TransactionState::ABORTED, txn1->GetState());
