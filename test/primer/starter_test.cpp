@@ -42,7 +42,8 @@ TEST(StarterTest, DISABLED_AddMatricesTest) {
   }
 
   int arr3[9] = {3, 1, 3, 9, 8, 6, 0, 8, -1};
-  std::unique_ptr<RowMatrix<int>> sum_ptr = RowMatrixOperations<int>::AddMatrices(move(mat1_ptr), move(mat2_ptr));
+  std::unique_ptr<RowMatrix<int>> sum_ptr =
+      RowMatrixOperations<int>::AddMatrices(std::move(mat1_ptr), std::move(mat2_ptr));
   for (int i = 0; i < 3; i++) {
     for (int j = 0; j < 3; j++) {
       EXPECT_EQ(arr3[i * 3 + j], sum_ptr->GetElem(i, j));
@@ -72,7 +73,7 @@ TEST(StarterTest, DISABLED_MultiplyMatricesTest) {
 
   int arr3[4] = {0, 14, -6, 32};
   std::unique_ptr<RowMatrix<int>> product_ptr =
-      RowMatrixOperations<int>::MultiplyMatrices(move(mat1_ptr), move(mat2_ptr));
+      RowMatrixOperations<int>::MultiplyMatrices(std::move(mat1_ptr), std::move(mat2_ptr));
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 2; j++) {
       EXPECT_EQ(arr3[i * 2 + j], product_ptr->GetElem(i, j));
