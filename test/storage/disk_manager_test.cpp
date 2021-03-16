@@ -20,6 +20,7 @@ namespace bustub {
 
 // NOLINTNEXTLINE
 TEST(DiskManagerTest, ReadWritePageTest) {
+  remove("test.db");
   char buf[PAGE_SIZE] = {0};
   char data[PAGE_SIZE] = {0};
   std::string db_file("test.db");
@@ -41,7 +42,10 @@ TEST(DiskManagerTest, ReadWritePageTest) {
   remove(db_file.c_str());
 }
 
+// NOLINTNEXTLINE
 TEST(DiskManagerTest, ReadWriteLogTest) {
+  remove("test.db");
+  remove("test.log");
   char buf[16] = {0};
   char data[16] = {0};
   std::string db_file("test.db");
@@ -56,8 +60,10 @@ TEST(DiskManagerTest, ReadWriteLogTest) {
 
   dm.ShutDown();
   remove(db_file.c_str());
+  remove("test.log");
 }
 
+// NOLINTNEXTLINE
 TEST(DiskManagerTest, ThrowBadFileTest) { EXPECT_THROW(DiskManager("dev/null\\/foo/bar/baz/test.db"), Exception); }
 
 }  // namespace bustub
