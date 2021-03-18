@@ -197,7 +197,7 @@ class Transaction {
    * Adds an index write record into the index write set.
    * @param write_record write record to be added
    */
-  inline void AppendTableWriteRecord(const IndexWriteRecord &write_record) {
+  inline void AppendIndexWriteRecord(const IndexWriteRecord &write_record) {
     index_write_set_->push_back(write_record);
   }
 
