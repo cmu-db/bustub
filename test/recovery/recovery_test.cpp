@@ -40,7 +40,6 @@ class RecoveryTest : public ::testing::Test {
     remove("test.db");
     remove("test.log");
   };
-
 };
 
 // NOLINTNEXTLINE
