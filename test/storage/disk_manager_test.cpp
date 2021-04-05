@@ -18,8 +18,23 @@
 
 namespace bustub {
 
+class DiskManagerTest : public ::testing::Test {
+ protected:
+  // This function is called before every test.
+  void SetUp() override {
+    remove("test.db");
+    remove("test.log");
+  }
+
+  // This function is called after every test.
+  void TearDown() override {
+    remove("test.db");
+    remove("test.log");
+  };
+};
+
 // NOLINTNEXTLINE
-TEST(DiskManagerTest, ReadWritePageTest) {
+TEST_F(DiskManagerTest, ReadWritePageTest) {
   char buf[PAGE_SIZE] = {0};
   char data[PAGE_SIZE] = {0};
   std::string db_file("test.db");
@@ -38,10 +53,10 @@ TEST(DiskManagerTest, ReadWritePageTest) {
   EXPECT_EQ(std::memcmp(buf, data, sizeof(buf)), 0);
 
   dm.ShutDown();
-  remove(db_file.c_str());
 }
 
-TEST(DiskManagerTest, ReadWriteLogTest) {
+// NOLINTNEXTLINE
+TEST_F(DiskManagerTest, ReadWriteLogTest) {
   char buf[16] = {0};
   char data[16] = {0};
   std::string db_file("test.db");
@@ -55,9 +70,9 @@ TEST(DiskManagerTest, ReadWriteLogTest) {
   EXPECT_EQ(std::memcmp(buf, data, sizeof(buf)), 0);
 
   dm.ShutDown();
-  remove(db_file.c_str());
 }
 
-TEST(DiskManagerTest, ThrowBadFileTest) { EXPECT_THROW(DiskManager("dev/null\\/foo/bar/baz/test.db"), Exception); }
+// NOLINTNEXTLINE
+TEST_F(DiskManagerTest, ThrowBadFileTest) { EXPECT_THROW(DiskManager("dev/null\\/foo/bar/baz/test.db"), Exception); }
 
 }  // namespace bustub
