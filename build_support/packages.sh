@@ -70,7 +70,8 @@ install_mac() {
     ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   fi
   # Update Homebrew.
-  brew update
+  # HACK: Disable brew update for now to prevent Travis from timing out (2020-12-07)
+  # brew update
   # Install packages.
   brew ls --versions cmake || brew install cmake
   brew ls --versions coreutils || brew install coreutils
