@@ -26,11 +26,24 @@
 
 namespace bustub {
 
-// NOLINTNEXTLINE
-TEST(RecoveryTest, DISABLED_RedoTest) {
-  remove("test.db");
-  remove("test.log");
+class RecoveryTest : public ::testing::Test {
+ protected:
+  // This function is called before every test.
+  void SetUp() override {
+    remove("test.db");
+    remove("test.log");
+  }
 
+  // This function is called after every test.
+  void TearDown() override {
+    LOG_INFO("Tearing down the system..");
+    remove("test.db");
+    remove("test.log");
+  };
+};
+
+// NOLINTNEXTLINE
+TEST_F(RecoveryTest, DISABLED_RedoTest) {
   BustubInstance *bustub_instance = new BustubInstance("test.db");
 
   ASSERT_FALSE(enable_logging);
@@ -116,15 +129,10 @@ TEST(RecoveryTest, DISABLED_RedoTest) {
   ASSERT_EQ(old_tuple1.GetValue(&schema, 0).CompareEquals(val1_0), CmpBool::CmpTrue);
 
   delete bustub_instance;
-  LOG_INFO("Tearing down the system..");
-  remove("test.db");
-  remove("test.log");
 }
 
 // NOLINTNEXTLINE
-TEST(RecoveryTest, DISABLED_UndoTest) {
-  remove("test.db");
-  remove("test.log");
+TEST_F(RecoveryTest, DISABLED_UndoTest) {
   BustubInstance *bustub_instance = new BustubInstance("test.db");
 
   ASSERT_FALSE(enable_logging);
@@ -200,15 +208,10 @@ TEST(RecoveryTest, DISABLED_UndoTest) {
   delete log_recovery;
 
   delete bustub_instance;
-  LOG_INFO("Tearing down the system..");
-  remove("test.db");
-  remove("test.log");
 }
 
 // NOLINTNEXTLINE
-TEST(RecoveryTest, DISABLED_CheckpointTest) {
-  remove("test.db");
-  remove("test.log");
+TEST_F(RecoveryTest, DISABLED_CheckpointTest) {
   BustubInstance *bustub_instance = new BustubInstance("test.db");
 
   EXPECT_FALSE(enable_logging);
@@ -309,9 +312,5 @@ TEST(RecoveryTest, DISABLED_CheckpointTest) {
 
   LOG_INFO("Shutdown System");
   delete bustub_instance;
-
-  LOG_INFO("Tearing down the system..");
-  remove("test.db");
-  remove("test.log");
 }
 }  // namespace bustub
