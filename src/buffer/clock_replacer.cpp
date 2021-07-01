@@ -14,7 +14,9 @@
 
 namespace bustub {
 
-ClockReplacer::ClockReplacer(size_t num_pages) {}
+ClockReplacer::ClockReplacer(size_t num_pages) {
+  capacity = num_pages;
+}
 
 ClockReplacer::~ClockReplacer() = default;
 

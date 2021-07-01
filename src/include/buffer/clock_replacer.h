@@ -18,6 +18,7 @@
 
 #include "buffer/replacer.h"
 #include "common/config.h"
+#include "clockReplacer_mypage.h"
 
 namespace bustub {
 
@@ -47,6 +48,8 @@ class ClockReplacer : public Replacer {
 
  private:
   // TODO(student): implement me!
+  std::vector<clockReplacer_mypage> replacerPageList;
+  int32_t capacity;
 };
 
 }  // namespace bustub
