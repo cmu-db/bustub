@@ -13,10 +13,12 @@
 #pragma once
 
 #include <list>
+#include <map>
 #include <mutex>  // NOLINT
 #include <unordered_map>
 
 #include "buffer/lru_replacer.h"
+#include "include/buffer/clock_replacer.h"
 #include "recovery/log_manager.h"
 #include "storage/disk/disk_manager.h"
 #include "storage/page/page.h"
@@ -44,7 +46,7 @@ class BufferPoolManager {
    */
   ~BufferPoolManager();
 
-  /** Grading function. Do not modify! */
+  /** Grading function. Do not modify! *
   Page *FetchPage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) {
     GradingCallback(callback, CallbackType::BEFORE, page_id);
     auto *result = FetchPageImpl(page_id);
@@ -152,6 +154,12 @@ class BufferPoolManager {
    */
   void FlushAllPagesImpl();
 
+  /**
+   * Find the index of the target page in the page table
+   * @return the index of the target page in the page table if found, otherwise return -1
+   */
+   int FindTargetPageIdx(page_id_t);
+
   /** Number of pages in the buffer pool. */
   size_t pool_size_;
   /** Array of buffer pool pages. */
@@ -168,5 +176,8 @@ class BufferPoolManager {
   std::list<frame_id_t> free_list_;
   /** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */
   std::mutex latch_;
+
+  /** This map the frame id to its corresponding page object */
+  std::map<frame_id_t, Page*> pageMap{};
 };
 }  // namespace bustub
