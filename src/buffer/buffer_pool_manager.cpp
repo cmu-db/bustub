@@ -44,12 +44,62 @@ Page *BufferPoolManager::FetchPageImpl(page_id_t page_id) {
   // 2.     If R is dirty, write it back to the disk.
   // 3.     Delete R from the page table and insert P.
   // 4.     Update P's metadata, read in the page content from disk, and then return a pointer to P.
+  latch_.lock();
+  // search for requested p in page table
+  for (auto i = 0; i < (int)pool_size_; i++) {
+    if(pages_[i].page_id_!=INVALID_PAGE_ID && pages_[i].page_id_ == page_id) {
+      replacer_->Pin(i);
+      latch_.unlock();
+      return &pages_[i];
+    }
+  }
 
+  // P not found in page table
+  int freeFrameId = -1;
+  if (free_list_.size() > 0) {
+    // pick a free page from the free list
+    freeFrameId = free_list_.front();
+    free_list_.pop_front();
+  } else {
+    // first check if all pages in the buffer pool are pinned
+    bool allPinned = true;
+    for (auto i = 0; i < (int)pool_size_; i++) {
+      if (pages_[i].GetPinCount() != 0) {
+        allPinned = false;
+        break;
+      }
+    }
+    // all pinned, no victim can be found
+    if (allPinned) {
+      latch_.unlock();
+      return nullptr;
+    }
 
+    // can find one victim from the CR
+    frame_id_t* victimIdxPtr = nullptr;
+    replacer_->Victim(victimIdxPtr);
+    int victimIdx = *victimIdxPtr;
+    victimIdxPtr = nullptr;
+    // flush the victim frame
+    FlushPageImplWithoutLock(pages_[victimIdx].page_id_);
 
+    // check if the pageMap contains the victim frame Id
 
+    if (!pageMap.count(victimIdx)) {
+//      pageMap.insert(std::make_pair<frame_id_t, Page>({victimIdx, Page{}}));
+//        pageMap.insert({(frame_id_t)victimIdx, Page{}});
+      pageMap[(frame_id_t)victimIdx] = new Page{};
+    }
+    freeFrameId = victimIdx;
+  }
 
-  return nullptr;
+  // Todo: how to insert P? Pin?
+  // TODO: ?????????????
+  // update P's metadata
+  pageMap[freeFrameId]->page_id_ = page_id;
+
+  latch_.unlock();
+  return pageMap[freeFrameId];
 }
 
 bool BufferPoolManager::UnpinPageImpl(page_id_t page_id, bool is_dirty) {
@@ -74,10 +124,9 @@ bool BufferPoolManager::UnpinPageImpl(page_id_t page_id, bool is_dirty) {
   return res;
 }
 
-bool BufferPoolManager::FlushPageImpl(page_id_t page_id) {
+bool BufferPoolManager::FlushPageImplWithoutLock(page_id_t page_id) {
   // Make sure you call DiskManager::WritePage!
   // Check if page id is valid
-  latch_.lock();
   bool res = false;
   if (page_id == INVALID_PAGE_ID) {
     throw std::invalid_argument("The given page id cannot be INVALID_PAGE_ID!");
@@ -88,9 +137,17 @@ bool BufferPoolManager::FlushPageImpl(page_id_t page_id) {
     if (pages_[targetPageIdx].is_dirty_) {
       disk_manager_->WritePage(page_id,pages_[targetPageIdx].GetData());
     }
-    DeletePageImpl(page_id);
+    DeletePageImplWithoutLock(page_id);
     res = true;
   }
+  return res;
+}
+
+bool BufferPoolManager::FlushPageImpl(page_id_t page_id) {
+  // Make sure you call DiskManager::WritePage!
+  // Check if page id is valid
+  latch_.lock();
+  bool res = FlushPageImplWithoutLock(page_id);
   latch_.unlock();
   return res;
 }
@@ -104,7 +161,7 @@ Page *BufferPoolManager::NewPageImpl(page_id_t *page_id) {
   latch_.lock();
   int freeFrameId = -1;
   if (free_list_.size() > 0) {
-    // pick a free page from the replacer
+    // pick a free page from the free list
     freeFrameId = free_list_.front();
     free_list_.pop_front();
   } else {
@@ -127,7 +184,7 @@ Page *BufferPoolManager::NewPageImpl(page_id_t *page_id) {
     int victimIdx = *victimIdxPtr;
     victimIdxPtr = nullptr;
     // flush the victim frame
-    FlushPageImpl(pages_[victimIdx].page_id_);
+    FlushPageImplWithoutLock(pages_[victimIdx].page_id_);
 
     // check if the pageMap contains the victim frame Id
 
@@ -148,6 +205,21 @@ Page *BufferPoolManager::NewPageImpl(page_id_t *page_id) {
   return pageMap[freeFrameId];
 }
 
+
+bool BufferPoolManager::DeletePageImplWithoutLock(page_id_t page_id) {
+  int targetPageIdx = FindTargetPageIdx(page_id);
+  if(targetPageIdx==-1) {
+    return true;
+  }
+  if(pages_[targetPageIdx].pin_count_>0) {
+    return false;
+  }
+  // P can be deleted
+  disk_manager_->DeallocatePage(page_id);
+  free_list_.emplace_back(targetPageIdx); // add the frame id back to free_list
+  pages_[targetPageIdx].page_id_ = INVALID_PAGE_ID; // reset metadata
+  return true;
+}
 bool BufferPoolManager::DeletePageImpl(page_id_t page_id) {
   // 0.   Make sure you call DiskManager::DeallocatePage!
   // 1.   Search the page table for the requested page (P).
@@ -155,44 +227,22 @@ bool BufferPoolManager::DeletePageImpl(page_id_t page_id) {
   // 2.   If P exists, but has a non-zero pin-count, return false. Someone is using the page.
   // 3.   Otherwise, P can be deleted. Remove P from the page table, reset its metadata and return it to the free list.
   latch_.lock();
-  int targetPageIdx = FindTargetPageIdx(page_id);
-  if(targetPageIdx==-1) {
-    latch_.unlock();
-    return true;
-  }
+  bool res = DeletePageImplWithoutLock(page_id);
   latch_.unlock();
-  if(pages_[targetPageIdx].pin_count_>0) {
-    latch_.unlock();
-    return false;
-  }
-  // P can be deleted
-  disk_manager_->DeallocatePage(page_id);
-  free_list_.emplace_back(targetPageIdx); // add the frame id back to free_list
-  pages_[targetPageIdx].page_id_ = INVALID_PAGE_ID; // reset metadata
-  latch_.unlock();
-  return true;
+  return res;
 }
+
 
 void BufferPoolManager::FlushAllPagesImpl() {
   // You can do it!
   latch_.lock();
   for(int i=0; i<(int)pool_size_; i++) {
-
     page_id_t page_id = pages_[i].page_id_;
     // skip invalid page_id
     if (page_id == INVALID_PAGE_ID) {
       continue;
     }
-
-    int targetPageIdx = FindTargetPageIdx(page_id);
-    if (targetPageIdx != -1) {
-      // If the page was found
-      if (pages_[targetPageIdx].is_dirty_) {
-        disk_manager_->WritePage(page_id,pages_[targetPageIdx].GetData());
-      }
-      DeletePageImpl(page_id);
-    }
-
+    FlushPageImplWithoutLock(page_id);
   }
   latch_.unlock();
 }
@@ -206,5 +256,6 @@ int BufferPoolManager::FindTargetPageIdx(page_id_t targetId) {
   }
   return -1;
 }
+
 
 }  // namespace bustub

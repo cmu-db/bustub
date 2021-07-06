@@ -140,6 +140,15 @@ class BufferPoolManager {
    * @param[out] page_id id of created page
    * @return nullptr if no new pages could be created, otherwise pointer to new page
    */
+
+  /**
+   * Helper function of FlushPageImpl, require external lock
+   * @param[out] page_id id of created page
+   * @return nullptr if no new pages could be created, otherwise pointer to new page
+   */
+  bool FlushPageImplWithoutLock(page_id_t page_id);
+
+
   Page *NewPageImpl(page_id_t *page_id);
 
   /**
@@ -149,6 +158,12 @@ class BufferPoolManager {
    */
   bool DeletePageImpl(page_id_t page_id);
 
+  /**
+   * Helper function of DeletePageImpl, require external lock
+   * @param page_id id of page to be deleted
+   * @return false if the page exists but could not be deleted, true if the page didn't exist or deletion succeeded
+   */
+  bool DeletePageImplWithoutLock(page_id_t page_id);
   /**
    * Flushes all the pages in the buffer pool to disk.
    */
