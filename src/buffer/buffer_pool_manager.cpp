@@ -164,6 +164,47 @@ Page *BufferPoolManager::NewPageImpl(page_id_t *page_id) {
   // 3.   Update P's metadata, zero out memory and add P to the page table.
   // 4.   Set the page ID output parameter. Return a pointer to P.
   latch_.lock();
+
+  // ----------- cql's code starts here --------------------
+  frame_id_t freeFrameId = INVALID_PAGE_ID;
+  if (free_list_.size() > 0) {
+    // pick a free page from the free list
+    freeFrameId = free_list_.front();
+    free_list_.pop_front();
+  } else {
+    if (!replacer_->Victim(&freeFrameId)) {
+      // can't find any page from neither free list nor replacer
+      latch_.unlock();
+      return nullptr;
+    }
+    // free list is empty, but found one victim from replacer
+    page_id_t pageIdToDelete = pages_[freeFrameId].GetPageId();
+    // is page from replacer is dirty, write back to disk before delete (flush)
+    if (pages_[freeFrameId].is_dirty_) {
+      FlushPageImplWithoutLock(pageIdToDelete);
+    }
+    page_table_.erase(pageIdToDelete);
+  }
+
+  // get the free frame id
+
+  *page_id = disk_manager_->AllocatePage();
+  pages_[freeFrameId].ResetMemory();
+  pages_[freeFrameId].page_id_ = *page_id;
+  pages_[freeFrameId].pin_count_ = 1;
+  // todo: pages_[freeFrameId].is_dirty_ = true; //???
+  page_table_.insert({*page_id, freeFrameId});
+
+  latch_.unlock();
+  return &pages_[freeFrameId];
+}
+  // ----------- cql's code ends here ----------------------
+
+
+
+
+  /**
+   * --------------------------------------------------------
   int freeFrameId = -1;
   if (free_list_.size() > 0) {
     // pick a free page from the free list
@@ -180,7 +221,7 @@ Page *BufferPoolManager::NewPageImpl(page_id_t *page_id) {
     }
     // all pinned, no victim can be found
 
-    std::cout << "ALL PINNED = " << allPinned << std::endl;
+//    std::cout << "ALL PINNED = " << allPinned << std::endl;
 
     if (allPinned) {
 
@@ -234,6 +275,10 @@ Page *BufferPoolManager::NewPageImpl(page_id_t *page_id) {
 //  return pageMap[freeFrameId];
   return &pages_[freeFrameId];
 }
+   --------------------------------------------------------
+   */
+
+
 
 
 bool BufferPoolManager::DeletePageImplWithoutLock(page_id_t page_id) {
@@ -280,7 +325,7 @@ void BufferPoolManager::FlushAllPagesImpl() {
 // Helper functions below:
 int BufferPoolManager::FindTargetPageIdx(page_id_t targetId) {
   for (int i = 0; i < (int)pool_size_; ++i) {
-    std::cout << "Current page id is " << pages_[i].page_id_ << std::endl;
+//    std::cout << "Current page id is " << pages_[i].page_id_ << std::endl;
     if (pages_[i].page_id_ != INVALID_PAGE_ID && pages_[i].page_id_ == targetId) {
       return i;
     }
