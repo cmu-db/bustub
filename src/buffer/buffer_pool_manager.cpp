@@ -48,8 +48,10 @@ Page *BufferPoolManager::FetchPageImpl(page_id_t page_id) {
   // search for requested p in page table
   for (auto i = 0; i < (int)pool_size_; i++) {
     if(pages_[i].page_id_!=INVALID_PAGE_ID && pages_[i].page_id_ == page_id) {
+      pages_[i].pin_count_++;
       replacer_->Pin(i);
       latch_.unlock();
+      std::cout<< "Our stupid fetch page result data is: " <<pages_[page_id].GetData()<<std::endl;
       return &pages_[i];
     }
   }
@@ -85,21 +87,24 @@ Page *BufferPoolManager::FetchPageImpl(page_id_t page_id) {
 
     // check if the pageMap contains the victim frame Id
 
-    if (!pageMap.count(victimIdx)) {
-//      pageMap.insert(std::make_pair<frame_id_t, Page>({victimIdx, Page{}}));
-//        pageMap.insert({(frame_id_t)victimIdx, Page{}});
-      pageMap[(frame_id_t)victimIdx] = new Page{};
-    }
+//    if (!pageMap.count(victimIdx)) {
+//      pageMap[(frame_id_t)victimIdx] = new Page{};
+//    }
     freeFrameId = victimIdx;
   }
 
   // Todo: how to insert P? Pin?
   // TODO: ?????????????
   // update P's metadata
-  pageMap[freeFrameId]->page_id_ = page_id;
+//  pageMap[freeFrameId]->page_id_ = page_id;
+  pages_[freeFrameId].page_id_ = page_id;
+  disk_manager_->ReadPage(page_id, pages_[freeFrameId].GetData());
+
+  std::cout<< "Our stupid fetch page result data is: " << pages_[page_id].GetData() << std::endl;
 
   latch_.unlock();
-  return pageMap[freeFrameId];
+//  return pageMap[freeFrameId];
+  return &pages_[freeFrameId];
 }
 
 bool BufferPoolManager::UnpinPageImpl(page_id_t page_id, bool is_dirty) {
@@ -168,41 +173,66 @@ Page *BufferPoolManager::NewPageImpl(page_id_t *page_id) {
     // first check if all pages in the buffer pool are pinned
     bool allPinned = true;
     for (auto i = 0; i < (int)pool_size_; i++) {
-      if (pages_[i].GetPinCount() != 0) {
+      if (pages_[i].GetPinCount() == 0) {
         allPinned = false;
         break;
       }
     }
     // all pinned, no victim can be found
+
+    std::cout << "ALL PINNED = " << allPinned << std::endl;
+
     if (allPinned) {
+
       latch_.unlock();
       return nullptr;
     }
+
+    // cannot find victim from CR bc CR's empty
+    if (replacer_->Size() == 0) {
+      latch_.unlock();
+      return nullptr;
+    }
+
     // can find one victim from the CR
     frame_id_t* victimIdxPtr = nullptr;
+
+    std::cout << "Started VICTIM FUNCTION" << std::endl;
+
     replacer_->Victim(victimIdxPtr);
     int victimIdx = *victimIdxPtr;
     victimIdxPtr = nullptr;
     // flush the victim frame
+
+    std::cout << "Passed VICTIM FUNCTION" << std::endl;
+
     FlushPageImplWithoutLock(pages_[victimIdx].page_id_);
 
-    // check if the pageMap contains the victim frame Id
-
-    if (!pageMap.count(victimIdx)) {
-//      pageMap.insert(std::make_pair<frame_id_t, Page>({victimIdx, Page{}}));
-//        pageMap.insert({(frame_id_t)victimIdx, Page{}});
-        pageMap[(frame_id_t)victimIdx] = new Page{};
-    }
     freeFrameId = victimIdx;
   }
 
-  // TODO: ?????????????
+//  // check if the pageMap contains the victim frame Id
+//  if (!pageMap.count(freeFrameId)) {
+//    pageMap[(frame_id_t)freeFrameId] = new Page{};
+//  }
+
+  // TODO: update P's metadata, zero out memory
   // update P's metadata
+//  char empty_data[0];
+//  std::memcpy(pageMap[freeFrameId]->GetData(), empty_data, PAGE_SIZE);
+//  std::memcpy(pageMap[freeFrameId]->GetData(), empty_data, PAGE_SIZE);
+  std::memset(pages_[freeFrameId].GetData(), 0, PAGE_SIZE);
 //  pageMap[freeFrameId]->page_id_ = freeFrameId;
+  pages_[freeFrameId].page_id_ = freeFrameId;
+  pages_[freeFrameId].pin_count_++;
+
+
+
   *page_id = freeFrameId;
 
   latch_.unlock();
-  return pageMap[freeFrameId];
+//  return pageMap[freeFrameId];
+  return &pages_[freeFrameId];
 }
 
 
@@ -250,6 +280,7 @@ void BufferPoolManager::FlushAllPagesImpl() {
 // Helper functions below:
 int BufferPoolManager::FindTargetPageIdx(page_id_t targetId) {
   for (int i = 0; i < (int)pool_size_; ++i) {
+    std::cout << "Current page id is " << pages_[i].page_id_ << std::endl;
     if (pages_[i].page_id_ != INVALID_PAGE_ID && pages_[i].page_id_ == targetId) {
       return i;
     }

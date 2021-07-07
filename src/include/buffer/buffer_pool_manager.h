@@ -46,7 +46,7 @@ class BufferPoolManager {
    */
   ~BufferPoolManager();
 
-  /** Grading function. Do not modify! *
+  /** Grading function. Do not modify! */
   Page *FetchPage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) {
     GradingCallback(callback, CallbackType::BEFORE, page_id);
     auto *result = FetchPageImpl(page_id);
@@ -136,19 +136,17 @@ class BufferPoolManager {
   bool FlushPageImpl(page_id_t page_id);
 
   /**
-   * Creates a new page in the buffer pool.
-   * @param[out] page_id id of created page
-   * @return nullptr if no new pages could be created, otherwise pointer to new page
-   */
-
-  /**
    * Helper function of FlushPageImpl, require external lock
    * @param[out] page_id id of created page
    * @return nullptr if no new pages could be created, otherwise pointer to new page
    */
   bool FlushPageImplWithoutLock(page_id_t page_id);
 
-
+  /**
+   * Creates a new page in the buffer pool.
+   * @param[out] page_id id of created page
+   * @return nullptr if no new pages could be created, otherwise pointer to new page
+   */
   Page *NewPageImpl(page_id_t *page_id);
 
   /**
