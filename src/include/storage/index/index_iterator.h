@@ -24,7 +24,7 @@ class IndexIterator {
  public:
   // you may define your own constructor based on your member variables
   IndexIterator();
-  ~IndexIterator();
+  ~IndexIterator() = default;
 
   bool isEnd();
 
