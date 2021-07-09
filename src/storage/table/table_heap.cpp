@@ -31,7 +31,7 @@ TableHeap::TableHeap(BufferPoolManager *buffer_pool_manager, LockManager *lock_m
   auto first_page = reinterpret_cast<TablePage *>(buffer_pool_manager_->NewPage(&first_page_id_));
   BUSTUB_ASSERT(first_page != nullptr, "Couldn't create a page for the table heap.");
   first_page->WLatch();
-  first_page->Init(first_page_id_, PAGE_SIZE, INVALID_LSN, log_manager_, txn);
+  first_page->Init(first_page_id_, PAGE_SIZE, INVALID_PAGE_ID, log_manager_, txn);
   first_page->WUnlatch();
   buffer_pool_manager_->UnpinPage(first_page_id_, true);
 }
