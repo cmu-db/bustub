@@ -45,7 +45,7 @@ TEST(StarterTest, SampleTest) {
 TEST(StarterTest, DISABLED_InitializationTest) {
   auto matrix = std::make_unique<RowMatrix<int>>(2, 2);
 
-  // Source contrains too few elements
+  // Source contains too few elements
   std::vector<int> source0(3);
   std::iota(source0.begin(), source0.end(), 0);
   EXPECT_TRUE(ThrowsBustubException([&]() { matrix->FillFrom(source0); }, ExceptionType::OUT_OF_RANGE));
