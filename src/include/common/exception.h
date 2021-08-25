@@ -68,7 +68,7 @@ class Exception : public std::runtime_error {
   Exception(ExceptionType exception_type, const std::string &message)
       : std::runtime_error(message), type_(exception_type) {
     std::string exception_message =
-        "\nException Type :: " + ExpectionTypeToString(type_) + "\nMessage :: " + message + "\n";
+        "\nException Type :: " + ExceptionTypeToString(type_) + "\nMessage :: " + message + "\n";
     std::cerr << exception_message;
   }
 
