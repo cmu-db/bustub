@@ -62,7 +62,7 @@ TEST(StarterTest, DISABLED_InitializationTest) {
 
   for (int i = 0; i < matrix->GetRowCount(); i++) {
     for (int j = 0; j < matrix->GetColumnCount(); j++) {
-      const int expected = (i * j) + j;
+      const int expected = (i * matrix->GetColumnCount()) + j;
       EXPECT_EQ(expected, matrix->GetElement(i, j));
     }
   }
