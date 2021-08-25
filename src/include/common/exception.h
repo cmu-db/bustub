@@ -51,11 +51,20 @@ enum class ExceptionType {
 
 class Exception : public std::runtime_error {
  public:
+  /**
+   * Construct a new Exception instance.
+   * @param message The exception message
+   */
   explicit Exception(const std::string &message) : std::runtime_error(message), type_(ExceptionType::INVALID) {
     std::string exception_message = "Message :: " + message + "\n";
     std::cerr << exception_message;
   }
 
+  /**
+   * Construct a new Exception instance with specified type.
+   * @param exception_type The exception type
+   * @param message The exception message
+   */
   Exception(ExceptionType exception_type, const std::string &message)
       : std::runtime_error(message), type_(exception_type) {
     std::string exception_message =
@@ -63,7 +72,11 @@ class Exception : public std::runtime_error {
     std::cerr << exception_message;
   }
 
-  std::string ExpectionTypeToString(ExceptionType type) {
+  /** @return The type of the exception */
+  ExceptionType GetType() const { return type_; }
+
+  /** @return A human-readable string for the specified exception type */
+  static std::string ExpectionTypeToString(ExceptionType type) {
     switch (type) {
       case ExceptionType::INVALID:
         return "Invalid";
