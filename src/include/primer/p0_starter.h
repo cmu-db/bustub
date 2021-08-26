@@ -28,11 +28,12 @@ template <typename T>
 class Matrix {
  protected:
   /**
+   * TODO(P0): Add implementation
+   * 
    * Construct a new Matrix instance.
    * @param rows The number of rows
    * @param cols The number of columns
    *
-   * TODO(P0): Add implementation
    */
   Matrix(int rows, int cols) {}
 
@@ -42,9 +43,9 @@ class Matrix {
   int cols_;
 
   /**
-   * A flattened array containing the elements of the matrix.
    * TODO(P0): Allocate the array in the constructor.
    * TODO(P0): Deallocate the array in the destructor.
+   * A flattened array containing the elements of the matrix.
    */
   T *linear_;
 
