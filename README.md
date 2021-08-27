@@ -9,34 +9,42 @@ BusTub is a relational database management system built at [Carnegie Mellon Univ
 
 **WARNING: IF YOU ARE A STUDENT IN THE CLASS, DO NOT DIRECTLY FORK THIS REPO. DO NOT PUSH PROJECT SOLUTIONS PUBLICLY. THIS IS AN ACADEMIC INTEGRITY VIOLATION AND CAN LEAD TO GETTING YOUR DEGREE REVOKED, EVEN AFTER YOU GRADUATE.**
 
-## Cloning this repo
+## Cloning this Repository
 
-The following instructions will create a private BusTub that you can use for your development:
+The following instructions are adapted from the Github documentation on [duplicating a repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-on-github/duplicating-a-repository). The procedure below walks you through creating a private BusTub repository that you can use for development.
 
-1. Go to [https://github.com/new](https://github.com/new) to create a new repo under your account. Pick a name (e.g. `private-bustub`) and make sure it is you select it as **private**.
-2. On your development machine, clone the public BusTub:
+1. Go [here](https://github.com/new) to create a new repository under your account. Pick a name (e.g. `bustub-private`) and select **Private** for the repository visibility level.
+2. On your development machine, create a bare clone of the public BusTub repository:
    ```
-   $ git clone --depth 1 https://github.com/cmu-db/bustub.git public-bustub
+   $ git clone --bare https://github.com/cmu-db/bustub.git bustub-public
    ```
-3. You next need to [mirror](https://git-scm.com/docs/git-push#Documentation/git-push.txt---mirror) the public BusTub repo into your own private BusTub repo. Suppose your GitHub name is `student` and your repo name is `private-bustub`, you will execute the following commands:
+3. Next, [mirror](https://git-scm.com/docs/git-push#Documentation/git-push.txt---mirror) the public BusTub repository to your own private BusTub repository. Suppose your GitHub name is `student` and your repository name is `bustub-private`. The procedure for mirroring the repository is then:
    ```
-   $ cd public-bustub
-   $ git push --mirror git@github.com:student/private-bustub.git
+   $ cd bustub-public
+   $ git push --mirror git@github.com:student/bustub-private.git
    ```
-   This copies everything in the public BusTub repo into your own private repo. You can now delete this bustub directory:
+   This copies everything in the public BusTub repository to your own private repository. You can now delete your local clone of the public repository:
    ```
    $ cd ..
    $ rm -rv public-bustub
    ```
-4. Clone your own private repo on:
+4. Clone your private repository to your development machine:
    ```
-   $ git clone git@github.com:student/private-bustub.git
+   $ git clone git@github.com:student/bustub-private.git
    ```
-5. Add the public BusTub as a remote source. This will allow you to retrieve changes from the CMU-DB repository during the semester:
+5. Add the public BusTub repository as a second remote. This allows you to retrieve changes from the CMU-DB repository and merge them with your solution throughout the semester:
    ```
    $ git remote add public https://github.com/cmu-db/bustub.git
    ```
-6. You can now pull in changes from the public BusTub as needed:
+   You can verify that the remote was added with the following command:
+   ```
+   $ git remote -v
+   origin	git@github.com:student/bustub-private.git (fetch)
+   origin	git@github.com:student/bustub-private.git (push)
+   upstream	https://github.com/cmu-db/bustub.git (fetch)
+   upstream	https://github.com/cmu-db/bustub.git (push)
+   ```
+6. You can now pull in changes from the public BusTub repository as needed with:
    ```
    $ git pull public master
    ```
