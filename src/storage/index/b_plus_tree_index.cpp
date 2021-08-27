@@ -49,13 +49,13 @@ void BPLUSTREE_INDEX_TYPE::ScanKey(const Tuple &key, std::vector<RID> *result, T
 }
 
 INDEX_TEMPLATE_ARGUMENTS
-INDEXITERATOR_TYPE BPLUSTREE_INDEX_TYPE::GetBeginIterator() { return container_.begin(); }
+INDEXITERATOR_TYPE BPLUSTREE_INDEX_TYPE::GetBeginIterator() { return container_.Begin(); }
 
 INDEX_TEMPLATE_ARGUMENTS
 INDEXITERATOR_TYPE BPLUSTREE_INDEX_TYPE::GetBeginIterator(const KeyType &key) { return container_.Begin(key); }
 
 INDEX_TEMPLATE_ARGUMENTS
-INDEXITERATOR_TYPE BPLUSTREE_INDEX_TYPE::GetEndIterator() { return container_.end(); }
+INDEXITERATOR_TYPE BPLUSTREE_INDEX_TYPE::GetEndIterator() { return container_.End(); }
 
 template class BPlusTreeIndex<GenericKey<4>, RID, GenericComparator<4>>;
 template class BPlusTreeIndex<GenericKey<8>, RID, GenericComparator<8>>;

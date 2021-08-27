@@ -18,7 +18,7 @@ INDEX_TEMPLATE_ARGUMENTS
 INDEXITERATOR_TYPE::~IndexIterator() = default;
 
 INDEX_TEMPLATE_ARGUMENTS
-bool INDEXITERATOR_TYPE::isEnd() { throw std::runtime_error("unimplemented"); }
+bool INDEXITERATOR_TYPE::IsEnd() { throw std::runtime_error("unimplemented"); }
 
 INDEX_TEMPLATE_ARGUMENTS
 const MappingType &INDEXITERATOR_TYPE::operator*() { throw std::runtime_error("unimplemented"); }

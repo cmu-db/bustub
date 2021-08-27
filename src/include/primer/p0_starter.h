@@ -29,7 +29,7 @@ class Matrix {
  protected:
   /**
    * TODO(P0): Add implementation
-   * 
+   *
    * Construct a new Matrix instance.
    * @param rows The number of rows
    * @param cols The number of columns
