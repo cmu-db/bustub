@@ -31,7 +31,7 @@ The following instructions are adapted from the Github documentation on [duplica
    This copies everything in the public BusTub repository to your own private repository. You can now delete your local clone of the public repository:
    ```
    $ cd ..
-   $ rm -rv public-bustub
+   $ rm -rf bustub-public
    ```
 4. Clone your private repository to your development machine:
    ```
