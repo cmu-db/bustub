@@ -33,7 +33,7 @@ Vagrant.configure(2) do |config|
   # Setup environment
   config.vm.provision :shell, :inline => "apt-get update"
   config.vm.provision "shell" do |s| 
-    s.path = "https://github.com/cmu-db/bustub/raw/vagrant/build_support/packages.sh"
+    s.path = "https://raw.githubusercontent.com/cmu-db/bustub/master/build_support/packages.sh"
     s.args = "-y"
   end
 
