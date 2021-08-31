@@ -37,7 +37,6 @@ jobs:
           - {
             name: "macOS Latest Clang",
             os: macos-latest,
-            build_type: "Debug",
             cc: "/usr/bin/clang",
             cxx: "/usr/bin/clang++",
             format: "/usr/local/opt/llvm@8/bin/clang-format",
