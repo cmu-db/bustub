@@ -22,21 +22,21 @@ class Counter {
  public:
   Counter() = default;
   void Add(int num) {
-    mutex.WLock();
+    mutex_.WLock();
     count_ += num;
-    mutex.WUnlock();
+    mutex_.WUnlock();
   }
   int Read() {
     int res;
-    mutex.RLock();
+    mutex_.RLock();
     res = count_;
-    mutex.RUnlock();
+    mutex_.RUnlock();
     return res;
   }
 
  private:
   int count_{0};
-  ReaderWriterLatch mutex{};
+  ReaderWriterLatch mutex_{};
 };
 
 // NOLINTNEXTLINE

@@ -97,10 +97,10 @@ class SimpleAggregationHashTable {
    * @param agg_val the value to be inserted
    */
   void InsertCombine(const AggregateKey &agg_key, const AggregateValue &agg_val) {
-    if (ht.count(agg_key) == 0) {
-      ht.insert({agg_key, GenerateInitialAggregateValue()});
+    if (ht_.count(agg_key) == 0) {
+      ht_.insert({agg_key, GenerateInitialAggregateValue()});
     }
-    CombineAggregateValues(&ht[agg_key], agg_val);
+    CombineAggregateValues(&ht_[agg_key], agg_val);
   }
 
   /**
@@ -135,14 +135,14 @@ class SimpleAggregationHashTable {
   };
 
   /** @return iterator to the start of the hash table */
-  Iterator Begin() { return Iterator{ht.cbegin()}; }
+  Iterator Begin() { return Iterator{ht_.cbegin()}; }
 
   /** @return iterator to the end of the hash table */
-  Iterator End() { return Iterator{ht.cend()}; }
+  Iterator End() { return Iterator{ht_.cend()}; }
 
  private:
   /** The hash table is just a map from aggregate keys to aggregate values. */
-  std::unordered_map<AggregateKey, AggregateValue> ht{};
+  std::unordered_map<AggregateKey, AggregateValue> ht_{};
   /** The aggregate expressions that we have. */
   const std::vector<const AbstractExpression *> &agg_exprs_;
   /** The types of aggregations that we have. */

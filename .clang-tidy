@@ -43,18 +43,17 @@ Checks:     '
             -readability-qualified-auto,
             -readability-redundant-access-specifiers,
             '
-# TODO(WAN): To be enabled in Fall 2020.
-#CheckOptions:
-#  - { key: readability-identifier-naming.ClassCase,           value: CamelCase  }
-#  - { key: readability-identifier-naming.EnumCase,            value: CamelCase  }
-#  - { key: readability-identifier-naming.FunctionCase,        value: CamelCase  }
-#  - { key: readability-identifier-naming.GlobalConstantCase,  value: UPPER_CASE }
-#  - { key: readability-identifier-naming.MemberCase,          value: lower_case }
-#  - { key: readability-identifier-naming.MemberSuffix,        value: _          }
-#  - { key: readability-identifier-naming.NamespaceCase,       value: lower_case }
-#  - { key: readability-identifier-naming.StructCase,          value: CamelCase  }
-#  - { key: readability-identifier-naming.UnionCase,           value: CamelCase  }
-#  - { key: readability-identifier-naming.VariableCase,        value: lower_case }
+CheckOptions:
+  - { key: readability-identifier-naming.ClassCase,           value: CamelCase  }
+  - { key: readability-identifier-naming.EnumCase,            value: CamelCase  }
+  - { key: readability-identifier-naming.FunctionCase,        value: CamelCase  }
+  - { key: readability-identifier-naming.GlobalConstantCase,  value: UPPER_CASE }
+  - { key: readability-identifier-naming.MemberCase,          value: lower_case }
+  - { key: readability-identifier-naming.MemberSuffix,        value: _          }
+  - { key: readability-identifier-naming.NamespaceCase,       value: lower_case }
+  - { key: readability-identifier-naming.StructCase,          value: CamelCase  }
+  - { key: readability-identifier-naming.UnionCase,           value: CamelCase  }
+  - { key: readability-identifier-naming.VariableCase,        value: lower_case }
 WarningsAsErrors: '*'
 HeaderFilterRegex: '/(src|test)/include'
 AnalyzeTemporaryDtors: true
