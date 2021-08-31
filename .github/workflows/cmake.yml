@@ -1,0 +1,90 @@
+name: CMake Build Matrix
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  BUILD_TYPE: Debug
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+
+    strategy:
+      fail-fast: true
+      matrix:
+        config:
+          - {
+            name: "Ubuntu Latest GCC",
+            os: ubuntu-latest,
+            cc: "/usr/bin/gcc",
+            cxx: "/usr/bin/g++",
+            format: "/usr/bin/clang-format-8",
+            tidy: "/usr/bin/clang-tidy-8"
+          }
+          - {
+            name: "Ubuntu Latest Clang",
+            os: ubuntu-latest,
+            cc: "/usr/bin/clang-8",
+            cxx: "/usr/bin/clang++8",
+            format: "/usr/bin/clang-format-8",
+            tidy: "/usr/bin/clang-tidy-8"
+          }
+          - {
+            name: "macOS Latest Clang",
+            os: macos-latest,
+            cc: "/usr/bin/clang",
+            cxx: "/usr/bin/clang++",
+            format: "/usr/local/opt/llvm@8/bin/clang-format",
+            tidy: "/usr/local/opt/llvm@8/bin/clang-tidy"
+          }
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Print env
+        run: |
+          echo github.event.action: ${{ github.event.action }}
+          echo github.event_name: ${{ github.event_name }}
+      - name: Install Dependencies (Ubuntu)
+        if: runner.os == 'Linux'
+        working-directory: ${{github.workspace}}
+        run: sudo bash ./build_support/packages.sh -y
+
+      - name: Install Dependencies (OSX)
+        if: runner.os == 'macOS'
+        working-directory: ${{github.workspace}}
+        run: bash ./build_support/packages.sh -y
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCC=${{matrix.config.cc}} -DCXX=${{matrix.config.cxx}} -DCLANG_FORMAT_BIN=${{matrix.config.format}} -DCLANG_TIDY_BIN=${{matrix.config.tidy}}
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+      - name: Check Format
+        working-directory: ${{github.workspace}}/build
+        run: make check-format
+
+      - name: Check Lint
+        working-directory: ${{github.workspace}}/build
+        run: make check-lint
+
+      - name: Check Clang Tidy
+        working-directory: ${{github.workspace}}/build
+        run: make check-clang-tidy
+
+      - name: Check Tests (Ubuntu)
+        if: runner.os == 'Linux'
+        working-directory: ${{github.workspace}}/build
+        run: make check-tests
+
+      - name: Check Tests (OSX)
+        if: runner.os == 'macOS'
+        working-directory: ${{github.workspace}}/build
+        # Disable container overflow checks on OSX
+        run: ASAN_OPTIONS=detect_container_overflow=0 make check-tests
