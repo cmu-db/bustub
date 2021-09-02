@@ -2,7 +2,7 @@
 //
 //                         BusTub
 //
-// buffer_pool_manager_pool.h
+// parallel_buffer_pool_manager.h
 //
 // Identification: src/include/buffer/buffer_pool_manager.h
 //
@@ -19,20 +19,20 @@
 
 namespace bustub {
 
-class BufferPoolManagerPool : public BufferPoolManager {
+class ParallelBufferPoolManager : public BufferPoolManager {
  public:
   /**
-   * Creates a new BufferPoolManagerPool.
-   * @param pool_size the size of the buffer pool
+   * Creates a new ParallelBufferPoolManager.
+   * @param pool_size the amount of BufferPoolManagerInstances to store
    * @param disk_manager the disk manager
    * @param log_manager the log manager (for testing only: nullptr = disable logging)
    */
-  BufferPoolManagerPool(size_t pool_size, DiskManager *disk_manager, LogManager *log_manager = nullptr);
+  ParallelBufferPoolManager(size_t pool_size, DiskManager *disk_manager, LogManager *log_manager = nullptr);
 
   /**
-   * Destroys an existing BufferPoolManagerPool.
+   * Destroys an existing ParallelBufferPoolManager.
    */
-  ~BufferPoolManagerPool() override;
+  ~ParallelBufferPoolManager() override;
 
   /** @return size of the buffer pool */
   size_t GetPoolSize() override;
@@ -84,5 +84,11 @@ class BufferPoolManagerPool : public BufferPoolManager {
    * Flushes all the pages in the buffer pool to disk.
    */
   void FlushAllPagesImpl() override;
+
+  /**
+   * @param page_id id of page to hash
+   * @return hash of page id
+   */
+  size_t HashPageId(page_id_t page_id);
 };
 }  // namespace bustub
