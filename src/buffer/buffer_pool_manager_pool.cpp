@@ -22,7 +22,7 @@ BufferPoolManagerPool::~BufferPoolManagerPool() = default;
 
 size_t BufferPoolManagerPool::GetPoolSize() { return 0; }
 
-BufferPoolManager *BufferPoolManagerPool : GetBufferPoolManager(page_id_t page_id) { return nullptr; };
+BufferPoolManager *BufferPoolManagerPool::GetBufferPoolManager(page_id_t page_id) { return nullptr; };
 
 Page *BufferPoolManagerPool::FetchPageImpl(page_id_t page_id) { return nullptr; }
 
