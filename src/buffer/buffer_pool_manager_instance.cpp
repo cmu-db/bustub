@@ -2,22 +2,21 @@
 //
 //                         BusTub
 //
-// buffer_pool_manager.cpp
+// buffer_pool_manager_instance.cpp
 //
 // Identification: src/buffer/buffer_pool_manager.cpp
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
-#include "buffer/buffer_pool_manager.h"
+#include "buffer/buffer_pool_manager_instance.h"
 
 #include <list>
-#include <unordered_map>
 
 namespace bustub {
 
-BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager, LogManager *log_manager)
+BufferPoolManagerInstance::BufferPoolManagerInstance(size_t pool_size, DiskManager *disk_manager, LogManager *log_manager)
     : pool_size_(pool_size), disk_manager_(disk_manager), log_manager_(log_manager) {
   // We allocate a consecutive memory space for the buffer pool.
   pages_ = new Page[pool_size_];
@@ -29,12 +28,12 @@ BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager
   }
 }
 
-BufferPoolManager::~BufferPoolManager() {
+BufferPoolManagerInstance::~BufferPoolManagerInstance() {
   delete[] pages_;
   delete replacer_;
 }
 
-Page *BufferPoolManager::FetchPageImpl(page_id_t page_id) {
+Page *BufferPoolManagerInstance::FetchPageImpl(page_id_t page_id) {
   // 1.     Search the page table for the requested page (P).
   // 1.1    If P exists, pin it and return it immediately.
   // 1.2    If P does not exist, find a replacement page (R) from either the free list or the replacer.
@@ -45,14 +44,14 @@ Page *BufferPoolManager::FetchPageImpl(page_id_t page_id) {
   return nullptr;
 }
 
-bool BufferPoolManager::UnpinPageImpl(page_id_t page_id, bool is_dirty) { return false; }
+bool BufferPoolManagerInstance::UnpinPageImpl(page_id_t page_id, bool is_dirty) { return false; }
 
-bool BufferPoolManager::FlushPageImpl(page_id_t page_id) {
+bool BufferPoolManagerInstance::FlushPageImpl(page_id_t page_id) {
   // Make sure you call DiskManager::WritePage!
   return false;
 }
 
-Page *BufferPoolManager::NewPageImpl(page_id_t *page_id) {
+Page *BufferPoolManagerInstance::NewPageImpl(page_id_t *page_id) {
   // 0.   Make sure you call DiskManager::AllocatePage!
   // 1.   If all the pages in the buffer pool are pinned, return nullptr.
   // 2.   Pick a victim page P from either the free list or the replacer. Always pick from the free list first.
@@ -61,7 +60,7 @@ Page *BufferPoolManager::NewPageImpl(page_id_t *page_id) {
   return nullptr;
 }
 
-bool BufferPoolManager::DeletePageImpl(page_id_t page_id) {
+bool BufferPoolManagerInstance::DeletePageImpl(page_id_t page_id) {
   // 0.   Make sure you call DiskManager::DeallocatePage!
   // 1.   Search the page table for the requested page (P).
   // 1.   If P does not exist, return true.
@@ -70,7 +69,7 @@ bool BufferPoolManager::DeletePageImpl(page_id_t page_id) {
   return false;
 }
 
-void BufferPoolManager::FlushAllPagesImpl() {
+void BufferPoolManagerInstance::FlushAllPagesImpl() {
   // You can do it!
 }
 
