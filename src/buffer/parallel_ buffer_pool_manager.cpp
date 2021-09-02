@@ -63,6 +63,6 @@ void ParallelBufferPoolManager::FlushAllPagesImpl() {
   // flush all pages
 }
 
-size_t ParallelBufferPoolManager::HashPageId(page_id_t page_id) {}
+size_t ParallelBufferPoolManager::HashPageId(page_id_t page_id) { return 0; }
 
 }  // namespace bustub
