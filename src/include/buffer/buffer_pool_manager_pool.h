@@ -17,9 +17,7 @@
 namespace bustub {
 
 class BufferPoolManagerPool : public BufferPoolManager {
-
  public:
-
   /**
    * Creates a new BufferPoolManagerPool.
    * @param pool_size the size of the buffer pool
@@ -143,6 +141,5 @@ class BufferPoolManagerPool : public BufferPoolManager {
    * Flushes all the pages in the buffer pool to disk.
    */
   void FlushAllPagesImpl();
-
 };
 }  // namespace bustub

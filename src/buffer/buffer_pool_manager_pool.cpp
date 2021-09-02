@@ -16,30 +16,19 @@
 
 namespace bustub {
 
-BufferPoolManagerPool::BufferPoolManagerPool(size_t pool_size, DiskManager *disk_manager, LogManager *log_manager) {
-}
+BufferPoolManagerPool::BufferPoolManagerPool(size_t pool_size, DiskManager *disk_manager, LogManager *log_manager) {}
 
-BufferPoolManagerPool::~BufferPoolManagerPool() {
+BufferPoolManagerPool::~BufferPoolManagerPool() {}
 
-}
-
-Page *BufferPoolManagerPool::FetchPageImpl(page_id_t page_id) {
-  return nullptr;
-}
+Page *BufferPoolManagerPool::FetchPageImpl(page_id_t page_id) { return nullptr; }
 
 bool BufferPoolManagerPool::UnpinPageImpl(page_id_t page_id, bool is_dirty) { return false; }
 
-bool BufferPoolManagerPool::FlushPageImpl(page_id_t page_id) {
-  return false;
-}
+bool BufferPoolManagerPool::FlushPageImpl(page_id_t page_id) { return false; }
 
-Page *BufferPoolManagerPool::NewPageImpl(page_id_t *page_id) {
-  return nullptr;
-}
+Page *BufferPoolManagerPool::NewPageImpl(page_id_t *page_id) { return nullptr; }
 
-bool BufferPoolManagerPool::DeletePageImpl(page_id_t page_id) {
-  return false;
-}
+bool BufferPoolManagerPool::DeletePageImpl(page_id_t page_id) { return false; }
 
 void BufferPoolManagerPool::FlushAllPagesImpl() {
   // You can do it!

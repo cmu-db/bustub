@@ -29,7 +29,6 @@ namespace bustub {
  */
 class BufferPoolManagerInstance : public BufferPoolManager {
  public:
-
   /**
    * Creates a new BufferPoolManagerInstance.
    * @param pool_size the size of the buffer pool
