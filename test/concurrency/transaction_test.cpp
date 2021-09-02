@@ -10,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-#include "buffer/buffer_pool_manager.h"
+#include "buffer/buffer_pool_manager_instance.h"
 #include "catalog/table_generator.h"
 #include "concurrency/transaction.h"
 #include "concurrency/transaction_manager.h"
@@ -47,7 +47,7 @@ class TransactionTest : public ::testing::Test {
     ::testing::Test::SetUp();
     // For each test, we create a new DiskManager, BufferPoolManager, TransactionManager, and Catalog.
     disk_manager_ = std::make_unique<DiskManager>("executor_test.db");
-    bpm_ = std::make_unique<BufferPoolManager>(2560, disk_manager_.get());
+    bpm_ = std::make_unique<BufferPoolManagerInstance>(2560, disk_manager_.get());
     page_id_t page_id;
     bpm_->NewPage(&page_id);
     lock_manager_ = std::make_unique<LockManager>();

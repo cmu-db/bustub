@@ -15,7 +15,7 @@
 #include <atomic>
 #include <fstream>
 #include <future>  // NOLINT
-#include <mutex>  // NOLINT
+#include <mutex>   // NOLINT
 #include <string>
 
 #include "common/config.h"

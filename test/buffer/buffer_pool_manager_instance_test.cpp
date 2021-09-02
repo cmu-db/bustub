@@ -10,10 +10,11 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "buffer/buffer_pool_manager.h"
+#include "buffer/buffer_pool_manager_instance.h"
 #include <cstdio>
 #include <random>
 #include <string>
+#include "buffer/buffer_pool_manager.h"
 #include "gtest/gtest.h"
 
 namespace bustub {
@@ -29,7 +30,7 @@ TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
   std::uniform_int_distribution<char> uniform_dist(0);
 
   auto *disk_manager = new DiskManager(db_name);
-  auto *bpm = new BufferPoolManager(buffer_pool_size, disk_manager);
+  auto *bpm = new BufferPoolManagerInstance(buffer_pool_size, disk_manager);
 
   page_id_t page_id_temp;
   auto *page0 = bpm->NewPage(&page_id_temp);
@@ -91,7 +92,7 @@ TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
   const size_t buffer_pool_size = 10;
 
   auto *disk_manager = new DiskManager(db_name);
-  auto *bpm = new BufferPoolManager(buffer_pool_size, disk_manager);
+  auto *bpm = new BufferPoolManagerInstance(buffer_pool_size, disk_manager);
 
   page_id_t page_id_temp;
   auto *page0 = bpm->NewPage(&page_id_temp);

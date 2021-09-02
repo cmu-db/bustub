@@ -17,7 +17,7 @@
 #include <iostream>
 
 #include "b_plus_tree_test_util.h"  // NOLINT
-#include "buffer/buffer_pool_manager.h"
+#include "buffer/buffer_pool_manager_instance.h"
 #include "common/logger.h"
 #include "gtest/gtest.h"
 #include "storage/index/b_plus_tree.h"
@@ -61,7 +61,7 @@ TEST(BptTreeTest, DISABLED_UnitTest) {
   GenericComparator<8> comparator(key_schema);
 
   DiskManager *disk_manager = new DiskManager("test.db");
-  BufferPoolManager *bpm = new BufferPoolManager(100, disk_manager);
+  BufferPoolManager *bpm = new BufferPoolManagerInstance(100, disk_manager);
   // create and fetch header_page
   page_id_t page_id;
   auto header_page = bpm->NewPage(&page_id);

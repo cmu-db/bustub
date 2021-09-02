@@ -18,7 +18,9 @@ namespace bustub {
 
 BufferPoolManagerPool::BufferPoolManagerPool(size_t pool_size, DiskManager *disk_manager, LogManager *log_manager) {}
 
-BufferPoolManagerPool::~BufferPoolManagerPool() {}
+BufferPoolManagerPool::~BufferPoolManagerPool() = default;
+
+size_t BufferPoolManagerPool::GetPoolSize() { return 0; }
 
 Page *BufferPoolManagerPool::FetchPageImpl(page_id_t page_id) { return nullptr; }
 

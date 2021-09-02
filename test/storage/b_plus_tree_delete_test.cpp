@@ -6,7 +6,7 @@
 #include <cstdio>
 
 #include "b_plus_tree_test_util.h"  // NOLINT
-#include "buffer/buffer_pool_manager.h"
+#include "buffer/buffer_pool_manager_instance.h"
 #include "gtest/gtest.h"
 #include "storage/index/b_plus_tree.h"
 
@@ -19,7 +19,7 @@ TEST(BPlusTreeTests, DISABLED_DeleteTest1) {
   GenericComparator<8> comparator(key_schema);
 
   DiskManager *disk_manager = new DiskManager("test.db");
-  BufferPoolManager *bpm = new BufferPoolManager(50, disk_manager);
+  BufferPoolManager *bpm = new BufferPoolManagerInstance(50, disk_manager);
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm, comparator);
   GenericKey<8> index_key;
@@ -98,7 +98,7 @@ TEST(BPlusTreeTests, DISABLED_DeleteTest2) {
   GenericComparator<8> comparator(key_schema);
 
   DiskManager *disk_manager = new DiskManager("test.db");
-  BufferPoolManager *bpm = new BufferPoolManager(50, disk_manager);
+  BufferPoolManager *bpm = new BufferPoolManagerInstance(50, disk_manager);
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm, comparator);
   GenericKey<8> index_key;
