@@ -2,7 +2,7 @@
 //
 //                         BusTub
 //
-// buffer_pool_manager_instance_test.cpp
+// parallel_buffer_pool_manager_test.cpp
 //
 // Identification: test/buffer/buffer_pool_manager_test.cpp
 //
@@ -10,7 +10,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "buffer/buffer_pool_manager_instance.h"
+#include "buffer/parallel_buffer_pool_manager.h"
 #include <cstdio>
 #include <random>
 #include <string>
@@ -21,16 +21,17 @@ namespace bustub {
 
 // NOLINTNEXTLINE
 // Check whether pages containing terminal characters can be recovered
-TEST(BufferPoolManagerInstanceTest, DISABLED_BinaryDataTest) {
+TEST(ParallelBufferPoolManagerTest, DISABLED_BinaryDataTest) {
   const std::string db_name = "test.db";
   const size_t buffer_pool_size = 10;
+  const size_t num_instances = 5;
 
   std::random_device r;
   std::default_random_engine rng(r());
   std::uniform_int_distribution<char> uniform_dist(0);
 
   auto *disk_manager = new DiskManager(db_name);
-  auto *bpm = new BufferPoolManagerInstance(buffer_pool_size, disk_manager);
+  auto *bpm = new ParallelBufferPoolManager(num_instances, buffer_pool_size, disk_manager);
 
   page_id_t page_id_temp;
   auto *page0 = bpm->NewPage(&page_id_temp);
@@ -54,12 +55,12 @@ TEST(BufferPoolManagerInstanceTest, DISABLED_BinaryDataTest) {
   EXPECT_EQ(0, std::memcmp(page0->GetData(), random_binary_data, PAGE_SIZE));
 
   // Scenario: We should be able to create new pages until we fill up the buffer pool.
-  for (size_t i = 1; i < buffer_pool_size; ++i) {
+  for (size_t i = 1; i < buffer_pool_size * num_instances; ++i) {
     EXPECT_NE(nullptr, bpm->NewPage(&page_id_temp));
   }
 
   // Scenario: Once the buffer pool is full, we should not be able to create any new pages.
-  for (size_t i = buffer_pool_size; i < buffer_pool_size * 2; ++i) {
+  for (size_t i = buffer_pool_size; i < buffer_pool_size * num_instances * 2; ++i) {
     EXPECT_EQ(nullptr, bpm->NewPage(&page_id_temp));
   }
 
@@ -87,12 +88,13 @@ TEST(BufferPoolManagerInstanceTest, DISABLED_BinaryDataTest) {
 }
 
 // NOLINTNEXTLINE
-TEST(BufferPoolManagerInstanceTest, DISABLED_SampleTest) {
+TEST(ParallelBufferPoolManagerTest, DISABLED_SampleTest) {
   const std::string db_name = "test.db";
   const size_t buffer_pool_size = 10;
+  const size_t num_instances = 5;
 
   auto *disk_manager = new DiskManager(db_name);
-  auto *bpm = new BufferPoolManagerInstance(buffer_pool_size, disk_manager);
+  auto *bpm = new ParallelBufferPoolManager(num_instances, buffer_pool_size, disk_manager);
 
   page_id_t page_id_temp;
   auto *page0 = bpm->NewPage(&page_id_temp);
@@ -106,12 +108,12 @@ TEST(BufferPoolManagerInstanceTest, DISABLED_SampleTest) {
   EXPECT_EQ(0, strcmp(page0->GetData(), "Hello"));
 
   // Scenario: We should be able to create new pages until we fill up the buffer pool.
-  for (size_t i = 1; i < buffer_pool_size; ++i) {
+  for (size_t i = 1; i < buffer_pool_size * num_instances; ++i) {
     EXPECT_NE(nullptr, bpm->NewPage(&page_id_temp));
   }
 
   // Scenario: Once the buffer pool is full, we should not be able to create any new pages.
-  for (size_t i = buffer_pool_size; i < buffer_pool_size * 2; ++i) {
+  for (size_t i = buffer_pool_size; i < buffer_pool_size * num_instances * 2; ++i) {
     EXPECT_EQ(nullptr, bpm->NewPage(&page_id_temp));
   }
 
