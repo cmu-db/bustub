@@ -117,8 +117,8 @@ class BufferPoolManagerInstance : public BufferPoolManager {
   const size_t pool_size_;
   /** How many instances are in the parallel BPM (if present, otherwise just 1 BPI) */
   const uint32_t num_instances_ = 1;
-  /** Index of this BPI in the parallel BPM (if present, otherwise just 1) */
-  const uint32_t instance_index_ = 1;
+  /** Index of this BPI in the parallel BPM (if present, otherwise just 0) */
+  const uint32_t instance_index_ = 0;
   /** Each BPI maintains its own counter for page_ids to hand out, must ensure they mod back to its instance_index_ */
   std::atomic<page_id_t> next_page_id_ = instance_index_;
 

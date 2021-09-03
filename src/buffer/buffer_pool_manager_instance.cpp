@@ -20,7 +20,7 @@ namespace bustub {
 
 BufferPoolManagerInstance::BufferPoolManagerInstance(size_t pool_size, DiskManager *disk_manager,
                                                      LogManager *log_manager)
-    : BufferPoolManagerInstance(pool_size, 1, 1, disk_manager, log_manager) {}
+    : BufferPoolManagerInstance(pool_size, 1, 0, disk_manager, log_manager) {}
 
 BufferPoolManagerInstance::BufferPoolManagerInstance(size_t pool_size, uint32_t num_instances, uint32_t instance_index,
                                                      DiskManager *disk_manager, LogManager *log_manager)
@@ -31,7 +31,7 @@ BufferPoolManagerInstance::BufferPoolManagerInstance(size_t pool_size, uint32_t 
       log_manager_(log_manager) {
   BUSTUB_ASSERT(num_instances > 0, "If BPI is not part of a pool, then the pool size should just be 1");
   BUSTUB_ASSERT(
-      instance_index < pool_size + 1 && instance_index > 0,
+      instance_index < pool_size,
       "BPI index cannot be greater than the number of BPIs in the pool. In non-parallel case, index should just be 1.");
   // We allocate a consecutive memory space for the buffer pool.
   pages_ = new Page[pool_size_];
@@ -95,7 +95,7 @@ page_id_t BufferPoolManagerInstance::AllocatePage() {
 }
 
 void BufferPoolManagerInstance::ValidatePageId(const page_id_t page_id) const {
-  assert(page_id % instance_index_ == 0);  // allocated pages mod back to this BPI
+  assert(page_id % num_instances_ == instance_index_);  // allocated pages mod back to this BPI
 }
 
 }  // namespace bustub

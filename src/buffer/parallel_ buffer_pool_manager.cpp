@@ -18,7 +18,7 @@ namespace bustub {
 
 ParallelBufferPoolManager::ParallelBufferPoolManager(size_t pool_size, DiskManager *disk_manager,
                                                      LogManager *log_manager) {
-  // Allocate and create individual BufferPoolManagerInstances. Their starting index should 1 so that mod works.
+  // Allocate and create individual BufferPoolManagerInstances
 }
 
 // Update constructor to destruct all BufferPoolManagerInstances and deallocate any associated memory
