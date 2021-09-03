@@ -23,11 +23,13 @@ class ParallelBufferPoolManager : public BufferPoolManager {
  public:
   /**
    * Creates a new ParallelBufferPoolManager.
-   * @param pool_size the amount of BufferPoolManagerInstances to store
+   * @param the number of individual BufferPoolManagerInstances to store
+   * @param pool_size the pool size of each BufferPoolManagerInstance
    * @param disk_manager the disk manager
    * @param log_manager the log manager (for testing only: nullptr = disable logging)
    */
-  ParallelBufferPoolManager(size_t pool_size, DiskManager *disk_manager, LogManager *log_manager = nullptr);
+  ParallelBufferPoolManager(size_t num_instances, size_t pool_size, DiskManager *disk_manager,
+                            LogManager *log_manager = nullptr);
 
   /**
    * Destroys an existing ParallelBufferPoolManager.
