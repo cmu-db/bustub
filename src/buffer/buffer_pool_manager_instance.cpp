@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "buffer/buffer_pool_manager_instance.h"
+#include "common/macros.h"
 
 #include <list>
 
@@ -18,7 +19,19 @@ namespace bustub {
 
 BufferPoolManagerInstance::BufferPoolManagerInstance(size_t pool_size, DiskManager *disk_manager,
                                                      LogManager *log_manager)
-    : pool_size_(pool_size), disk_manager_(disk_manager), log_manager_(log_manager) {
+    : BufferPoolManagerInstance(pool_size, 1, 1, disk_manager, log_manager) {}
+
+BufferPoolManagerInstance::BufferPoolManagerInstance(size_t pool_size, uint32_t num_instances, uint32_t instance_index,
+                                                     DiskManager *disk_manager, LogManager *log_manager)
+    : pool_size_(pool_size),
+      num_instances_(num_instances),
+      next_page_id_(instance_index),
+      disk_manager_(disk_manager),
+      log_manager_(log_manager) {
+  BUSTUB_ASSERT(num_instances > 0, "If BPI is not part of a pool, then the pool size should just be 1");
+  BUSTUB_ASSERT(
+      instance_index < pool_size + 1 && instance_index > 0,
+      "BPI index cannot be greater than the number of BPIs in the pool. In non-parallel case, index should just be 1.");
   // We allocate a consecutive memory space for the buffer pool.
   pages_ = new Page[pool_size_];
   replacer_ = new LRUReplacer(pool_size);
@@ -53,7 +66,7 @@ bool BufferPoolManagerInstance::FlushPageImpl(page_id_t page_id) {
 }
 
 Page *BufferPoolManagerInstance::NewPageImpl(page_id_t *page_id) {
-  // 0.   Make sure you call DiskManager::AllocatePage!
+  // 0.   Make sure you call AllocatePage!
   // 1.   If all the pages in the buffer pool are pinned, return nullptr.
   // 2.   Pick a victim page P from either the free list or the replacer. Always pick from the free list first.
   // 3.   Update P's metadata, zero out memory and add P to the page table.
@@ -62,7 +75,7 @@ Page *BufferPoolManagerInstance::NewPageImpl(page_id_t *page_id) {
 }
 
 bool BufferPoolManagerInstance::DeletePageImpl(page_id_t page_id) {
-  // 0.   Make sure you call DiskManager::DeallocatePage!
+  // 0.   Make sure you call DeallocatePage!
   // 1.   Search the page table for the requested page (P).
   // 1.   If P does not exist, return true.
   // 2.   If P exists, but has a non-zero pin-count, return false. Someone is using the page.
@@ -72,6 +85,16 @@ bool BufferPoolManagerInstance::DeletePageImpl(page_id_t page_id) {
 
 void BufferPoolManagerInstance::FlushAllPagesImpl() {
   // You can do it!
+}
+
+page_id_t BufferPoolManagerInstance::AllocatePage() {
+  const page_id_t next_page_id = next_page_id_ += num_instances_;
+  ValidatePageId(next_page_id);
+  return next_page_id;
+}
+
+void BufferPoolManagerInstance::ValidatePageId(const page_id_t page_id) const {
+  assert(page_id % instance_index_ == 0);  // allocated pages mod back to this BPI
 }
 
 }  // namespace bustub

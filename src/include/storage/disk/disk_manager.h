@@ -71,18 +71,6 @@ class DiskManager {
    */
   bool ReadLog(char *log_data, int size, int offset);
 
-  /**
-   * Allocate a page on disk.
-   * @return the id of the allocated page
-   */
-  page_id_t AllocatePage();
-
-  /**
-   * Deallocate a page on disk.
-   * @param page_id id of the page to deallocate
-   */
-  void DeallocatePage(page_id_t page_id);
-
   /** @return the number of disk flushes */
   int GetNumFlushes() const;
 
@@ -109,7 +97,6 @@ class DiskManager {
   // stream to write db file
   std::fstream db_io_;
   std::string file_name_;
-  std::atomic<page_id_t> next_page_id_;
   int num_flushes_;
   int num_writes_;
   bool flush_log_;

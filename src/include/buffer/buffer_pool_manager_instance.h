@@ -36,6 +36,16 @@ class BufferPoolManagerInstance : public BufferPoolManager {
    * @param log_manager the log manager (for testing only: nullptr = disable logging)
    */
   BufferPoolManagerInstance(size_t pool_size, DiskManager *disk_manager, LogManager *log_manager = nullptr);
+  /**
+   * Creates a new BufferPoolManagerInstance.
+   * @param pool_size the size of the buffer pool
+   * @param num_instances total number of BPIs in parallel BPM
+   * @param instance_index index of this BPI in the parallel BPM
+   * @param disk_manager the disk manager
+   * @param log_manager the log manager (for testing only: nullptr = disable logging)
+   */
+  BufferPoolManagerInstance(size_t pool_size, uint32_t num_instances, uint32_t instance_index,
+                            DiskManager *disk_manager, LogManager *log_manager = nullptr);
 
   /**
    * Destroys an existing BufferPoolManagerInstance.
@@ -90,8 +100,28 @@ class BufferPoolManagerInstance : public BufferPoolManager {
    */
   void FlushAllPagesImpl() override;
 
+  /**
+   * Allocate a page on disk.∂
+   * @return the id of the allocated page
+   */
+  page_id_t AllocatePage() override;
+
+  /**
+   * Validate that the page_id being used is accessible to this BPI. This can be used in all of the functions to
+   * validate input data and ensure that a parallel BPM is routing requests to the correct BPI
+   * @param page_id
+   */
+  void ValidatePageId(page_id_t page_id) const;
+
   /** Number of pages in the buffer pool. */
-  size_t pool_size_;
+  const size_t pool_size_;
+  /** How many instances are in the parallel BPM (if present, otherwise just 1 BPI) */
+  const uint32_t num_instances_ = 1;
+  /** Index of this BPI in the parallel BPM (if present, otherwise just 1) */
+  const uint32_t instance_index_ = 1;
+  /** Each BPI maintains its own counter for page_ids to hand out, must ensure they mod back to its instance_index_ */
+  std::atomic<page_id_t> next_page_id_ = instance_index_;
+
   /** Array of buffer pool pages. */
   Page *pages_;
   /** Pointer to the disk manager. */

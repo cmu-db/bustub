@@ -84,11 +84,5 @@ class ParallelBufferPoolManager : public BufferPoolManager {
    * Flushes all the pages in the buffer pool to disk.
    */
   void FlushAllPagesImpl() override;
-
-  /**
-   * @param page_id id of page to hash
-   * @return hash of page id
-   */
-  size_t HashPageId(page_id_t page_id);
 };
 }  // namespace bustub
