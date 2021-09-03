@@ -11,9 +11,10 @@
 //===----------------------------------------------------------------------===//
 
 #include "buffer/buffer_pool_manager_instance.h"
-#include "common/macros.h"
 
 #include <list>
+
+#include "common/macros.h"
 
 namespace bustub {
 
