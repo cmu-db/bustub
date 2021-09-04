@@ -104,7 +104,15 @@ class BufferPoolManagerInstance : public BufferPoolManager {
    * Allocate a page on disk.∂
    * @return the id of the allocated page
    */
-  page_id_t AllocatePage() override;
+  page_id_t AllocatePage();
+
+  /**
+   * Deallocate a page on disk.
+   * @param page_id id of the page to deallocate
+   */
+  void DeallocatePage(__attribute__((unused)) page_id_t page_id) {
+    // This is a no-nop right now without a more complex data structure to track deallocated pages
+  }
 
   /**
    * Validate that the page_id being used is accessible to this BPI. This can be used in all of the functions to
