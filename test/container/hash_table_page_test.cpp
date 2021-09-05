@@ -13,7 +13,7 @@
 #include <thread>  // NOLINT
 #include <vector>
 
-#include "buffer/buffer_pool_manager.h"
+#include "buffer/buffer_pool_manager_instance.h"
 #include "common/logger.h"
 #include "gtest/gtest.h"
 #include "storage/disk/disk_manager.h"
@@ -25,7 +25,7 @@ namespace bustub {
 // NOLINTNEXTLINE
 TEST(HashTablePageTest, DISABLED_HeaderPageSampleTest) {
   DiskManager *disk_manager = new DiskManager("test.db");
-  auto *bpm = new BufferPoolManager(5, disk_manager);
+  auto *bpm = new BufferPoolManagerInstance(5, disk_manager);
 
   // get a header page from the BufferPoolManager
   page_id_t header_page_id = INVALID_PAGE_ID;
@@ -63,7 +63,7 @@ TEST(HashTablePageTest, DISABLED_HeaderPageSampleTest) {
 // NOLINTNEXTLINE
 TEST(HashTablePageTest, DISABLED_BlockPageSampleTest) {
   DiskManager *disk_manager = new DiskManager("test.db");
-  auto *bpm = new BufferPoolManager(5, disk_manager);
+  auto *bpm = new BufferPoolManagerInstance(5, disk_manager);
 
   // get a block page from the BufferPoolManager
   page_id_t block_page_id = INVALID_PAGE_ID;

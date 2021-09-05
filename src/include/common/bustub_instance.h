@@ -12,7 +12,7 @@
 
 #include <string>
 
-#include "buffer/buffer_pool_manager.h"
+#include "buffer/buffer_pool_manager_instance.h"
 #include "common/config.h"
 #include "concurrency/lock_manager.h"
 #include "recovery/checkpoint_manager.h"
@@ -32,7 +32,7 @@ class BustubInstance {
     // log related
     log_manager_ = new LogManager(disk_manager_);
 
-    buffer_pool_manager_ = new BufferPoolManager(BUFFER_POOL_SIZE, disk_manager_, log_manager_);
+    buffer_pool_manager_ = new BufferPoolManagerInstance(BUFFER_POOL_SIZE, disk_manager_, log_manager_);
 
     // txn related
     lock_manager_ = new LockManager();

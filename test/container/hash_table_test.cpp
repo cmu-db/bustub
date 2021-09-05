@@ -13,6 +13,7 @@
 #include <thread>  // NOLINT
 #include <vector>
 
+#include "buffer/buffer_pool_manager_instance.h"
 #include "common/logger.h"
 #include "container/hash/linear_probe_hash_table.h"
 #include "gtest/gtest.h"
@@ -23,7 +24,7 @@ namespace bustub {
 // NOLINTNEXTLINE
 TEST(HashTableTest, DISABLED_SampleTest) {
   auto *disk_manager = new DiskManager("test.db");
-  auto *bpm = new BufferPoolManager(50, disk_manager);
+  auto *bpm = new BufferPoolManagerInstance(50, disk_manager);
 
   LinearProbeHashTable<int, int, IntComparator> ht("blah", bpm, IntComparator(), 1000, HashFunction<int>());
 

@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-#include "buffer/buffer_pool_manager.h"
+#include "buffer/buffer_pool_manager_instance.h"
 #include "gtest/gtest.h"
 #include "logging/common.h"
 #include "storage/table/table_heap.h"
@@ -39,7 +39,7 @@ TEST(TupleTest, DISABLED_TableHeapTest) {
   // create transaction
   auto *transaction = new Transaction(0);
   auto *disk_manager = new DiskManager("test.db");
-  auto *buffer_pool_manager = new BufferPoolManager(50, disk_manager);
+  auto *buffer_pool_manager = new BufferPoolManagerInstance(50, disk_manager);
   auto *lock_manager = new LockManager();
   auto *log_manager = new LogManager(disk_manager);
   auto *table = new TableHeap(buffer_pool_manager, lock_manager, log_manager, transaction);

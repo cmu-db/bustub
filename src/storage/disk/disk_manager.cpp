@@ -14,6 +14,7 @@
 #include <cassert>
 #include <cstring>
 #include <iostream>
+#include <mutex>  // NOLINT
 #include <string>
 #include <thread>  // NOLINT
 
@@ -30,7 +31,7 @@ static char *buffer_used;
  * @input db_file: database file name
  */
 DiskManager::DiskManager(const std::string &db_file)
-    : file_name_(db_file), next_page_id_(0), num_flushes_(0), num_writes_(0), flush_log_(false), flush_log_f_(nullptr) {
+    : file_name_(db_file), num_flushes_(0), num_writes_(0), flush_log_(false), flush_log_f_(nullptr) {
   std::string::size_type n = file_name_.rfind('.');
   if (n == std::string::npos) {
     LOG_DEBUG("wrong file format");
@@ -52,6 +53,7 @@ DiskManager::DiskManager(const std::string &db_file)
     }
   }
 
+  std::scoped_lock scoped_db_io_latch(db_io_latch_);
   db_io_.open(db_file, std::ios::binary | std::ios::in | std::ios::out);
   // directory or file does not exist
   if (!db_io_.is_open()) {
@@ -72,7 +74,10 @@ DiskManager::DiskManager(const std::string &db_file)
  * Close all file streams
  */
 void DiskManager::ShutDown() {
-  db_io_.close();
+  {
+    std::scoped_lock scoped_db_io_latch(db_io_latch_);
+    db_io_.close();
+  }
   log_io_.close();
 }
 
@@ -80,6 +85,7 @@ void DiskManager::ShutDown() {
  * Write the contents of the specified page into disk file
  */
 void DiskManager::WritePage(page_id_t page_id, const char *page_data) {
+  std::scoped_lock scoped_db_io_latch(db_io_latch_);
   size_t offset = static_cast<size_t>(page_id) * PAGE_SIZE;
   // set write cursor to offset
   num_writes_ += 1;
@@ -98,6 +104,7 @@ void DiskManager::WritePage(page_id_t page_id, const char *page_data) {
  * Read the contents of the specified page into the given memory area
  */
 void DiskManager::ReadPage(page_id_t page_id, char *page_data) {
+  std::scoped_lock scoped_db_io_latch(db_io_latch_);
   int offset = page_id * PAGE_SIZE;
   // check if read beyond file length
   if (offset > GetFileSize(file_name_)) {
@@ -183,19 +190,6 @@ bool DiskManager::ReadLog(char *log_data, int size, int offset) {
 
   return true;
 }
-
-/**
- * Allocate new page (operations like create index/table)
- * For now just keep an increasing counter
- */
-page_id_t DiskManager::AllocatePage() { return next_page_id_++; }
-
-/**
- * Deallocate page (operations like drop index/table)
- * Need bitmap in header page for tracking pages
- * This does not actually need to do anything for now.
- */
-void DiskManager::DeallocatePage(__attribute__((unused)) page_id_t page_id) {}
 
 /**
  * Returns number of flushes made so far

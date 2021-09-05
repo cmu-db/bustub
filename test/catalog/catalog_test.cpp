@@ -14,7 +14,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "buffer/buffer_pool_manager.h"
+#include "buffer/buffer_pool_manager_instance.h"
 #include "catalog/catalog.h"
 #include "gtest/gtest.h"
 #include "type/value_factory.h"
@@ -24,7 +24,7 @@ namespace bustub {
 // NOLINTNEXTLINE
 TEST(CatalogTest, DISABLED_CreateTableTest) {
   auto disk_manager = new DiskManager("catalog_test.db");
-  auto bpm = new BufferPoolManager(32, disk_manager);
+  auto bpm = new BufferPoolManagerInstance(32, disk_manager);
   auto catalog = new Catalog(bpm, nullptr, nullptr);
   std::string table_name = "potato";
 

@@ -251,7 +251,8 @@ TEST_F(RecoveryTest, DISABLED_CheckpointTest) {
   bustub_instance->checkpoint_manager_->BeginCheckpoint();
   bustub_instance->checkpoint_manager_->EndCheckpoint();
 
-  Page *pages = bustub_instance->buffer_pool_manager_->GetPages();
+  // Hacky
+  Page *pages = dynamic_cast<BufferPoolManagerInstance *>(bustub_instance->buffer_pool_manager_)->GetPages();
   size_t pool_size = bustub_instance->buffer_pool_manager_->GetPoolSize();
 
   // make sure that all pages in the buffer pool are marked as non-dirty
