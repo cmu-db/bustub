@@ -12,8 +12,6 @@
 
 #include "buffer/buffer_pool_manager_instance.h"
 
-#include <list>
-
 #include "common/macros.h"
 
 namespace bustub {
@@ -89,7 +87,8 @@ void BufferPoolManagerInstance::FlushAllPagesImpl() {
 }
 
 page_id_t BufferPoolManagerInstance::AllocatePage() {
-  const page_id_t next_page_id = next_page_id_ += num_instances_;
+  const page_id_t next_page_id = next_page_id_;
+  next_page_id_ += num_instances_;
   ValidatePageId(next_page_id);
   return next_page_id;
 }

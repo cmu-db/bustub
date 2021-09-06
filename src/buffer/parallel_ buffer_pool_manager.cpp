@@ -12,8 +12,6 @@
 
 #include "buffer/parallel_buffer_pool_manager.h"
 
-#include <list>
-
 namespace bustub {
 
 ParallelBufferPoolManager::ParallelBufferPoolManager(size_t num_instances, size_t pool_size, DiskManager *disk_manager,
