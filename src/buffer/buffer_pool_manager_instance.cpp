@@ -46,7 +46,25 @@ BufferPoolManagerInstance::~BufferPoolManagerInstance() {
   delete replacer_;
 }
 
-Page *BufferPoolManagerInstance::FetchPageImpl(page_id_t page_id) {
+bool BufferPoolManagerInstance::FlushPgImp(page_id_t page_id) {
+  // Make sure you call DiskManager::WritePage!
+  return false;
+}
+
+void BufferPoolManagerInstance::FlushAllPgsImp() {
+  // You can do it!
+}
+
+Page *BufferPoolManagerInstance::NewPgImp(page_id_t *page_id) {
+  // 0.   Make sure you call AllocatePage!
+  // 1.   If all the pages in the buffer pool are pinned, return nullptr.
+  // 2.   Pick a victim page P from either the free list or the replacer. Always pick from the free list first.
+  // 3.   Update P's metadata, zero out memory and add P to the page table.
+  // 4.   Set the page ID output parameter. Return a pointer to P.
+  return nullptr;
+}
+
+Page *BufferPoolManagerInstance::FetchPgImp(page_id_t page_id) {
   // 1.     Search the page table for the requested page (P).
   // 1.1    If P exists, pin it and return it immediately.
   // 1.2    If P does not exist, find a replacement page (R) from either the free list or the replacer.
@@ -57,23 +75,7 @@ Page *BufferPoolManagerInstance::FetchPageImpl(page_id_t page_id) {
   return nullptr;
 }
 
-bool BufferPoolManagerInstance::UnpinPageImpl(page_id_t page_id, bool is_dirty) { return false; }
-
-bool BufferPoolManagerInstance::FlushPageImpl(page_id_t page_id) {
-  // Make sure you call DiskManager::WritePage!
-  return false;
-}
-
-Page *BufferPoolManagerInstance::NewPageImpl(page_id_t *page_id) {
-  // 0.   Make sure you call AllocatePage!
-  // 1.   If all the pages in the buffer pool are pinned, return nullptr.
-  // 2.   Pick a victim page P from either the free list or the replacer. Always pick from the free list first.
-  // 3.   Update P's metadata, zero out memory and add P to the page table.
-  // 4.   Set the page ID output parameter. Return a pointer to P.
-  return nullptr;
-}
-
-bool BufferPoolManagerInstance::DeletePageImpl(page_id_t page_id) {
+bool BufferPoolManagerInstance::DeletePgImp(page_id_t page_id) {
   // 0.   Make sure you call DeallocatePage!
   // 1.   Search the page table for the requested page (P).
   // 1.   If P does not exist, return true.
@@ -82,9 +84,7 @@ bool BufferPoolManagerInstance::DeletePageImpl(page_id_t page_id) {
   return false;
 }
 
-void BufferPoolManagerInstance::FlushAllPagesImpl() {
-  // You can do it!
-}
+bool BufferPoolManagerInstance::UnpinPgImp(page_id_t page_id, bool is_dirty) { return false; }
 
 page_id_t BufferPoolManagerInstance::AllocatePage() {
   const page_id_t next_page_id = next_page_id_;

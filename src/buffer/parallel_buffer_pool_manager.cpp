@@ -32,22 +32,22 @@ BufferPoolManager *ParallelBufferPoolManager::GetBufferPoolManager(page_id_t pag
   return nullptr;
 }
 
-Page *ParallelBufferPoolManager::FetchPageImpl(page_id_t page_id) {
+Page *ParallelBufferPoolManager::FetchPgImp(page_id_t page_id) {
   // Fetch page for page_id from responsible BufferPoolManagerInstance
   return nullptr;
 }
 
-bool ParallelBufferPoolManager::UnpinPageImpl(page_id_t page_id, bool is_dirty) {
+bool ParallelBufferPoolManager::UnpinPgImp(page_id_t page_id, bool is_dirty) {
   // Unpin page_id from responsible BufferPoolManagerInstance
   return false;
 }
 
-bool ParallelBufferPoolManager::FlushPageImpl(page_id_t page_id) {
+bool ParallelBufferPoolManager::FlushPgImp(page_id_t page_id) {
   // Flush page_id from responsible BufferPoolManagerInstance
   return false;
 }
 
-Page *ParallelBufferPoolManager::NewPageImpl(page_id_t *page_id) {
+Page *ParallelBufferPoolManager::NewPgImp(page_id_t *page_id) {
   // create new page. We will request page allocation in a round robin manner from the underlying
   // BufferPoolManagerInstances
   // 1.   From a starting index of the BPMIs, call NewPageImpl until either 1) success and return 2) looped around to
@@ -57,12 +57,12 @@ Page *ParallelBufferPoolManager::NewPageImpl(page_id_t *page_id) {
   return nullptr;
 }
 
-bool ParallelBufferPoolManager::DeletePageImpl(page_id_t page_id) {
+bool ParallelBufferPoolManager::DeletePgImp(page_id_t page_id) {
   // Delete page_id from responsible BufferPoolManagerInstance
   return false;
 }
 
-void ParallelBufferPoolManager::FlushAllPagesImpl() {
+void ParallelBufferPoolManager::FlushAllPgsImp() {
   // flush all pages from all BufferPoolManagerInstances
 }
 
