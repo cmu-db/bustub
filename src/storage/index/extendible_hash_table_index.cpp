@@ -1,13 +1,13 @@
 #include <vector>
 
-#include "storage/index/linear_probe_hash_table_index.h"
+#include "storage/index/extendible_hash_table_index.h"
 
 namespace bustub {
 /*
  * Constructor
  */
 template <typename KeyType, typename ValueType, typename KeyComparator>
-HASH_TABLE_INDEX_TYPE::LinearProbeHashTableIndex(IndexMetadata *metadata, BufferPoolManager *buffer_pool_manager,
+HASH_TABLE_INDEX_TYPE::ExtendibleHashTableIndex(IndexMetadata *metadata, BufferPoolManager *buffer_pool_manager,
                                                  size_t num_buckets, const HashFunction<KeyType> &hash_fn)
     : Index(metadata),
       comparator_(metadata->GetKeySchema()),
@@ -39,10 +39,10 @@ void HASH_TABLE_INDEX_TYPE::ScanKey(const Tuple &key, std::vector<RID> *result, 
 
   container_.GetValue(transaction, index_key, result);
 }
-template class LinearProbeHashTableIndex<GenericKey<4>, RID, GenericComparator<4>>;
-template class LinearProbeHashTableIndex<GenericKey<8>, RID, GenericComparator<8>>;
-template class LinearProbeHashTableIndex<GenericKey<16>, RID, GenericComparator<16>>;
-template class LinearProbeHashTableIndex<GenericKey<32>, RID, GenericComparator<32>>;
-template class LinearProbeHashTableIndex<GenericKey<64>, RID, GenericComparator<64>>;
+template class ExtendibleHashTableIndex<GenericKey<4>, RID, GenericComparator<4>>;
+template class ExtendibleHashTableIndex<GenericKey<8>, RID, GenericComparator<8>>;
+template class ExtendibleHashTableIndex<GenericKey<16>, RID, GenericComparator<16>>;
+template class ExtendibleHashTableIndex<GenericKey<32>, RID, GenericComparator<32>>;
+template class ExtendibleHashTableIndex<GenericKey<64>, RID, GenericComparator<64>>;
 
 }  // namespace bustub

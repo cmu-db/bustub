@@ -2,9 +2,9 @@
 //
 //                         BusTub
 //
-// linear_probe_hash_table_index.h
+// extendible_hash_table_index.h
 //
-// Identification: src/include/storage/index/linear_probe_hash_table_index.h
+// Identification: src/include/storage/index/extendible_hash_table_index.h
 //
 // Copyright (c) 2015-2019, Carnegie Mellon University Database Group
 //
@@ -17,20 +17,20 @@
 #include <vector>
 
 #include "container/hash/hash_function.h"
-#include "container/hash/linear_probe_hash_table.h"
+#include "container/hash/extendible_hash_table.h"
 #include "storage/index/index.h"
 
 namespace bustub {
 
-#define HASH_TABLE_INDEX_TYPE LinearProbeHashTableIndex<KeyType, ValueType, KeyComparator>
+#define HASH_TABLE_INDEX_TYPE ExtendibleHashTableIndex<KeyType, ValueType, KeyComparator>
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-class LinearProbeHashTableIndex : public Index {
+class ExtendibleHashTableIndex : public Index {
  public:
-  LinearProbeHashTableIndex(IndexMetadata *metadata, BufferPoolManager *buffer_pool_manager, size_t num_buckets,
+  ExtendibleHashTableIndex(IndexMetadata *metadata, BufferPoolManager *buffer_pool_manager, size_t num_buckets,
                             const HashFunction<KeyType> &hash_fn);
 
-  ~LinearProbeHashTableIndex() override = default;
+  ~ExtendibleHashTableIndex() override = default;
 
   void InsertEntry(const Tuple &key, RID rid, Transaction *transaction) override;
 
@@ -42,7 +42,7 @@ class LinearProbeHashTableIndex : public Index {
   // comparator for key
   KeyComparator comparator_;
   // container
-  LinearProbeHashTable<KeyType, ValueType, KeyComparator> container_;
+  ExtendibleHashTable<KeyType, ValueType, KeyComparator> container_;
 };
 
 }  // namespace bustub

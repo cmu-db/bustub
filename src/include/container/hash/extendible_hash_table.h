@@ -2,9 +2,9 @@
 //
 //                         BusTub
 //
-// linear_probe_hash_table.h
+// extendible_hash_table.h
 //
-// Identification: src/include/container/hash/linear_probe_hash_table.h
+// Identification: src/include/container/hash/extendible_hash_table.h
 //
 // Copyright (c) 2015-2019, Carnegie Mellon University Database Group
 //
@@ -26,25 +26,25 @@
 
 namespace bustub {
 
-#define HASH_TABLE_TYPE LinearProbeHashTable<KeyType, ValueType, KeyComparator>
+#define HASH_TABLE_TYPE ExtendibleHashTable<KeyType, ValueType, KeyComparator>
 
 /**
- * Implementation of linear probing hash table that is backed by a buffer pool
+ * Implementation of extendible hash table that is backed by a buffer pool
  * manager. Non-unique keys are supported. Supports insert and delete. The
  * table dynamically grows once full.
  */
 template <typename KeyType, typename ValueType, typename KeyComparator>
-class LinearProbeHashTable : public HashTable<KeyType, ValueType, KeyComparator> {
+class ExtendibleHashTable : public HashTable<KeyType, ValueType, KeyComparator> {
  public:
   /**
-   * Creates a new LinearProbeHashTable
+   * Creates a new ExtendibleHashTable
    *
    * @param buffer_pool_manager buffer pool manager to be used
    * @param comparator comparator for keys
    * @param num_buckets initial number of buckets contained by this hash table
    * @param hash_fn the hash function
    */
-  explicit LinearProbeHashTable(const std::string &name, BufferPoolManager *buffer_pool_manager,
+  explicit ExtendibleHashTable(const std::string &name, BufferPoolManager *buffer_pool_manager,
                                 const KeyComparator &comparator, size_t num_buckets, HashFunction<KeyType> hash_fn);
 
   /**
