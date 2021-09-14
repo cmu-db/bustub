@@ -64,8 +64,7 @@ TEST(ParallelBufferPoolManagerTest, DISABLED_BinaryDataTest) {
     EXPECT_EQ(nullptr, bpm->NewPage(&page_id_temp));
   }
 
-  // Scenario: After unpinning pages {0, 1, 2, 3, 4} and pinning another 4 new pages,
-  // there would still be one cache frame left for reading page 0.
+  // Scenario: After unpinning pages {0, 1, 2, 3, 4} we should be able to create 5 new pages
   for (int i = 0; i < 5; ++i) {
     EXPECT_EQ(true, bpm->UnpinPage(i, true));
     bpm->FlushPage(i);
@@ -74,6 +73,7 @@ TEST(ParallelBufferPoolManagerTest, DISABLED_BinaryDataTest) {
     EXPECT_NE(nullptr, bpm->NewPage(&page_id_temp));
     bpm->UnpinPage(page_id_temp, false);
   }
+
   // Scenario: We should be able to fetch the data we wrote a while ago.
   page0 = bpm->FetchPage(0);
   EXPECT_EQ(0, memcmp(page0->GetData(), random_binary_data, PAGE_SIZE));
