@@ -24,6 +24,7 @@ BufferPoolManagerInstance::BufferPoolManagerInstance(size_t pool_size, uint32_t 
                                                      DiskManager *disk_manager, LogManager *log_manager)
     : pool_size_(pool_size),
       num_instances_(num_instances),
+      instance_index_(instance_index),
       next_page_id_(instance_index),
       disk_manager_(disk_manager),
       log_manager_(log_manager) {
