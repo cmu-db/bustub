@@ -24,12 +24,13 @@ BufferPoolManagerInstance::BufferPoolManagerInstance(size_t pool_size, uint32_t 
                                                      DiskManager *disk_manager, LogManager *log_manager)
     : pool_size_(pool_size),
       num_instances_(num_instances),
+      instance_index_(instance_index),
       next_page_id_(instance_index),
       disk_manager_(disk_manager),
       log_manager_(log_manager) {
   BUSTUB_ASSERT(num_instances > 0, "If BPI is not part of a pool, then the pool size should just be 1");
   BUSTUB_ASSERT(
-      instance_index < pool_size,
+      instance_index < num_instances,
       "BPI index cannot be greater than the number of BPIs in the pool. In non-parallel case, index should just be 1.");
   // We allocate a consecutive memory space for the buffer pool.
   pages_ = new Page[pool_size_];
