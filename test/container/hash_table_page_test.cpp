@@ -40,8 +40,7 @@ TEST(HashTablePageTest, DirectoryPageSampleTest) {
 
   // add a few hypothetical bucket pages
   for (unsigned i = 0; i < 10; i++) {
-    directory_page->AddBucketPage(i, i);
-    EXPECT_EQ(i + 1, directory_page->NumBuckets());
+    directory_page->SetBucketPageId(i, i);
   }
 
   // check for correct bucket page IDs
@@ -70,8 +69,8 @@ TEST(HashTablePageTest, BucketPageSampleTest) {
 
   // insert a few (key, value) pairs
   for (unsigned i = 0; i < 10; i++) {
-    bool inserted = bucket_page->Insert(i, i, IntComparator());
-    assert(inserted);
+    uint32_t inserted = bucket_page->Insert(i, i, IntComparator());
+    assert(inserted == 0);
   }
 
   // check for the inserted pairs

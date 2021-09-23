@@ -38,3 +38,8 @@
 
 // #define HASH_TABLE_BLOCK_TYPE HashTableBlockPage<KeyType, ValueType, KeyComparator>
 #define HASH_TABLE_BUCKET_TYPE HashTableBucketPage<KeyType, ValueType, KeyComparator>
+
+#define HASH_BUCKET_INSERT_SUCCESS 0
+#define HASH_BUCKET_INSERT_DUPLICATE 1
+#define HASH_BUCKET_INSERT_FULL 2
+
