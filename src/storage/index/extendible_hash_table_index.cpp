@@ -7,11 +7,10 @@ namespace bustub {
  * Constructor
  */
 template <typename KeyType, typename ValueType, typename KeyComparator>
-HASH_TABLE_INDEX_TYPE::ExtendibleHashTableIndex(IndexMetadata *metadata, BufferPoolManager *buffer_pool_manager,
-                                                 size_t num_buckets, const HashFunction<KeyType> &hash_fn)
+HASH_TABLE_INDEX_TYPE::ExtendibleHashTableIndex(IndexMetadata *metadata, BufferPoolManager *buffer_pool_manager, const HashFunction<KeyType> &hash_fn)
     : Index(metadata),
       comparator_(metadata->GetKeySchema()),
-      container_(metadata->GetName(), buffer_pool_manager, comparator_, num_buckets, hash_fn) {}
+      container_(metadata->GetName(), buffer_pool_manager, comparator_, hash_fn) {}
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
 void HASH_TABLE_INDEX_TYPE::InsertEntry(const Tuple &key, RID rid, Transaction *transaction) {
