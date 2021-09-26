@@ -26,6 +26,10 @@ namespace bustub {
  *
  * Directory Page for extendible hash table.
  *
+ * Directory format (size in byte):
+ * -------------------------------------------------------------------------------------------------
+ * | LSN (4) | PageId(4) | GlobalDepth(4) | LocalDepths(512) | BucketPageIds(2048) | Free(1524)
+ * -------------------------------------------------------------------------------------------------
  */
 class HashTableDirectoryPage {
  public:
