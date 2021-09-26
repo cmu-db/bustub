@@ -6,7 +6,7 @@
 //
 // Identification: src/include/container/hash/extendible_hash_table.h
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
