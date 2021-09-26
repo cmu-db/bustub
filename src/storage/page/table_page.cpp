@@ -53,11 +53,6 @@ bool TablePage::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn, Lock
     }
   }
 
-  // If there was no free slot left, and we cannot claim it from the free space, then we give up.
-  if (i == GetTupleCount() && GetFreeSpaceRemaining() < tuple.size_ + SIZE_TUPLE) {
-    return false;
-  }
-
   // Otherwise we claim available free space..
   SetFreeSpacePointer(GetFreeSpacePointer() - tuple.size_);
   memcpy(GetData() + GetFreeSpacePointer(), tuple.data_, tuple.size_);
