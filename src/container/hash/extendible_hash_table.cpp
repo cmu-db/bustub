@@ -23,9 +23,8 @@
 namespace bustub {
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-HASH_TABLE_TYPE::ExtendibleHashTable(const std::string &name, BufferPoolManager *buffer_pool_manager, 
-                                      const KeyComparator &comparator, 
-                                      HashFunction<KeyType> hash_fn)
+HASH_TABLE_TYPE::ExtendibleHashTable(const std::string &name, BufferPoolManager *buffer_pool_manager,
+                                     const KeyComparator &comparator, HashFunction<KeyType> hash_fn)
     : buffer_pool_manager_(buffer_pool_manager), comparator_(comparator), hash_fn_(std::move(hash_fn)) {}
 
 /*****************************************************************************
@@ -50,12 +49,6 @@ template <typename KeyType, typename ValueType, typename KeyComparator>
 bool HASH_TABLE_TYPE::Remove(Transaction *transaction, const KeyType &key, const ValueType &value) {
   return false;
 }
-
-/*****************************************************************************
- * RESIZE
- *****************************************************************************/
-template <typename KeyType, typename ValueType, typename KeyComparator>
-void HASH_TABLE_TYPE::Resize(size_t initial_size) {}
 
 template class ExtendibleHashTable<int, int, IntComparator>;
 

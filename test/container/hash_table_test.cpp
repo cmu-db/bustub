@@ -36,7 +36,6 @@ TEST(HashTableTest, SampleTest) {
     EXPECT_EQ(i, res[0]);
   }
 
-
   // check if the inserted values are all there
   for (int i = 0; i < 5; i++) {
     std::vector<int> res;
@@ -56,7 +55,7 @@ TEST(HashTableTest, SampleTest) {
       EXPECT_TRUE(ht.Insert(nullptr, i, i));
       EXPECT_TRUE(ht.Insert(nullptr, i, i + 1));
 
-      if (i % 2 == 0){
+      if (i % 2 == 0) {
         EXPECT_TRUE(ht.Insert(nullptr, i, i + 2));
       }
     }
@@ -71,8 +70,7 @@ TEST(HashTableTest, SampleTest) {
       EXPECT_EQ(2, res.size());
       EXPECT_EQ(i, res[0]);
       EXPECT_EQ(i + 1, res[1]);
-    } 
-    else {
+    } else {
       EXPECT_EQ(3, res.size());
       EXPECT_EQ(i, res[0]);
       EXPECT_EQ(i + 1, res[1]);
