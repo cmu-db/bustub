@@ -57,14 +57,6 @@ bool HASH_TABLE_TYPE::Remove(Transaction *transaction, const KeyType &key, const
 template <typename KeyType, typename ValueType, typename KeyComparator>
 void HASH_TABLE_TYPE::Resize(size_t initial_size) {}
 
-/*****************************************************************************
- * GETSIZE
- *****************************************************************************/
-template <typename KeyType, typename ValueType, typename KeyComparator>
-size_t HASH_TABLE_TYPE::GetSize() {
-  return 0;
-}
-
 template class ExtendibleHashTable<int, int, IntComparator>;
 
 template class ExtendibleHashTable<GenericKey<4>, RID, GenericComparator<4>>;
