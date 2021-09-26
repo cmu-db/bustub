@@ -75,6 +75,8 @@ class ExtendibleHashTable {
   bool GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result);
 
  private:
+  uint32_t Hash(KeyType key);
+
   // member variable
   page_id_t directory_page_id_;
   BufferPoolManager *buffer_pool_manager_;

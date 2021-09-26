@@ -25,7 +25,18 @@ namespace bustub {
 template <typename KeyType, typename ValueType, typename KeyComparator>
 HASH_TABLE_TYPE::ExtendibleHashTable(const std::string &name, BufferPoolManager *buffer_pool_manager,
                                      const KeyComparator &comparator, HashFunction<KeyType> hash_fn)
-    : buffer_pool_manager_(buffer_pool_manager), comparator_(comparator), hash_fn_(std::move(hash_fn)) {}
+    : buffer_pool_manager_(buffer_pool_manager), comparator_(comparator), hash_fn_(std::move(hash_fn)) {
+    //  TODO: implement me!
+}
+
+
+/*****************************************************************************
+ * HELPERS
+ *****************************************************************************/
+template <typename KeyType, typename ValueType, typename KeyComparator>
+uint32_t HASH_TABLE_TYPE::Hash(KeyType key) {
+  return static_cast<uint32_t>(hash_fn_.GetHash(key));
+}
 
 /*****************************************************************************
  * SEARCH
