@@ -29,9 +29,9 @@ TEST(HashTableTest, DISABLED_SampleTest) {
 
   // insert a few values
   for (int i = 0; i < 5; i++) {
-    EXPECT_TRUE(ht.Insert(nullptr, i, i));
+    ht.Insert(nullptr, i, i);
     std::vector<int> res;
-    EXPECT_TRUE(ht.GetValue(nullptr, i, &res));
+    ht.GetValue(nullptr, i, &res);
     EXPECT_EQ(1, res.size()) << "Failed to insert " << i << std::endl;
     EXPECT_EQ(i, res[0]);
   }
@@ -39,69 +39,64 @@ TEST(HashTableTest, DISABLED_SampleTest) {
   // check if the inserted values are all there
   for (int i = 0; i < 5; i++) {
     std::vector<int> res;
-    EXPECT_TRUE(ht.GetValue(nullptr, i, &res));
+    ht.GetValue(nullptr, i, &res);
     EXPECT_EQ(1, res.size()) << "Failed to keep " << i << std::endl;
     EXPECT_EQ(i, res[0]);
   }
 
   // insert one more value for each key
-  for (int i = 0; i < 10; i++) {
-    if (i < 5) {
+  for (int i = 0; i < 5; i++) {
+    if (i == 0) {
       // duplicate values for the same key are not allowed
-      EXPECT_FALSE(ht.Insert(nullptr, i, i));
-      EXPECT_TRUE(ht.Insert(nullptr, i, i + 1));
+      EXPECT_FALSE(ht.Insert(nullptr, i, 2 * i));
     } else {
-      EXPECT_TRUE(ht.Insert(nullptr, i, i));
-      EXPECT_TRUE(ht.Insert(nullptr, i, i + 1));
-
-      if (i % 2 == 0) {
-        EXPECT_TRUE(ht.Insert(nullptr, i, i + 2));
-      }
+      EXPECT_TRUE(ht.Insert(nullptr, i, 2 * i));
     }
-    EXPECT_FALSE(ht.Insert(nullptr, i, i));
-    EXPECT_FALSE(ht.Insert(nullptr, i, i + 1));
-
+    ht.Insert(nullptr, i, 2 * i);
     std::vector<int> res;
     ht.GetValue(nullptr, i, &res);
-
-    if (i < 5 || i % 2 == 1) {
+    if (i == 0) {
       // duplicate values for the same key are not allowed
-      EXPECT_EQ(2, res.size());
+      EXPECT_EQ(1, res.size());
       EXPECT_EQ(i, res[0]);
-      EXPECT_EQ(i + 1, res[1]);
     } else {
-      EXPECT_EQ(3, res.size());
-      EXPECT_EQ(i, res[0]);
-      EXPECT_EQ(i + 1, res[1]);
-      EXPECT_EQ(i + 2, res[2]);
+      EXPECT_EQ(2, res.size());
+      if (res[0] == i) {
+        EXPECT_EQ(2 * i, res[1]);
+      } else {
+        EXPECT_EQ(2 * i, res[0]);
+        EXPECT_EQ(i, res[1]);
+      }
     }
   }
 
   // look for a key that does not exist
   std::vector<int> res;
-  EXPECT_FALSE(ht.GetValue(nullptr, 20, &res));
+  ht.GetValue(nullptr, 20, &res);
   EXPECT_EQ(0, res.size());
 
   // delete some values
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 5; i++) {
     EXPECT_TRUE(ht.Remove(nullptr, i, i));
     std::vector<int> res;
-    EXPECT_TRUE(ht.GetValue(nullptr, i, &res));
-
-    if (i < 5 || i % 2 == 1) {
+    ht.GetValue(nullptr, i, &res);
+    if (i == 0) {
       // (0, 0) is the only pair with key 0
-      EXPECT_EQ(1, res.size());
-      EXPECT_EQ(i + 1, res[0]);
+      EXPECT_EQ(0, res.size());
     } else {
-      EXPECT_EQ(2, res.size());
-      EXPECT_EQ(i + 1, res[0]);
-      EXPECT_EQ(i + 2, res[1]);
+      EXPECT_EQ(1, res.size());
+      EXPECT_EQ(2 * i, res[0]);
     }
   }
 
   // delete all values
-  for (int i = 0; i < 10; i++) {
-    EXPECT_FALSE(ht.Remove(nullptr, i, i));
+  for (int i = 0; i < 5; i++) {
+    if (i == 0) {
+      // (0, 0) has been deleted
+      EXPECT_FALSE(ht.Remove(nullptr, i, 2 * i));
+    } else {
+      EXPECT_TRUE(ht.Remove(nullptr, i, 2 * i));
+    }
   }
   disk_manager->ShutDown();
   remove("test.db");

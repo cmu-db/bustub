@@ -32,19 +32,23 @@ TEST(HashTablePageTest, DISABLED_DirectoryPageSampleTest) {
   auto directory_page =
       reinterpret_cast<HashTableDirectoryPage *>(bpm->NewPage(&directory_page_id, nullptr)->GetData());
 
-  EXPECT_EQ(0, directory_page->GetGlobalDepth());
+  for (size_t i = 0; i < 3; i++) {
+    directory_page->IncrGlobalDepth();
+  }
+
+  EXPECT_EQ(3, directory_page->GetGlobalDepth());
   directory_page->SetPageId(10);
   EXPECT_EQ(10, directory_page->GetPageId());
   directory_page->SetLSN(100);
   EXPECT_EQ(100, directory_page->GetLSN());
 
   // add a few hypothetical bucket pages
-  for (unsigned i = 0; i < 10; i++) {
+  for (unsigned i = 0; i < 8; i++) {
     directory_page->SetBucketPageId(i, i);
   }
 
   // check for correct bucket page IDs
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 8; i++) {
     EXPECT_EQ(i, directory_page->GetBucketPageId(i));
   }
 
