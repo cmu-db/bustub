@@ -17,6 +17,8 @@
 #include <vector>
 
 #include "common/config.h"
+#include "common/util/hash_util.h"
+#include "storage/index/hash_comparator.h"
 #include "storage/index/int_comparator.h"
 #include "storage/page/hash_table_page_defs.h"
 

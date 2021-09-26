@@ -6,7 +6,7 @@
 //
 // Identification: test/container/hash_table_test.cpp
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -22,7 +22,7 @@
 namespace bustub {
 
 // NOLINTNEXTLINE
-TEST(HashTableTest, SampleTest) {
+TEST(HashTableTest, DISABLED_SampleTest) {
   auto *disk_manager = new DiskManager("test.db");
   auto *bpm = new BufferPoolManagerInstance(50, disk_manager);
   ExtendibleHashTable<int, int, IntComparator> ht("blah", bpm, IntComparator(), HashFunction<int>());
@@ -46,7 +46,6 @@ TEST(HashTableTest, SampleTest) {
 
   // insert one more value for each key
   for (int i = 0; i < 10; i++) {
-    LOG_DEBUG("TEMP3");
     if (i < 5) {
       // duplicate values for the same key are not allowed
       EXPECT_FALSE(ht.Insert(nullptr, i, i));

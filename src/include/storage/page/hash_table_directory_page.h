@@ -124,11 +124,11 @@ class HashTableDirectoryPage {
   uint32_t GetLocalHighBit(uint32_t bucket_idx);
 
  private:
-  lsn_t lsn_;
-  page_id_t page_id_;
-  uint32_t global_depth_{0};
-  uint8_t local_depths_[512];
-  page_id_t bucket_page_ids_[512];
+  __attribute__((unused)) lsn_t lsn_;
+  __attribute__((unused)) page_id_t page_id_;
+  __attribute__((unused)) uint32_t global_depth_{0};
+  __attribute__((unused)) uint8_t local_depths_[DIRECTORY_ARRAY_SIZE];
+  __attribute__((unused)) page_id_t bucket_page_ids_[DIRECTORY_ARRAY_SIZE];
 };
 
 }  // namespace bustub

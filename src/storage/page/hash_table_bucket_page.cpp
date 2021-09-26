@@ -11,12 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "storage/page/hash_table_bucket_page.h"
-
-#include "common/logger.h"
-#include "common/util/hash_util.h"
 #include "storage/index/generic_key.h"
-#include "storage/index/hash_comparator.h"
-#include "storage/table/tmp_tuple.h"
 
 namespace bustub {
 
@@ -75,12 +70,13 @@ bool HASH_TABLE_BUCKET_TYPE::IsEmpty() {
 
 // DO NOT REMOVE ANYTHING BELOW THIS LINE
 template class HashTableBucketPage<int, int, IntComparator>;
+
 template class HashTableBucketPage<GenericKey<4>, RID, GenericComparator<4>>;
 template class HashTableBucketPage<GenericKey<8>, RID, GenericComparator<8>>;
 template class HashTableBucketPage<GenericKey<16>, RID, GenericComparator<16>>;
 template class HashTableBucketPage<GenericKey<32>, RID, GenericComparator<32>>;
 template class HashTableBucketPage<GenericKey<64>, RID, GenericComparator<64>>;
 
-template class HashTableBucketPage<hash_t, TmpTuple, HashComparator>;
+// template class HashTableBucketPage<hash_t, TmpTuple, HashComparator>;
 
 }  // namespace bustub
