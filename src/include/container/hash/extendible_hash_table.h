@@ -27,9 +27,9 @@ namespace bustub {
 #define HASH_TABLE_TYPE ExtendibleHashTable<KeyType, ValueType, KeyComparator>
 
 /**
- * Implementation of linear probing hash table that is backed by a buffer pool
+ * Implementation of extendible hash table that is backed by a buffer pool
  * manager. Non-unique keys are supported. Supports insert and delete. The
- * table dynamically grows once full.
+ * table grows/shrinks dynamically as buckets become full/empty.
  */
 template <typename KeyType, typename ValueType, typename KeyComparator>
 class ExtendibleHashTable {
@@ -46,6 +46,7 @@ class ExtendibleHashTable {
 
   /**
    * Inserts a key-value pair into the hash table.
+   *
    * @param transaction the current transaction
    * @param key the key to create
    * @param value the value to be associated with the key
@@ -55,6 +56,7 @@ class ExtendibleHashTable {
 
   /**
    * Deletes the associated value for the given key.
+   *
    * @param transaction the current transaction
    * @param key the key to delete
    * @param value the value to delete
@@ -64,6 +66,7 @@ class ExtendibleHashTable {
 
   /**
    * Performs a point query on the hash table.
+   *
    * @param transaction the current transaction
    * @param key the key to look up
    * @param[out] result the value(s) associated with a given key
