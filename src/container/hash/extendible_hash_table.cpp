@@ -32,6 +32,13 @@ HASH_TABLE_TYPE::ExtendibleHashTable(const std::string &name, BufferPoolManager 
 /*****************************************************************************
  * HELPERS
  *****************************************************************************/
+/**
+ * Hash - simple helper to downcast MurmurHash's 64-bit hash to 32-bit 
+ * for extendible hashing.
+ * 
+ * @param key the key to hash
+ * @return the downcasted 32-bit hash
+ */
 template <typename KeyType, typename ValueType, typename KeyComparator>
 uint32_t HASH_TABLE_TYPE::Hash(KeyType key) {
   return static_cast<uint32_t>(hash_fn_.GetHash(key));

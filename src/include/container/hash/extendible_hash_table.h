@@ -76,10 +76,11 @@ class ExtendibleHashTable {
 
  private:
   /**
-   * Hashes a key and downcasts to uint32_t.
-   *
+   * Hash - simple helper to downcast MurmurHash's 64-bit hash to 32-bit 
+   * for extendible hashing.
+   * 
    * @param key the key to hash
-   * @return the 32-bit hash
+   * @return the downcasted 32-bit hash
    */
   inline uint32_t Hash(KeyType key);
 
