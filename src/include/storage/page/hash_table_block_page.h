@@ -93,6 +93,51 @@ class HashTableBlockPage {
    */
   bool IsReadable(slot_offset_t bucket_ind) const;
 
+  /**
+   * Scan the bucket and collect values that have the matching key
+   *
+   * @return true if at least one key matched
+   */
+  bool GetValue(KeyType key, KeyComparator cmp, std::vector<ValueType> *result);
+
+  /**
+   * Attempts to insert a key and value in the bucket.
+   * The insert is thread safe. It uses compare and swap to claim the index,
+   * and then writes the key and value into the index, and then marks the
+   * index as readable.
+   *
+   * @param key key to insert
+   * @param value value to insert
+   * @return true if inserted, false if duplicate KV pair or bucket is full
+   */
+  bool Insert(KeyType key, ValueType value, KeyComparator cmp);
+
+  /**
+   * Removes a key and value.
+   * @return true if removed, false if not found
+   */
+  bool Remove(KeyType key, ValueType value, KeyComparator cmp);
+
+  /**
+   * @return the number of readable elements, i.e. current size
+   */
+  uint32_t NumReadable();
+
+  /**
+   * @return whether the bucket is full
+   */
+  bool IsFull();
+
+  /**
+   * @return whether the bucket is empty
+   */
+  bool IsEmpty();
+
+  /**
+   * Prints the bucket's occupancy information
+   */
+  void PrintBucket();
+
  private:
   std::atomic_char occupied_[(BLOCK_ARRAY_SIZE - 1) / 8 + 1];
 

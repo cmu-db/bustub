@@ -11,7 +11,11 @@
 //===----------------------------------------------------------------------===//
 
 #include "storage/page/hash_table_bucket_page.h"
+#include "common/logger.h"
+#include "common/util/hash_util.h"
 #include "storage/index/generic_key.h"
+#include "storage/index/hash_comparator.h"
+#include "storage/table/tmp_tuple.h"
 
 namespace bustub {
 
@@ -66,6 +70,28 @@ uint32_t HASH_TABLE_BUCKET_TYPE::NumReadable() {
 template <typename KeyType, typename ValueType, typename KeyComparator>
 bool HASH_TABLE_BUCKET_TYPE::IsEmpty() {
   return false;
+}
+
+template <typename KeyType, typename ValueType, typename KeyComparator>
+void HASH_TABLE_BUCKET_TYPE::PrintBucket() {
+  uint32_t size = 0;
+  uint32_t taken = 0;
+  uint32_t free = 0;
+  for (size_t bucket_idx = 0; bucket_idx < BUCKET_ARRAY_SIZE; bucket_idx++) {
+    if (!IsOccupied(bucket_idx)) {
+      break;
+    }
+
+    size++;
+
+    if (IsReadable(bucket_idx)) {
+      taken++;
+    } else {
+      free++;
+    }
+  }
+
+  LOG_INFO("Bucket Capacity: %lu, Size: %u, Taken: %u, Free: %u", BUCKET_ARRAY_SIZE, size, taken, free);
 }
 
 // DO NOT REMOVE ANYTHING BELOW THIS LINE

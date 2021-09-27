@@ -35,7 +35,7 @@ template <typename KeyType, typename ValueType, typename KeyComparator>
 class ExtendibleHashTable {
  public:
   /**
-   * Creates a new ExtendibleHashTable
+   * Creates a new ExtendibleHashTable.
    *
    * @param buffer_pool_manager buffer pool manager to be used
    * @param comparator comparator for keys
@@ -75,17 +75,21 @@ class ExtendibleHashTable {
   bool GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result);
 
  private:
-  uint32_t Hash(KeyType key);
+  /**
+   * Hashes a key and downcasts to uint32_t.
+   *
+   * @param key the key to hash
+   * @return the 32-bit hash
+   */
+  inline uint32_t Hash(KeyType key);
 
-  // member variable
+  // member variables
   page_id_t directory_page_id_;
   BufferPoolManager *buffer_pool_manager_;
   KeyComparator comparator_;
 
   // Readers includes inserts and removes, writers are splits and merges
   ReaderWriterLatch table_latch_;
-
-  // Hash function
   HashFunction<KeyType> hash_fn_;
 };
 
