@@ -6,7 +6,7 @@
 //
 // Identification: test/container/hash_table_test.cpp
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -15,7 +15,7 @@
 
 #include "buffer/buffer_pool_manager_instance.h"
 #include "common/logger.h"
-#include "container/hash/linear_probe_hash_table.h"
+#include "container/hash/extendible_hash_table.h"
 #include "gtest/gtest.h"
 #include "murmur3/MurmurHash3.h"
 
@@ -25,8 +25,7 @@ namespace bustub {
 TEST(HashTableTest, DISABLED_SampleTest) {
   auto *disk_manager = new DiskManager("test.db");
   auto *bpm = new BufferPoolManagerInstance(50, disk_manager);
-
-  LinearProbeHashTable<int, int, IntComparator> ht("blah", bpm, IntComparator(), 1000, HashFunction<int>());
+  ExtendibleHashTable<int, int, IntComparator> ht("blah", bpm, IntComparator(), HashFunction<int>());
 
   // insert a few values
   for (int i = 0; i < 5; i++) {
