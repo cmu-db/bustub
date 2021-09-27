@@ -25,6 +25,8 @@ void HashTableDirectoryPage::SetLSN(lsn_t lsn) { lsn_ = lsn; }
 
 uint32_t HashTableDirectoryPage::GetGlobalDepth() { return global_depth_; }
 
+uint32_t HashTableDirectoryPage::GetGlobalDepthMask() { return 0; }
+
 void HashTableDirectoryPage::IncrGlobalDepth() {}
 
 void HashTableDirectoryPage::DecrGlobalDepth() { global_depth_--; }

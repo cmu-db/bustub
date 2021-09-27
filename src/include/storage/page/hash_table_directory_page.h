@@ -74,6 +74,22 @@ class HashTableDirectoryPage {
   void SetBucketPageId(uint32_t bucket_idx, page_id_t bucket_page_id);
 
   /**
+   * GetGlobalDepthMask - returns a mask of global_depth 1's and the rest 0's.
+   *
+   * In Extendible Hashing we map a key to a directory index
+   * using the following hash + mask function.
+   *
+   * DirectoryIndex = Hash(key) & GLOBAL_DEPTH_MASK
+   *
+   * where GLOBAL_DEPTH_MASK is a mask with exactly GLOBAL_DEPTH 1's from LSB
+   * upwards.  For example, global depth 3 corresponds to 0x00000007 in a 32-bit
+   * representation.
+   *
+   * @return mask of global_depth 1's and the rest 0's
+   */
+  uint32_t GetGlobalDepthMask();
+
+  /**
    * Get the global depth of the hash table directory
    *
    * @return the global depth of the directory
