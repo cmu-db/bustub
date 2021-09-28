@@ -12,6 +12,7 @@
 
 #include "storage/page/hash_table_directory_page.h"
 #include <algorithm>
+#include <unordered_map>
 #include "common/logger.h"
 
 namespace bustub {
