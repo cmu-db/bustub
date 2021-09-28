@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include <atomic>
 #include <utility>
 #include <vector>
 
@@ -96,12 +95,28 @@ class HashTableBucketPage {
   bool IsOccupied(uint32_t bucket_idx) const;
 
   /**
+   * SetOccupied - Updates the bitmap to indicate that the entry at
+   * bucket_idx is occupied.
+   *
+   * @param bucket_idx the index to update
+   */
+  void SetOccupied(uint32_t bucket_idx);
+
+  /**
    * Returns whether or not an index is readable (valid key/value pair)
    *
    * @param bucket_idx index to lookup
    * @return true if the index is readable, false otherwise
    */
   bool IsReadable(uint32_t bucket_idx) const;
+
+  /**
+   * SetReadable - Updates the bitmap to indicate that the entry at
+   * bucket_idx is readable.
+   *
+   * @param bucket_idx the index to update
+   */
+  void SetReadable(uint32_t bucket_idx);
 
   /**
    * @return the number of readable elements, i.e. current size
@@ -124,9 +139,10 @@ class HashTableBucketPage {
   void PrintBucket();
 
  private:
-  std::atomic_char occupied_[(BUCKET_ARRAY_SIZE - 1) / 8 + 1];
+  //  For more on BUCKET_ARRAY_SIZE see storage/page/hash_table_page_defs.h
+  char occupied_[(BUCKET_ARRAY_SIZE - 1) / 8 + 1];
   // 0 if tombstone/brand new (never occupied), 1 otherwise.
-  std::atomic_char readable_[(BUCKET_ARRAY_SIZE - 1) / 8 + 1];
+  char readable_[(BUCKET_ARRAY_SIZE - 1) / 8 + 1];
   MappingType array_[0];
 };
 

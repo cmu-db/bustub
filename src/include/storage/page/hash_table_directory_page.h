@@ -73,6 +73,33 @@ class HashTableDirectoryPage {
    */
   void SetBucketPageId(uint32_t bucket_idx, page_id_t bucket_page_id);
 
+  uint32_t GetSplitImageIndex(uint32_t bucket_idx);
+
+  /**
+   * GetGlobalDepthMask - returns a mask of global_depth 1's and the rest 0's.
+   *
+   * In Extendible Hashing we map a key to a directory index
+   * using the following hash + mask function.
+   *
+   * DirectoryIndex = Hash(key) & GLOBAL_DEPTH_MASK
+   *
+   * where GLOBAL_DEPTH_MASK is a mask with exactly GLOBAL_DEPTH 1's from LSB
+   * upwards.  For example, global depth 3 corresponds to 0x00000007 in a 32-bit
+   * representation.
+   *
+   * @return mask of global_depth 1's and the rest 0's (with 1's from LSB upwards)
+   */
+  uint32_t GetGlobalDepthMask();
+
+  /**
+   * GetLocalDepthMask - same as global depth mask, except it
+   * uses the local depth of the bucket located at bucket_idx
+   *
+   * @param bucket_idx the index to use for looking up local depth
+   * @return mask of local 1's and the rest 0's (with 1's from LSB upwards)
+   */
+  uint32_t GetLocalDepthMask(uint32_t bucket_idx);
+
   /**
    * Get the global depth of the hash table directory
    *
@@ -139,16 +166,26 @@ class HashTableDirectoryPage {
   uint32_t GetLocalHighBit(uint32_t bucket_idx);
 
   /**
+   * VerifyIntegrity
+   *
+   * Verify the following invariants:
+   * (1) All LD <= GD.
+   * (2) Each bucket has precisely 2^(GD - LD) pointers pointing to it.
+   * (3) The LD is the same at each index with the same bucket_page_id
+   */
+  void VerifyIntegrity();
+
+  /**
    * Prints the current directory
    */
   void PrintDirectory();
 
  private:
-  __attribute__((unused)) lsn_t lsn_;
-  __attribute__((unused)) page_id_t page_id_;
-  __attribute__((unused)) uint32_t global_depth_{0};
-  __attribute__((unused)) uint8_t local_depths_[DIRECTORY_ARRAY_SIZE];
-  __attribute__((unused)) page_id_t bucket_page_ids_[DIRECTORY_ARRAY_SIZE];
+  page_id_t page_id_;
+  lsn_t lsn_;
+  uint32_t global_depth_{0};
+  uint8_t local_depths_[DIRECTORY_ARRAY_SIZE];
+  page_id_t bucket_page_ids_[DIRECTORY_ARRAY_SIZE];
 };
 
 }  // namespace bustub

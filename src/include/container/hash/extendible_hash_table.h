@@ -74,14 +74,87 @@ class ExtendibleHashTable {
    */
   bool GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result);
 
+  /**
+   * Helper function to verify the integrity of the extendible hash table's directory.
+   */
+  void VerifyIntegrity();
+
  private:
   /**
-   * Hashes a key and downcasts to uint32_t.
+   * Hash - simple helper to downcast MurmurHash's 64-bit hash to 32-bit
+   * for extendible hashing.
    *
    * @param key the key to hash
-   * @return the 32-bit hash
+   * @return the downcasted 32-bit hash
    */
   inline uint32_t Hash(KeyType key);
+
+  /**
+   * KeyToDirectoryIndex - maps a key to a directory index
+   *
+   * In Extendible Hashing we map a key to a directory index
+   * using the following hash + mask function.
+   *
+   * DirectoryIndex = Hash(key) & GLOBAL_DEPTH_MASK
+   *
+   * where GLOBAL_DEPTH_MASK is a mask with exactly GLOBAL_DEPTH 1's from LSB
+   * upwards.  For example, global depth 3 corresponds to 0x00000007 in a 32-bit
+   * representation.
+   *
+   * @param key the key to use for lookup
+   * @param dir_page to use for lookup of global depth
+   * @return the directory index
+   */
+  inline uint32_t KeyToDirectoryIndex(KeyType key, HashTableDirectoryPage *dir_page);
+
+  /**
+   * Get the bucket page_id corresponding to a key.
+   *
+   * @param key the key for lookup
+   * @param dir_page a pointer to the hash table's directory page
+   * @return the bucket page_id corresponding to the input key
+   */
+  inline uint32_t KeyToPageId(KeyType key, HashTableDirectoryPage *dir_page);
+
+  /**
+   * Fetches the directory page from the buffer pool manager.
+   *
+   * @return a pointer to the directory page
+   */
+  HashTableDirectoryPage *FetchDirectoryPage();
+
+  /**
+   * Fetches the a bucket page from the buffer pool manager using the bucket's page_id.
+   *
+   * @param bucket_page_id the page_id to fetch
+   * @return a pointer to a bucket page
+   */
+  HASH_TABLE_BUCKET_TYPE *FetchBucketPage(page_id_t bucket_page_id);
+
+  /**
+   * Performs insertion with an optional bucket splitting.
+   *
+   * @param transaction a pointer to the current transaction
+   * @param key the key to insert
+   * @param value the value to insert
+   * @return whether or not the insertion was successful
+   */
+  bool SplitInsert(Transaction *transaction, const KeyType &key, const ValueType &value);
+
+  /**
+   * Optionally merges an empty bucket into it's pair.  This is called by Remove,
+   * if Remove makes a bucket empty.
+   *
+   * There are three conditions under which we skip the merge:
+   * 1. The bucket is no longer empty.
+   * 2. The bucket has local depth 0.
+   * 3. The bucket's local depth doesn't match its split image's local depth.
+   *
+   * @param transaction a pointer to the current transaction
+   * @param key the key that was removed
+   * @param value the value that was removed
+   */
+  void Merge(Transaction *transaction, const KeyType &key, const ValueType &value);
 
   // member variables
   page_id_t directory_page_id_;

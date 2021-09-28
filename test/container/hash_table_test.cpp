@@ -22,6 +22,8 @@
 namespace bustub {
 
 // NOLINTNEXTLINE
+
+// NOLINTNEXTLINE
 TEST(HashTableTest, DISABLED_SampleTest) {
   auto *disk_manager = new DiskManager("test.db");
   auto *bpm = new BufferPoolManagerInstance(50, disk_manager);
@@ -36,6 +38,8 @@ TEST(HashTableTest, DISABLED_SampleTest) {
     EXPECT_EQ(i, res[0]);
   }
 
+  ht.VerifyIntegrity();
+
   // check if the inserted values are all there
   for (int i = 0; i < 5; i++) {
     std::vector<int> res;
@@ -43,6 +47,8 @@ TEST(HashTableTest, DISABLED_SampleTest) {
     EXPECT_EQ(1, res.size()) << "Failed to keep " << i << std::endl;
     EXPECT_EQ(i, res[0]);
   }
+
+  ht.VerifyIntegrity();
 
   // insert one more value for each key
   for (int i = 0; i < 5; i++) {
@@ -70,6 +76,8 @@ TEST(HashTableTest, DISABLED_SampleTest) {
     }
   }
 
+  ht.VerifyIntegrity();
+
   // look for a key that does not exist
   std::vector<int> res;
   ht.GetValue(nullptr, 20, &res);
@@ -89,6 +97,8 @@ TEST(HashTableTest, DISABLED_SampleTest) {
     }
   }
 
+  ht.VerifyIntegrity();
+
   // delete all values
   for (int i = 0; i < 5; i++) {
     if (i == 0) {
@@ -98,6 +108,9 @@ TEST(HashTableTest, DISABLED_SampleTest) {
       EXPECT_TRUE(ht.Remove(nullptr, i, 2 * i));
     }
   }
+
+  ht.VerifyIntegrity();
+
   disk_manager->ShutDown();
   remove("test.db");
   delete disk_manager;
