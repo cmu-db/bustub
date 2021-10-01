@@ -100,6 +100,19 @@ template <typename KeyType, typename ValueType, typename KeyComparator>
 void HASH_TABLE_TYPE::Merge(Transaction *transaction, const KeyType &key, const ValueType &value) {}
 
 /*****************************************************************************
+ * GETGLOBALDEPTH - DO NOT TOUCH
+ *****************************************************************************/
+template <typename KeyType, typename ValueType, typename KeyComparator>
+uint32_t HASH_TABLE_TYPE::GetGlobalDepth() {
+  table_latch_.RLock();
+  HashTableDirectoryPage *dir_page = FetchDirectoryPage();
+  uint32_t global_depth = dir_page->GetGlobalDepth();
+  assert(buffer_pool_manager_->UnpinPage(directory_page_id_, false, nullptr));
+  table_latch_.RUnlock();
+  return global_depth;
+}
+
+/*****************************************************************************
  * VERIFY INTEGRITY - DO NOT TOUCH
  *****************************************************************************/
 template <typename KeyType, typename ValueType, typename KeyComparator>
