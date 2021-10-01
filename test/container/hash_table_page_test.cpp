@@ -6,7 +6,7 @@
 //
 // Identification: test/container/hash_table_page_test.cpp
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -32,11 +32,7 @@ TEST(HashTablePageTest, DISABLED_DirectoryPageSampleTest) {
   auto directory_page =
       reinterpret_cast<HashTableDirectoryPage *>(bpm->NewPage(&directory_page_id, nullptr)->GetData());
 
-  for (size_t i = 0; i < 3; i++) {
-    directory_page->IncrGlobalDepth();
-  }
-
-  EXPECT_EQ(3, directory_page->GetGlobalDepth());
+  EXPECT_EQ(0, directory_page->GetGlobalDepth());
   directory_page->SetPageId(10);
   EXPECT_EQ(10, directory_page->GetPageId());
   directory_page->SetLSN(100);
@@ -73,8 +69,7 @@ TEST(HashTablePageTest, DISABLED_BucketPageSampleTest) {
 
   // insert a few (key, value) pairs
   for (unsigned i = 0; i < 10; i++) {
-    bool inserted = bucket_page->Insert(i, i, IntComparator());
-    assert(inserted == 0);
+    assert(bucket_page->Insert(i, i, IntComparator()));
   }
 
   // check for the inserted pairs
@@ -86,7 +81,7 @@ TEST(HashTablePageTest, DISABLED_BucketPageSampleTest) {
   // remove a few pairs
   for (unsigned i = 0; i < 10; i++) {
     if (i % 2 == 1) {
-      bucket_page->Remove(i, i, IntComparator());
+      assert(bucket_page->Remove(i, i, IntComparator()));
     }
   }
 
@@ -101,6 +96,13 @@ TEST(HashTablePageTest, DISABLED_BucketPageSampleTest) {
       }
     } else {
       EXPECT_FALSE(bucket_page->IsOccupied(i));
+    }
+  }
+
+  // try to remove the already-removed pairs
+  for (unsigned i = 0; i < 10; i++) {
+    if (i % 2 == 1) {
+      assert(!bucket_page->Remove(i, i, IntComparator()));
     }
   }
 

@@ -48,10 +48,8 @@ class HashTableBucketPage {
   bool GetValue(KeyType key, KeyComparator cmp, std::vector<ValueType> *result);
 
   /**
-   * Attempts to insert a key and value in the bucket.
-   * The insert is thread safe. It uses compare and swap to claim the index,
-   * and then writes the key and value into the index, and then marks the
-   * index as readable.
+   * Attempts to insert a key and value in the bucket.  Uses the occupied_
+   * and readable_ arrays to keep track of each slot's availability.
    *
    * @param key key to insert
    * @param value value to insert
@@ -61,6 +59,7 @@ class HashTableBucketPage {
 
   /**
    * Removes a key and value.
+   *
    * @return true if removed, false if not found
    */
   bool Remove(KeyType key, ValueType value, KeyComparator cmp);

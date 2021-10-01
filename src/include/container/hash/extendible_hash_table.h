@@ -75,7 +75,12 @@ class ExtendibleHashTable {
   bool GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result);
 
   /**
-   * Helper function to verify the integrity of the extendible hash table's directory.
+   * Returns the global depth.  Do not touch.
+   */
+  uint32_t GetGlobalDepth();
+
+  /**
+   * Helper function to verify the integrity of the extendible hash table's directory.  Do not touch.
    */
   void VerifyIntegrity();
 

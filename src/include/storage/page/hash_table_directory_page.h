@@ -73,6 +73,12 @@ class HashTableDirectoryPage {
    */
   void SetBucketPageId(uint32_t bucket_idx, page_id_t bucket_page_id);
 
+  /**
+   * Gets the split image of an index
+   *
+   * @param bucket_idx the directory index for which to find the split image
+   * @return the directory index of the split image
+   **/
   uint32_t GetSplitImageIndex(uint32_t bucket_idx);
 
   /**
