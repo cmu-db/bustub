@@ -20,6 +20,14 @@ namespace bustub {
  */
 class IntComparator {
  public:
-  inline int operator()(const int lhs, const int rhs) { return lhs - rhs; }
+  inline int operator()(const int lhs, const int rhs) const {
+    if (lhs < rhs) {
+      return -1;
+    }
+    if (rhs < lhs) {
+      return 1;
+    }
+    return 0;
+  }
 };
 }  // namespace bustub
