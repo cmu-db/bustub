@@ -97,7 +97,7 @@ class TableGenerator {
         : name_(name), num_rows_(num_rows), col_meta_(std::move(col_meta)) {}
   };
 
-  void FillTable(TableMetadata *info, TableInsertMeta *table_meta);
+  void FillTable(TableInfo *info, TableInsertMeta *table_meta);
 
   std::vector<Value> MakeValues(ColumnInsertMeta *col_meta, uint32_t count);
 

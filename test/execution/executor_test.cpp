@@ -144,7 +144,7 @@ TEST_F(ExecutorTest, DISABLED_SimpleSeqScanTest) {
   // SELECT col_a, col_b FROM test_1 WHERE col_a < 500
 
   // Construct query plan
-  TableMetadata *table_info = GetExecutorContext()->GetCatalog()->GetTable("test_1");
+  TableInfo *table_info = GetExecutorContext()->GetCatalog()->GetTable("test_1");
   Schema &schema = table_info->schema_;
   auto *col_a = MakeColumnValueExpression(schema, 0, "col_a");
   auto *col_b = MakeColumnValueExpression(schema, 0, "col_b");

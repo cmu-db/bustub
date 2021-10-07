@@ -45,7 +45,7 @@ std::vector<Value> TableGenerator::MakeValues(ColumnInsertMeta *col_meta, uint32
   }
 }
 
-void TableGenerator::FillTable(TableMetadata *info, TableInsertMeta *table_meta) {
+void TableGenerator::FillTable(TableInfo *info, TableInsertMeta *table_meta) {
   uint32_t num_inserted = 0;
   uint32_t batch_size = 128;
   while (num_inserted < table_meta->num_rows_) {
@@ -65,9 +65,7 @@ void TableGenerator::FillTable(TableMetadata *info, TableInsertMeta *table_meta)
       BUSTUB_ASSERT(inserted, "Sequential insertion cannot fail");
       num_inserted++;
     }
-    // exec_ctx_->GetBufferPoolManager()->FlushAllPages();
   }
-  LOG_INFO("Wrote %d tuples to table %s.", num_inserted, table_meta->name_);
 }
 
 void TableGenerator::GenerateTestTables() {

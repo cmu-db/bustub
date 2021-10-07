@@ -6,7 +6,7 @@
 //
 // Identification: src/include/execution/executor_context.h
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -38,9 +38,9 @@ class ExecutorContext {
                   LockManager *lock_mgr)
       : transaction_(transaction), catalog_{catalog}, bpm_{bpm}, txn_mgr_(txn_mgr), lock_mgr_(lock_mgr) {}
 
-  DISALLOW_COPY_AND_MOVE(ExecutorContext);
-
   ~ExecutorContext() = default;
+
+  DISALLOW_COPY_AND_MOVE(ExecutorContext);
 
   /** @return the running transaction */
   Transaction *GetTransaction() const { return transaction_; }
@@ -61,10 +61,15 @@ class ExecutorContext {
   TransactionManager *GetTransactionManager() { return txn_mgr_; }
 
  private:
+  /** The transaction context associated with this executor context */
   Transaction *transaction_;
+  /** The datbase catalog associated with this executor context */
   Catalog *catalog_;
+  /** The buffer pool manager associated with this executor context */
   BufferPoolManager *bpm_;
+  /** The transaction manager associated with this executor context */
   TransactionManager *txn_mgr_;
+  /** The lock manager associated with this executor context */
   LockManager *lock_mgr_;
 };
 
