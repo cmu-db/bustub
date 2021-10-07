@@ -28,11 +28,11 @@ class ExecutorContext {
  public:
   /**
    * Creates an ExecutorContext for the transaction that is executing the query.
-   * @param transaction the transaction executing the query
-   * @param catalog the catalog that the executor should use
-   * @param bpm the buffer pool manager that the executor should use
-   * @param txn_mgr the transaction manager that the executor should use
-   * @param lock_mgr the lock manager that the executor should use
+   * @param transaction The transaction executing the query
+   * @param catalog The catalog that the executor uses
+   * @param bpm The buffer pool manager that the executor uses
+   * @param txn_mgr The transaction manager that the executor uses
+   * @param lock_mgr The lock manager that the executor uses
    */
   ExecutorContext(Transaction *transaction, Catalog *catalog, BufferPoolManager *bpm, TransactionManager *txn_mgr,
                   LockManager *lock_mgr)
