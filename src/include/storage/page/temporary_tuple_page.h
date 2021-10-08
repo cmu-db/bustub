@@ -67,9 +67,7 @@ class TemporaryTuplePageIterator {
    * @param b Iterator
    * @return `true` if the iterators are not equal, `false` otherwise
    */
-  friend bool operator!=(const TemporaryTuplePageIterator &a, const TemporaryTuplePageIterator &b) {
-    return !(a == b);
-  }
+  friend bool operator!=(const TemporaryTuplePageIterator &a, const TemporaryTuplePageIterator &b) { return !(a == b); }
 
  private:
   /** The page over which iteration is performed */

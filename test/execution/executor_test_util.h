@@ -19,7 +19,7 @@
 #include "execution/plans/delete_plan.h"
 #include "execution/plans/limit_plan.h"
 
-#include "buffer/buffer_pool_manager.h"
+#include "buffer/buffer_pool_manager_instance.h"
 #include "catalog/table_generator.h"
 #include "concurrency/transaction_manager.h"
 #include "execution/execution_engine.h"
@@ -121,8 +121,8 @@ class ExecutorTest : public ::testing::Test {
    * @param col_name The name of the column in the schema that is referenced
    * @return An owning-pointer to the ColumnValueExpression
    */
-  std::unique_ptr<ColumnValueExpression> AllocateColumnValueExpression(const Schema &schema, uint32_t tuple_idx,
-                                                                       const std::string &col_name) {
+  std::unique_ptr<AbstractExpression> AllocateColumnValueExpression(const Schema &schema, uint32_t tuple_idx,
+                                                                    const std::string &col_name) {
     uint32_t col_idx = schema.GetColIdx(col_name);
     auto col_type = schema.GetColumn(col_idx).GetType();
     return std::make_unique<ColumnValueExpression>(tuple_idx, col_idx, col_type);
@@ -143,7 +143,7 @@ class ExecutorTest : public ::testing::Test {
    * @param val The constant value of the expression
    * @return An owning pointer to the ConstantValueExpression
    */
-  const AbstractExpression *AllocateConstantValueExpression(const Value &val) {
+  std::unique_ptr<AbstractExpression> AllocateConstantValueExpression(const Value &val) {
     return std::make_unique<ConstantValueExpression>(val);
   }
 
@@ -167,8 +167,9 @@ class ExecutorTest : public ::testing::Test {
    * @param comp_type The type of the comparison operation
    * @return An owning pointer to the ComparisonExpression
    */
-  const AbstractExpression *AllocateComparisonExpression(const AbstractExpression *lhs, const AbstractExpression *rhs,
-                                                         ComparisonType comp_type) {
+  std::unique_ptr<AbstractExpression> AllocateComparisonExpression(const AbstractExpression *lhs,
+                                                                   const AbstractExpression *rhs,
+                                                                   ComparisonType comp_type) {
     return std::make_unique<ComparisonExpression>(lhs, rhs, comp_type);
   }
 
@@ -190,7 +191,7 @@ class ExecutorTest : public ::testing::Test {
    * @param term_idx The index of the term in the aggregates or group-bys
    * @return An owning pointer to the AggregateValueExpression
    */
-  const AbstractExpression *MakeAggregateValueExpression(bool is_group_by_term, uint32_t term_idx) {
+  std::unique_ptr<AbstractExpression> AllocateAggregateValueExpression(bool is_group_by_term, uint32_t term_idx) {
     return std::make_unique<AggregateValueExpression>(is_group_by_term, term_idx, TypeId::INTEGER);
   }
 
