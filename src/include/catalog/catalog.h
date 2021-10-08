@@ -20,7 +20,8 @@
 
 #include "buffer/buffer_pool_manager.h"
 #include "catalog/schema.h"
-#include "storage/index/b_plus_tree_index.h"
+#include "container/hash/hash_function.h"
+#include "storage/index/extendible_hash_table_index.h"
 #include "storage/index/index.h"
 #include "storage/table/table_heap.h"
 
@@ -158,12 +159,13 @@ class Catalog {
    * @param key_schema The schema of the key
    * @param key_attrs Key attributes
    * @param keysize Size of the key
+   * @param hash_function The hash function for the index
    * @return A (non-owning) pointer to the metadata of the new table
    */
   template <class KeyType, class ValueType, class KeyComparator>
   IndexInfo *CreateIndex(Transaction *txn, const std::string &index_name, const std::string &table_name,
                          const Schema &schema, const Schema &key_schema, const std::vector<uint32_t> &key_attrs,
-                         size_t keysize) {
+                         size_t keysize, HashFunction<KeyType> hash_function) {
     // Reject the creation request for nonexistent table
     if (table_names_.find(table_name) == table_names_.end()) {
       return NULL_INDEX_INFO;
@@ -183,7 +185,11 @@ class Catalog {
     auto meta = std::make_unique<IndexMetadata>(index_name, table_name, &schema, key_attrs);
 
     // Construct the index, take ownership of metadata
-    auto index = std::make_unique<BPlusTreeIndex<KeyType, ValueType, KeyComparator>>(meta.release(), bpm_);
+    // TODO(Kyle): We should update the API for CreateIndex
+    // to allow specification of the index type itself, not
+    // just the key, value, and comparator types
+    auto index = std::make_unique<ExtendibleHashTableIndex<KeyType, ValueType, KeyComparator>>(meta.release(), bpm_,
+                                                                                               hash_function);
 
     // Populate the index with all tuples in table heap
     auto *table_meta = GetTable(table_name);

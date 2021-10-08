@@ -209,8 +209,9 @@ TEST(CatalogTest, CreateIndex1) {
   Schema key_schema{key_columns};
 
   // Index construction should succeed
+  auto hash_function = HashFunction<KeyType>{};
   auto *index = catalog->CreateIndex<KeyType, ValueType, ComparatorType>(txn.get(), index_name, table_name, schema,
-                                                                         key_schema, key_attrs, keysize);
+                                                                         key_schema, key_attrs, keysize, hash_function);
   EXPECT_NE(Catalog::NULL_INDEX_INFO, index);
 
   // Querying the table indexes should return our index
@@ -253,8 +254,9 @@ TEST(CatalogTest, CreateIndex2) {
   Schema key_schema{key_columns};
 
   // Index construction should succeed
+  auto hash_function = HashFunction<KeyType>{};
   auto *index = catalog->CreateIndex<KeyType, ValueType, ComparatorType>(txn.get(), index_name, table_name, schema,
-                                                                         key_schema, key_attrs, keysize);
+                                                                         key_schema, key_attrs, keysize, hash_function);
   EXPECT_NE(Catalog::NULL_INDEX_INFO, index);
 
   // Querying the table indexes should return our index
@@ -264,7 +266,7 @@ TEST(CatalogTest, CreateIndex2) {
   // Subsequent attempt to create an index with the same name should fail
   auto create_index_f = [&]() -> IndexInfo * {
     return catalog->CreateIndex<KeyType, ValueType, ComparatorType>(txn.get(), index_name, table_name, schema,
-                                                                    key_schema, key_attrs, keysize);
+                                                                    key_schema, key_attrs, keysize, hash_function);
   };
   EXPECT_EQ(Catalog::NULL_INDEX_INFO, create_index_f());
 
@@ -294,9 +296,9 @@ TEST(CatalogTest, CreateIndex3) {
   std::vector<Column> key_columns{Column{"A", TypeId::BIGINT}};
   Schema key_schema{key_columns};
 
-  // GenericComparator<8> comparator{key_schema};
+  auto hash_function = HashFunction<KeyType>{};
   auto *index_info = catalog->CreateIndex<GenericKey<8>, RID, GenericComparator<8>>(&txn, "index1", "test_1", schema,
-                                                                                    key_schema, {0}, 8);
+                                                                                    key_schema, {0}, 8, hash_function);
   EXPECT_NE(Catalog::NULL_INDEX_INFO, index_info);
 
   std::vector<RID> index_rid{};
@@ -336,9 +338,10 @@ TEST(CatalogTest, QueryIndex1) {
   Schema key_schema{key_columns};
 
   // Index construction should succeed
+  auto hash_function = HashFunction<KeyType>{};
   auto create_index_f = [&]() -> IndexInfo * {
     return catalog->CreateIndex<KeyType, ValueType, ComparatorType>(txn.get(), index_name, table_name, schema,
-                                                                    key_schema, key_attrs, keysize);
+                                                                    key_schema, key_attrs, keysize, hash_function);
   };
   EXPECT_NE(Catalog::NULL_INDEX_INFO, create_index_f());
 
@@ -380,9 +383,10 @@ TEST(CatalogTest, QueryIndex2) {
   Schema key_schema{key_columns};
 
   // Index construction should succeed
+  auto hash_function = HashFunction<KeyType>{};
   auto create_index_f = [&]() -> IndexInfo * {
     return catalog->CreateIndex<KeyType, ValueType, ComparatorType>(txn.get(), index_name, table_name, schema,
-                                                                    key_schema, key_attrs, keysize);
+                                                                    key_schema, key_attrs, keysize, hash_function);
   };
   EXPECT_NE(Catalog::NULL_INDEX_INFO, create_index_f());
 

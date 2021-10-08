@@ -6,9 +6,10 @@
 //
 // Identification: src/execution/delete_executor.cpp
 //
-// Copyright (c) 2015-19, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
+
 #include <memory>
 
 #include "execution/executors/delete_executor.h"

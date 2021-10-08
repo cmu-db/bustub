@@ -33,7 +33,7 @@ class SeqScanExecutor : public AbstractExecutor {
    */
   SeqScanExecutor(ExecutorContext *exec_ctx, const SeqScanPlanNode *plan);
 
-  /** Initialize the sequential scan. */
+  /** Initialize the sequential scan */
   void Init() override;
 
   /**

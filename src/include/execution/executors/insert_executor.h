@@ -6,7 +6,7 @@
 //
 // Identification: src/include/execution/executors/insert_executor.h
 //
-// Copyright (c) 2015-19, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -21,31 +21,44 @@
 #include "storage/table/tuple.h"
 
 namespace bustub {
+
 /**
- * InsertExecutor executes an insert into a table.
- * Inserted values can either be embedded in the plan itself ("raw insert") or come from a child executor.
+ * InsertExecutor executes an insert on a table.
+ *
+ * Unlike UPDATE and DELETE, inserted values may either be
+ * embedded in the plan itself or be pulled from a child executor.
  */
 class InsertExecutor : public AbstractExecutor {
  public:
   /**
-   * Creates a new insert executor.
-   * @param exec_ctx the executor context
-   * @param plan the insert plan to be executed
-   * @param child_executor the child executor to obtain insert values from, can be nullptr
+   * Construct a new InsertExecutor instance.
+   * @param exec_ctx The executor context
+   * @param plan The insert plan to be executed
+   * @param child_executor The child executor from which inserted tuples are pulled (may be `nullptr`)
    */
   InsertExecutor(ExecutorContext *exec_ctx, const InsertPlanNode *plan,
                  std::unique_ptr<AbstractExecutor> &&child_executor);
 
-  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); };
-
+  /** Initialize the insert */
   void Init() override;
 
-  // Note that Insert does not make use of the tuple pointer being passed in.
-  // We return false if the insert failed for any reason, and return true if all inserts succeeded.
+  /**
+   * Yield the next tuple from the insert.
+   * @param[out] tuple The next tuple produced by the insert
+   * @param[out] rid The next tuple RID produced by the insert
+   * @return `true` if a tuple was produced, `false` if there are no more tuples
+   *
+   * NOTE: InsertExecutor::Next() does not use the `tuple` out-parameter.
+   * NOTE: InsertExecutor::Next() does not use the `rid` out-parameter.
+   */
   bool Next([[maybe_unused]] Tuple *tuple, RID *rid) override;
 
+  /** @return The output schema for the insert */
+  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); };
+
  private:
-  /** The insert plan node to be executed. */
+  /** The insert plan node to be executed*/
   const InsertPlanNode *plan_;
 };
+
 }  // namespace bustub
