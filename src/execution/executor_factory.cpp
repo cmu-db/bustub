@@ -95,7 +95,7 @@ std::unique_ptr<AbstractExecutor> ExecutorFactory::CreateExecutor(ExecutorContex
     }
 
     default:
-      UNREACHABLE("Unsupported plan type.")
+      UNREACHABLE("Unsupported plan type.");
   }
 }
 
