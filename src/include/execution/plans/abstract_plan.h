@@ -20,7 +20,18 @@
 namespace bustub {
 
 /** PlanType represents the types of plans that we have in our system. */
-enum class PlanType { SeqScan, IndexScan, Insert, Update, Delete, Aggregation, Limit, NestedLoopJoin, NestedIndexJoin };
+enum class PlanType {
+  SeqScan,
+  IndexScan,
+  Insert,
+  Update,
+  Delete,
+  Aggregation,
+  Limit,
+  Distinct,
+  NestedLoopJoin,
+  NestedIndexJoin
+};
 
 /**
  * AbstractPlanNode represents all the possible types of plan nodes in our system.

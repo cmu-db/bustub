@@ -88,9 +88,7 @@ class AggregationPlanNode : public AbstractPlanNode {
   std::vector<AggregationType> agg_types_;
 };
 
-/**
- * AggregateKey represents a
- */
+/** AggregateKey represents a key in an aggregation operation */
 struct AggregateKey {
   /** The group-by values */
   std::vector<Value> group_bys_;
@@ -110,9 +108,7 @@ struct AggregateKey {
   }
 };
 
-/**
- * AggregateValue represents a
- */
+/** AggregateValue represents a value for each of the running aggregates */
 struct AggregateValue {
   /** The aggregate values */
   std::vector<Value> aggregates_;

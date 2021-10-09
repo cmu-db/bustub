@@ -18,6 +18,7 @@
 #include "execution/executors/abstract_executor.h"
 #include "execution/executors/aggregation_executor.h"
 #include "execution/executors/delete_executor.h"
+#include "execution/executors/distinct_executor.h"
 #include "execution/executors/index_scan_executor.h"
 #include "execution/executors/insert_executor.h"
 #include "execution/executors/limit_executor.h"
@@ -69,6 +70,12 @@ std::unique_ptr<AbstractExecutor> ExecutorFactory::CreateExecutor(ExecutorContex
       auto limit_plan = dynamic_cast<const LimitPlanNode *>(plan);
       auto child_executor = ExecutorFactory::CreateExecutor(exec_ctx, limit_plan->GetChildPlan());
       return std::make_unique<LimitExecutor>(exec_ctx, limit_plan, std::move(child_executor));
+    }
+
+    case PlanType::Distinct: {
+      auto distinct_plan = dynamic_cast<const DistinctPlanNode *>(plan);
+      auto child_executor = ExecutorFactory::CreateExecutor(exec_ctx, distinct_plan->GetChildPlan());
+      return std::make_unique<DistinctExecutor>(exec_ctx, distinct_plan, std::move(child_executor));
     }
 
     // Create a new aggregation executor
