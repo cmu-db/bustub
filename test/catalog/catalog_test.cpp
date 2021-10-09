@@ -32,7 +32,7 @@ using KeyType = GenericKey<KEY_WIDTH>;
 using ValueType = RID;
 using ComparatorType = GenericComparator<KEY_WIDTH>;
 
-TEST(CatalogTest, CreateTable1) {
+TEST(CatalogTest, DISABLED_CreateTable1) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
@@ -63,7 +63,7 @@ TEST(CatalogTest, CreateTable1) {
   remove("catalog_test.log");
 }
 
-TEST(CatalogTest, CreateTable2) {
+TEST(CatalogTest, DISABLED_CreateTable2) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
@@ -91,7 +91,7 @@ TEST(CatalogTest, CreateTable2) {
   remove("catalog_test.log");
 }
 
-TEST(CatalogTest, CreateTable3) {
+TEST(CatalogTest, DISABLED_CreateTable3) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
@@ -123,7 +123,7 @@ TEST(CatalogTest, CreateTable3) {
   remove("catalog_test.log");
 }
 
-TEST(CatalogTest, CreateTableTest) {
+TEST(CatalogTest, DISABLED_CreateTableTest) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
@@ -178,7 +178,7 @@ TEST(CatalogTest, CreateTableTest) {
 }
 
 // Vanilla index creation for valid table
-TEST(CatalogTest, CreateIndex1) {
+TEST(CatalogTest, DISABLED_CreateIndex1) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
@@ -223,7 +223,7 @@ TEST(CatalogTest, CreateIndex1) {
 }
 
 // Attempts to create an index with duplicate name should fail
-TEST(CatalogTest, CreateIndex2) {
+TEST(CatalogTest, DISABLED_CreateIndex2) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
@@ -274,7 +274,7 @@ TEST(CatalogTest, CreateIndex2) {
   remove("catalog_test.log");
 }
 
-TEST(CatalogTest, CreateIndex3) {
+TEST(CatalogTest, DISABLED_CreateIndex3) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
@@ -308,7 +308,7 @@ TEST(CatalogTest, CreateIndex3) {
 }
 
 // Vanilla index queries by name
-TEST(CatalogTest, QueryIndex1) {
+TEST(CatalogTest, DISABLED_QueryIndex1) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
@@ -353,7 +353,7 @@ TEST(CatalogTest, QueryIndex1) {
 }
 
 // Vanilla index queries by index OID
-TEST(CatalogTest, QueryIndex2) {
+TEST(CatalogTest, DISABLED_QueryIndex2) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
@@ -406,7 +406,7 @@ TEST(CatalogTest, QueryIndex2) {
 }
 
 // Query for nonexistent index on table should fail
-TEST(CatalogTest, FailedQuery1) {
+TEST(CatalogTest, DISABLED_FailedQuery1) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
@@ -428,7 +428,7 @@ TEST(CatalogTest, FailedQuery1) {
 }
 
 // Query for index on nonexistent table should fail
-TEST(CatalogTest, FailedQuery2) {
+TEST(CatalogTest, DISABLED_FailedQuery2) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
@@ -441,7 +441,7 @@ TEST(CatalogTest, FailedQuery2) {
 }
 
 // Query for nonexistent index OID should throw
-TEST(CatalogTest, FailedQuery3) {
+TEST(CatalogTest, DISABLED_FailedQuery3) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
@@ -455,7 +455,7 @@ TEST(CatalogTest, FailedQuery3) {
 }
 
 // Query for all indexes on nonexistent table should give empty collection
-TEST(CatalogTest, FailedQuery4) {
+TEST(CatalogTest, DISABLED_FailedQuery4) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
@@ -470,7 +470,7 @@ TEST(CatalogTest, FailedQuery4) {
 
 // Query for all indexes on existing table with no
 // indexes defined should return empty collection
-TEST(CatalogTest, FailedQuery5) {
+TEST(CatalogTest, DISABLED_FailedQuery5) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);

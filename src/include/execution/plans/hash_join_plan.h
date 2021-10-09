@@ -12,6 +12,9 @@
 
 #pragma once
 
+#include <utility>
+#include <vector>
+
 #include "execution/plans/abstract_plan.h"
 
 namespace bustub {

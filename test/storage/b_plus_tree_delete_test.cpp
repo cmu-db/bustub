@@ -1,22 +1,29 @@
-/**
- * b_plus_tree_delete_test.cpp
- */
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// b_plus_tree_delete_test.cpp
+//
+// Identification: test/storage/b_plus_tree_delete_test.cpp
+//
+// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
 
 #include <algorithm>
 #include <cstdio>
 
-#include "b_plus_tree_test_util.h"  // NOLINT
 #include "buffer/buffer_pool_manager_instance.h"
 #include "gtest/gtest.h"
 #include "storage/index/b_plus_tree.h"
+#include "test_util.h"  // NOLINT
 
 namespace bustub {
 
 TEST(BPlusTreeTests, DISABLED_DeleteTest1) {
   // create KeyComparator and index schema
-  std::string create_stmt = "a bigint";
-  Schema *key_schema = ParseCreateStatement(create_stmt);
-  GenericComparator<8> comparator(key_schema);
+  auto key_schema = ParseCreateStatement("a bigint");
+  GenericComparator<8> comparator(key_schema.get());
 
   DiskManager *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManagerInstance(50, disk_manager);
@@ -84,7 +91,6 @@ TEST(BPlusTreeTests, DISABLED_DeleteTest1) {
   EXPECT_EQ(size, 3);
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
-  delete key_schema;
   delete transaction;
   delete disk_manager;
   delete bpm;
@@ -94,8 +100,8 @@ TEST(BPlusTreeTests, DISABLED_DeleteTest1) {
 
 TEST(BPlusTreeTests, DISABLED_DeleteTest2) {
   // create KeyComparator and index schema
-  Schema *key_schema = ParseCreateStatement("a bigint");
-  GenericComparator<8> comparator(key_schema);
+  auto key_schema = ParseCreateStatement("a bigint");
+  GenericComparator<8> comparator(key_schema.get());
 
   DiskManager *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManagerInstance(50, disk_manager);
@@ -163,7 +169,6 @@ TEST(BPlusTreeTests, DISABLED_DeleteTest2) {
   EXPECT_EQ(size, 1);
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
-  delete key_schema;
   delete transaction;
   delete disk_manager;
   delete bpm;

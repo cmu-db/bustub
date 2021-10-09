@@ -1,16 +1,24 @@
-/**
- * b_plus_tree_test.cpp
- */
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// b_plus_tree_concurrent_test.cpp
+//
+// Identification: test/storage/b_plus_tree_concurrent_test.cpp
+//
+// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
 
 #include <chrono>  // NOLINT
 #include <cstdio>
 #include <functional>
-#include <thread>                   // NOLINT
-#include "b_plus_tree_test_util.h"  // NOLINT
+#include <thread>  // NOLINT
 
 #include "buffer/buffer_pool_manager_instance.h"
 #include "gtest/gtest.h"
 #include "storage/index/b_plus_tree.h"
+#include "test_util.h"  // NOLINT
 
 namespace bustub {
 // helper function to launch multiple threads
@@ -94,8 +102,8 @@ void DeleteHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree
 
 TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest1) {
   // create KeyComparator and index schema
-  Schema *key_schema = ParseCreateStatement("a bigint");
-  GenericComparator<8> comparator(key_schema);
+  auto key_schema = ParseCreateStatement("a bigint");
+  GenericComparator<8> comparator(key_schema.get());
 
   DiskManager *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManagerInstance(50, disk_manager);
@@ -138,7 +146,6 @@ TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest1) {
   EXPECT_EQ(current_key, keys.size() + 1);
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
-  delete key_schema;
   delete disk_manager;
   delete bpm;
   remove("test.db");
@@ -147,8 +154,8 @@ TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest1) {
 
 TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest2) {
   // create KeyComparator and index schema
-  Schema *key_schema = ParseCreateStatement("a bigint");
-  GenericComparator<8> comparator(key_schema);
+  auto key_schema = ParseCreateStatement("a bigint");
+  GenericComparator<8> comparator(key_schema.get());
   DiskManager *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManagerInstance(50, disk_manager);
   // create b+ tree
@@ -190,7 +197,6 @@ TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest2) {
   EXPECT_EQ(current_key, keys.size() + 1);
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
-  delete key_schema;
   delete disk_manager;
   delete bpm;
   remove("test.db");
@@ -199,8 +205,8 @@ TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest2) {
 
 TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest1) {
   // create KeyComparator and index schema
-  Schema *key_schema = ParseCreateStatement("a bigint");
-  GenericComparator<8> comparator(key_schema);
+  auto key_schema = ParseCreateStatement("a bigint");
+  GenericComparator<8> comparator(key_schema.get());
 
   DiskManager *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManagerInstance(50, disk_manager);
@@ -233,7 +239,6 @@ TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest1) {
   EXPECT_EQ(size, 1);
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
-  delete key_schema;
   delete disk_manager;
   delete bpm;
   remove("test.db");
@@ -242,8 +247,8 @@ TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest1) {
 
 TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest2) {
   // create KeyComparator and index schema
-  Schema *key_schema = ParseCreateStatement("a bigint");
-  GenericComparator<8> comparator(key_schema);
+  auto key_schema = ParseCreateStatement("a bigint");
+  GenericComparator<8> comparator(key_schema.get());
 
   DiskManager *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManagerInstance(50, disk_manager);
@@ -277,7 +282,6 @@ TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest2) {
   EXPECT_EQ(size, 4);
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
-  delete key_schema;
   delete disk_manager;
   delete bpm;
   remove("test.db");
@@ -286,8 +290,8 @@ TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest2) {
 
 TEST(BPlusTreeConcurrentTest, DISABLED_MixTest) {
   // create KeyComparator and index schema
-  Schema *key_schema = ParseCreateStatement("a bigint");
-  GenericComparator<8> comparator(key_schema);
+  auto key_schema = ParseCreateStatement("a bigint");
+  GenericComparator<8> comparator(key_schema.get());
 
   DiskManager *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManagerInstance(50, disk_manager);
@@ -323,7 +327,6 @@ TEST(BPlusTreeConcurrentTest, DISABLED_MixTest) {
   EXPECT_EQ(size, 5);
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
-  delete key_schema;
   delete disk_manager;
   delete bpm;
   remove("test.db");

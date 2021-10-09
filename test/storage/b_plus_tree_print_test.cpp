@@ -1,26 +1,23 @@
-/**
- * b_plus_tree_test.cpp
- *
- * This ia a local Debug test.
- * Feel free to change this file for your own testing purpose.
- *
- * THIS TEST WILL NOT BE RUN ON GRADESCOPE
- * THIS TEST WILL NOT BE RUN ON GRADESCOPE
- * THIS TEST WILL NOT BE RUN ON GRADESCOPE
- * THIS TEST WILL NOT BE RUN ON GRADESCOPE
- * THIS TEST WILL NOT BE RUN ON GRADESCOPE
- * THIS TEST WILL NOT BE RUN ON GRADESCOPE
- *
- */
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// b_plus_tree_print_test.cpp
+//
+// Identification: test/storage/b_plus_tree_print_test.cpp
+//
+// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
 
 #include <cstdio>
 #include <iostream>
 
-#include "b_plus_tree_test_util.h"  // NOLINT
 #include "buffer/buffer_pool_manager_instance.h"
 #include "common/logger.h"
 #include "gtest/gtest.h"
 #include "storage/index/b_plus_tree.h"
+#include "test_util.h"  // NOLINT
 
 namespace bustub {
 
@@ -57,8 +54,8 @@ TEST(BptTreeTest, DISABLED_UnitTest) {
 
   // create KeyComparator and index schema
   std::string create_stmt = "a bigint";
-  Schema *key_schema = ParseCreateStatement(create_stmt);
-  GenericComparator<8> comparator(key_schema);
+  auto key_schema = ParseCreateStatement(create_stmt);
+  GenericComparator<8> comparator(key_schema.get());
 
   DiskManager *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManagerInstance(100, disk_manager);
@@ -112,7 +109,6 @@ TEST(BptTreeTest, DISABLED_UnitTest) {
     }
   }
   bpm->UnpinPage(header_page->GetPageId(), true);
-  delete key_schema;
   delete bpm;
   delete transaction;
   delete disk_manager;
