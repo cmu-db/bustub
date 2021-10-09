@@ -6,7 +6,7 @@
 //
 // Identification: src/execution/aggregation_executor.cpp
 //
-// Copyright (c) 2015-19, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 #include <memory>
@@ -20,10 +20,10 @@ AggregationExecutor::AggregationExecutor(ExecutorContext *exec_ctx, const Aggreg
                                          std::unique_ptr<AbstractExecutor> &&child)
     : AbstractExecutor(exec_ctx) {}
 
-const AbstractExecutor *AggregationExecutor::GetChildExecutor() const { return child_.get(); }
-
 void AggregationExecutor::Init() {}
 
 bool AggregationExecutor::Next(Tuple *tuple, RID *rid) { return false; }
+
+const AbstractExecutor *AggregationExecutor::GetChildExecutor() const { return child_.get(); }
 
 }  // namespace bustub
