@@ -19,6 +19,7 @@
 #include "execution/executors/aggregation_executor.h"
 #include "execution/executors/delete_executor.h"
 #include "execution/executors/distinct_executor.h"
+#include "execution/executors/hash_join_executor.h"
 #include "execution/executors/index_scan_executor.h"
 #include "execution/executors/insert_executor.h"
 #include "execution/executors/limit_executor.h"
@@ -72,6 +73,7 @@ std::unique_ptr<AbstractExecutor> ExecutorFactory::CreateExecutor(ExecutorContex
       return std::make_unique<LimitExecutor>(exec_ctx, limit_plan, std::move(child_executor));
     }
 
+    // Create a new limit executor
     case PlanType::Distinct: {
       auto distinct_plan = dynamic_cast<const DistinctPlanNode *>(plan);
       auto child_executor = ExecutorFactory::CreateExecutor(exec_ctx, distinct_plan->GetChildPlan());
@@ -99,6 +101,14 @@ std::unique_ptr<AbstractExecutor> ExecutorFactory::CreateExecutor(ExecutorContex
       auto nested_index_join_plan = dynamic_cast<const NestedIndexJoinPlanNode *>(plan);
       auto left = ExecutorFactory::CreateExecutor(exec_ctx, nested_index_join_plan->GetChildPlan());
       return std::make_unique<NestIndexJoinExecutor>(exec_ctx, nested_index_join_plan, std::move(left));
+    }
+
+    // Create a new hash join executor
+    case PlanType::HashJoin: {
+      auto hash_join_plan = dynamic_cast<const HashJoinPlanNode *>(plan);
+      auto left = ExecutorFactory::CreateExecutor(exec_ctx, hash_join_plan->GetLeftPlan());
+      auto right = ExecutorFactory::CreateExecutor(exec_ctx, hash_join_plan->GetRightPlan());
+      return std::make_unique<HashJoinExecutor>(exec_ctx, hash_join_plan, std::move(left), std::move(right));
     }
 
     default:

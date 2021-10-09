@@ -30,7 +30,8 @@ enum class PlanType {
   Limit,
   Distinct,
   NestedLoopJoin,
-  NestedIndexJoin
+  NestedIndexJoin,
+  HashJoin
 };
 
 /**
