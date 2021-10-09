@@ -6,7 +6,7 @@
 //
 // Identification: src/include/execution/executors/limit_executor.h
 //
-// Copyright (c) 2015-19, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -19,30 +19,39 @@
 #include "execution/plans/limit_plan.h"
 
 namespace bustub {
+
 /**
- * LimitExecutor limits the number of output tuples with an optional offset.
+ * LimitExecutor limits the number of output tuples produced by a child operator.
  */
 class LimitExecutor : public AbstractExecutor {
  public:
   /**
-   * Creates a new limit executor.
-   * @param exec_ctx the executor context
-   * @param plan the limit plan to be executed
-   * @param child_executor the child executor that produces tuple
+   * Construct a new LimitExecutor instance.
+   * @param exec_ctx The executor context
+   * @param plan The limit plan to be executed
+   * @param child_executor The child executor from which limited tuples are pulled
    */
   LimitExecutor(ExecutorContext *exec_ctx, const LimitPlanNode *plan,
                 std::unique_ptr<AbstractExecutor> &&child_executor);
 
-  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); };
-
+  /** Initialize the limit */
   void Init() override;
 
+  /**
+   * Yield the next tuple from the limit.
+   * @param[out] tuple The next tuple produced by the limit
+   * @param[out] rid The next tuple RID produced by the limit
+   * @return `true` if a tuple was produced, `false` if there are no more tuples
+   */
   bool Next(Tuple *tuple, RID *rid) override;
 
+  /** @return The output schema for the limit */
+  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); };
+
  private:
-  /** The limit plan node to be executed. */
+  /** The limit plan node to be executed */
   const LimitPlanNode *plan_;
-  /** The child executor to obtain value from. */
+  /** The child executor to obtain value from */
   std::unique_ptr<AbstractExecutor> child_executor_;
 };
 }  // namespace bustub
