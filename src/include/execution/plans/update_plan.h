@@ -45,7 +45,7 @@ class UpdatePlanNode : public AbstractPlanNode {
    */
   UpdatePlanNode(const AbstractPlanNode *child, table_oid_t table_oid,
                  const std::unordered_map<uint32_t, UpdateInfo> &update_attrs)
-      : AbstractPlanNode(nullptr, {child}), table_oid_{table_oid}, update_attrs_{&update_attrs} {}
+      : AbstractPlanNode(nullptr, {child}), table_oid_{table_oid}, update_attrs_{update_attrs} {}
 
   /** @return The type of the plan node */
   PlanType GetType() const override { return PlanType::Update; }
@@ -60,13 +60,13 @@ class UpdatePlanNode : public AbstractPlanNode {
   }
 
   /** @return The update attributes */
-  const std::unordered_map<uint32_t, UpdateInfo> *GetUpdateAttr() const { return update_attrs_; }
+  const std::unordered_map<uint32_t, UpdateInfo> &GetUpdateAttr() const { return update_attrs_; }
 
  private:
   /** The table to be updated. */
   table_oid_t table_oid_;
   /** Map from column index -> update operation */
-  const std::unordered_map<uint32_t, UpdateInfo> *update_attrs_;
+  const std::unordered_map<uint32_t, UpdateInfo> update_attrs_;
 };
 
 }  // namespace bustub
