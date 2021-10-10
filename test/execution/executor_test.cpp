@@ -227,7 +227,7 @@ TEST_F(ExecutorTest, DISABLED_SimpleRawInsertWithIndexTest) {
   }
 }
 
-// NOLINTNEXTLINE
+// DELETE FROM test_1 WHERE col_a == 50
 TEST_F(ExecutorTest, DISABLED_SimpleDeleteTest) {
   // Construct query plan
   auto table_info = GetExecutorContext()->GetCatalog()->GetTable("test_1");
@@ -273,8 +273,8 @@ TEST_F(ExecutorTest, DISABLED_SimpleDeleteTest) {
   ASSERT_TRUE(rids.empty());
 }
 
+// SELECT test_1.col_a, test_1.col_b, test_2.col1, test_2.col3 FROM test_1 JOIN test_2 ON test_1.col_a = test_2.col1
 TEST_F(ExecutorTest, DISABLED_SimpleNestedLoopJoinTest) {
-  // SELECT test_1.col_a, test_1.col_b, test_2.col1, test_2.col3 FROM test_1 JOIN test_2 ON test_1.col_a = test_2.col1
   const Schema *out_schema1;
   std::unique_ptr<AbstractPlanNode> scan_plan1;
   {
@@ -317,8 +317,8 @@ TEST_F(ExecutorTest, DISABLED_SimpleNestedLoopJoinTest) {
   ASSERT_EQ(result_set.size(), 100);
 }
 
+// SELECT COUNT(col_a), SUM(col_a), min(col_a), max(col_a) from test_1;
 TEST_F(ExecutorTest, DISABLED_SimpleAggregationTest) {
-  // SELECT COUNT(col_a), SUM(col_a), min(col_a), max(col_a) from test_1;
   const Schema *scan_schema;
   std::unique_ptr<AbstractPlanNode> scan_plan;
   {
@@ -367,8 +367,8 @@ TEST_F(ExecutorTest, DISABLED_SimpleAggregationTest) {
   ASSERT_EQ(result_set.size(), 1);
 }
 
+// SELECT count(col_a), col_b, sum(col_c) FROM test_1 Group By col_b HAVING count(col_a) > 100;
 TEST_F(ExecutorTest, DISABLED_SimpleGroupByAggregation) {
-  // SELECT count(col_a), col_b, sum(col_c) FROM test_1 Group By col_b HAVING count(col_a) > 100
   const Schema *scan_schema;
   std::unique_ptr<AbstractPlanNode> scan_plan;
   {
