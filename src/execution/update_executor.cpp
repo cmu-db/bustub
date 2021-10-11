@@ -24,7 +24,7 @@ void UpdateExecutor::Init() {}
 bool UpdateExecutor::Next([[maybe_unused]] Tuple *tuple, RID *rid) { return false; }
 
 Tuple UpdateExecutor::GenerateUpdatedTuple(const Tuple &src_tuple) {
-  const auto& update_attrs = plan_->GetUpdateAttr();
+  const auto &update_attrs = plan_->GetUpdateAttr();
   Schema schema = table_info_->schema_;
   uint32_t col_count = schema.GetColumnCount();
   std::vector<Value> values;

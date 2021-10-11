@@ -31,8 +31,6 @@ class Tuple {
   friend class TablePage;
   friend class TableHeap;
   friend class TableIterator;
-  friend class TemporaryTuplePage;
-  friend class TemporaryTuplePageIterator;
 
  public:
   // Default constructor (to create a dummy tuple)

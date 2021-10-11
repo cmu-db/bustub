@@ -44,7 +44,7 @@ class UpdatePlanNode : public AbstractPlanNode {
    * @param table_oid the identifier of the table that should be updated
    */
   UpdatePlanNode(const AbstractPlanNode *child, table_oid_t table_oid,
-                std::unordered_map<uint32_t, UpdateInfo> update_attrs)
+                 std::unordered_map<uint32_t, UpdateInfo> update_attrs)
       : AbstractPlanNode(nullptr, {child}), table_oid_{table_oid}, update_attrs_{std::move(update_attrs)} {}
 
   /** @return The type of the plan node */
