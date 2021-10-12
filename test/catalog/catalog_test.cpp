@@ -23,14 +23,12 @@
 
 namespace bustub {
 
-/**
- * @brief The width of the index keys; using single BIGINT column.
- */
-constexpr static const auto KEY_WIDTH = 8;
-
-using KeyType = GenericKey<KEY_WIDTH>;
-using ValueType = RID;
-using ComparatorType = GenericComparator<KEY_WIDTH>;
+/** Index creation parameters for a BIGINT key */
+constexpr static const auto BIGINT_SIZE = 8;
+using BigintKeyType = GenericKey<BIGINT_SIZE>;
+using BigintValueType = RID;
+using BigintComparatorType = GenericComparator<BIGINT_SIZE>;
+using BigintHashFunctionType = HashFunction<BigintKeyType>;
 
 TEST(CatalogTest, DISABLED_CreateTable1) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
@@ -201,17 +199,14 @@ TEST(CatalogTest, DISABLED_CreateIndex1) {
   // Construction of an index for the table should succeed
   std::vector<Column> key_columns{};
   std::vector<uint32_t> key_attrs{};
-  const size_t keysize = KEY_WIDTH;
-
   key_columns.emplace_back("A", TypeId::BIGINT);
   key_attrs.emplace_back(0);
 
   Schema key_schema{key_columns};
 
   // Index construction should succeed
-  auto hash_function = HashFunction<KeyType>{};
-  auto *index = catalog->CreateIndex<KeyType, ValueType, ComparatorType>(txn.get(), index_name, table_name, schema,
-                                                                         key_schema, key_attrs, keysize, hash_function);
+  auto *index = catalog->CreateIndex<BigintKeyType, BigintValueType, BigintComparatorType>(
+      txn.get(), index_name, table_name, schema, key_schema, key_attrs, BIGINT_SIZE, BigintHashFunctionType{});
   EXPECT_NE(Catalog::NULL_INDEX_INFO, index);
 
   // Querying the table indexes should return our index
@@ -246,17 +241,14 @@ TEST(CatalogTest, DISABLED_CreateIndex2) {
   // Construct an index for the table
   std::vector<Column> key_columns{};
   std::vector<uint32_t> key_attrs{};
-  const size_t keysize = KEY_WIDTH;
-
   key_columns.emplace_back("A", TypeId::BIGINT);
   key_attrs.emplace_back(0);
 
   Schema key_schema{key_columns};
 
   // Index construction should succeed
-  auto hash_function = HashFunction<KeyType>{};
-  auto *index = catalog->CreateIndex<KeyType, ValueType, ComparatorType>(txn.get(), index_name, table_name, schema,
-                                                                         key_schema, key_attrs, keysize, hash_function);
+  auto *index = catalog->CreateIndex<BigintKeyType, BigintValueType, BigintComparatorType>(
+      txn.get(), index_name, table_name, schema, key_schema, key_attrs, BIGINT_SIZE, BigintHashFunctionType{});
   EXPECT_NE(Catalog::NULL_INDEX_INFO, index);
 
   // Querying the table indexes should return our index
@@ -265,8 +257,8 @@ TEST(CatalogTest, DISABLED_CreateIndex2) {
 
   // Subsequent attempt to create an index with the same name should fail
   auto create_index_f = [&]() -> IndexInfo * {
-    return catalog->CreateIndex<KeyType, ValueType, ComparatorType>(txn.get(), index_name, table_name, schema,
-                                                                    key_schema, key_attrs, keysize, hash_function);
+    return catalog->CreateIndex<BigintKeyType, BigintValueType, BigintComparatorType>(
+        txn.get(), index_name, table_name, schema, key_schema, key_attrs, BIGINT_SIZE, BigintHashFunctionType{});
   };
   EXPECT_EQ(Catalog::NULL_INDEX_INFO, create_index_f());
 
@@ -296,9 +288,8 @@ TEST(CatalogTest, DISABLED_CreateIndex3) {
   std::vector<Column> key_columns{Column{"A", TypeId::BIGINT}};
   Schema key_schema{key_columns};
 
-  auto hash_function = HashFunction<KeyType>{};
-  auto *index_info = catalog->CreateIndex<GenericKey<8>, RID, GenericComparator<8>>(&txn, "index1", "test_1", schema,
-                                                                                    key_schema, {0}, 8, hash_function);
+  auto *index_info = catalog->CreateIndex<BigintKeyType, BigintValueType, BigintComparatorType>(
+      &txn, "index1", "test_1", schema, key_schema, {0}, BIGINT_SIZE, BigintHashFunctionType{});
   EXPECT_NE(Catalog::NULL_INDEX_INFO, index_info);
 
   std::vector<RID> index_rid{};
@@ -330,18 +321,15 @@ TEST(CatalogTest, DISABLED_QueryIndex1) {
   // Construct an index for the table
   std::vector<Column> key_columns{};
   std::vector<uint32_t> key_attrs{};
-  const size_t keysize = KEY_WIDTH;
-
   key_columns.emplace_back("A", TypeId::BIGINT);
   key_attrs.emplace_back(0);
 
   Schema key_schema{key_columns};
 
   // Index construction should succeed
-  auto hash_function = HashFunction<KeyType>{};
   auto create_index_f = [&]() -> IndexInfo * {
-    return catalog->CreateIndex<KeyType, ValueType, ComparatorType>(txn.get(), index_name, table_name, schema,
-                                                                    key_schema, key_attrs, keysize, hash_function);
+    return catalog->CreateIndex<BigintKeyType, BigintValueType, BigintComparatorType>(
+        txn.get(), index_name, table_name, schema, key_schema, key_attrs, BIGINT_SIZE, BigintHashFunctionType{});
   };
   EXPECT_NE(Catalog::NULL_INDEX_INFO, create_index_f());
 
@@ -375,18 +363,15 @@ TEST(CatalogTest, DISABLED_QueryIndex2) {
   // Construct an index for the table
   std::vector<Column> key_columns{};
   std::vector<uint32_t> key_attrs{};
-  const size_t keysize = KEY_WIDTH;
-
   key_columns.emplace_back("A", TypeId::BIGINT);
   key_attrs.emplace_back(0);
 
   Schema key_schema{key_columns};
 
   // Index construction should succeed
-  auto hash_function = HashFunction<KeyType>{};
   auto create_index_f = [&]() -> IndexInfo * {
-    return catalog->CreateIndex<KeyType, ValueType, ComparatorType>(txn.get(), index_name, table_name, schema,
-                                                                    key_schema, key_attrs, keysize, hash_function);
+    return catalog->CreateIndex<BigintKeyType, BigintValueType, BigintComparatorType>(
+        txn.get(), index_name, table_name, schema, key_schema, key_attrs, BIGINT_SIZE, BigintHashFunctionType{});
   };
   EXPECT_NE(Catalog::NULL_INDEX_INFO, create_index_f());
 
@@ -487,6 +472,217 @@ TEST(CatalogTest, DISABLED_FailedQuery5) {
 
   const auto indexes = catalog->GetTableIndexes(table_name);
   EXPECT_TRUE(indexes.empty());
+
+  remove("catalog_test.db");
+  remove("catalog_test.log");
+}
+
+// Should be able to create and interact with an index with a single BIGINT key
+TEST(CatalogTest, DISABLED_IndexInteraction0) {
+  auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
+  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
+  auto txn = std::make_unique<Transaction>(0);
+
+  const std::string table_name{"foobar"};
+  const std::string index_name{"index1"};
+
+  // Construct a new table and add it to the catalog
+  std::vector<Column> columns{{"A", TypeId::BIGINT}};
+  Schema table_schema{columns};
+  auto *table_info = catalog->CreateTable(nullptr, table_name, table_schema);
+  EXPECT_NE(Catalog::NULL_TABLE_INFO, table_info);
+
+  // Construct an index for the table
+  std::vector<Column> key_columns{{"A", TypeId::BIGINT}};
+  std::vector<uint32_t> key_attrs{0};
+  Schema key_schema{key_columns};
+
+  // Index construction should succeed
+  auto *index_info = catalog->CreateIndex<BigintKeyType, BigintValueType, BigintComparatorType>(
+      txn.get(), index_name, table_name, table_schema, key_schema, key_attrs, BIGINT_SIZE, BigintHashFunctionType{});
+  EXPECT_NE(Catalog::NULL_INDEX_INFO, index_info);
+  auto *index = index_info->index_.get();
+
+  // We should now be able to interect with the index
+  Tuple tuple{std::vector<Value>{ValueFactory::GetBigIntValue(100)}, &table_schema};
+
+  // Insert an entry
+  RID rid{};
+  const Tuple index_key = tuple.KeyFromTuple(table_info->schema_, *index->GetKeySchema(), index->GetKeyAttrs());
+  index->InsertEntry(index_key, rid, txn.get());
+
+  // Scan should provide 1 result
+  std::vector<RID> results{};
+  index->ScanKey(index_key, &results, txn.get());
+  ASSERT_EQ(1, results.size());
+
+  // Delete the entry
+  index->DeleteEntry(index_key, rid, txn.get());
+
+  // Scan should now provide 0 results
+  results.clear();
+  index->ScanKey(index_key, &results, txn.get());
+  ASSERT_TRUE(results.empty());
+
+  remove("catalog_test.db");
+  remove("catalog_test.log");
+}
+
+// Should be able to create and interact with an index that is keyed by two INTEGER values
+TEST(CatalogTest, DISABLED_IndexInteraction1) {
+  auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
+  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
+  auto txn = std::make_unique<Transaction>(0);
+
+  const std::string table_name{"foobar"};
+  const std::string index_name{"index1"};
+
+  // Construct a new table and add it to the catalog
+  std::vector<Column> columns{{"A", TypeId::INTEGER}, {"B", TypeId::INTEGER}};
+  Schema table_schema{columns};
+  auto *table_info = catalog->CreateTable(nullptr, table_name, table_schema);
+  EXPECT_NE(Catalog::NULL_TABLE_INFO, table_info);
+
+  // Construct an index for the table
+  std::vector<Column> key_columns{{"A", TypeId::INTEGER}, {"B", TypeId::INTEGER}};
+  std::vector<uint32_t> key_attrs{0, 1};
+  Schema key_schema{key_columns};
+
+  // Index construction should succeed
+  auto *index_info = catalog->CreateIndex<GenericKey<8>, RID, GenericComparator<8>>(
+      txn.get(), index_name, table_name, table_schema, key_schema, key_attrs, 8, HashFunction<GenericKey<8>>{});
+  EXPECT_NE(Catalog::NULL_INDEX_INFO, index_info);
+  auto *index = index_info->index_.get();
+
+  // We should now be able to interect with the index
+  Tuple tuple{std::vector<Value>{ValueFactory::GetBigIntValue(100), ValueFactory::GetIntegerValue(101)}, &table_schema};
+
+  // Insert an entry
+  RID rid{};
+  const Tuple index_key = tuple.KeyFromTuple(table_info->schema_, *index->GetKeySchema(), index->GetKeyAttrs());
+  index->InsertEntry(index_key, rid, txn.get());
+
+  // Scan should provide 1 result
+  std::vector<RID> results{};
+  index->ScanKey(index_key, &results, txn.get());
+  ASSERT_EQ(1, results.size());
+
+  // Delete the entry
+  index->DeleteEntry(index_key, rid, txn.get());
+
+  // Scan should now provide 0 results
+  results.clear();
+  index->ScanKey(index_key, &results, txn.get());
+  ASSERT_TRUE(results.empty());
+
+  remove("catalog_test.db");
+  remove("catalog_test.log");
+}
+
+// Should be able to create and interact with an index that is keyed by a single INTEGER column
+TEST(CatalogTest, DISABLED_IndexInteraction2) {
+  auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
+  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
+  auto txn = std::make_unique<Transaction>(0);
+
+  const std::string table_name{"foobar"};
+  const std::string index_name{"index1"};
+
+  // Construct a new table and add it to the catalog
+  std::vector<Column> columns{{"A", TypeId::INTEGER}};
+  Schema table_schema{columns};
+  auto *table_info = catalog->CreateTable(nullptr, table_name, table_schema);
+  EXPECT_NE(Catalog::NULL_TABLE_INFO, table_info);
+
+  // Construct an index for the table
+  std::vector<Column> key_columns{{"A", TypeId::INTEGER}};
+  std::vector<uint32_t> key_attrs{0};
+  Schema key_schema{key_columns};
+
+  // Index construction should succeed
+  auto *index_info = catalog->CreateIndex<GenericKey<4>, RID, GenericComparator<4>>(
+      txn.get(), index_name, table_name, table_schema, key_schema, key_attrs, 4, HashFunction<GenericKey<4>>{});
+  EXPECT_NE(Catalog::NULL_INDEX_INFO, index_info);
+  auto *index = index_info->index_.get();
+
+  // We should now be able to interect with the index
+  Tuple tuple{std::vector<Value>{ValueFactory::GetIntegerValue(100)}, &table_schema};
+
+  // Insert an entry
+  RID rid{};
+  const Tuple index_key = tuple.KeyFromTuple(table_info->schema_, *index->GetKeySchema(), index->GetKeyAttrs());
+  index->InsertEntry(index_key, rid, txn.get());
+
+  // Scan should provide 1 result
+  std::vector<RID> results{};
+  index->ScanKey(index_key, &results, txn.get());
+  ASSERT_EQ(1, results.size());
+
+  // Delete the entry
+  index->DeleteEntry(index_key, rid, txn.get());
+
+  // Scan should now provide 0 results
+  results.clear();
+  index->ScanKey(index_key, &results, txn.get());
+  ASSERT_TRUE(results.empty());
+
+  remove("catalog_test.db");
+  remove("catalog_test.log");
+}
+
+TEST(CatalogTest, DISABLED_IndexInteraction3) {
+  auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
+  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
+  auto txn = std::make_unique<Transaction>(0);
+
+  const std::string table_name{"foobar"};
+  const std::string index_name{"index1"};
+
+  // Construct a new table and add it to the catalog
+  std::vector<Column> columns{
+      {"A", TypeId::SMALLINT}, {"B", TypeId::SMALLINT}, {"C", TypeId::SMALLINT}, {"D", TypeId::SMALLINT}};
+  Schema table_schema{columns};
+  auto *table_info = catalog->CreateTable(nullptr, table_name, table_schema);
+  EXPECT_NE(Catalog::NULL_TABLE_INFO, table_info);
+
+  // Construct an index for the table
+  std::vector<Column> key_columns{
+      {"A", TypeId::SMALLINT}, {"B", TypeId::SMALLINT}, {"C", TypeId::SMALLINT}, {"D", TypeId::SMALLINT}};
+  std::vector<uint32_t> key_attrs{0, 1, 2, 3};
+  Schema key_schema{key_columns};
+
+  // Index construction should succeed
+  auto *index_info = catalog->CreateIndex<GenericKey<8>, RID, GenericComparator<8>>(
+      txn.get(), index_name, table_name, table_schema, key_schema, key_attrs, 8, HashFunction<GenericKey<8>>{});
+  EXPECT_NE(Catalog::NULL_INDEX_INFO, index_info);
+  auto *index = index_info->index_.get();
+
+  // We should now be able to interect with the index
+  Tuple tuple{std::vector<Value>{ValueFactory::GetSmallIntValue(100), ValueFactory::GetSmallIntValue(101),
+                                 ValueFactory::GetSmallIntValue(102), ValueFactory::GetSmallIntValue(103)},
+              &table_schema};
+
+  // Insert an entry
+  RID rid{};
+  const Tuple index_key = tuple.KeyFromTuple(table_info->schema_, *index->GetKeySchema(), index->GetKeyAttrs());
+  index->InsertEntry(index_key, rid, txn.get());
+
+  // Scan should provide 1 result
+  std::vector<RID> results{};
+  index->ScanKey(index_key, &results, txn.get());
+  ASSERT_EQ(1, results.size());
+
+  // Delete the entry
+  index->DeleteEntry(index_key, rid, txn.get());
+
+  // Scan should now provide 0 results
+  results.clear();
+  index->ScanKey(index_key, &results, txn.get());
+  ASSERT_TRUE(results.empty());
 
   remove("catalog_test.db");
   remove("catalog_test.log");

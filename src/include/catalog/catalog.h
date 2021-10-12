@@ -35,21 +35,41 @@ using column_oid_t = uint32_t;
 using index_oid_t = uint32_t;
 
 /**
- * Metadata about a table.
+ * The TableInfo class maintains metadata about a table.
  */
 struct TableInfo {
+  /**
+   * Construct a new TableInfo instance.
+   * @param schema The table schema
+   * @param name The table name
+   * @param table An owning pointer to the table heap
+   * @param oid The unique OID for the table
+   */
   TableInfo(Schema schema, std::string name, std::unique_ptr<TableHeap> &&table, table_oid_t oid)
       : schema_{std::move(schema)}, name_{std::move(name)}, table_{std::move(table)}, oid_{oid} {}
+  /** The table schema */
   Schema schema_;
-  std::string name_;
+  /** The table name */
+  const std::string name_;
+  /** An owning pointer to the table heap */
   std::unique_ptr<TableHeap> table_;
-  table_oid_t oid_;
+  /** The table OID */
+  const table_oid_t oid_;
 };
 
 /**
- * Metadata about a index.
+ * The IndexInfo class maintains metadata about a index.
  */
 struct IndexInfo {
+  /**
+   * Construct a new IndexInfo instance.
+   * @param key_schema The schema for the index key
+   * @param name The name of the index
+   * @param index An owning pointer to the index
+   * @param index_oid The unique OID for the index
+   * @param table_name The name of the table on which the index is created
+   * @param key_size The size of the index key, in bytes
+   */
   IndexInfo(Schema key_schema, std::string name, std::unique_ptr<Index> &&index, index_oid_t index_oid,
             std::string table_name, size_t key_size)
       : key_schema_{std::move(key_schema)},
@@ -58,11 +78,17 @@ struct IndexInfo {
         index_oid_{index_oid},
         table_name_{std::move(table_name)},
         key_size_{key_size} {}
+  /** The schema for the index key */
   Schema key_schema_;
+  /** The name of the index */
   std::string name_;
+  /** An owning pointer to the index */
   std::unique_ptr<Index> index_;
+  /** The unique OID for the index */
   index_oid_t index_oid_;
+  /** The name of the table on which the index is created */
   std::string table_name_;
+  /** The size of the index key, in bytes */
   const size_t key_size_;
 };
 
@@ -165,7 +191,7 @@ class Catalog {
   template <class KeyType, class ValueType, class KeyComparator>
   IndexInfo *CreateIndex(Transaction *txn, const std::string &index_name, const std::string &table_name,
                          const Schema &schema, const Schema &key_schema, const std::vector<uint32_t> &key_attrs,
-                         size_t keysize, HashFunction<KeyType> hash_function) {
+                         std::size_t keysize, HashFunction<KeyType> hash_function) {
     // Reject the creation request for nonexistent table
     if (table_names_.find(table_name) == table_names_.end()) {
       return NULL_INDEX_INFO;
@@ -188,7 +214,7 @@ class Catalog {
     // TODO(Kyle): We should update the API for CreateIndex
     // to allow specification of the index type itself, not
     // just the key, value, and comparator types
-    auto index = std::make_unique<ExtendibleHashTableIndex<KeyType, ValueType, KeyComparator>>(meta.release(), bpm_,
+    auto index = std::make_unique<ExtendibleHashTableIndex<KeyType, ValueType, KeyComparator>>(std::move(meta), bpm_,
                                                                                                hash_function);
 
     // Populate the index with all tuples in table heap

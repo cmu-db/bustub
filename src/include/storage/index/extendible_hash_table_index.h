@@ -13,6 +13,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -27,7 +28,7 @@ namespace bustub {
 template <typename KeyType, typename ValueType, typename KeyComparator>
 class ExtendibleHashTableIndex : public Index {
  public:
-  ExtendibleHashTableIndex(IndexMetadata *metadata, BufferPoolManager *buffer_pool_manager,
+  ExtendibleHashTableIndex(std::unique_ptr<IndexMetadata> &&metadata, BufferPoolManager *buffer_pool_manager,
                            const HashFunction<KeyType> &hash_fn);
 
   ~ExtendibleHashTableIndex() override = default;
