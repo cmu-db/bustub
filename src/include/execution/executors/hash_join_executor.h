@@ -31,8 +31,8 @@ class HashJoinExecutor : public AbstractExecutor {
    * Construct a new HashJoinExecutor instance.
    * @param exec_ctx The executor context
    * @param plan The HashJoin join plan to be executed
-   * @param left_child The child executor that produces tuple for the left side of join
-   * @param right_child The child executor that produces tuple for the right side of join
+   * @param left_child The child executor that produces tuples for the left side of join
+   * @param right_child The child executor that produces tuples for the right side of join
    */
   HashJoinExecutor(ExecutorContext *exec_ctx, const HashJoinPlanNode *plan,
                    std::unique_ptr<AbstractExecutor> &&left_child, std::unique_ptr<AbstractExecutor> &&right_child);
