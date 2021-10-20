@@ -2,9 +2,9 @@
 //
 //                         BusTub
 //
-// limit_executor.h
+// distinct_executor.h
 //
-// Identification: src/include/execution/executors/limit_executor.h
+// Identification: src/include/execution/executors/distinct_executor.h
 //
 // Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
@@ -16,41 +16,41 @@
 #include <utility>
 
 #include "execution/executors/abstract_executor.h"
-#include "execution/plans/limit_plan.h"
+#include "execution/plans/distinct_plan.h"
 
 namespace bustub {
 
 /**
- * LimitExecutor limits the number of output tuples produced by a child operator.
+ * DistinctExecutor removes duplicate rows from child ouput.
  */
-class LimitExecutor : public AbstractExecutor {
+class DistinctExecutor : public AbstractExecutor {
  public:
   /**
-   * Construct a new LimitExecutor instance.
+   * Construct a new DistinctExecutor instance.
    * @param exec_ctx The executor context
    * @param plan The limit plan to be executed
-   * @param child_executor The child executor from which limited tuples are pulled
+   * @param child_executor The child executor from which tuples are pulled
    */
-  LimitExecutor(ExecutorContext *exec_ctx, const LimitPlanNode *plan,
-                std::unique_ptr<AbstractExecutor> &&child_executor);
+  DistinctExecutor(ExecutorContext *exec_ctx, const DistinctPlanNode *plan,
+                   std::unique_ptr<AbstractExecutor> &&child_executor);
 
-  /** Initialize the limit */
+  /** Initialize the distinct */
   void Init() override;
 
   /**
-   * Yield the next tuple from the limit.
-   * @param[out] tuple The next tuple produced by the limit
-   * @param[out] rid The next tuple RID produced by the limit
+   * Yield the next tuple from the distinct.
+   * @param[out] tuple The next tuple produced by the distinct
+   * @param[out] rid The next tuple RID produced by the distinct
    * @return `true` if a tuple was produced, `false` if there are no more tuples
    */
   bool Next(Tuple *tuple, RID *rid) override;
 
-  /** @return The output schema for the limit */
+  /** @return The output schema for the distinct */
   const Schema *GetOutputSchema() override { return plan_->OutputSchema(); };
 
  private:
-  /** The limit plan node to be executed */
-  const LimitPlanNode *plan_;
+  /** The distinct plan node to be executed */
+  const DistinctPlanNode *plan_;
   /** The child executor from which tuples are obtained */
   std::unique_ptr<AbstractExecutor> child_executor_;
 };

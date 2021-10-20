@@ -16,10 +16,10 @@ namespace bustub {
  * Constructor
  */
 INDEX_TEMPLATE_ARGUMENTS
-BPLUSTREE_INDEX_TYPE::BPlusTreeIndex(IndexMetadata *metadata, BufferPoolManager *buffer_pool_manager)
-    : Index(metadata),
-      comparator_(metadata->GetKeySchema()),
-      container_(metadata->GetName(), buffer_pool_manager, comparator_) {}
+BPLUSTREE_INDEX_TYPE::BPlusTreeIndex(std::unique_ptr<IndexMetadata> &&metadata, BufferPoolManager *buffer_pool_manager)
+    : Index(std::move(metadata)),
+      comparator_(GetMetadata()->GetKeySchema()),
+      container_(GetMetadata()->GetName(), buffer_pool_manager, comparator_) {}
 
 INDEX_TEMPLATE_ARGUMENTS
 void BPLUSTREE_INDEX_TYPE::InsertEntry(const Tuple &key, RID rid, Transaction *transaction) {

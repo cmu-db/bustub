@@ -8,7 +8,10 @@ namespace bustub {
 
 template <typename CppType>
 std::vector<Value> TableGenerator::GenNumericValues(ColumnInsertMeta *col_meta, uint32_t count) {
-  std::vector<Value> values;
+  std::vector<Value> values{};
+  values.reserve(count);
+
+  // Handle serial columns
   if (col_meta->dist_ == Dist::Serial) {
     for (uint32_t i = 0; i < count; i++) {
       values.emplace_back(Value(col_meta->type_, static_cast<CppType>(col_meta->serial_counter_)));
@@ -16,6 +19,19 @@ std::vector<Value> TableGenerator::GenNumericValues(ColumnInsertMeta *col_meta, 
     }
     return values;
   }
+
+  // Handle cyclic columns
+  if (col_meta->dist_ == Dist::Cyclic) {
+    for (uint32_t i = 0; i < count; i++) {
+      values.emplace_back(Value(col_meta->type_, static_cast<CppType>(col_meta->serial_counter_)));
+      col_meta->serial_counter_ += 1;
+      if (col_meta->serial_counter_ > col_meta->max_) {
+        col_meta->serial_counter_ = 0;
+      }
+    }
+    return values;
+  }
+
   std::default_random_engine generator;
   // TODO(Amadou): Break up in two branches if this is too weird.
   std::conditional_t<std::is_integral_v<CppType>, std::uniform_int_distribution<CppType>,
@@ -45,7 +61,7 @@ std::vector<Value> TableGenerator::MakeValues(ColumnInsertMeta *col_meta, uint32
   }
 }
 
-void TableGenerator::FillTable(TableMetadata *info, TableInsertMeta *table_meta) {
+void TableGenerator::FillTable(TableInfo *info, TableInsertMeta *table_meta) {
   uint32_t num_inserted = 0;
   uint32_t batch_size = 128;
   while (num_inserted < table_meta->num_rows_) {
@@ -65,9 +81,7 @@ void TableGenerator::FillTable(TableMetadata *info, TableInsertMeta *table_meta)
       BUSTUB_ASSERT(inserted, "Sequential insertion cannot fail");
       num_inserted++;
     }
-    // exec_ctx_->GetBufferPoolManager()->FlushAllPages();
   }
-  LOG_INFO("Wrote %d tuples to table %s.", num_inserted, table_meta->name_);
 }
 
 void TableGenerator::GenerateTestTables() {
@@ -98,11 +112,44 @@ void TableGenerator::GenerateTestTables() {
 
       // Table 3
       {"test_3",
-       TEST2_SIZE,
-       {{"col1", TypeId::INTEGER, false, Dist::Serial, 0, 0},
-        {"col2", TypeId::INTEGER, true, Dist::Uniform, 10, 19},
-        {"col3", TypeId::BIGINT, false, Dist::Uniform, 0, 1024},
-        {"col4", TypeId::INTEGER, true, Dist::Uniform, 0, 2048}}},
+       TEST3_SIZE,
+       {{"colA", TypeId::INTEGER, false, Dist::Serial, 0, 0}, {"colB", TypeId::INTEGER, true, Dist::Serial, 0, 0}}},
+
+      // Table 4
+      {"test_4",
+       TEST4_SIZE,
+       {{"colA", TypeId::BIGINT, false, Dist::Serial, 0, 0},
+        {"colB", TypeId::INTEGER, true, Dist::Serial, 0, 0},
+        {"colC", TypeId::INTEGER, true, Dist::Uniform, 0, 9}}},
+
+      // Table 5
+      {"test_5",
+       0,
+       {{"colA", TypeId::BIGINT, false, Dist::Serial, 0, 0}, {"colB", TypeId::INTEGER, true, Dist::Serial, 0, 0}}},
+
+      // Table 6
+      {"test_6",
+       TEST6_SIZE,
+       {{"colA", TypeId::BIGINT, false, Dist::Serial, 0, 0},
+        {"colB", TypeId::INTEGER, true, Dist::Serial, 0, 0},
+        {"colC", TypeId::INTEGER, true, Dist::Uniform, 0, 9}}},
+
+      // Table 7
+      {"test_7",
+       TEST7_SIZE,
+       {{"colA", TypeId::BIGINT, false, Dist::Serial, 0, 0},
+        {"colB", TypeId::INTEGER, true, Dist::Serial, 0, 0},
+        {"colC", TypeId::INTEGER, true, Dist::Cyclic, 0, 9}}},
+
+      // Table 8
+      {"test_8",
+       TEST8_SIZE,
+       {{"colA", TypeId::BIGINT, false, Dist::Serial, 0, 0}, {"colB", TypeId::INTEGER, true, Dist::Serial, 0, 0}}},
+
+      // Table 9
+      {"test_9",
+       TEST9_SIZE,
+       {{"colA", TypeId::BIGINT, false, Dist::Serial, 0, 0}, {"colB", TypeId::INTEGER, true, Dist::Serial, 0, 0}}},
 
       // Empty table with two columns
       {"empty_table2",
@@ -112,7 +159,7 @@ void TableGenerator::GenerateTestTables() {
       // Empty table with two columns
       {"empty_table3",
        0,
-       {{"outA", TypeId::INTEGER, false, Dist::Serial, 0, 0}, {"outB", TypeId::INTEGER, false, Dist::Uniform, 0, 9}}},
+       {{"colA", TypeId::BIGINT, false, Dist::Serial, 0, 0}, {"colB", TypeId::INTEGER, false, Dist::Uniform, 0, 9}}},
   };
 
   for (auto &table_meta : insert_meta) {

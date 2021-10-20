@@ -6,7 +6,7 @@
 //
 // Identification: src/include/execution/executors/update_executor.h
 //
-// Copyright (c) 2015-20, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -25,62 +25,52 @@
 namespace bustub {
 
 /**
- * UpdateExecutor executes an update in a table.
- * Updated values from a child executor.
+ * UpdateExecutor executes an update on a table.
+ * Updated values are always pulled from a child.
  */
 class UpdateExecutor : public AbstractExecutor {
   friend class UpdatePlanNode;
 
  public:
   /**
-   * Creates a new update executor.
-   * @param exec_ctx the executor context
-   * @param plan the update plan to be executed
+   * Construct a new UpdateExecutor instance.
+   * @param exec_ctx The executor context
+   * @param plan The update plan to be executed
+   * @param child_executor The child executor that feeds the update
    */
   UpdateExecutor(ExecutorContext *exec_ctx, const UpdatePlanNode *plan,
                  std::unique_ptr<AbstractExecutor> &&child_executor);
 
-  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); };
-
+  /** Initialize the update */
   void Init() override;
 
+  /**
+   * Yield the next tuple from the udpate.
+   * @param[out] tuple The next tuple produced by the update
+   * @param[out] rid The next tuple RID produced by the update
+   * @return `true` if a tuple was produced, `false` if there are no more tuples
+   *
+   * NOTE: UpdateExecutor::Next() does not use the `tuple` out-parameter.
+   * NOTE: UpdateExecutor::Next() does not use the `rid` out-parameter.
+   */
   bool Next([[maybe_unused]] Tuple *tuple, RID *rid) override;
 
-  /*
-   * Given an old tuple, creates a new updated tuple based on the updateinfo given in the plan
-   * @param old_tup the tuple to be updated
-   */
-  Tuple GenerateUpdatedTuple(const Tuple &old_tup) {
-    auto update_attrs = plan_->GetUpdateAttr();
-    Schema schema = table_info_->schema_;
-    uint32_t col_count = schema.GetColumnCount();
-    std::vector<Value> values;
-    for (uint32_t idx = 0; idx < col_count; idx++) {
-      if (update_attrs->find(idx) == update_attrs->end()) {
-        values.emplace_back(old_tup.GetValue(&schema, idx));
-      } else {
-        UpdateInfo info = update_attrs->at(idx);
-        Value val = old_tup.GetValue(&schema, idx);
-        switch (info.type_) {
-          case UpdateType::Add:
-            values.emplace_back(val.Add(ValueFactory::GetIntegerValue(info.update_val_)));
-            break;
-
-          case UpdateType::Set:
-            values.emplace_back(ValueFactory::GetIntegerValue(info.update_val_));
-            break;
-        }
-      }
-    }
-    return Tuple(values, &schema);
-  }
+  /** @return The output schema for the update */
+  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); };
 
  private:
-  /** The update plan node to be executed. */
+  /**
+   * Given a tuple, creates a new, updated tuple
+   * based on the `UpdateInfo` provided in the plan.
+   * @param src_tuple The tuple to be updated
+   */
+  Tuple GenerateUpdatedTuple(const Tuple &src_tuple);
+
+  /** The update plan node to be executed */
   const UpdatePlanNode *plan_;
-  /** Metadata identifying the table that should be updated. */
-  const TableMetadata *table_info_;
-  /** The child executor to obtain value from. */
+  /** Metadata identifying the table that should be updated */
+  const TableInfo *table_info_;
+  /** The child executor to obtain value from */
   std::unique_ptr<AbstractExecutor> child_executor_;
 };
 }  // namespace bustub

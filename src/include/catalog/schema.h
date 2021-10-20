@@ -49,11 +49,6 @@ class Schema {
   const Column &GetColumn(const uint32_t col_idx) const { return columns_[col_idx]; }
 
   /**
-   * @param col_name name of the wanted column
-   * @return the column with the given name
-   */
-
-  /**
    * Looks up and returns the index of the first column in the schema with the specified name.
    * If multiple columns have the same name, the first such index is returned.
    * @param col_name name of column to look for

@@ -23,19 +23,27 @@
 
 namespace bustub {
 
+class Transaction;
+
 /**
- * class IndexMetadata - Holds metadata of an index object
+ * class IndexMetadata - Holds metadata of an index object.
  *
  * The metadata object maintains the tuple schema and key attribute of an
  * index, since the external callers does not know the actual structure of
  * the index key, so it is the index's responsibility to maintain such a
  * mapping relation and does the conversion between tuple key and index key
  */
-class Transaction;
 class IndexMetadata {
  public:
   IndexMetadata() = delete;
 
+  /**
+   * Construct a new IndexMetadata instance.
+   * @param index_name The name of the index
+   * @param table_name The name of the table on which the index is created
+   * @param tuple_schema The schema of the indexed key
+   * @param key_attrs The mapping from indexed columns to base table columns
+   */
   IndexMetadata(std::string index_name, std::string table_name, const Schema *tuple_schema,
                 std::vector<uint32_t> key_attrs)
       : name_(std::move(index_name)), table_name_(std::move(table_name)), key_attrs_(std::move(key_attrs)) {
@@ -44,23 +52,27 @@ class IndexMetadata {
 
   ~IndexMetadata() { delete key_schema_; }
 
+  /** @return The name of the index */
   inline const std::string &GetName() const { return name_; }
 
+  /** @return The name of the table on which the index is created */
   inline const std::string &GetTableName() { return table_name_; }
 
-  // Returns a schema object pointer that represents the indexed key
+  /** @return A schema object pointer that represents the indexed key */
   inline Schema *GetKeySchema() const { return key_schema_; }
 
-  // Return the number of columns inside index key (not in tuple key)
-  // Note that this must be defined inside the cpp source file
-  // because it uses the member of catalog::Schema which is not known here
-  uint32_t GetIndexColumnCount() const { return static_cast<uint32_t>(key_attrs_.size()); }
+  /**
+   * @return The number of columns inside index key (not in tuple key)
+   *
+   * NOTE: this must be defined inside the cpp source file because it
+   * uses the member of catalog::Schema which is not known here.
+   */
+  std::uint32_t GetIndexColumnCount() const { return static_cast<uint32_t>(key_attrs_.size()); }
 
-  //  Returns the mapping relation between indexed columns  and base table
-  //  columns
+  /** @return The mapping relation between indexed columns and base table columns */
   inline const std::vector<uint32_t> &GetKeyAttrs() const { return key_attrs_; }
 
-  // Get a string representation for debugging
+  /** @return A string representation for debugging */
   std::string ToString() const {
     std::stringstream os;
 
@@ -74,11 +86,13 @@ class IndexMetadata {
   }
 
  private:
+  /** The name of the index */
   std::string name_;
+  /** The name of the table on which the index is created */
   std::string table_name_;
-  // The mapping relation between key schema and tuple schema
+  /** The mapping relation between key schema and tuple schema */
   const std::vector<uint32_t> key_attrs_;
-  // schema of the indexed key
+  /** The schema of the indexed key */
   Schema *key_schema_;
 };
 
@@ -102,25 +116,32 @@ class IndexMetadata {
  */
 class Index {
  public:
-  explicit Index(IndexMetadata *metadata) : metadata_(metadata) {}
+  /**
+   * Construct a new Index instance.
+   * @param metdata An owning pointer to the index metadata
+   */
+  explicit Index(std::unique_ptr<IndexMetadata> &&metadata) : metadata_{std::move(metadata)} {}
 
-  virtual ~Index() { delete metadata_; }
+  virtual ~Index() = default;
 
-  // Return the metadata object associated with the index
-  IndexMetadata *GetMetadata() const { return metadata_; }
+  /** @return A non-owning pointer to the metadata object associated with the index */
+  IndexMetadata *GetMetadata() const { return metadata_.get(); }
 
-  int GetIndexColumnCount() const { return metadata_->GetIndexColumnCount(); }
+  /** @return The number of indexed columns */
+  std::uint32_t GetIndexColumnCount() const { return metadata_->GetIndexColumnCount(); }
 
+  /** @return The index name */
   const std::string &GetName() const { return metadata_->GetName(); }
 
+  /** @return The index key schema */
   Schema *GetKeySchema() const { return metadata_->GetKeySchema(); }
 
+  /** @return The index key attributes */
   const std::vector<uint32_t> &GetKeyAttrs() const { return metadata_->GetKeyAttrs(); }
 
-  // Get a string representation for debugging
+  /** @return A string representation for debugging */
   std::string ToString() const {
     std::stringstream os;
-
     os << "INDEX: (" << GetName() << ")";
     os << metadata_->ToString();
     return os.str();
@@ -129,19 +150,34 @@ class Index {
   ///////////////////////////////////////////////////////////////////
   // Point Modification
   ///////////////////////////////////////////////////////////////////
-  // designed for secondary indexes.
+
+  /**
+   * Insert an entry into the index.
+   * @param key The index key
+   * @param rid The RID associated with the key (unused)
+   * @param transaction The transaction context
+   */
   virtual void InsertEntry(const Tuple &key, RID rid, Transaction *transaction) = 0;
 
-  // delete the index entry linked to given tuple
+  /**
+   * Delete an index entry by key.
+   * @param key The index key
+   * @param rid The RID associated with the key (unused)
+   * @param transaction The transaction context
+   */
   virtual void DeleteEntry(const Tuple &key, RID rid, Transaction *transaction) = 0;
 
+  /**
+   * Search the index for the provided key.
+   * @param key The index key
+   * @param result The collection of RIDs that is populated with results of the search
+   * @param transaction The transaction context
+   */
   virtual void ScanKey(const Tuple &key, std::vector<RID> *result, Transaction *transaction) = 0;
 
  private:
-  //===--------------------------------------------------------------------===//
-  //  Data members
-  //===--------------------------------------------------------------------===//
-  IndexMetadata *metadata_;
+  /** The Index structure owns its metadata */
+  std::unique_ptr<IndexMetadata> metadata_;
 };
 
 }  // namespace bustub

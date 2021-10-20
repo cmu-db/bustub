@@ -13,6 +13,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -27,8 +28,8 @@ namespace bustub {
 template <typename KeyType, typename ValueType, typename KeyComparator>
 class LinearProbeHashTableIndex : public Index {
  public:
-  LinearProbeHashTableIndex(IndexMetadata *metadata, BufferPoolManager *buffer_pool_manager, size_t num_buckets,
-                            const HashFunction<KeyType> &hash_fn);
+  LinearProbeHashTableIndex(std::unique_ptr<IndexMetadata> &&metadata, BufferPoolManager *buffer_pool_manager,
+                            size_t num_buckets, const HashFunction<KeyType> &hash_fn);
 
   ~LinearProbeHashTableIndex() override = default;
 

@@ -29,9 +29,7 @@ namespace bustub {
  */
 class Tuple {
   friend class TablePage;
-
   friend class TableHeap;
-
   friend class TableIterator;
 
  public:

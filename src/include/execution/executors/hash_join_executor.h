@@ -2,9 +2,9 @@
 //
 //                         BusTub
 //
-// nested_loop_join_executor.h
+// hash_join_executor.h
 //
-// Identification: src/include/execution/executors/nested_loop_join_executor.h
+// Identification: src/include/execution/executors/hash_join_executor.h
 //
 // Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
@@ -17,26 +17,25 @@
 
 #include "execution/executor_context.h"
 #include "execution/executors/abstract_executor.h"
-#include "execution/plans/nested_loop_join_plan.h"
+#include "execution/plans/hash_join_plan.h"
 #include "storage/table/tuple.h"
 
 namespace bustub {
 
 /**
- * NestedLoopJoinExecutor executes a nested-loop JOIN on two tables.
+ * HashJoinExecutor executes a nested-loop JOIN on two tables.
  */
-class NestedLoopJoinExecutor : public AbstractExecutor {
+class HashJoinExecutor : public AbstractExecutor {
  public:
   /**
-   * Construct a new NestedLoopJoinExecutor instance.
+   * Construct a new HashJoinExecutor instance.
    * @param exec_ctx The executor context
-   * @param plan The NestedLoop join plan to be executed
-   * @param left_executor The child executor that produces tuple for the left side of join
-   * @param right_executor The child executor that produces tuple for the right side of join
+   * @param plan The HashJoin join plan to be executed
+   * @param left_child The child executor that produces tuples for the left side of join
+   * @param right_child The child executor that produces tuples for the right side of join
    */
-  NestedLoopJoinExecutor(ExecutorContext *exec_ctx, const NestedLoopJoinPlanNode *plan,
-                         std::unique_ptr<AbstractExecutor> &&left_executor,
-                         std::unique_ptr<AbstractExecutor> &&right_executor);
+  HashJoinExecutor(ExecutorContext *exec_ctx, const HashJoinPlanNode *plan,
+                   std::unique_ptr<AbstractExecutor> &&left_child, std::unique_ptr<AbstractExecutor> &&right_child);
 
   /** Initialize the join */
   void Init() override;
@@ -49,12 +48,12 @@ class NestedLoopJoinExecutor : public AbstractExecutor {
    */
   bool Next(Tuple *tuple, RID *rid) override;
 
-  /** @return The output schema for the insert */
+  /** @return The output schema for the join */
   const Schema *GetOutputSchema() override { return plan_->OutputSchema(); };
 
  private:
   /** The NestedLoopJoin plan node to be executed. */
-  const NestedLoopJoinPlanNode *plan_;
+  const HashJoinPlanNode *plan_;
 };
 
 }  // namespace bustub

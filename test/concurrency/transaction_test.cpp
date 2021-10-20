@@ -1,6 +1,14 @@
-/**
- * transaction_test.cpp
- */
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// transaction_test.cpp
+//
+// Identification: test/concurrency/transaction_test.cpp
+//
+// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
 
 #include <atomic>
 #include <cstdio>
@@ -25,7 +33,7 @@
 #include "execution/plans/nested_index_join_plan.h"
 #include "execution/plans/seq_scan_plan.h"
 #include "gtest/gtest.h"
-#include "storage/b_plus_tree_test_util.h"  // NOLINT
+#include "test_util.h"  // NOLINT
 #include "type/value_factory.h"
 
 #define TEST_TIMEOUT_BEGIN                           \
@@ -209,11 +217,6 @@ TEST_F(TransactionTest, DISABLED_DirtyReadsTest) {
   auto table_info = exec_ctx1->GetCatalog()->GetTable("empty_table2");
   InsertPlanNode insert_plan{std::move(raw_vals), table_info->oid_};
 
-  Schema *key_schema = ParseCreateStatement("a bigint");
-  GenericComparator<8> comparator(key_schema);
-  //  auto index_info = exec_ctx1->GetCatalog()->CreateIndex<GenericKey<8>, RID, GenericComparator<8>>(
-  //      txn1, "index1", "empty_table2", table_info->schema_, *key_schema, {0}, 8);
-
   GetExecutionEngine()->Execute(&insert_plan, nullptr, txn1, exec_ctx1.get());
 
   // Iterate through table to read the tuples.
@@ -248,7 +251,6 @@ TEST_F(TransactionTest, DISABLED_DirtyReadsTest) {
 
   GetTxnManager()->Commit(txn2);
   delete txn2;
-  delete key_schema;
 }
 
 }  // namespace bustub

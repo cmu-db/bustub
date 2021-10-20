@@ -6,7 +6,7 @@
 //
 // Identification: src/include/execution/executor_factory.h
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -25,9 +25,9 @@ class ExecutorFactory {
  public:
   /**
    * Creates a new executor given the executor context and plan node.
-   * @param exec_ctx the executor context for the created executor
-   * @param plan the plan node that needs to be executed
-   * @return an executor for the given plan and context
+   * @param exec_ctx The executor context for the created executor
+   * @param plan The plan node that needs to be executed
+   * @return An executor for the given plan in the provided context
    */
   static std::unique_ptr<AbstractExecutor> CreateExecutor(ExecutorContext *exec_ctx, const AbstractPlanNode *plan);
 };
