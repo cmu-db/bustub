@@ -45,12 +45,12 @@ uint32_t HASH_TABLE_TYPE::Hash(KeyType key) {
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-inline uint32_t HASH_TABLE_TYPE::KeyToDirectoryIndex(KeyType key, HashTableDirectoryPage *dir_page) {
+uint32_t HASH_TABLE_TYPE::KeyToDirectoryIndex(KeyType key, HashTableDirectoryPage *dir_page) {
   return 0;
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-inline uint32_t HASH_TABLE_TYPE::KeyToPageId(KeyType key, HashTableDirectoryPage *dir_page) {
+page_id_t HASH_TABLE_TYPE::KeyToPageId(KeyType key, HashTableDirectoryPage *dir_page) {
   return 0;
 }
 

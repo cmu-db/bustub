@@ -50,6 +50,7 @@ class HashTableBucketPage {
   /**
    * Attempts to insert a key and value in the bucket.  Uses the occupied_
    * and readable_ arrays to keep track of each slot's availability.
+   * Bucket insertion must always take the first available slot.
    *
    * @param key key to insert
    * @param value value to insert
@@ -138,10 +139,11 @@ class HashTableBucketPage {
   void PrintBucket();
 
  private:
-  //  For more on BUCKET_ARRAY_SIZE see storage/page/hash_table_page_defs.h
+  // For more on BUCKET_ARRAY_SIZE see storage/page/hash_table_page_defs.h
   char occupied_[(BUCKET_ARRAY_SIZE - 1) / 8 + 1];
   // 0 if tombstone/brand new (never occupied), 1 otherwise.
   char readable_[(BUCKET_ARRAY_SIZE - 1) / 8 + 1];
+  // Do not add any members below array_, as they will overlap.
   MappingType array_[0];
 };
 
