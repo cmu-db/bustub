@@ -78,7 +78,7 @@ class AggregationPlanNode : public AbstractPlanNode {
   const std::vector<AggregationType> &GetAggregateTypes() const { return agg_types_; }
 
  private:
-  /** A HAVING clause expression (may be `nullpre`) */
+  /** A HAVING clause expression (may be `nullptr`) */
   const AbstractExpression *having_;
   /** The GROUP BY expressions */
   std::vector<const AbstractExpression *> group_bys_;
