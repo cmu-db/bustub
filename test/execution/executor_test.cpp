@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include <memory>
+#include <numeric>
 #include <string>
 #include <unordered_set>
 #include <utility>
@@ -28,13 +29,54 @@
 #include "execution/expressions/comparison_expression.h"
 #include "execution/expressions/constant_value_expression.h"
 #include "execution/plans/delete_plan.h"
+#include "execution/plans/distinct_plan.h"
+#include "execution/plans/hash_join_plan.h"
 #include "execution/plans/limit_plan.h"
 #include "execution/plans/seq_scan_plan.h"
+#include "execution/plans/update_plan.h"
 #include "executor_test_util.h"  // NOLINT
 #include "gtest/gtest.h"
 #include "storage/table/tuple.h"
 #include "test_util.h"  // NOLINT
 #include "type/value_factory.h"
+
+/**
+ * This file contains basic tests for the functionality of all nine
+ * executors required for Fall 2021 Project 3: Query Execution. In
+ * particular, the tests in this file include:
+ *
+ * - Sequential Scan
+ * - Insert (Raw)
+ * - Insert (Select)
+ * - Update
+ * - Delete
+ * - Nested Loop Join
+ * - Hash Join
+ * - Aggregation
+ * - Limit
+ * - Distinct
+ *
+ * Each of the tests demonstrates how to construct a query plan for
+ * a particular executors. Students should be able to learn from and
+ * extend these example usages to write their own tests for the
+ * correct functionality of their executors.
+ *
+ * Each of the tests in this file uses the `ExecutorTest` unit test
+ * fixture. This class is defined in the header:
+ *
+ * `test/execution/executor_test_util.h`
+ *
+ * This text fixture takes care of many of the steps required to set
+ * up the system for execution engine tests. For example, it initializes
+ * key DBMS components, such as the disk manager, the  buffer pool manager,
+ * and the catalog, among others. Furthermore, this text fixture also
+ * populates the test tables used by all unit tests. This is accomplished
+ * with the help of the `TableGenerator` class via a call to `GenerateTestTables()`.
+ *
+ * See the definition of `TableGenerator::GenerateTestTables()` for the
+ * schema of each of the tables used in the tests below. The definition of
+ * this function is in `src/catalog/table_generator.cpp`.
+ */
 
 namespace bustub {
 
@@ -227,7 +269,66 @@ TEST_F(ExecutorTest, DISABLED_SimpleRawInsertWithIndexTest) {
   }
 }
 
-// DELETE FROM test_1 WHERE col_a == 50
+// UPDATE test_3 SET colB = colB + 1;
+TEST_F(ExecutorTest, DISABLED_SimpleUpdateTest) {
+  // Construct a sequential scan of the table
+  const Schema *out_schema{};
+  std::unique_ptr<AbstractPlanNode> scan_plan{};
+  {
+    auto *table_info = GetExecutorContext()->GetCatalog()->GetTable("test_3");
+    auto &schema = table_info->schema_;
+    auto col_a = MakeColumnValueExpression(schema, 0, "colA");
+    auto col_b = MakeColumnValueExpression(schema, 0, "colB");
+    out_schema = MakeOutputSchema({{"colA", col_a}, {"colB", col_b}});
+    scan_plan = std::make_unique<SeqScanPlanNode>(out_schema, nullptr, table_info->oid_);
+  }
+
+  // Construct an update plan
+  std::unique_ptr<AbstractPlanNode> update_plan{};
+  std::unordered_map<uint32_t, UpdateInfo> update_attrs{};
+  update_attrs.emplace(static_cast<uint32_t>(1), UpdateInfo{UpdateType::Add, 1});
+  {
+    auto *table_info = GetExecutorContext()->GetCatalog()->GetTable("test_3");
+    update_plan = std::make_unique<UpdatePlanNode>(scan_plan.get(), table_info->oid_, update_attrs);
+  }
+
+  std::vector<Tuple> result_set{};
+
+  // Execute an initial sequential scan, ensure all expected tuples are present
+  GetExecutionEngine()->Execute(scan_plan.get(), &result_set, GetTxn(), GetExecutorContext());
+
+  // Verify results
+  ASSERT_EQ(result_set.size(), TEST3_SIZE);
+
+  for (auto i = 0UL; i < result_set.size(); ++i) {
+    auto &tuple = result_set[i];
+    ASSERT_EQ(tuple.GetValue(out_schema, out_schema->GetColIdx("colA")).GetAs<int32_t>(), static_cast<int32_t>(i));
+    ASSERT_EQ(tuple.GetValue(out_schema, out_schema->GetColIdx("colB")).GetAs<int32_t>(), static_cast<int32_t>(i));
+  }
+
+  result_set.clear();
+
+  // Execute update for all tuples in the table
+  GetExecutionEngine()->Execute(update_plan.get(), &result_set, GetTxn(), GetExecutorContext());
+
+  // UpdateExecutor should not modify the result set
+  ASSERT_EQ(result_set.size(), 0);
+  result_set.clear();
+
+  // Execute another sequential scan; no tuples should be present in the table
+  GetExecutionEngine()->Execute(scan_plan.get(), &result_set, GetTxn(), GetExecutorContext());
+
+  // Verify results after update
+  ASSERT_EQ(result_set.size(), TEST3_SIZE);
+
+  for (auto i = 0UL; i < result_set.size(); ++i) {
+    auto &tuple = result_set[i];
+    ASSERT_EQ(tuple.GetValue(out_schema, out_schema->GetColIdx("colA")).GetAs<int32_t>(), static_cast<int32_t>(i));
+    ASSERT_EQ(tuple.GetValue(out_schema, out_schema->GetColIdx("colB")).GetAs<int32_t>(), static_cast<int32_t>(i + 1));
+  }
+}
+
+// DELETE FROM test_1 WHERE col_a == 50;
 TEST_F(ExecutorTest, DISABLED_SimpleDeleteTest) {
   // Construct query plan
   auto table_info = GetExecutorContext()->GetCatalog()->GetTable("test_1");
@@ -245,7 +346,6 @@ TEST_F(ExecutorTest, DISABLED_SimpleDeleteTest) {
       GetTxn(), "index1", "test_1", GetExecutorContext()->GetCatalog()->GetTable("test_1")->schema_, *key_schema, {0},
       8, HashFunctionType{});
 
-  // SELECT col_a FROM test_1 WHERE col_a == 50
   std::vector<Tuple> result_set;
   GetExecutionEngine()->Execute(scan_plan1.get(), &result_set, GetTxn(), GetExecutorContext());
 
@@ -273,7 +373,7 @@ TEST_F(ExecutorTest, DISABLED_SimpleDeleteTest) {
   ASSERT_TRUE(rids.empty());
 }
 
-// SELECT test_1.col_a, test_1.col_b, test_2.col1, test_2.col3 FROM test_1 JOIN test_2 ON test_1.col_a = test_2.col1
+// SELECT test_1.col_a, test_1.col_b, test_2.col1, test_2.col3 FROM test_1 JOIN test_2 ON test_1.col_a = test_2.col1;
 TEST_F(ExecutorTest, DISABLED_SimpleNestedLoopJoinTest) {
   const Schema *out_schema1;
   std::unique_ptr<AbstractPlanNode> scan_plan1;
@@ -315,6 +415,75 @@ TEST_F(ExecutorTest, DISABLED_SimpleNestedLoopJoinTest) {
   std::vector<Tuple> result_set{};
   GetExecutionEngine()->Execute(join_plan.get(), &result_set, GetTxn(), GetExecutorContext());
   ASSERT_EQ(result_set.size(), 100);
+}
+
+// SELECT test_4.colA, test_4.colB, test_6.colA, test_6.colB FROM test_4 JOIN test_6 ON test_4.colA = test_6.colA;
+TEST_F(ExecutorTest, DISABLED_SimpleHashJoinTest) {
+  // Construct sequential scan of table test_4
+  const Schema *out_schema1{};
+  std::unique_ptr<AbstractPlanNode> scan_plan1{};
+  {
+    auto *table_info = GetExecutorContext()->GetCatalog()->GetTable("test_4");
+    auto &schema = table_info->schema_;
+    auto *col_a = MakeColumnValueExpression(schema, 0, "colA");
+    auto *col_b = MakeColumnValueExpression(schema, 0, "colB");
+    out_schema1 = MakeOutputSchema({{"colA", col_a}, {"colB", col_b}});
+    scan_plan1 = std::make_unique<SeqScanPlanNode>(out_schema1, nullptr, table_info->oid_);
+  }
+
+  // Construct sequential scan of table test_6
+  const Schema *out_schema2{};
+  std::unique_ptr<AbstractPlanNode> scan_plan2{};
+  {
+    auto *table_info = GetExecutorContext()->GetCatalog()->GetTable("test_6");
+    auto &schema = table_info->schema_;
+    auto *col_a = MakeColumnValueExpression(schema, 0, "colA");
+    auto *col_b = MakeColumnValueExpression(schema, 0, "colB");
+    out_schema2 = MakeOutputSchema({{"colA", col_a}, {"colB", col_b}});
+    scan_plan2 = std::make_unique<SeqScanPlanNode>(out_schema2, nullptr, table_info->oid_);
+  }
+
+  // Construct the join plan
+  const Schema *out_schema{};
+  std::unique_ptr<HashJoinPlanNode> join_plan{};
+  {
+    // Columns from Table 4 have a tuple index of 0 because they are the left side of the join (outer relation)
+    auto *table4_col_a = MakeColumnValueExpression(*out_schema1, 0, "colA");
+    auto *table4_col_b = MakeColumnValueExpression(*out_schema1, 0, "colB");
+
+    // Columns from Table 6 have a tuple index of 1 because they are the right side of the join (inner relation)
+    auto *table6_col_a = MakeColumnValueExpression(*out_schema2, 1, "colA");
+    auto *table6_col_b = MakeColumnValueExpression(*out_schema2, 1, "colB");
+
+    out_schema = MakeOutputSchema({{"table4_colA", table4_col_a},
+                                   {"table4_colB", table4_col_b},
+                                   {"table6_colA", table6_col_a},
+                                   {"table6_colB", table6_col_b}});
+
+    // Join on table4.colA = table6.colA
+    join_plan = std::make_unique<HashJoinPlanNode>(
+        out_schema, std::vector<const AbstractPlanNode *>{scan_plan1.get(), scan_plan2.get()}, table4_col_a,
+        table6_col_a);
+  }
+
+  std::vector<Tuple> result_set{};
+  GetExecutionEngine()->Execute(join_plan.get(), &result_set, GetTxn(), GetExecutorContext());
+  ASSERT_EQ(result_set.size(), 100);
+
+  for (const auto &tuple : result_set) {
+    const auto t4_col_a = tuple.GetValue(out_schema, out_schema->GetColIdx("table4_colA")).GetAs<int64_t>();
+    const auto t4_col_b = tuple.GetValue(out_schema, out_schema->GetColIdx("table4_colB")).GetAs<int32_t>();
+    const auto t6_col_a = tuple.GetValue(out_schema, out_schema->GetColIdx("table6_colA")).GetAs<int64_t>();
+    const auto t6_col_b = tuple.GetValue(out_schema, out_schema->GetColIdx("table6_colB")).GetAs<int32_t>();
+
+    // Join keys should be equiavlent
+    ASSERT_EQ(t4_col_a, t6_col_a);
+
+    // In case of Table 4 and Table 6, corresponding columns also equal
+    ASSERT_LT(t4_col_b, TEST4_SIZE);
+    ASSERT_LT(t6_col_b, TEST6_SIZE);
+    ASSERT_EQ(t4_col_b, t6_col_b);
+  }
 }
 
 // SELECT COUNT(col_a), SUM(col_a), min(col_a), max(col_a) from test_1;
@@ -367,7 +536,7 @@ TEST_F(ExecutorTest, DISABLED_SimpleAggregationTest) {
   ASSERT_EQ(result_set.size(), 1);
 }
 
-// SELECT count(col_a), col_b, sum(col_c) FROM test_1 Group By col_b HAVING count(col_a) > 100;
+// SELECT count(col_a), col_b, sum(col_c) FROM test_1 Group By col_b HAVING count(col_a) > 100
 TEST_F(ExecutorTest, DISABLED_SimpleGroupByAggregation) {
   const Schema *scan_schema;
   std::unique_ptr<AbstractPlanNode> scan_plan;
@@ -418,6 +587,70 @@ TEST_F(ExecutorTest, DISABLED_SimpleGroupByAggregation) {
     // Sanity check: col_b should also be within [0, 10).
     ASSERT_TRUE(0 <= col_b && col_b < 10);
   }
+}
+
+// SELECT colA, colB FROM test_3 LIMIT 10
+TEST_F(ExecutorTest, DISABLED_SimpleLimitTest) {
+  auto *table_info = GetExecutorContext()->GetCatalog()->GetTable("test_3");
+  auto &schema = table_info->schema_;
+
+  auto *col_a = MakeColumnValueExpression(schema, 0, "colA");
+  auto *col_b = MakeColumnValueExpression(schema, 0, "colB");
+  auto *out_schema = MakeOutputSchema({{"colA", col_a}, {"colB", col_b}});
+
+  // Construct sequential scan
+  auto seq_scan_plan = std::make_unique<SeqScanPlanNode>(out_schema, nullptr, table_info->oid_);
+
+  // Construct the limit plan
+  auto limit_plan = std::make_unique<LimitPlanNode>(out_schema, seq_scan_plan.get(), 10);
+
+  // Execute sequential scan with limit
+  std::vector<Tuple> result_set{};
+  GetExecutionEngine()->Execute(limit_plan.get(), &result_set, GetTxn(), GetExecutorContext());
+
+  // Verify results
+  ASSERT_EQ(result_set.size(), 10);
+  for (auto i = 0UL; i < result_set.size(); ++i) {
+    auto &tuple = result_set[i];
+    ASSERT_EQ(tuple.GetValue(out_schema, out_schema->GetColIdx("colA")).GetAs<int32_t>(), static_cast<int32_t>(i));
+    ASSERT_EQ(tuple.GetValue(out_schema, out_schema->GetColIdx("colB")).GetAs<int32_t>(), static_cast<int32_t>(i));
+  }
+}
+
+// SELECT DISTINCT colC FROM test_7
+TEST_F(ExecutorTest, DISABLED_SimpleDistinctTest) {
+  auto *table_info = GetExecutorContext()->GetCatalog()->GetTable("test_7");
+  auto &schema = table_info->schema_;
+
+  auto *col_c = MakeColumnValueExpression(schema, 0, "colC");
+  auto *out_schema = MakeOutputSchema({{"colC", col_c}});
+
+  // Construct sequential scan
+  auto seq_scan_plan = std::make_unique<SeqScanPlanNode>(out_schema, nullptr, table_info->oid_);
+
+  // Construct the distinct plan
+  auto distinct_plan = std::make_unique<DistinctPlanNode>(out_schema, seq_scan_plan.get());
+
+  // Execute sequential scan with DISTINCT
+  std::vector<Tuple> result_set{};
+  GetExecutionEngine()->Execute(distinct_plan.get(), &result_set, GetTxn(), GetExecutorContext());
+
+  // Verify results; colC is cyclic on 0 - 9
+  ASSERT_EQ(result_set.size(), 10);
+
+  // Results are unordered
+  std::vector<int32_t> results{};
+  results.reserve(result_set.size());
+  std::transform(result_set.cbegin(), result_set.cend(), std::back_inserter(results), [=](const Tuple &tuple) {
+    return tuple.GetValue(out_schema, out_schema->GetColIdx("colC")).GetAs<int32_t>();
+  });
+  std::sort(results.begin(), results.end());
+
+  // Expect keys 0 - 9
+  std::vector<int32_t> expected(result_set.size());
+  std::iota(expected.begin(), expected.end(), 0);
+
+  ASSERT_TRUE(std::equal(results.cbegin(), results.cend(), expected.cbegin()));
 }
 
 }  // namespace bustub
