@@ -40,6 +40,44 @@
 #include "test_util.h"  // NOLINT
 #include "type/value_factory.h"
 
+/**
+ * This file contains basic tests for the functionality of all nine
+ * executors required for Fall 2021 Project 3: Query Execution. In
+ * particular, the tests in this file include:
+ *
+ * - Sequential Scan
+ * - Insert (Raw)
+ * - Insert (Select)
+ * - Update
+ * - Delete
+ * - Nested Loop Join
+ * - Hash Join
+ * - Aggregation
+ * - Limit
+ * - Distinct
+ *
+ * Each of the tests demonstrates how to construct a query plan for
+ * a particular executors. Students should be able to learn from and
+ * extend these example usages to write their own tests for the
+ * correct functionality of their executors.
+ *
+ * Each of the tests in this file uses the `ExecutorTest` unit test
+ * fixture. This class is defined in the header:
+ *
+ * `test/execution/executor_test_util.h`
+ *
+ * This text fixture takes care of many of the steps required to set
+ * up the system for execution engine tests. For example, it initializes
+ * key DBMS components, such as the disk manager, the  buffer pool manager,
+ * and the catalog, among others. Furthermore, this text fixture also
+ * populates the test tables used by all unit tests. This is accomplished
+ * with the help of the `TableGenerator` class via a call to `GenerateTestTables()`.
+ *
+ * See the definition of `TableGenerator::GenerateTestTables()` for the
+ * schema of each of the tables used in the tests below. The definition of
+ * this function is in `src/catalog/table_generator.cpp`.
+ */
+
 namespace bustub {
 
 // Parameters for index construction
