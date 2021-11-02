@@ -39,7 +39,7 @@ class HashUtil {
   }
 
   static inline hash_t CombineHashes(hash_t l, hash_t r) {
-    hash_t both[2];
+    hash_t both[2] = {};
     both[0] = l;
     both[1] = r;
     return HashBytes(reinterpret_cast<char *>(both), sizeof(hash_t) * 2);
