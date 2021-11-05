@@ -73,7 +73,14 @@ class ReaderWriterLatch {
    */
   void RUnlock() {
     std::lock_guard<mutex_t> guard(mutex_);
+    
+    // check for underflow.
+    const uint32_t old_cnt = reader_count_;
     reader_count_--;
+    if (reader_count_ > old_cnt) {
+      assert(false);
+    }
+    
     if (writer_entered_) {
       if (reader_count_ == 0) {
         writer_.notify_one();
