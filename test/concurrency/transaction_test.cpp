@@ -185,9 +185,9 @@ TEST_F(TransactionTest, DISABLED_SimpleInsertRollbackTest) {
   auto txn2 = GetTxnManager()->Begin();
   auto exec_ctx2 = std::make_unique<ExecutorContext>(txn2, GetCatalog(), GetBPM(), GetTxnManager(), GetLockManager());
   auto &schema = table_info->schema_;
-  auto col_a = MakeColumnValueExpression(schema, 0, "col_a");
-  auto col_b = MakeColumnValueExpression(schema, 0, "col_b");
-  auto out_schema = MakeOutputSchema({{"col_a", col_a}, {"col_b", col_b}});
+  auto col_a = MakeColumnValueExpression(schema, 0, "colA");
+  auto col_b = MakeColumnValueExpression(schema, 0, "colB");
+  auto out_schema = MakeOutputSchema({{"colA", col_a}, {"colB", col_b}});
   SeqScanPlanNode scan_plan{out_schema, nullptr, table_info->oid_};
 
   std::vector<Tuple> result_set;
@@ -223,9 +223,9 @@ TEST_F(TransactionTest, DISABLED_DirtyReadsTest) {
   auto txn2 = GetTxnManager()->Begin(nullptr, IsolationLevel::READ_UNCOMMITTED);
   auto exec_ctx2 = std::make_unique<ExecutorContext>(txn2, GetCatalog(), GetBPM(), GetTxnManager(), GetLockManager());
   auto &schema = table_info->schema_;
-  auto col_a = MakeColumnValueExpression(schema, 0, "col_a");
-  auto col_b = MakeColumnValueExpression(schema, 0, "col_b");
-  auto out_schema = MakeOutputSchema({{"col_a", col_a}, {"col_b", col_b}});
+  auto col_a = MakeColumnValueExpression(schema, 0, "colA");
+  auto col_b = MakeColumnValueExpression(schema, 0, "colB");
+  auto out_schema = MakeOutputSchema({{"colA", col_a}, {"colB", col_b}});
   SeqScanPlanNode scan_plan{out_schema, nullptr, table_info->oid_};
 
   std::vector<Tuple> result_set;
@@ -235,16 +235,16 @@ TEST_F(TransactionTest, DISABLED_DirtyReadsTest) {
   delete txn1;
 
   // First value
-  ASSERT_EQ(result_set[0].GetValue(out_schema, out_schema->GetColIdx("col_a")).GetAs<int32_t>(), 200);
-  ASSERT_EQ(result_set[0].GetValue(out_schema, out_schema->GetColIdx("col_b")).GetAs<int32_t>(), 20);
+  ASSERT_EQ(result_set[0].GetValue(out_schema, out_schema->GetColIdx("colA")).GetAs<int32_t>(), 200);
+  ASSERT_EQ(result_set[0].GetValue(out_schema, out_schema->GetColIdx("colB")).GetAs<int32_t>(), 20);
 
   // Second value
-  ASSERT_EQ(result_set[1].GetValue(out_schema, out_schema->GetColIdx("col_a")).GetAs<int32_t>(), 201);
-  ASSERT_EQ(result_set[1].GetValue(out_schema, out_schema->GetColIdx("col_b")).GetAs<int32_t>(), 21);
+  ASSERT_EQ(result_set[1].GetValue(out_schema, out_schema->GetColIdx("colA")).GetAs<int32_t>(), 201);
+  ASSERT_EQ(result_set[1].GetValue(out_schema, out_schema->GetColIdx("colB")).GetAs<int32_t>(), 21);
 
   // Third value
-  ASSERT_EQ(result_set[2].GetValue(out_schema, out_schema->GetColIdx("col_a")).GetAs<int32_t>(), 202);
-  ASSERT_EQ(result_set[2].GetValue(out_schema, out_schema->GetColIdx("col_b")).GetAs<int32_t>(), 22);
+  ASSERT_EQ(result_set[2].GetValue(out_schema, out_schema->GetColIdx("colA")).GetAs<int32_t>(), 202);
+  ASSERT_EQ(result_set[2].GetValue(out_schema, out_schema->GetColIdx("colB")).GetAs<int32_t>(), 22);
 
   // Size
   ASSERT_EQ(result_set.size(), 3);
