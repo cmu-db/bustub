@@ -160,6 +160,9 @@ void WoundWaitBasicTest() {
   int id_hold = 0;
   int id_die = 1;
 
+  std::promise<void> t1done;
+  std::shared_future<void> t1_future(t1done.get_future());
+
   auto wait_die_task = [&]() {
     // younger transaction acquires lock first
     Transaction txn_die(id_die);
@@ -169,6 +172,8 @@ void WoundWaitBasicTest() {
 
     CheckGrowing(&txn_die);
     CheckTxnLockSize(&txn_die, 0, 1);
+
+    t1done.set_value();
 
     // wait for txn 0 to call lock_exclusive(), which should wound us
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
@@ -186,7 +191,7 @@ void WoundWaitBasicTest() {
   std::thread wait_thread{wait_die_task};
 
   // wait for txn1 to lock
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  t1_future.wait();
 
   bool res = lock_mgr.LockExclusive(&txn_hold, rid);
   EXPECT_TRUE(res);
