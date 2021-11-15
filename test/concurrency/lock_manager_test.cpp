@@ -152,119 +152,56 @@ void UpgradeTest() {
 }
 TEST(LockManagerTest, DISABLED_UpgradeLockTest) { UpgradeTest(); }
 
-TEST(LockManagerTest, DISABLED_GraphEdgeTest) {
+void WoundWaitBasicTest() {
   LockManager lock_mgr{};
   TransactionManager txn_mgr{&lock_mgr};
-  const int num_nodes = 100;
-  const int num_edges = num_nodes / 2;
-  const int seed = 15445;
-  std::srand(seed);
+  RID rid{0, 0};
 
-  // Create txn ids and shuffle
-  std::vector<txn_id_t> txn_ids;
-  txn_ids.reserve(num_nodes);
-  for (int i = 0; i < num_nodes; i++) {
-    txn_ids.emplace_back(i);
-  }
-  EXPECT_EQ(num_nodes, txn_ids.size());
-  auto rng = std::default_random_engine{};
-  std::shuffle(std::begin(txn_ids), std::end(txn_ids), rng);
-  EXPECT_EQ(num_nodes, txn_ids.size());
+  int id_hold = 0;
+  int id_die = 1;
 
-  // Create edges by pairing adjacent txn_ids
-  std::vector<std::pair<txn_id_t, txn_id_t>> edges;
-  for (int i = 0; i < num_nodes; i += 2) {
-    EXPECT_EQ(i / 2, lock_mgr.GetEdgeList().size());
-    auto t1 = txn_ids[i];
-    auto t2 = txn_ids[i + 1];
-    lock_mgr.AddEdge(t1, t2);
-    edges.emplace_back(t1, t2);
-    EXPECT_EQ((i / 2) + 1, lock_mgr.GetEdgeList().size());
-  }
+  std::promise<void> t1done;
+  std::shared_future<void> t1_future(t1done.get_future());
 
-  auto lock_mgr_edges = lock_mgr.GetEdgeList();
-  EXPECT_EQ(num_edges, lock_mgr_edges.size());
-  EXPECT_EQ(num_edges, edges.size());
+  auto wait_die_task = [&]() {
+    // younger transaction acquires lock first
+    Transaction txn_die(id_die);
+    txn_mgr.Begin(&txn_die);
+    bool res = lock_mgr.LockExclusive(&txn_die, rid);
+    EXPECT_TRUE(res);
 
-  std::sort(lock_mgr_edges.begin(), lock_mgr_edges.end());
-  std::sort(edges.begin(), edges.end());
+    CheckGrowing(&txn_die);
+    CheckTxnLockSize(&txn_die, 0, 1);
 
-  for (int i = 0; i < num_edges; i++) {
-    EXPECT_EQ(edges[i], lock_mgr_edges[i]);
-  }
+    t1done.set_value();
+
+    // wait for txn 0 to call lock_exclusive(), which should wound us
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+    CheckAborted(&txn_die);
+
+    // unlock
+    txn_mgr.Abort(&txn_die);
+  };
+
+  Transaction txn_hold(id_hold);
+  txn_mgr.Begin(&txn_hold);
+
+  // launch the waiter thread
+  std::thread wait_thread{wait_die_task};
+
+  // wait for txn1 to lock
+  t1_future.wait();
+
+  bool res = lock_mgr.LockExclusive(&txn_hold, rid);
+  EXPECT_TRUE(res);
+
+  wait_thread.join();
+
+  CheckGrowing(&txn_hold);
+  txn_mgr.Commit(&txn_hold);
+  CheckCommitted(&txn_hold);
 }
+TEST(LockManagerTest, DISABLED_WoundWaitBasicTest) { WoundWaitBasicTest(); }
 
-TEST(LockManagerTest, DISABLED_BasicCycleTest) {
-  LockManager lock_mgr{}; /* Use Deadlock detection */
-  TransactionManager txn_mgr{&lock_mgr};
-
-  /*** Create 0->1->0 cycle ***/
-  lock_mgr.AddEdge(0, 1);
-  lock_mgr.AddEdge(1, 0);
-  EXPECT_EQ(2, lock_mgr.GetEdgeList().size());
-
-  txn_id_t txn;
-  EXPECT_EQ(true, lock_mgr.HasCycle(&txn));
-  EXPECT_EQ(1, txn);
-
-  lock_mgr.RemoveEdge(1, 0);
-  EXPECT_EQ(false, lock_mgr.HasCycle(&txn));
-}
-
-TEST(LockManagerTest, DISABLED_BasicDeadlockDetectionTest) {
-  LockManager lock_mgr{};
-  cycle_detection_interval = std::chrono::milliseconds(500);
-  TransactionManager txn_mgr{&lock_mgr};
-  RID rid0{0, 0};
-  RID rid1{1, 1};
-  auto *txn0 = txn_mgr.Begin();
-  auto *txn1 = txn_mgr.Begin();
-  EXPECT_EQ(0, txn0->GetTransactionId());
-  EXPECT_EQ(1, txn1->GetTransactionId());
-
-  std::thread t0([&] {
-    // Lock and sleep
-    bool res = lock_mgr.LockExclusive(txn0, rid0);
-    EXPECT_EQ(true, res);
-    EXPECT_EQ(TransactionState::GROWING, txn0->GetState());
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-    // This will block
-    lock_mgr.LockExclusive(txn0, rid1);
-
-    lock_mgr.Unlock(txn0, rid0);
-    lock_mgr.Unlock(txn0, rid1);
-
-    txn_mgr.Commit(txn0);
-    EXPECT_EQ(TransactionState::COMMITTED, txn0->GetState());
-  });
-
-  std::thread t1([&] {
-    // Sleep so T0 can take necessary locks
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    bool res = lock_mgr.LockExclusive(txn1, rid1);
-    EXPECT_EQ(res, true);
-    EXPECT_EQ(TransactionState::GROWING, txn1->GetState());
-
-    // This will block
-    try {
-      res = lock_mgr.LockExclusive(txn1, rid0);
-      EXPECT_EQ(TransactionState::ABORTED, txn1->GetState());
-      txn_mgr.Abort(txn1);
-    } catch (TransactionAbortException &e) {
-      // std::cout << e.GetInfo() << std::endl;
-      EXPECT_EQ(TransactionState::ABORTED, txn1->GetState());
-      txn_mgr.Abort(txn1);
-    }
-  });
-
-  // Sleep for enough time to break cycle
-  std::this_thread::sleep_for(cycle_detection_interval * 2);
-
-  t0.join();
-  t1.join();
-
-  delete txn0;
-  delete txn1;
-}
 }  // namespace bustub
