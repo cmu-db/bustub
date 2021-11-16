@@ -8,6 +8,8 @@
 ##
 ## Supported environments:
 ##  * Ubuntu 18.04
+##  * Ubuntu 20.04
+##  * Fedora
 ##  * macOS
 ## =================================================================
 
@@ -39,14 +41,20 @@ install() {
     DARWIN) install_mac ;;
 
     LINUX)
+      distribution=$(cat /etc/os-release | grep ^ID | cut -d '=' -f 2)
       version=$(cat /etc/os-release | grep VERSION_ID | cut -d '"' -f 2)
-      case $version in
-        18.04) install_linux ;;
-        20.04) install_linux ;;
+      case $distribution in
+        ubuntu)
+          case $version in
+            18.04) install_ubuntu ;;
+            20.04) install_ubuntu ;;
+            *) give_up ;;
+          esac
+          ;;
+        fedora) install_fedora ;;
         *) give_up ;;
       esac
       ;;
-
     *) give_up ;;
   esac
 }
@@ -79,7 +87,7 @@ install_mac() {
   (brew ls --versions llvm | grep 8) || brew install llvm@8
 }
 
-install_linux() {
+install_ubuntu() {
   # Update apt-get.
   apt-get -y update
   # Install packages.
@@ -95,6 +103,26 @@ install_linux() {
       pkg-config \
       valgrind \
       zlib1g-dev
+}
+
+install_fedora() {
+ # Update dnf
+ dnf -y upgrade --refresh
+ # Install packages
+ dnf -y install \
+    clang \
+    clang-tools-extra \
+    cmake \
+    doxygen \
+    git \
+    g++ \
+    gcc \
+    make \
+    automake \
+    kernel-devel \
+    pkg-config \
+    valgrind \
+    zlib-devel   
 }
 
 main "$@"
