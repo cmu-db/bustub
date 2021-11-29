@@ -13,9 +13,9 @@
 #pragma once
 
 #include <atomic>
+#include <shared_mutex>
 #include <unordered_map>
 #include <unordered_set>
-#include <shared_mutex>
 
 #include "common/config.h"
 #include "concurrency/lock_manager.h"
