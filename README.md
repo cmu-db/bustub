@@ -1,4 +1,4 @@
-<img src="logo/bustub.svg" alt="BusTub Logo" height="200">
+<img src="logo/bustub-whiteborder.svg" alt="BusTub Logo" height="200">
 
 -----------------
 
