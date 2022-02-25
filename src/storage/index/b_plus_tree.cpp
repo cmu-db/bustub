@@ -293,7 +293,8 @@ void BPLUSTREE_TYPE::ToGraph(BPlusTreePage *page, BufferPoolManager *bpm, std::o
     // Print data
     out << "<TR><TD COLSPAN=\"" << leaf->GetSize() << "\">P=" << leaf->GetPageId() << "</TD></TR>\n";
     out << "<TR><TD COLSPAN=\"" << leaf->GetSize() << "\">"
-        << "max_size=" << leaf->GetMaxSize() << ",min_size=" << leaf->GetMinSize() << "</TD></TR>\n";
+        << "max_size=" << leaf->GetMaxSize() << ",min_size=" << leaf->GetMinSize() << ",size=" << leaf->GetSize()
+        << "</TD></TR>\n";
     out << "<TR>";
     for (int i = 0; i < leaf->GetSize(); i++) {
       out << "<TD>" << leaf->KeyAt(i) << "</TD>\n";
@@ -323,7 +324,8 @@ void BPLUSTREE_TYPE::ToGraph(BPlusTreePage *page, BufferPoolManager *bpm, std::o
     // Print data
     out << "<TR><TD COLSPAN=\"" << inner->GetSize() << "\">P=" << inner->GetPageId() << "</TD></TR>\n";
     out << "<TR><TD COLSPAN=\"" << inner->GetSize() << "\">"
-        << "max_size=" << inner->GetMaxSize() << ",min_size=" << inner->GetMinSize() << "</TD></TR>\n";
+        << "max_size=" << inner->GetMaxSize() << ",min_size=" << inner->GetMinSize() << ",size=" << inner->GetSize()
+        << "</TD></TR>\n";
     out << "<TR>";
     for (int i = 0; i < inner->GetSize(); i++) {
       out << "<TD PORT=\"p" << inner->ValueAt(i) << "\">";
