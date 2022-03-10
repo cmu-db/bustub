@@ -312,7 +312,7 @@ TEST_F(ExecutorTest, DISABLED_SimpleUpdateTest) {
   GetExecutionEngine()->Execute(update_plan.get(), &result_set, GetTxn(), GetExecutorContext());
 
   // UpdateExecutor should not modify the result set
-  ASSERT_EQ(result_set.size(), 0);
+  ASSERT_EQ(result_set.size(), TEST3_SIZE);
   result_set.clear();
 
   // Execute another sequential scan; no tuples should be present in the table
