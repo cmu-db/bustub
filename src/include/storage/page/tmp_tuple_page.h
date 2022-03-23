@@ -20,7 +20,10 @@ namespace bustub {
  */
 class TmpTuplePage : public Page {
  public:
-  void Init(page_id_t page_id, uint32_t page_size) {}
+  void Init(page_id_t page_id, uint32_t page_size) {
+    memcpy(GetData(), &page_id, sizeof(page_id_t));
+    memcpy(GetData() + sizeof(page_id_t), &page_size, sizeof(uint32_t));
+  }
 
   page_id_t GetTablePageId() { return INVALID_PAGE_ID; }
 
