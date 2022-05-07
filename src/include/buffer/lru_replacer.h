@@ -43,7 +43,7 @@ class LRUReplacer : public Replacer {
 
   void Unpin(frame_id_t frame_id) override;
 
-  size_t Size() override;
+  size_t Size() const override;
 
  private:
   // TODO(student): implement me!

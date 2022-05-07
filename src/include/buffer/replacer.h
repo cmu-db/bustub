@@ -44,7 +44,7 @@ class Replacer {
   virtual void Unpin(frame_id_t frame_id) = 0;
 
   /** @return the number of elements in the replacer that can be victimized */
-  virtual size_t Size() = 0;
+  virtual size_t Size() const = 0;
 };
 
 }  // namespace bustub

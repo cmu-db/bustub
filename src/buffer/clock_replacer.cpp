@@ -24,6 +24,6 @@ void ClockReplacer::Pin(frame_id_t frame_id) {}
 
 void ClockReplacer::Unpin(frame_id_t frame_id) {}
 
-size_t ClockReplacer::Size() { return 0; }
+size_t ClockReplacer::Size() const { return 0; }
 
 }  // namespace bustub
