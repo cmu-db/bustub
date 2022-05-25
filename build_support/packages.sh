@@ -7,11 +7,11 @@
 ## build and run the DBMS.
 ##
 ## Supported environments:
-##  * Ubuntu 18.04
-##  * Ubuntu 20.04
-##  * Ubuntu 22.04
-##  * macOS 11 Big Sur
-##  * macOS 12 Monterey
+##  * Ubuntu 18.04 (X86-64)
+##  * Ubuntu 20.04 (X86-64)
+##  * Ubuntu 22.04 (X86-64)
+##  * macOS 11 Big Sur (M1 or X86-64)
+##  * macOS 12 Monterey (M1 or X86-64)
 ## =================================================================
 
 main() {
