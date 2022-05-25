@@ -62,7 +62,7 @@ class BPlusTree {
 
   void Print(BufferPoolManager *bpm) {
     if (IsEmpty()) {
-      LOG_DEBUG("Print an empty tree");
+      LOG_WARN("Print an empty tree");
       return;
     }
     ToString(reinterpret_cast<BPlusTreePage *>(bpm->FetchPage(root_page_id_)->GetData()), bpm);
@@ -70,7 +70,7 @@ class BPlusTree {
 
   void Draw(BufferPoolManager *bpm, const std::string &outf) {
     if (IsEmpty()) {
-      LOG_DEBUG("Draw an empty tree");
+      LOG_WARN("Draw an empty tree");
       return;
     }
     std::ofstream out(outf);
