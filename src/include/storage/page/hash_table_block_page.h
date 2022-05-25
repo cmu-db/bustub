@@ -143,6 +143,7 @@ class HashTableBlockPage {
 
   // 0 if tombstone/brand new (never occupied), 1 otherwise.
   std::atomic_char readable_[(BLOCK_ARRAY_SIZE - 1) / 8 + 1];
+  // Flexible array member for page data.
   MappingType array_[1];
 };
 
