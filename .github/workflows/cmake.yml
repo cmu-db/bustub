@@ -23,24 +23,24 @@ jobs:
             os: ubuntu-latest,
             cc: "/usr/bin/gcc",
             cxx: "/usr/bin/g++",
-            format: "/usr/bin/clang-format-8",
-            tidy: "/usr/bin/clang-tidy-8"
+            format: "/usr/bin/clang-format-12",
+            tidy: "/usr/bin/clang-tidy-12"
           }
           - {
             name: "Ubuntu Latest Clang",
             os: ubuntu-latest,
-            cc: "/usr/bin/clang-8",
-            cxx: "/usr/bin/clang++8",
-            format: "/usr/bin/clang-format-8",
-            tidy: "/usr/bin/clang-tidy-8"
+            cc: "/usr/bin/clang-12",
+            cxx: "/usr/bin/clang++-12",
+            format: "/usr/bin/clang-format-12",
+            tidy: "/usr/bin/clang-tidy-12"
           }
           - {
             name: "macOS Latest Clang",
             os: macos-latest,
             cc: "/usr/bin/clang",
             cxx: "/usr/bin/clang++",
-            format: "/usr/local/opt/llvm@8/bin/clang-format",
-            tidy: "/usr/local/opt/llvm@8/bin/clang-tidy"
+            format: "/usr/local/opt/llvm@12/bin/clang-format",
+            tidy: "/usr/local/opt/llvm@12/bin/clang-tidy"
           }
 
     steps:
