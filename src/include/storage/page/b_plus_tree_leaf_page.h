@@ -69,6 +69,6 @@ class BPlusTreeLeafPage : public BPlusTreePage {
   void CopyFirstFrom(const MappingType &item);
   page_id_t next_page_id_;
   // Flexible array member for page data.
-  MappingType array[1];
+  MappingType array_[1];
 };
 }  // namespace bustub
