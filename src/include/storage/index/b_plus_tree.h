@@ -14,7 +14,6 @@
 #include <string>
 #include <vector>
 
-#include "common/logger.h"
 #include "concurrency/transaction.h"
 #include "storage/index/index_iterator.h"
 #include "storage/page/b_plus_tree_internal_page.h"
@@ -60,25 +59,11 @@ class BPlusTree {
   INDEXITERATOR_TYPE Begin(const KeyType &key);
   INDEXITERATOR_TYPE End();
 
-  void Print(BufferPoolManager *bpm) {
-    if (IsEmpty()) {
-      LOG_WARN("Print an empty tree");
-      return;
-    }
-    ToString(reinterpret_cast<BPlusTreePage *>(bpm->FetchPage(root_page_id_)->GetData()), bpm);
-  }
+  // print the B+ tree
+  void Print(BufferPoolManager *bpm);
 
-  void Draw(BufferPoolManager *bpm, const std::string &outf) {
-    if (IsEmpty()) {
-      LOG_WARN("Draw an empty tree");
-      return;
-    }
-    std::ofstream out(outf);
-    out << "digraph G {" << std::endl;
-    ToGraph(reinterpret_cast<BPlusTreePage *>(bpm->FetchPage(root_page_id_)->GetData()), bpm, out);
-    out << "}" << std::endl;
-    out.close();
-  }
+  // draw the B+ tree
+  void Draw(BufferPoolManager *bpm, const std::string &outf);
 
   // read data from file and insert one by one
   void InsertFromFile(const std::string &file_name, Transaction *transaction = nullptr);

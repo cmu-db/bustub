@@ -12,6 +12,7 @@
 #include <string>
 
 #include "common/exception.h"
+#include "common/logger.h"
 #include "common/rid.h"
 #include "storage/index/b_plus_tree.h"
 #include "storage/page/header_page.h"
@@ -270,7 +271,35 @@ void BPLUSTREE_TYPE::RemoveFromFile(const std::string &file_name, Transaction *t
 }
 
 /**
- * This method is used for debug only, You don't  need to modify
+ * This method is used for debug only, You don't need to modify
+ */
+INDEX_TEMPLATE_ARGUMENTS
+void BPLUSTREE_TYPE::Draw(BufferPoolManager *bpm, const std::string &outf) {
+  if (IsEmpty()) {
+    LOG_WARN("Draw an empty tree");
+    return;
+  }
+  std::ofstream out(outf);
+  out << "digraph G {" << std::endl;
+  ToGraph(reinterpret_cast<BPlusTreePage *>(bpm->FetchPage(root_page_id_)->GetData()), bpm, out);
+  out << "}" << std::endl;
+  out.close();
+}
+
+/**
+ * This method is used for debug only, You don't need to modify
+ */
+INDEX_TEMPLATE_ARGUMENTS
+void BPLUSTREE_TYPE::Print(BufferPoolManager *bpm) {
+  if (IsEmpty()) {
+    LOG_WARN("Print an empty tree");
+    return;
+  }
+  ToString(reinterpret_cast<BPlusTreePage *>(bpm->FetchPage(root_page_id_)->GetData()), bpm);
+}
+
+/**
+ * This method is used for debug only, You don't need to modify
  * @tparam KeyType
  * @tparam ValueType
  * @tparam KeyComparator
