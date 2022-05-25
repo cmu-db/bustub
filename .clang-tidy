@@ -19,13 +19,13 @@
 #
 ---
 Checks:     '
-            bugprone-*,
+            -bugprone-*,
             clang-analyzer-*,
             google-*,
             modernize-*,
             performance-*,
             portability-*,
-            readability-*,
+            -readability-*,
             -bugprone-too-small-loop-variable,
             -clang-analyzer-cplusplus.NewDelete,
             -clang-analyzer-cplusplus.NewDeleteLeaks,
