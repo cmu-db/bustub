@@ -298,7 +298,8 @@ Value DecimalType::CastAs(const Value &val, const TypeId type_id) const {
       if (val.IsNull()) {
         return Value(type_id, BUSTUB_INT64_NULL);
       }
-      if (val.GetAs<double>() > BUSTUB_INT64_MAX || val.GetAs<double>() < BUSTUB_INT64_MIN) {
+      if (val.GetAs<double>() >= static_cast<double>(BUSTUB_INT64_MAX) ||
+          val.GetAs<double>() < static_cast<double>(BUSTUB_INT64_MIN)) {
         throw Exception(ExceptionType::OUT_OF_RANGE, "Numeric value out of range.");
       }
       return Value(type_id, static_cast<int64_t>(val.GetAs<double>()));
