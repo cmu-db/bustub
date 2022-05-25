@@ -19,30 +19,69 @@ jobs:
       matrix:
         config:
           - {
-            name: "Ubuntu Latest GCC",
-            os: ubuntu-latest,
+            name: "Ubuntu 22.04 GCC",
+            os: "ubuntu-22.04",
             cc: "/usr/bin/gcc",
             cxx: "/usr/bin/g++",
             format: "/usr/bin/clang-format-8",
             tidy: "/usr/bin/clang-tidy-8"
           }
           - {
-            name: "Ubuntu Latest Clang",
-            os: ubuntu-latest,
+            name: "Ubuntu 20.04 GCC",
+            os: "ubuntu-20.04",
+            cc: "/usr/bin/gcc",
+            cxx: "/usr/bin/g++",
+            format: "/usr/bin/clang-format-8",
+            tidy: "/usr/bin/clang-tidy-8"
+          }
+          - {
+            name: "Ubuntu 18.04 GCC",
+            os: "ubuntu-18.04",
+            cc: "/usr/bin/gcc",
+            cxx: "/usr/bin/g++",
+            format: "/usr/bin/clang-format-8",
+            tidy: "/usr/bin/clang-tidy-8"
+          }
+          - {
+            name: "Ubuntu 22.04 Clang",
+            os: "ubuntu-22.04",
             cc: "/usr/bin/clang-8",
             cxx: "/usr/bin/clang++8",
             format: "/usr/bin/clang-format-8",
             tidy: "/usr/bin/clang-tidy-8"
           }
           - {
-            name: "macOS Latest Clang",
+            name: "Ubuntu 20.04 Clang",
+            os: "ubuntu-20.04",
+            cc: "/usr/bin/clang-8",
+            cxx: "/usr/bin/clang++8",
+            format: "/usr/bin/clang-format-8",
+            tidy: "/usr/bin/clang-tidy-8"
+          }
+          - {
+            name: "Ubuntu 18.04 Clang",
+            os: "ubuntu-18.04",
+            cc: "/usr/bin/clang-8",
+            cxx: "/usr/bin/clang++8",
+            format: "/usr/bin/clang-format-8",
+            tidy: "/usr/bin/clang-tidy-8"
+          }
+          - {
+            name: "macOS 11 (Big Sur) Clang",
             os: macos-latest,
             cc: "/usr/bin/clang",
             cxx: "/usr/bin/clang++",
-            format: "/usr/local/opt/llvm@8/bin/clang-format",
-            tidy: "/usr/local/opt/llvm@8/bin/clang-tidy"
+            format: "/usr/local/opt/llvm@12/bin/clang-format",
+            tidy: "/usr/local/opt/llvm@12/bin/clang-tidy"
           }
-
+          - {
+            name: "macOS 12 (Monterey) Clang",
+            os: macos-latest,
+            cc: "/usr/bin/clang",
+            cxx: "/usr/bin/clang++",
+            format: "/usr/local/opt/llvm@12/bin/clang-format",
+            tidy: "/usr/local/opt/llvm@12/bin/clang-tidy"
+          }
     steps:
       - uses: actions/checkout@v2
 
