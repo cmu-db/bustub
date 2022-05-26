@@ -68,7 +68,7 @@ jobs:
           }
           - {
             name: "macOS 11 (Big Sur) Clang",
-            os: macos-latest,
+            os: macos-11,
             cc: "/usr/bin/clang",
             cxx: "/usr/bin/clang++",
             format: "/usr/local/opt/llvm@12/bin/clang-format",
@@ -76,7 +76,7 @@ jobs:
           }
           - {
             name: "macOS 12 (Monterey) Clang",
-            os: macos-latest,
+            os: macos-12,
             cc: "/usr/bin/clang",
             cxx: "/usr/bin/clang++",
             format: "/usr/local/opt/llvm@12/bin/clang-format",
