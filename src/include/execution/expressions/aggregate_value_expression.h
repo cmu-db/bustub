@@ -40,7 +40,7 @@ class AggregateValueExpression : public AbstractExpression {
 
   /** Invalid operation for `AggregateValueExpression` */
   auto EvaluateJoin(const Tuple *left_tuple, const Schema *left_schema, const Tuple *right_tuple,
-                     const Schema *right_schema) const -> Value override {
+                    const Schema *right_schema) const -> Value override {
     UNREACHABLE("Aggregation should only refer to group-by and aggregates.");
   }
 
@@ -50,7 +50,8 @@ class AggregateValueExpression : public AbstractExpression {
    * @param aggregates The aggregate values
    * @return The value obtained by checking the aggregates and group-bys
    */
-  auto EvaluateAggregate(const std::vector<Value> &group_bys, const std::vector<Value> &aggregates) const -> Value override {
+  auto EvaluateAggregate(const std::vector<Value> &group_bys, const std::vector<Value> &aggregates) const
+      -> Value override {
     return is_group_by_term_ ? group_bys[term_idx_] : aggregates[term_idx_];
   }
 

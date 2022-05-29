@@ -87,9 +87,13 @@ class Value {
     return *reinterpret_cast<const T *>(&value_);
   }
 
-  inline auto CastAs(const TypeId type_id) const -> Value { return Type::GetInstance(type_id_)->CastAs(*this, type_id); }
+  inline auto CastAs(const TypeId type_id) const -> Value {
+    return Type::GetInstance(type_id_)->CastAs(*this, type_id);
+  }
   // Comparison Methods
-  inline auto CompareEquals(const Value &o) const -> CmpBool { return Type::GetInstance(type_id_)->CompareEquals(*this, o); }
+  inline auto CompareEquals(const Value &o) const -> CmpBool {
+    return Type::GetInstance(type_id_)->CompareEquals(*this, o);
+  }
   inline auto CompareNotEquals(const Value &o) const -> CmpBool {
     return Type::GetInstance(type_id_)->CompareNotEquals(*this, o);
   }

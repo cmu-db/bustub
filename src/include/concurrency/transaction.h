@@ -232,7 +232,9 @@ class Transaction {
   auto IsSharedLocked(const RID &rid) -> bool { return shared_lock_set_->find(rid) != shared_lock_set_->end(); }
 
   /** @return true if rid is exclusively locked by this transaction */
-  auto IsExclusiveLocked(const RID &rid) -> bool { return exclusive_lock_set_->find(rid) != exclusive_lock_set_->end(); }
+  auto IsExclusiveLocked(const RID &rid) -> bool {
+    return exclusive_lock_set_->find(rid) != exclusive_lock_set_->end();
+  }
 
   /** @return the current state of the transaction */
   inline auto GetState() -> TransactionState { return state_; }

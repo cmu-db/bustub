@@ -45,7 +45,9 @@ class HashUtil {
     return HashBytes(reinterpret_cast<char *>(both), sizeof(hash_t) * 2);
   }
 
-  static inline auto SumHashes(hash_t l, hash_t r) -> hash_t { return (l % PRIME_FACTOR + r % PRIME_FACTOR) % PRIME_FACTOR; }
+  static inline auto SumHashes(hash_t l, hash_t r) -> hash_t {
+    return (l % PRIME_FACTOR + r % PRIME_FACTOR) % PRIME_FACTOR;
+  }
 
   template <typename T>
   static inline auto Hash(const T *ptr) -> hash_t {

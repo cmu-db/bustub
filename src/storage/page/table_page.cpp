@@ -85,7 +85,8 @@ auto TablePage::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn, Lock
   return true;
 }
 
-auto TablePage::MarkDelete(const RID &rid, Transaction *txn, LockManager *lock_manager, LogManager *log_manager) -> bool {
+auto TablePage::MarkDelete(const RID &rid, Transaction *txn, LockManager *lock_manager, LogManager *log_manager)
+    -> bool {
   uint32_t slot_num = rid.GetSlotNum();
   // If the slot number is invalid, abort the transaction.
   if (slot_num >= GetTupleCount()) {

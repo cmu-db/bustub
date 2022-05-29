@@ -189,9 +189,9 @@ class Catalog {
    * @return A (non-owning) pointer to the metadata of the new table
    */
   template <class KeyType, class ValueType, class KeyComparator>
-  auto CreateIndex(Transaction *txn, const std::string &index_name, const std::string &table_name,
-                         const Schema &schema, const Schema &key_schema, const std::vector<uint32_t> &key_attrs,
-                         std::size_t keysize, HashFunction<KeyType> hash_function) -> IndexInfo * {
+  auto CreateIndex(Transaction *txn, const std::string &index_name, const std::string &table_name, const Schema &schema,
+                   const Schema &key_schema, const std::vector<uint32_t> &key_attrs, std::size_t keysize,
+                   HashFunction<KeyType> hash_function) -> IndexInfo * {
     // Reject the creation request for nonexistent table
     if (table_names_.find(table_name) == table_names_.end()) {
       return NULL_INDEX_INFO;

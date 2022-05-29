@@ -227,8 +227,8 @@ class RowMatrixOperations {
    * @param matrixC Input matrix
    * @return The result of general matrix multiply
    */
-  static auto GEMM(const RowMatrix<T> *matrixA, const RowMatrix<T> *matrixB,
-                                            const RowMatrix<T> *matrixC) -> std::unique_ptr<RowMatrix<T>> {
+  static auto GEMM(const RowMatrix<T> *matrixA, const RowMatrix<T> *matrixB, const RowMatrix<T> *matrixC)
+      -> std::unique_ptr<RowMatrix<T>> {
     // TODO(P0): Add implementation
     return std::unique_ptr<RowMatrix<T>>(nullptr);
   }

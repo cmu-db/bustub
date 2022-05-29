@@ -81,7 +81,8 @@ class TablePage : public Page {
    * @param log_manager the log manager
    * @return true if the insert is successful (i.e. there is enough space)
    */
-  auto InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn, LockManager *lock_manager, LogManager *log_manager) -> bool;
+  auto InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn, LockManager *lock_manager, LogManager *log_manager)
+      -> bool;
 
   /**
    * Mark a tuple as deleted. This does not actually delete the tuple.
@@ -191,12 +192,18 @@ class TablePage : public Page {
   }
 
   /** @return true if the tuple is deleted or empty */
-  static auto IsDeleted(uint32_t tuple_size) -> bool { return static_cast<bool>(tuple_size & DELETE_MASK) || tuple_size == 0; }
+  static auto IsDeleted(uint32_t tuple_size) -> bool {
+    return static_cast<bool>(tuple_size & DELETE_MASK) || tuple_size == 0;
+  }
 
   /** @return tuple size with the deleted flag set */
-  static auto SetDeletedFlag(uint32_t tuple_size) -> uint32_t { return static_cast<uint32_t>(tuple_size | DELETE_MASK); }
+  static auto SetDeletedFlag(uint32_t tuple_size) -> uint32_t {
+    return static_cast<uint32_t>(tuple_size | DELETE_MASK);
+  }
 
   /** @return tuple size with the deleted flag unset */
-  static auto UnsetDeletedFlag(uint32_t tuple_size) -> uint32_t { return static_cast<uint32_t>(tuple_size & (~DELETE_MASK)); }
+  static auto UnsetDeletedFlag(uint32_t tuple_size) -> uint32_t {
+    return static_cast<uint32_t>(tuple_size & (~DELETE_MASK));
+  }
 };
 }  // namespace bustub

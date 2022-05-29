@@ -189,7 +189,7 @@ auto DecimalType::Sqrt(const Value &val) const -> Value {
 }
 
 auto DecimalType::OperateNull(const Value &left __attribute__((unused)),
-                               const Value &right __attribute__((unused))) const -> Value {
+                              const Value &right __attribute__((unused))) const -> Value {
   return Value(TypeId::DECIMAL, BUSTUB_DECIMAL_NULL);
 }
 

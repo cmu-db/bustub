@@ -93,8 +93,8 @@ class TransactionTest : public ::testing::Test {
 
   // The below helper functions are useful for testing.
 
-  auto MakeColumnValueExpression(const Schema &schema, uint32_t tuple_idx,
-                                                      const std::string &col_name) -> const AbstractExpression * {
+  auto MakeColumnValueExpression(const Schema &schema, uint32_t tuple_idx, const std::string &col_name)
+      -> const AbstractExpression * {
     uint32_t col_idx = schema.GetColIdx(col_name);
     auto col_type = schema.GetColumn(col_idx).GetType();
     allocated_exprs_.emplace_back(std::make_unique<ColumnValueExpression>(tuple_idx, col_idx, col_type));
@@ -106,8 +106,8 @@ class TransactionTest : public ::testing::Test {
     return allocated_exprs_.back().get();
   }
 
-  auto MakeComparisonExpression(const AbstractExpression *lhs, const AbstractExpression *rhs,
-                                                     ComparisonType comp_type) -> const AbstractExpression * {
+  auto MakeComparisonExpression(const AbstractExpression *lhs, const AbstractExpression *rhs, ComparisonType comp_type)
+      -> const AbstractExpression * {
     allocated_exprs_.emplace_back(std::make_unique<ComparisonExpression>(lhs, rhs, comp_type));
     return allocated_exprs_.back().get();
   }
@@ -118,7 +118,8 @@ class TransactionTest : public ::testing::Test {
     return allocated_exprs_.back().get();
   }
 
-  auto MakeOutputSchema(const std::vector<std::pair<std::string, const AbstractExpression *>> &exprs) -> const Schema * {
+  auto MakeOutputSchema(const std::vector<std::pair<std::string, const AbstractExpression *>> &exprs)
+      -> const Schema * {
     std::vector<Column> cols;
     cols.reserve(exprs.size());
     for (const auto &input : exprs) {

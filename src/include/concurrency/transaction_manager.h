@@ -41,7 +41,8 @@ class TransactionManager {
    * @param isolation_level an optional isolation level of the transaction.
    * @return an initialized transaction
    */
-  auto Begin(Transaction *txn = nullptr, IsolationLevel isolation_level = IsolationLevel::REPEATABLE_READ) -> Transaction *;
+  auto Begin(Transaction *txn = nullptr, IsolationLevel isolation_level = IsolationLevel::REPEATABLE_READ)
+      -> Transaction *;
 
   /**
    * Commits a transaction.

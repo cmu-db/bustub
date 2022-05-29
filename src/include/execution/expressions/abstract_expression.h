@@ -48,7 +48,7 @@ class AbstractExpression {
    * @return The value obtained by evaluating a JOIN on the left and right
    */
   virtual auto EvaluateJoin(const Tuple *left_tuple, const Schema *left_schema, const Tuple *right_tuple,
-                             const Schema *right_schema) const -> Value = 0;
+                            const Schema *right_schema) const -> Value = 0;
 
   /**
    * Returns the value obtained by evaluating the aggregates.
@@ -56,7 +56,8 @@ class AbstractExpression {
    * @param aggregates The aggregate values
    * @return The value obtained by checking the aggregates and group-bys
    */
-  virtual auto EvaluateAggregate(const std::vector<Value> &group_bys, const std::vector<Value> &aggregates) const -> Value = 0;
+  virtual auto EvaluateAggregate(const std::vector<Value> &group_bys, const std::vector<Value> &aggregates) const
+      -> Value = 0;
 
   /** @return the child_idx'th child of this expression */
   auto GetChildAt(uint32_t child_idx) const -> const AbstractExpression * { return children_[child_idx]; }
