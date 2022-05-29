@@ -19,30 +19,53 @@ jobs:
       matrix:
         config:
           - {
-            name: "Ubuntu Latest GCC",
-            os: ubuntu-latest,
+            name: "Ubuntu 22.04 GCC",
+            os: "ubuntu-22.04",
             cc: "/usr/bin/gcc",
             cxx: "/usr/bin/g++",
             format: "/usr/bin/clang-format-12",
             tidy: "/usr/bin/clang-tidy-12"
           }
           - {
-            name: "Ubuntu Latest Clang",
-            os: ubuntu-latest,
-            cc: "/usr/bin/clang-12",
-            cxx: "/usr/bin/clang++-12",
+            name: "Ubuntu 20.04 GCC",
+            os: "ubuntu-20.04",
+            cc: "/usr/bin/gcc",
+            cxx: "/usr/bin/g++",
             format: "/usr/bin/clang-format-12",
             tidy: "/usr/bin/clang-tidy-12"
           }
           - {
-            name: "macOS Latest Clang",
-            os: macos-latest,
+            name: "Ubuntu 22.04 Clang",
+            os: "ubuntu-22.04",
+            cc: "/usr/bin/clang-12",
+            cxx: "/usr/bin/clang++12",
+            format: "/usr/bin/clang-format-12",
+            tidy: "/usr/bin/clang-tidy-12"
+          }
+          - {
+            name: "Ubuntu 20.04 Clang",
+            os: "ubuntu-20.04",
+            cc: "/usr/bin/clang-12",
+            cxx: "/usr/bin/clang++12",
+            format: "/usr/bin/clang-format-12",
+            tidy: "/usr/bin/clang-tidy-12"
+          }
+          - {
+            name: "macOS 11 (Big Sur) Clang",
+            os: macos-11,
             cc: "/usr/bin/clang",
             cxx: "/usr/bin/clang++",
             format: "/usr/local/opt/llvm@12/bin/clang-format",
             tidy: "/usr/local/opt/llvm@12/bin/clang-tidy"
           }
-
+          - {
+            name: "macOS 12 (Monterey) Clang",
+            os: macos-12,
+            cc: "/usr/bin/clang",
+            cxx: "/usr/bin/clang++",
+            format: "/usr/local/opt/llvm@12/bin/clang-format",
+            tidy: "/usr/local/opt/llvm@12/bin/clang-tidy"
+          }
     steps:
       - uses: actions/checkout@v2
 
