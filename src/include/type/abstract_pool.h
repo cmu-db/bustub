@@ -30,7 +30,7 @@ class AbstractPool {
    *
    * TODO: Provide good error codes for failure cases
    */
-  virtual void *Allocate(size_t size) = 0;
+  virtual auto Allocate(size_t size) -> void * = 0;
 
   /**
    * @brief Returns the provided chunk of memory back into the pool

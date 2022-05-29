@@ -53,13 +53,13 @@ class IndexMetadata {
   ~IndexMetadata() { delete key_schema_; }
 
   /** @return The name of the index */
-  inline const std::string &GetName() const { return name_; }
+  inline auto GetName() const -> const std::string & { return name_; }
 
   /** @return The name of the table on which the index is created */
-  inline const std::string &GetTableName() { return table_name_; }
+  inline auto GetTableName() -> const std::string & { return table_name_; }
 
   /** @return A schema object pointer that represents the indexed key */
-  inline Schema *GetKeySchema() const { return key_schema_; }
+  inline auto GetKeySchema() const -> Schema * { return key_schema_; }
 
   /**
    * @return The number of columns inside index key (not in tuple key)
@@ -67,13 +67,13 @@ class IndexMetadata {
    * NOTE: this must be defined inside the cpp source file because it
    * uses the member of catalog::Schema which is not known here.
    */
-  std::uint32_t GetIndexColumnCount() const { return static_cast<uint32_t>(key_attrs_.size()); }
+  auto GetIndexColumnCount() const -> std::uint32_t { return static_cast<uint32_t>(key_attrs_.size()); }
 
   /** @return The mapping relation between indexed columns and base table columns */
-  inline const std::vector<uint32_t> &GetKeyAttrs() const { return key_attrs_; }
+  inline auto GetKeyAttrs() const -> const std::vector<uint32_t> & { return key_attrs_; }
 
   /** @return A string representation for debugging */
-  std::string ToString() const {
+  auto ToString() const -> std::string {
     std::stringstream os;
 
     os << "IndexMetadata["
@@ -125,22 +125,22 @@ class Index {
   virtual ~Index() = default;
 
   /** @return A non-owning pointer to the metadata object associated with the index */
-  IndexMetadata *GetMetadata() const { return metadata_.get(); }
+  auto GetMetadata() const -> IndexMetadata * { return metadata_.get(); }
 
   /** @return The number of indexed columns */
-  std::uint32_t GetIndexColumnCount() const { return metadata_->GetIndexColumnCount(); }
+  auto GetIndexColumnCount() const -> std::uint32_t { return metadata_->GetIndexColumnCount(); }
 
   /** @return The index name */
-  const std::string &GetName() const { return metadata_->GetName(); }
+  auto GetName() const -> const std::string & { return metadata_->GetName(); }
 
   /** @return The index key schema */
-  Schema *GetKeySchema() const { return metadata_->GetKeySchema(); }
+  auto GetKeySchema() const -> Schema * { return metadata_->GetKeySchema(); }
 
   /** @return The index key attributes */
-  const std::vector<uint32_t> &GetKeyAttrs() const { return metadata_->GetKeyAttrs(); }
+  auto GetKeyAttrs() const -> const std::vector<uint32_t> & { return metadata_->GetKeyAttrs(); }
 
   /** @return A string representation for debugging */
-  std::string ToString() const {
+  auto ToString() const -> std::string {
     std::stringstream os;
     os << "INDEX: (" << GetName() << ")";
     os << metadata_->ToString();

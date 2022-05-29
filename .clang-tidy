@@ -41,7 +41,6 @@ Checks:     '
             -modernize-avoid-c-arrays,
             -modernize-use-nodiscard,
             -modernize-use-auto,
-            -modernize-use-trailing-return-type,
             -modernize-use-default-member-init,
             -modernize-return-braced-init-list,
             -readability-convert-member-functions-to-static,

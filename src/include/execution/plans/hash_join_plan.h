@@ -38,22 +38,22 @@ class HashJoinPlanNode : public AbstractPlanNode {
         right_key_expression_{right_key_expression} {}
 
   /** @return The type of the plan node */
-  PlanType GetType() const override { return PlanType::HashJoin; }
+  auto GetType() const -> PlanType override { return PlanType::HashJoin; }
 
   /** @return The expression to compute the left join key */
-  const AbstractExpression *LeftJoinKeyExpression() const { return left_key_expression_; }
+  auto LeftJoinKeyExpression() const -> const AbstractExpression * { return left_key_expression_; }
 
   /** @return The expression to compute the right join key */
-  const AbstractExpression *RightJoinKeyExpression() const { return right_key_expression_; }
+  auto RightJoinKeyExpression() const -> const AbstractExpression * { return right_key_expression_; }
 
   /** @return The left plan node of the hash join */
-  const AbstractPlanNode *GetLeftPlan() const {
+  auto GetLeftPlan() const -> const AbstractPlanNode * {
     BUSTUB_ASSERT(GetChildren().size() == 2, "Hash joins should have exactly two children plans.");
     return GetChildAt(0);
   }
 
   /** @return The right plan node of the hash join */
-  const AbstractPlanNode *GetRightPlan() const {
+  auto GetRightPlan() const -> const AbstractPlanNode * {
     BUSTUB_ASSERT(GetChildren().size() == 2, "Hash joins should have exactly two children plans.");
     return GetChildAt(1);
   }

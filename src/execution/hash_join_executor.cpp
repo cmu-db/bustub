@@ -21,6 +21,6 @@ HashJoinExecutor::HashJoinExecutor(ExecutorContext *exec_ctx, const HashJoinPlan
 
 void HashJoinExecutor::Init() {}
 
-bool HashJoinExecutor::Next(Tuple *tuple, RID *rid) { return false; }
+auto HashJoinExecutor::Next(Tuple *tuple, RID *rid) -> bool { return false; }
 
 }  // namespace bustub

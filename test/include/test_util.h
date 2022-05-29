@@ -28,7 +28,7 @@
 
 namespace bustub {
 
-std::unique_ptr<Schema> ParseCreateStatement(const std::string &sql_base) {
+auto ParseCreateStatement(const std::string &sql_base) -> std::unique_ptr<Schema> {
   std::string::size_type n;
   std::vector<Column> v{};
   std::string column_name;

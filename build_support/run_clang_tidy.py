@@ -105,6 +105,7 @@ def get_tidy_invocation(f, clang_tidy_binary, checks, tmpdir, build_path,
     if config:
         start.append('-config=' + config)
     start.append(f)
+    start.append("-fix")
     return start
 
 def merge_replacement_files(tmpdir, mergefile):
@@ -271,6 +272,7 @@ def main():
     if max_task == 0:
         max_task = multiprocessing.cpu_count()
 
+    max_task = 1
     tmpdir = None
     if args.fix or args.export_fixes:
         check_clang_apply_replacements_binary(args)

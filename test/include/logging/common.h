@@ -23,7 +23,7 @@
 namespace bustub {
 
 // use a fixed schema to construct a random tuple
-Tuple ConstructTuple(Schema *schema) {
+auto ConstructTuple(Schema *schema) -> Tuple {
   std::vector<Value> values;
   Value v(TypeId::INVALID);
 

@@ -21,7 +21,7 @@
 
 namespace bustub {
 
-std::string UsageMessage() {
+auto UsageMessage() -> std::string {
   std::string message =
       "Enter any of the following commands after the prompt > :\n"
       "\ti <k>  -- Insert <k> (int64_t) as both key and value).\n"

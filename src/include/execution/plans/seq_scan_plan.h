@@ -34,13 +34,13 @@ class SeqScanPlanNode : public AbstractPlanNode {
       : AbstractPlanNode(output, {}), predicate_{predicate}, table_oid_{table_oid} {}
 
   /** @return The type of the plan node */
-  PlanType GetType() const override { return PlanType::SeqScan; }
+  auto GetType() const -> PlanType override { return PlanType::SeqScan; }
 
   /** @return The predicate to test tuples against; tuples should only be returned if they evaluate to true */
-  const AbstractExpression *GetPredicate() const { return predicate_; }
+  auto GetPredicate() const -> const AbstractExpression * { return predicate_; }
 
   /** @return The identifier of the table that should be scanned */
-  table_oid_t GetTableOid() const { return table_oid_; }
+  auto GetTableOid() const -> table_oid_t { return table_oid_; }
 
  private:
   /** The predicate that all returned tuples must satisfy */

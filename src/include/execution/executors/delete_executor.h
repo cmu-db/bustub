@@ -50,10 +50,10 @@ class DeleteExecutor : public AbstractExecutor {
    * NOTE: DeleteExecutor::Next() does not use the `tuple` out-parameter.
    * NOTE: DeleteExecutor::Next() does not use the `rid` out-parameter.
    */
-  bool Next([[maybe_unused]] Tuple *tuple, RID *rid) override;
+  auto Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the delete */
-  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); };
+  auto GetOutputSchema() -> const Schema * override { return plan_->OutputSchema(); };
 
  private:
   /** The delete plan node to be executed */

@@ -20,6 +20,6 @@ NestIndexJoinExecutor::NestIndexJoinExecutor(ExecutorContext *exec_ctx, const Ne
 
 void NestIndexJoinExecutor::Init() {}
 
-bool NestIndexJoinExecutor::Next(Tuple *tuple, RID *rid) { return false; }
+auto NestIndexJoinExecutor::Next(Tuple *tuple, RID *rid) -> bool { return false; }
 
 }  // namespace bustub

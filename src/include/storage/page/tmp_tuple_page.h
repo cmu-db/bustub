@@ -25,9 +25,9 @@ class TmpTuplePage : public Page {
     memcpy(GetData() + sizeof(page_id_t), &page_size, sizeof(uint32_t));
   }
 
-  page_id_t GetTablePageId() { return INVALID_PAGE_ID; }
+  auto GetTablePageId() -> page_id_t { return INVALID_PAGE_ID; }
 
-  bool Insert(const Tuple &tuple, TmpTuple *out) { return false; }
+  auto Insert(const Tuple &tuple, TmpTuple *out) -> bool { return false; }
 
  private:
   static_assert(sizeof(page_id_t) == 4);

@@ -26,7 +26,7 @@ namespace bustub {
  * @param type The expected exception type
  * @return `true` if expected type is throw by `function`, `false` otherwise
  */
-static bool ThrowsBustubException(const std::function<void()> &function, ExceptionType type) {
+static auto ThrowsBustubException(const std::function<void()> &function, ExceptionType type) -> bool {
   bool expected_type_thrown = false;
   try {
     function();

@@ -112,34 +112,34 @@ class LogRecord {
 
   ~LogRecord() = default;
 
-  inline Tuple &GetDeleteTuple() { return delete_tuple_; }
+  inline auto GetDeleteTuple() -> Tuple & { return delete_tuple_; }
 
-  inline RID &GetDeleteRID() { return delete_rid_; }
+  inline auto GetDeleteRID() -> RID & { return delete_rid_; }
 
-  inline Tuple &GetInsertTuple() { return insert_tuple_; }
+  inline auto GetInsertTuple() -> Tuple & { return insert_tuple_; }
 
-  inline RID &GetInsertRID() { return insert_rid_; }
+  inline auto GetInsertRID() -> RID & { return insert_rid_; }
 
-  inline Tuple &GetOriginalTuple() { return old_tuple_; }
+  inline auto GetOriginalTuple() -> Tuple & { return old_tuple_; }
 
-  inline Tuple &GetUpdateTuple() { return new_tuple_; }
+  inline auto GetUpdateTuple() -> Tuple & { return new_tuple_; }
 
-  inline RID &GetUpdateRID() { return update_rid_; }
+  inline auto GetUpdateRID() -> RID & { return update_rid_; }
 
-  inline page_id_t GetNewPageRecord() { return prev_page_id_; }
+  inline auto GetNewPageRecord() -> page_id_t { return prev_page_id_; }
 
-  inline int32_t GetSize() { return size_; }
+  inline auto GetSize() -> int32_t { return size_; }
 
-  inline lsn_t GetLSN() { return lsn_; }
+  inline auto GetLSN() -> lsn_t { return lsn_; }
 
-  inline txn_id_t GetTxnId() { return txn_id_; }
+  inline auto GetTxnId() -> txn_id_t { return txn_id_; }
 
-  inline lsn_t GetPrevLSN() { return prev_lsn_; }
+  inline auto GetPrevLSN() -> lsn_t { return prev_lsn_; }
 
-  inline LogRecordType &GetLogRecordType() { return log_record_type_; }
+  inline auto GetLogRecordType() -> LogRecordType & { return log_record_type_; }
 
   // For debug purpose
-  inline std::string ToString() const {
+  inline auto ToString() const -> std::string {
     std::ostringstream os;
     os << "Log["
        << "size:" << size_ << ", "

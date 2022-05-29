@@ -26,38 +26,38 @@ class VarlenType : public Type {
   ~VarlenType() override;
 
   // Access the raw variable length data
-  const char *GetData(const Value &val) const override;
+  auto GetData(const Value &val) const -> const char * override;
 
   // Get the length of the variable length data
-  uint32_t GetLength(const Value &val) const override;
+  auto GetLength(const Value &val) const -> uint32_t override;
 
   // Comparison functions
-  CmpBool CompareEquals(const Value &left, const Value &right) const override;
-  CmpBool CompareNotEquals(const Value &left, const Value &right) const override;
-  CmpBool CompareLessThan(const Value &left, const Value &right) const override;
-  CmpBool CompareLessThanEquals(const Value &left, const Value &right) const override;
-  CmpBool CompareGreaterThan(const Value &left, const Value &right) const override;
-  CmpBool CompareGreaterThanEquals(const Value &left, const Value &right) const override;
+  auto CompareEquals(const Value &left, const Value &right) const -> CmpBool override;
+  auto CompareNotEquals(const Value &left, const Value &right) const -> CmpBool override;
+  auto CompareLessThan(const Value &left, const Value &right) const -> CmpBool override;
+  auto CompareLessThanEquals(const Value &left, const Value &right) const -> CmpBool override;
+  auto CompareGreaterThan(const Value &left, const Value &right) const -> CmpBool override;
+  auto CompareGreaterThanEquals(const Value &left, const Value &right) const -> CmpBool override;
 
   // Other mathematical functions
-  Value Min(const Value &left, const Value &right) const override;
-  Value Max(const Value &left, const Value &right) const override;
+  auto Min(const Value &left, const Value &right) const -> Value override;
+  auto Max(const Value &left, const Value &right) const -> Value override;
 
-  Value CastAs(const Value &value, TypeId type_id) const override;
+  auto CastAs(const Value &value, TypeId type_id) const -> Value override;
 
   // Decimal types are always inlined
-  bool IsInlined(const Value & /*val*/) const override { return false; }
+  auto IsInlined(const Value & /*val*/) const -> bool override { return false; }
 
   // Debug
-  std::string ToString(const Value &val) const override;
+  auto ToString(const Value &val) const -> std::string override;
 
   // Serialize this value into the given storage space
   void SerializeTo(const Value &val, char *storage) const override;
 
   // Deserialize a value of the given type from the given storage space.
-  Value DeserializeFrom(const char *storage) const override;
+  auto DeserializeFrom(const char *storage) const -> Value override;
 
   // Create a copy of this value
-  Value Copy(const Value &val) const override;
+  auto Copy(const Value &val) const -> Value override;
 };
 }  // namespace bustub

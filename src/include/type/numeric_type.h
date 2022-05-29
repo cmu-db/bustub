@@ -25,19 +25,19 @@ class NumericType : public Type {
   ~NumericType() override = default;
 
   // Other mathematical functions
-  Value Add(const Value &left, const Value &right) const override = 0;
-  Value Subtract(const Value &left, const Value &right) const override = 0;
-  Value Multiply(const Value &left, const Value &right) const override = 0;
-  Value Divide(const Value &left, const Value &right) const override = 0;
-  Value Modulo(const Value &left, const Value &right) const override = 0;
-  Value Min(const Value &left, const Value &right) const override = 0;
-  Value Max(const Value &left, const Value &right) const override = 0;
-  Value Sqrt(const Value &val) const override = 0;
-  Value OperateNull(const Value &left, const Value &right) const override = 0;
-  bool IsZero(const Value &val) const override = 0;
+  auto Add(const Value &left, const Value &right) const -> Value override = 0;
+  auto Subtract(const Value &left, const Value &right) const -> Value override = 0;
+  auto Multiply(const Value &left, const Value &right) const -> Value override = 0;
+  auto Divide(const Value &left, const Value &right) const -> Value override = 0;
+  auto Modulo(const Value &left, const Value &right) const -> Value override = 0;
+  auto Min(const Value &left, const Value &right) const -> Value override = 0;
+  auto Max(const Value &left, const Value &right) const -> Value override = 0;
+  auto Sqrt(const Value &val) const -> Value override = 0;
+  auto OperateNull(const Value &left, const Value &right) const -> Value override = 0;
+  auto IsZero(const Value &val) const -> bool override = 0;
 
  protected:
-  static inline double ValMod(double x, double y) {
+  static inline auto ValMod(double x, double y) -> double {
     return x - std::trunc(static_cast<double>(x) / static_cast<double>(y)) * y;
   }
 };

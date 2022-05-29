@@ -46,10 +46,10 @@ class HashJoinExecutor : public AbstractExecutor {
    * @param[out] rid The next tuple RID produced by the join
    * @return `true` if a tuple was produced, `false` if there are no more tuples
    */
-  bool Next(Tuple *tuple, RID *rid) override;
+  auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the join */
-  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); };
+  auto GetOutputSchema() -> const Schema * override { return plan_->OutputSchema(); };
 
  private:
   /** The NestedLoopJoin plan node to be executed. */

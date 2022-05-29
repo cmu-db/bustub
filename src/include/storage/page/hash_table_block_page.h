@@ -45,7 +45,7 @@ class HashTableBlockPage {
    * @param bucket_ind the index in the block to get the key at
    * @return key at index bucket_ind of the block
    */
-  KeyType KeyAt(slot_offset_t bucket_ind) const;
+  auto KeyAt(slot_offset_t bucket_ind) const -> KeyType;
 
   /**
    * Gets the value at an index in the block.
@@ -53,7 +53,7 @@ class HashTableBlockPage {
    * @param bucket_ind the index in the block to get the value at
    * @return value at index bucket_ind of the block
    */
-  ValueType ValueAt(slot_offset_t bucket_ind) const;
+  auto ValueAt(slot_offset_t bucket_ind) const -> ValueType;
 
   /**
    * Attempts to insert a key and value into an index in the block.
@@ -68,7 +68,7 @@ class HashTableBlockPage {
    * index is marked as occupied before the key and value can be inserted,
    * Insert returns false.
    */
-  bool Insert(slot_offset_t bucket_ind, const KeyType &key, const ValueType &value);
+  auto Insert(slot_offset_t bucket_ind, const KeyType &key, const ValueType &value) -> bool;
 
   /**
    * Removes a key and value at index.
@@ -83,7 +83,7 @@ class HashTableBlockPage {
    * @param bucket_ind index to look at
    * @return true if the index is occupied, false otherwise
    */
-  bool IsOccupied(slot_offset_t bucket_ind) const;
+  auto IsOccupied(slot_offset_t bucket_ind) const -> bool;
 
   /**
    * Returns whether or not an index is readable (valid key/value pair)
@@ -91,14 +91,14 @@ class HashTableBlockPage {
    * @param bucket_ind index to look at
    * @return true if the index is readable, false otherwise
    */
-  bool IsReadable(slot_offset_t bucket_ind) const;
+  auto IsReadable(slot_offset_t bucket_ind) const -> bool;
 
   /**
    * Scan the bucket and collect values that have the matching key
    *
    * @return true if at least one key matched
    */
-  bool GetValue(KeyType key, KeyComparator cmp, std::vector<ValueType> *result);
+  auto GetValue(KeyType key, KeyComparator cmp, std::vector<ValueType> *result) -> bool;
 
   /**
    * Attempts to insert a key and value in the bucket.
@@ -110,28 +110,28 @@ class HashTableBlockPage {
    * @param value value to insert
    * @return true if inserted, false if duplicate KV pair or bucket is full
    */
-  bool Insert(KeyType key, ValueType value, KeyComparator cmp);
+  auto Insert(KeyType key, ValueType value, KeyComparator cmp) -> bool;
 
   /**
    * Removes a key and value.
    * @return true if removed, false if not found
    */
-  bool Remove(KeyType key, ValueType value, KeyComparator cmp);
+  auto Remove(KeyType key, ValueType value, KeyComparator cmp) -> bool;
 
   /**
    * @return the number of readable elements, i.e. current size
    */
-  uint32_t NumReadable();
+  auto NumReadable() -> uint32_t;
 
   /**
    * @return whether the bucket is full
    */
-  bool IsFull();
+  auto IsFull() -> bool;
 
   /**
    * @return whether the bucket is empty
    */
-  bool IsEmpty();
+  auto IsEmpty() -> bool;
 
   /**
    * Prints the bucket's occupancy information

@@ -38,7 +38,7 @@ Schema::Schema(const std::vector<Column> &columns) : tuple_is_inlined_(true) {
   length_ = curr_offset;
 }
 
-std::string Schema::ToString() const {
+auto Schema::ToString() const -> std::string {
   std::ostringstream os;
 
   os << "Schema["

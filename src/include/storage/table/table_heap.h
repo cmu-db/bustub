@@ -57,7 +57,7 @@ class TableHeap {
    * @param txn the transaction performing the insert
    * @return true iff the insert is successful
    */
-  bool InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn);
+  auto InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn) -> bool;
 
   /**
    * Mark the tuple as deleted. The actual delete will occur when ApplyDelete is called.
@@ -65,7 +65,7 @@ class TableHeap {
    * @param txn transaction performing the delete
    * @return true iff the delete is successful (i.e the tuple exists)
    */
-  bool MarkDelete(const RID &rid, Transaction *txn);  // for delete
+  auto MarkDelete(const RID &rid, Transaction *txn) -> bool;  // for delete
 
   /**
    * if the new tuple is too large to fit in the old page, return false (will delete and insert)
@@ -74,7 +74,7 @@ class TableHeap {
    * @param txn transaction performing the update
    * @return true is update is successful.
    */
-  bool UpdateTuple(const Tuple &tuple, const RID &rid, Transaction *txn);
+  auto UpdateTuple(const Tuple &tuple, const RID &rid, Transaction *txn) -> bool;
 
   /**
    * Called on Commit/Abort to actually delete a tuple or rollback an insert.
@@ -97,16 +97,16 @@ class TableHeap {
    * @param txn transaction performing the read
    * @return true if the read was successful (i.e. the tuple exists)
    */
-  bool GetTuple(const RID &rid, Tuple *tuple, Transaction *txn);
+  auto GetTuple(const RID &rid, Tuple *tuple, Transaction *txn) -> bool;
 
   /** @return the begin iterator of this table */
-  TableIterator Begin(Transaction *txn);
+  auto Begin(Transaction *txn) -> TableIterator;
 
   /** @return the end iterator of this table */
-  TableIterator End();
+  auto End() -> TableIterator;
 
   /** @return the id of the first page of this table */
-  inline page_id_t GetFirstPageId() const { return first_page_id_; }
+  inline auto GetFirstPageId() const -> page_id_t { return first_page_id_; }
 
  private:
   BufferPoolManager *buffer_pool_manager_;

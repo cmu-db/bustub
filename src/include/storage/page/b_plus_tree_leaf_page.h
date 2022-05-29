@@ -46,16 +46,16 @@ class BPlusTreeLeafPage : public BPlusTreePage {
   // method to set default values
   void Init(page_id_t page_id, page_id_t parent_id = INVALID_PAGE_ID, int max_size = LEAF_PAGE_SIZE);
   // helper methods
-  page_id_t GetNextPageId() const;
+  auto GetNextPageId() const -> page_id_t;
   void SetNextPageId(page_id_t next_page_id);
-  KeyType KeyAt(int index) const;
-  int KeyIndex(const KeyType &key, const KeyComparator &comparator) const;
-  const MappingType &GetItem(int index);
+  auto KeyAt(int index) const -> KeyType;
+  auto KeyIndex(const KeyType &key, const KeyComparator &comparator) const -> int;
+  auto GetItem(int index) -> const MappingType &;
 
   // insert and delete methods
-  int Insert(const KeyType &key, const ValueType &value, const KeyComparator &comparator);
-  bool Lookup(const KeyType &key, ValueType *value, const KeyComparator &comparator) const;
-  int RemoveAndDeleteRecord(const KeyType &key, const KeyComparator &comparator);
+  auto Insert(const KeyType &key, const ValueType &value, const KeyComparator &comparator) -> int;
+  auto Lookup(const KeyType &key, ValueType *value, const KeyComparator &comparator) const -> bool;
+  auto RemoveAndDeleteRecord(const KeyType &key, const KeyComparator &comparator) -> int;
 
   // Split and Merge utility methods
   void MoveHalfTo(BPlusTreeLeafPage *recipient);

@@ -40,27 +40,27 @@ HASH_TABLE_TYPE::ExtendibleHashTable(const std::string &name, BufferPoolManager 
  * @return the downcasted 32-bit hash
  */
 template <typename KeyType, typename ValueType, typename KeyComparator>
-uint32_t HASH_TABLE_TYPE::Hash(KeyType key) {
+auto HASH_TABLE_TYPE::Hash(KeyType key) -> uint32_t {
   return static_cast<uint32_t>(hash_fn_.GetHash(key));
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-inline uint32_t HASH_TABLE_TYPE::KeyToDirectoryIndex(KeyType key, HashTableDirectoryPage *dir_page) {
+inline auto HASH_TABLE_TYPE::KeyToDirectoryIndex(KeyType key, HashTableDirectoryPage *dir_page) -> uint32_t {
   return 0;
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-inline uint32_t HASH_TABLE_TYPE::KeyToPageId(KeyType key, HashTableDirectoryPage *dir_page) {
+inline auto HASH_TABLE_TYPE::KeyToPageId(KeyType key, HashTableDirectoryPage *dir_page) -> uint32_t {
   return 0;
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-HashTableDirectoryPage *HASH_TABLE_TYPE::FetchDirectoryPage() {
+auto HASH_TABLE_TYPE::FetchDirectoryPage() -> HashTableDirectoryPage * {
   return nullptr;
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-HASH_TABLE_BUCKET_TYPE *HASH_TABLE_TYPE::FetchBucketPage(page_id_t bucket_page_id) {
+auto HASH_TABLE_TYPE::FetchBucketPage(page_id_t bucket_page_id) -> HASH_TABLE_BUCKET_TYPE * {
   return nullptr;
 }
 
@@ -68,7 +68,7 @@ HASH_TABLE_BUCKET_TYPE *HASH_TABLE_TYPE::FetchBucketPage(page_id_t bucket_page_i
  * SEARCH
  *****************************************************************************/
 template <typename KeyType, typename ValueType, typename KeyComparator>
-bool HASH_TABLE_TYPE::GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result) {
+auto HASH_TABLE_TYPE::GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result) -> bool {
   return false;
 }
 
@@ -76,12 +76,12 @@ bool HASH_TABLE_TYPE::GetValue(Transaction *transaction, const KeyType &key, std
  * INSERTION
  *****************************************************************************/
 template <typename KeyType, typename ValueType, typename KeyComparator>
-bool HASH_TABLE_TYPE::Insert(Transaction *transaction, const KeyType &key, const ValueType &value) {
+auto HASH_TABLE_TYPE::Insert(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool {
   return false;
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-bool HASH_TABLE_TYPE::SplitInsert(Transaction *transaction, const KeyType &key, const ValueType &value) {
+auto HASH_TABLE_TYPE::SplitInsert(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool {
   return false;
 }
 
@@ -89,7 +89,7 @@ bool HASH_TABLE_TYPE::SplitInsert(Transaction *transaction, const KeyType &key, 
  * REMOVE
  *****************************************************************************/
 template <typename KeyType, typename ValueType, typename KeyComparator>
-bool HASH_TABLE_TYPE::Remove(Transaction *transaction, const KeyType &key, const ValueType &value) {
+auto HASH_TABLE_TYPE::Remove(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool {
   return false;
 }
 
@@ -103,7 +103,7 @@ void HASH_TABLE_TYPE::Merge(Transaction *transaction, const KeyType &key, const 
  * GETGLOBALDEPTH - DO NOT TOUCH
  *****************************************************************************/
 template <typename KeyType, typename ValueType, typename KeyComparator>
-uint32_t HASH_TABLE_TYPE::GetGlobalDepth() {
+auto HASH_TABLE_TYPE::GetGlobalDepth() -> uint32_t {
   table_latch_.RLock();
   HashTableDirectoryPage *dir_page = FetchDirectoryPage();
   uint32_t global_depth = dir_page->GetGlobalDepth();

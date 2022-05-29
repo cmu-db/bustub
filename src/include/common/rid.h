@@ -34,18 +34,18 @@ class RID {
 
   explicit RID(int64_t rid) : page_id_(static_cast<page_id_t>(rid >> 32)), slot_num_(static_cast<uint32_t>(rid)) {}
 
-  inline int64_t Get() const { return (static_cast<int64_t>(page_id_)) << 32 | slot_num_; }
+  inline auto Get() const -> int64_t { return (static_cast<int64_t>(page_id_)) << 32 | slot_num_; }
 
-  inline page_id_t GetPageId() const { return page_id_; }
+  inline auto GetPageId() const -> page_id_t { return page_id_; }
 
-  inline uint32_t GetSlotNum() const { return slot_num_; }
+  inline auto GetSlotNum() const -> uint32_t { return slot_num_; }
 
   inline void Set(page_id_t page_id, uint32_t slot_num) {
     page_id_ = page_id;
     slot_num_ = slot_num;
   }
 
-  inline std::string ToString() const {
+  inline auto ToString() const -> std::string {
     std::stringstream os;
     os << "page_id: " << page_id_;
     os << " slot_num: " << slot_num_ << "\n";
@@ -53,12 +53,12 @@ class RID {
     return os.str();
   }
 
-  friend std::ostream &operator<<(std::ostream &os, const RID &rid) {
+  friend auto operator<<(std::ostream &os, const RID &rid) -> std::ostream & {
     os << rid.ToString();
     return os;
   }
 
-  bool operator==(const RID &other) const { return page_id_ == other.page_id_ && slot_num_ == other.slot_num_; }
+  auto operator==(const RID &other) const -> bool { return page_id_ == other.page_id_ && slot_num_ == other.slot_num_; }
 
  private:
   page_id_t page_id_{INVALID_PAGE_ID};
@@ -70,6 +70,6 @@ class RID {
 namespace std {
 template <>
 struct hash<bustub::RID> {
-  size_t operator()(const bustub::RID &obj) const { return hash<int64_t>()(obj.Get()); }
+  auto operator()(const bustub::RID &obj) const -> size_t { return hash<int64_t>()(obj.Get()); }
 };
 }  // namespace std

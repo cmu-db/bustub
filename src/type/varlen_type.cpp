@@ -41,12 +41,12 @@ VarlenType::VarlenType(TypeId type) : Type(type) {}
 VarlenType::~VarlenType() = default;
 
 // Access the raw variable length data
-const char *VarlenType::GetData(const Value &val) const { return val.value_.varlen_; }
+auto VarlenType::GetData(const Value &val) const -> const char * { return val.value_.varlen_; }
 
 // Get the length of the variable length data (including the length field)
-uint32_t VarlenType::GetLength(const Value &val) const { return val.size_.len_; }
+auto VarlenType::GetLength(const Value &val) const -> uint32_t { return val.size_.len_; }
 
-CmpBool VarlenType::CompareEquals(const Value &left, const Value &right) const {
+auto VarlenType::CompareEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
@@ -58,7 +58,7 @@ CmpBool VarlenType::CompareEquals(const Value &left, const Value &right) const {
   VARLEN_COMPARE_FUNC(==);  // NOLINT
 }
 
-CmpBool VarlenType::CompareNotEquals(const Value &left, const Value &right) const {
+auto VarlenType::CompareNotEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
@@ -70,7 +70,7 @@ CmpBool VarlenType::CompareNotEquals(const Value &left, const Value &right) cons
   VARLEN_COMPARE_FUNC(!=);  // NOLINT
 }
 
-CmpBool VarlenType::CompareLessThan(const Value &left, const Value &right) const {
+auto VarlenType::CompareLessThan(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
@@ -82,7 +82,7 @@ CmpBool VarlenType::CompareLessThan(const Value &left, const Value &right) const
   VARLEN_COMPARE_FUNC(<);  // NOLINT
 }
 
-CmpBool VarlenType::CompareLessThanEquals(const Value &left, const Value &right) const {
+auto VarlenType::CompareLessThanEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
@@ -94,7 +94,7 @@ CmpBool VarlenType::CompareLessThanEquals(const Value &left, const Value &right)
   VARLEN_COMPARE_FUNC(<=);  // NOLINT
 }
 
-CmpBool VarlenType::CompareGreaterThan(const Value &left, const Value &right) const {
+auto VarlenType::CompareGreaterThan(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
@@ -106,7 +106,7 @@ CmpBool VarlenType::CompareGreaterThan(const Value &left, const Value &right) co
   VARLEN_COMPARE_FUNC(>);  // NOLINT
 }
 
-CmpBool VarlenType::CompareGreaterThanEquals(const Value &left, const Value &right) const {
+auto VarlenType::CompareGreaterThanEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
@@ -118,7 +118,7 @@ CmpBool VarlenType::CompareGreaterThanEquals(const Value &left, const Value &rig
   VARLEN_COMPARE_FUNC(>=);  // NOLINT
 }
 
-Value VarlenType::Min(const Value &left, const Value &right) const {
+auto VarlenType::Min(const Value &left, const Value &right) const -> Value {
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return left.OperateNull(right);
@@ -129,7 +129,7 @@ Value VarlenType::Min(const Value &left, const Value &right) const {
   return right.Copy();
 }
 
-Value VarlenType::Max(const Value &left, const Value &right) const {
+auto VarlenType::Max(const Value &left, const Value &right) const -> Value {
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return left.OperateNull(right);
@@ -140,7 +140,7 @@ Value VarlenType::Max(const Value &left, const Value &right) const {
   return right.Copy();
 }
 
-std::string VarlenType::ToString(const Value &val) const {
+auto VarlenType::ToString(const Value &val) const -> std::string {
   uint32_t len = GetLength(val);
 
   if (val.IsNull()) {
@@ -166,7 +166,7 @@ void VarlenType::SerializeTo(const Value &val, char *storage) const {
 }
 
 // Deserialize a value of the given type from the given storage space.
-Value VarlenType::DeserializeFrom(const char *storage) const {
+auto VarlenType::DeserializeFrom(const char *storage) const -> Value {
   uint32_t len = *reinterpret_cast<const uint32_t *>(storage);
   if (len == BUSTUB_VALUE_NULL) {
     return Value(type_id_, nullptr, len, false);
@@ -175,9 +175,9 @@ Value VarlenType::DeserializeFrom(const char *storage) const {
   return Value(type_id_, storage + sizeof(uint32_t), len, true);
 }
 
-Value VarlenType::Copy(const Value &val) const { return Value(val); }
+auto VarlenType::Copy(const Value &val) const -> Value { return Value(val); }
 
-Value VarlenType::CastAs(const Value &value, const TypeId type_id) const {
+auto VarlenType::CastAs(const Value &value, const TypeId type_id) const -> Value {
   std::string str;
   // switch begins
   switch (type_id) {

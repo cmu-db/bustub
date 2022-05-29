@@ -41,7 +41,7 @@ Value::Value(const Value &other) {
   }
 }
 
-Value &Value::operator=(Value other) {
+auto Value::operator=(Value other) -> Value & {
   Swap(*this, other);
   return *this;
 }
@@ -267,7 +267,7 @@ Value::~Value() {
   }
 }
 
-bool Value::CheckComparable(const Value &o) const {
+auto Value::CheckComparable(const Value &o) const -> bool {
   switch (GetTypeId()) {
     case TypeId::BOOLEAN:
       return (o.GetTypeId() == TypeId::BOOLEAN || o.GetTypeId() == TypeId::VARCHAR);
@@ -298,7 +298,7 @@ bool Value::CheckComparable(const Value &o) const {
   return false;
 }
 
-bool Value::CheckInteger() const {
+auto Value::CheckInteger() const -> bool {
   switch (GetTypeId()) {
     case TypeId::TINYINT:
     case TypeId::SMALLINT:

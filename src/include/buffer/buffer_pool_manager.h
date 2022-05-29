@@ -38,7 +38,7 @@ class BufferPoolManager {
   virtual ~BufferPoolManager() = default;
 
   /** Grading function. Do not modify! */
-  Page *FetchPage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) {
+  auto FetchPage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) -> Page * {
     GradingCallback(callback, CallbackType::BEFORE, page_id);
     auto *result = FetchPgImp(page_id);
     GradingCallback(callback, CallbackType::AFTER, page_id);
@@ -46,7 +46,7 @@ class BufferPoolManager {
   }
 
   /** Grading function. Do not modify! */
-  bool UnpinPage(page_id_t page_id, bool is_dirty, bufferpool_callback_fn callback = nullptr) {
+  auto UnpinPage(page_id_t page_id, bool is_dirty, bufferpool_callback_fn callback = nullptr) -> bool {
     GradingCallback(callback, CallbackType::BEFORE, page_id);
     auto result = UnpinPgImp(page_id, is_dirty);
     GradingCallback(callback, CallbackType::AFTER, page_id);
@@ -54,7 +54,7 @@ class BufferPoolManager {
   }
 
   /** Grading function. Do not modify! */
-  bool FlushPage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) {
+  auto FlushPage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) -> bool {
     GradingCallback(callback, CallbackType::BEFORE, page_id);
     auto result = FlushPgImp(page_id);
     GradingCallback(callback, CallbackType::AFTER, page_id);
@@ -62,7 +62,7 @@ class BufferPoolManager {
   }
 
   /** Grading function. Do not modify! */
-  Page *NewPage(page_id_t *page_id, bufferpool_callback_fn callback = nullptr) {
+  auto NewPage(page_id_t *page_id, bufferpool_callback_fn callback = nullptr) -> Page * {
     GradingCallback(callback, CallbackType::BEFORE, INVALID_PAGE_ID);
     auto *result = NewPgImp(page_id);
     GradingCallback(callback, CallbackType::AFTER, *page_id);
@@ -70,7 +70,7 @@ class BufferPoolManager {
   }
 
   /** Grading function. Do not modify! */
-  bool DeletePage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) {
+  auto DeletePage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) -> bool {
     GradingCallback(callback, CallbackType::BEFORE, page_id);
     auto result = DeletePgImp(page_id);
     GradingCallback(callback, CallbackType::AFTER, page_id);
@@ -85,7 +85,7 @@ class BufferPoolManager {
   }
 
   /** @return size of the buffer pool */
-  virtual size_t GetPoolSize() = 0;
+  virtual auto GetPoolSize() -> size_t = 0;
 
  protected:
   /**
@@ -106,7 +106,7 @@ class BufferPoolManager {
    * @param page_id id of page to be fetched
    * @return the requested page
    */
-  virtual Page *FetchPgImp(page_id_t page_id) = 0;
+  virtual auto FetchPgImp(page_id_t page_id) -> Page * = 0;
 
   /**
    * Unpin the target page from the buffer pool.
@@ -114,28 +114,28 @@ class BufferPoolManager {
    * @param is_dirty true if the page should be marked as dirty, false otherwise
    * @return false if the page pin count is <= 0 before this call, true otherwise
    */
-  virtual bool UnpinPgImp(page_id_t page_id, bool is_dirty) = 0;
+  virtual auto UnpinPgImp(page_id_t page_id, bool is_dirty) -> bool = 0;
 
   /**
    * Flushes the target page to disk.
    * @param page_id id of page to be flushed, cannot be INVALID_PAGE_ID
    * @return false if the page could not be found in the page table, true otherwise
    */
-  virtual bool FlushPgImp(page_id_t page_id) = 0;
+  virtual auto FlushPgImp(page_id_t page_id) -> bool = 0;
 
   /**
    * Creates a new page in the buffer pool.
    * @param[out] page_id id of created page
    * @return nullptr if no new pages could be created, otherwise pointer to new page
    */
-  virtual Page *NewPgImp(page_id_t *page_id) = 0;
+  virtual auto NewPgImp(page_id_t *page_id) -> Page * = 0;
 
   /**
    * Deletes a page from the buffer pool.
    * @param page_id id of page to be deleted
    * @return false if the page exists but could not be deleted, true if the page didn't exist or deletion succeeded
    */
-  virtual bool DeletePgImp(page_id_t page_id) = 0;
+  virtual auto DeletePgImp(page_id_t page_id) -> bool = 0;
 
   /**
    * Flushes all the pages in the buffer pool to disk.

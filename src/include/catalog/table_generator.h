@@ -103,10 +103,10 @@ class TableGenerator {
 
   void FillTable(TableInfo *info, TableInsertMeta *table_meta);
 
-  std::vector<Value> MakeValues(ColumnInsertMeta *col_meta, uint32_t count);
+  auto MakeValues(ColumnInsertMeta *col_meta, uint32_t count) -> std::vector<Value>;
 
   template <typename CppType>
-  std::vector<Value> GenNumericValues(ColumnInsertMeta *col_meta, uint32_t count);
+  auto GenNumericValues(ColumnInsertMeta *col_meta, uint32_t count) -> std::vector<Value>;
 
  private:
   ExecutorContext *exec_ctx_;

@@ -43,7 +43,7 @@ class SimpleAggregationHashTable {
       : agg_exprs_{agg_exprs}, agg_types_{agg_types} {}
 
   /** @return The initial aggregrate value for this aggregation executor */
-  AggregateValue GenerateInitialAggregateValue() {
+  auto GenerateInitialAggregateValue() -> AggregateValue {
     std::vector<Value> values{};
     for (const auto &agg_type : agg_types_) {
       switch (agg_type) {
@@ -115,22 +115,22 @@ class SimpleAggregationHashTable {
     explicit Iterator(std::unordered_map<AggregateKey, AggregateValue>::const_iterator iter) : iter_{iter} {}
 
     /** @return The key of the iterator */
-    const AggregateKey &Key() { return iter_->first; }
+    auto Key() -> const AggregateKey & { return iter_->first; }
 
     /** @return The value of the iterator */
-    const AggregateValue &Val() { return iter_->second; }
+    auto Val() -> const AggregateValue & { return iter_->second; }
 
     /** @return The iterator before it is incremented */
-    Iterator &operator++() {
+    auto operator++() -> Iterator & {
       ++iter_;
       return *this;
     }
 
     /** @return `true` if both iterators are identical */
-    bool operator==(const Iterator &other) { return this->iter_ == other.iter_; }
+    auto operator==(const Iterator &other) -> bool { return this->iter_ == other.iter_; }
 
     /** @return `true` if both iterators are different */
-    bool operator!=(const Iterator &other) { return this->iter_ != other.iter_; }
+    auto operator!=(const Iterator &other) -> bool { return this->iter_ != other.iter_; }
 
    private:
     /** Aggregates map */
@@ -138,10 +138,10 @@ class SimpleAggregationHashTable {
   };
 
   /** @return Iterator to the start of the hash table */
-  Iterator Begin() { return Iterator{ht_.cbegin()}; }
+  auto Begin() -> Iterator { return Iterator{ht_.cbegin()}; }
 
   /** @return Iterator to the end of the hash table */
-  Iterator End() { return Iterator{ht_.cend()}; }
+  auto End() -> Iterator { return Iterator{ht_.cend()}; }
 
  private:
   /** The hash table is just a map from aggregate keys to aggregate values */
@@ -176,17 +176,17 @@ class AggregationExecutor : public AbstractExecutor {
    * @param[out] rid The next tuple RID produced by the insert
    * @return `true` if a tuple was produced, `false` if there are no more tuples
    */
-  bool Next(Tuple *tuple, RID *rid) override;
+  auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the aggregation */
-  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); };
+  auto GetOutputSchema() -> const Schema * override { return plan_->OutputSchema(); };
 
   /** Do not use or remove this function, otherwise you will get zero points. */
-  const AbstractExecutor *GetChildExecutor() const;
+  auto GetChildExecutor() const -> const AbstractExecutor *;
 
  private:
   /** @return The tuple as an AggregateKey */
-  AggregateKey MakeAggregateKey(const Tuple *tuple) {
+  auto MakeAggregateKey(const Tuple *tuple) -> AggregateKey {
     std::vector<Value> keys;
     for (const auto &expr : plan_->GetGroupBys()) {
       keys.emplace_back(expr->Evaluate(tuple, child_->GetOutputSchema()));
@@ -195,7 +195,7 @@ class AggregationExecutor : public AbstractExecutor {
   }
 
   /** @return The tuple as an AggregateValue */
-  AggregateValue MakeAggregateValue(const Tuple *tuple) {
+  auto MakeAggregateValue(const Tuple *tuple) -> AggregateValue {
     std::vector<Value> vals;
     for (const auto &expr : plan_->GetAggregates()) {
       vals.emplace_back(expr->Evaluate(tuple, child_->GetOutputSchema()));

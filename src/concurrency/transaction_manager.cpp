@@ -23,7 +23,7 @@ namespace bustub {
 std::unordered_map<txn_id_t, Transaction *> TransactionManager::txn_map = {};
 std::shared_mutex TransactionManager::txn_map_mutex = {};
 
-Transaction *TransactionManager::Begin(Transaction *txn, IsolationLevel isolation_level) {
+auto TransactionManager::Begin(Transaction *txn, IsolationLevel isolation_level) -> Transaction * {
   // Acquire the global transaction latch in shared mode.
   global_txn_latch_.RLock();
 

@@ -44,12 +44,12 @@ class LogManager {
   void RunFlushThread();
   void StopFlushThread();
 
-  lsn_t AppendLogRecord(LogRecord *log_record);
+  auto AppendLogRecord(LogRecord *log_record) -> lsn_t;
 
-  inline lsn_t GetNextLSN() { return next_lsn_; }
-  inline lsn_t GetPersistentLSN() { return persistent_lsn_; }
+  inline auto GetNextLSN() -> lsn_t { return next_lsn_; }
+  inline auto GetPersistentLSN() -> lsn_t { return persistent_lsn_; }
   inline void SetPersistentLSN(lsn_t lsn) { persistent_lsn_ = lsn; }
-  inline char *GetLogBuffer() { return log_buffer_; }
+  inline auto GetLogBuffer() -> char * { return log_buffer_; }
 
  private:
   // TODO(students): you may add your own member variables

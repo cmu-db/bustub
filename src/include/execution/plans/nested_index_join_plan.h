@@ -39,25 +39,25 @@ class NestedIndexJoinPlanNode : public AbstractPlanNode {
         outer_table_schema_(outer_table_schema),
         inner_table_schema_(inner_table_schema) {}
 
-  PlanType GetType() const override { return PlanType::NestedIndexJoin; }
+  auto GetType() const -> PlanType override { return PlanType::NestedIndexJoin; }
 
   /** @return the predicate to be used in the nested index join */
-  const AbstractExpression *Predicate() const { return predicate_; }
+  auto Predicate() const -> const AbstractExpression * { return predicate_; }
 
   /** @return the plan node for the outer table of the nested index join */
-  const AbstractPlanNode *GetChildPlan() const { return GetChildAt(0); }
+  auto GetChildPlan() const -> const AbstractPlanNode * { return GetChildAt(0); }
 
   /** @return the table oid for the inner table of the nested index join */
-  table_oid_t GetInnerTableOid() const { return inner_table_oid_; }
+  auto GetInnerTableOid() const -> table_oid_t { return inner_table_oid_; }
 
   /** @return the index associated with the nested index join */
-  std::string GetIndexName() const { return index_name_; }
+  auto GetIndexName() const -> std::string { return index_name_; }
 
   /** @return Schema with needed columns in from the outer table */
-  const Schema *OuterTableSchema() const { return outer_table_schema_; }
+  auto OuterTableSchema() const -> const Schema * { return outer_table_schema_; }
 
   /** @return Schema with needed columns in from the inner table */
-  const Schema *InnerTableSchema() const { return inner_table_schema_; }
+  auto InnerTableSchema() const -> const Schema * { return inner_table_schema_; }
 
  private:
   /** The nested index join predicate. */

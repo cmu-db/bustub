@@ -23,17 +23,17 @@ TableIterator::TableIterator(TableHeap *table_heap, RID rid, Transaction *txn)
   }
 }
 
-const Tuple &TableIterator::operator*() {
+auto TableIterator::operator*() -> const Tuple & {
   assert(*this != table_heap_->End());
   return *tuple_;
 }
 
-Tuple *TableIterator::operator->() {
+auto TableIterator::operator->() -> Tuple * {
   assert(*this != table_heap_->End());
   return tuple_;
 }
 
-TableIterator &TableIterator::operator++() {
+auto TableIterator::operator++() -> TableIterator & {
   BufferPoolManager *buffer_pool_manager = table_heap_->buffer_pool_manager_;
   auto cur_page = static_cast<TablePage *>(buffer_pool_manager->FetchPage(tuple_->rid_.GetPageId()));
   cur_page->RLatch();
@@ -64,7 +64,7 @@ TableIterator &TableIterator::operator++() {
   return *this;
 }
 
-TableIterator TableIterator::operator++(int) {
+auto TableIterator::operator++(int) -> TableIterator {
   TableIterator clone(*this);
   ++(*this);
   return clone;

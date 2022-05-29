@@ -29,10 +29,10 @@ class DistinctPlanNode : public AbstractPlanNode {
       : AbstractPlanNode(output_schema, {child}) {}
 
   /** @return The type of the plan node */
-  PlanType GetType() const override { return PlanType::Distinct; }
+  auto GetType() const -> PlanType override { return PlanType::Distinct; }
 
   /** @return The child plan node */
-  const AbstractPlanNode *GetChildPlan() const {
+  auto GetChildPlan() const -> const AbstractPlanNode * {
     BUSTUB_ASSERT(GetChildren().size() == 1, "Distinct should have at most one child plan.");
     return GetChildAt(0);
   }

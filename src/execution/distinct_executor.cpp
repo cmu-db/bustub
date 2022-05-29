@@ -20,6 +20,6 @@ DistinctExecutor::DistinctExecutor(ExecutorContext *exec_ctx, const DistinctPlan
 
 void DistinctExecutor::Init() {}
 
-bool DistinctExecutor::Next(Tuple *tuple, RID *rid) { return false; }
+auto DistinctExecutor::Next(Tuple *tuple, RID *rid) -> bool { return false; }
 
 }  // namespace bustub

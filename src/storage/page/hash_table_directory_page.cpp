@@ -16,31 +16,31 @@
 #include "common/logger.h"
 
 namespace bustub {
-page_id_t HashTableDirectoryPage::GetPageId() const { return page_id_; }
+auto HashTableDirectoryPage::GetPageId() const -> page_id_t { return page_id_; }
 
 void HashTableDirectoryPage::SetPageId(bustub::page_id_t page_id) { page_id_ = page_id; }
 
-lsn_t HashTableDirectoryPage::GetLSN() const { return lsn_; }
+auto HashTableDirectoryPage::GetLSN() const -> lsn_t { return lsn_; }
 
 void HashTableDirectoryPage::SetLSN(lsn_t lsn) { lsn_ = lsn; }
 
-uint32_t HashTableDirectoryPage::GetGlobalDepth() { return global_depth_; }
+auto HashTableDirectoryPage::GetGlobalDepth() -> uint32_t { return global_depth_; }
 
-uint32_t HashTableDirectoryPage::GetGlobalDepthMask() { return 0; }
+auto HashTableDirectoryPage::GetGlobalDepthMask() -> uint32_t { return 0; }
 
 void HashTableDirectoryPage::IncrGlobalDepth() {}
 
 void HashTableDirectoryPage::DecrGlobalDepth() { global_depth_--; }
 
-page_id_t HashTableDirectoryPage::GetBucketPageId(uint32_t bucket_idx) { return 0; }
+auto HashTableDirectoryPage::GetBucketPageId(uint32_t bucket_idx) -> page_id_t { return 0; }
 
 void HashTableDirectoryPage::SetBucketPageId(uint32_t bucket_idx, page_id_t bucket_page_id) {}
 
-uint32_t HashTableDirectoryPage::Size() { return 0; }
+auto HashTableDirectoryPage::Size() -> uint32_t { return 0; }
 
-bool HashTableDirectoryPage::CanShrink() { return false; }
+auto HashTableDirectoryPage::CanShrink() -> bool { return false; }
 
-uint32_t HashTableDirectoryPage::GetLocalDepth(uint32_t bucket_idx) { return 0; }
+auto HashTableDirectoryPage::GetLocalDepth(uint32_t bucket_idx) -> uint32_t { return 0; }
 
 void HashTableDirectoryPage::SetLocalDepth(uint32_t bucket_idx, uint8_t local_depth) {}
 
@@ -48,7 +48,7 @@ void HashTableDirectoryPage::IncrLocalDepth(uint32_t bucket_idx) {}
 
 void HashTableDirectoryPage::DecrLocalDepth(uint32_t bucket_idx) {}
 
-uint32_t HashTableDirectoryPage::GetLocalHighBit(uint32_t bucket_idx) { return 0; }
+auto HashTableDirectoryPage::GetLocalHighBit(uint32_t bucket_idx) -> uint32_t { return 0; }
 
 /**
  * VerifyIntegrity - Use this for debugging but **DO NOT CHANGE**
