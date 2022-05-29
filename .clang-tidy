@@ -42,6 +42,7 @@ Checks:     '
             -modernize-use-nodiscard,
             -modernize-use-auto,
             -modernize-use-default-member-init,
+            -modernize-use-trailing-return-type,
             -modernize-return-braced-init-list,
             -readability-convert-member-functions-to-static,
             -readability-identifier-length,
