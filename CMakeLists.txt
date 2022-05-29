@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)              # Compile as C++17
 set(CMAKE_CXX_STANDARD_REQUIRED ON)     # Require C++17 support
 
 project(BusTub
-        VERSION 2019.1
+        VERSION 2022.1
         DESCRIPTION "The BusTub Relational Database Management System (Educational) @ https://github.com/cmu-db/bustub"
         LANGUAGES C CXX
         )
@@ -21,8 +21,8 @@ endif ()
 
 # Expected directory structure.
 set(BUSTUB_BUILD_SUPPORT_DIR "${CMAKE_SOURCE_DIR}/build_support")
-set(BUSTUB_CLANG_SEARCH_PATH "/usr/local/bin" "/usr/bin" "/usr/local/opt/llvm/bin" "/usr/local/opt/llvm@8/bin"
-        "/usr/local/Cellar/llvm/8.0.1/bin")
+set(BUSTUB_CLANG_SEARCH_PATH "/usr/local/bin" "/usr/bin" "/usr/local/opt/llvm/bin" "/usr/local/opt/llvm@12/bin"
+        "/usr/local/Cellar/llvm/12.0.1/bin")
 
 ######################################################################################################################
 # DEPENDENCIES
@@ -35,7 +35,7 @@ enable_testing()
 if (NOT DEFINED CLANG_FORMAT_BIN)
     # attempt to find the binary if user did not specify
     find_program(CLANG_FORMAT_BIN
-            NAMES clang-format clang-format-8
+            NAMES clang-format clang-format-12
             HINTS ${BUSTUB_CLANG_SEARCH_PATH})
 endif()
 if ("${CLANG_FORMAT_BIN}" STREQUAL "CLANG_FORMAT_BIN-NOTFOUND")
@@ -48,7 +48,7 @@ endif()
 if (NOT DEFINED CLANG_TIDY_BIN)
     # attempt to find the binary if user did not specify
     find_program(CLANG_TIDY_BIN
-            NAMES clang-tidy clang-tidy-8
+            NAMES clang-tidy clang-tidy-12
             HINTS ${BUSTUB_CLANG_SEARCH_PATH})
 endif()
 if ("${CLANG_TIDY_BIN}" STREQUAL "CLANG_TIDY_BIN-NOTFOUND")
@@ -83,7 +83,7 @@ add_subdirectory("${CMAKE_BINARY_DIR}/googletest-src" "${CMAKE_BINARY_DIR}/googl
 ######################################################################################################################
 
 # Compiler flags.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wall -Wextra -Werror -march=native")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wall -Wextra -Werror")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-attributes") #TODO: remove
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -ggdb -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls")
 set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -fPIC")
@@ -124,7 +124,7 @@ string(CONCAT BUSTUB_FORMAT_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/test,"
         )
 
-# runs clang format and updates files in place.
+# Runs clang format and updates files in place.
 add_custom_target(format ${BUSTUB_BUILD_SUPPORT_DIR}/run_clang_format.py
         ${CLANG_FORMAT_BIN}
         ${BUSTUB_BUILD_SUPPORT_DIR}/clang_format_exclusions.txt
@@ -134,7 +134,7 @@ add_custom_target(format ${BUSTUB_BUILD_SUPPORT_DIR}/run_clang_format.py
         --quiet
         )
 
-# runs clang format and exits with a non-zero exit code if any files need to be reformatted
+# Runs clang format and exits with a non-zero exit code if any files need to be reformatted
 add_custom_target(check-format ${BUSTUB_BUILD_SUPPORT_DIR}/run_clang_format.py
         ${CLANG_FORMAT_BIN}
         ${BUSTUB_BUILD_SUPPORT_DIR}/clang_format_exclusions.txt
@@ -142,7 +142,6 @@ add_custom_target(check-format ${BUSTUB_BUILD_SUPPORT_DIR}/run_clang_format.py
         ${BUSTUB_FORMAT_DIRS}
         --quiet
         )
-
 
 ##########################################
 # "make check-lint"
