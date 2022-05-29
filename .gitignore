@@ -260,3 +260,6 @@ docs/dev
 
 # Vagrant
 .vagrant
+
+# Clangd cache index
+.cache
