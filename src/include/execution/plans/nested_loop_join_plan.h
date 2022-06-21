@@ -38,19 +38,19 @@ class NestedLoopJoinPlanNode : public AbstractPlanNode {
       : AbstractPlanNode(output_schema, std::move(children)), predicate_(predicate) {}
 
   /** @return The type of the plan node */
-  PlanType GetType() const override { return PlanType::NestedLoopJoin; }
+  auto GetType() const -> PlanType override { return PlanType::NestedLoopJoin; }
 
   /** @return The predicate to be used in the nested loop join */
-  const AbstractExpression *Predicate() const { return predicate_; }
+  auto Predicate() const -> const AbstractExpression * { return predicate_; }
 
   /** @return The left plan node of the nested loop join, by convention it should be the smaller table */
-  const AbstractPlanNode *GetLeftPlan() const {
+  auto GetLeftPlan() const -> const AbstractPlanNode * {
     BUSTUB_ASSERT(GetChildren().size() == 2, "Nested loop joins should have exactly two children plans.");
     return GetChildAt(0);
   }
 
   /** @return The right plan node of the nested loop join */
-  const AbstractPlanNode *GetRightPlan() const {
+  auto GetRightPlan() const -> const AbstractPlanNode * {
     BUSTUB_ASSERT(GetChildren().size() == 2, "Nested loop joins should have exactly two children plans.");
     return GetChildAt(1);
   }

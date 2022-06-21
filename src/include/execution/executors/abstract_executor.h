@@ -44,13 +44,13 @@ class AbstractExecutor {
    * @param[out] rid The next tuple RID produced by this executor
    * @return `true` if a tuple was produced, `false` if there are no more tuples
    */
-  virtual bool Next(Tuple *tuple, RID *rid) = 0;
+  virtual auto Next(Tuple *tuple, RID *rid) -> bool = 0;
 
   /** @return The schema of the tuples that this executor produces */
-  virtual const Schema *GetOutputSchema() = 0;
+  virtual auto GetOutputSchema() -> const Schema * = 0;
 
   /** @return The executor context in which this executor runs */
-  ExecutorContext *GetExecutorContext() { return exec_ctx_; }
+  auto GetExecutorContext() -> ExecutorContext * { return exec_ctx_; }
 
  protected:
   /** The executor context in which the executor runs */

@@ -32,13 +32,13 @@ class IndexScanPlanNode : public AbstractPlanNode {
   IndexScanPlanNode(const Schema *output, const AbstractExpression *predicate, index_oid_t index_oid)
       : AbstractPlanNode(output, {}), predicate_{predicate}, index_oid_(index_oid) {}
 
-  PlanType GetType() const override { return PlanType::IndexScan; }
+  auto GetType() const -> PlanType override { return PlanType::IndexScan; }
 
   /** @return the predicate to test tuples against; tuples should only be returned if they evaluate to true */
-  const AbstractExpression *GetPredicate() const { return predicate_; }
+  auto GetPredicate() const -> const AbstractExpression * { return predicate_; }
 
   /** @return the identifier of the table that should be scanned */
-  index_oid_t GetIndexOid() const { return index_oid_; }
+  auto GetIndexOid() const -> index_oid_t { return index_oid_; }
 
  private:
   /** The predicate that all returned tuples must satisfy. */

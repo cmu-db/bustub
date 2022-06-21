@@ -21,7 +21,7 @@
 
 namespace bustub {
 
-inline CmpBool GetCmpBool(bool boolean) { return boolean ? CmpBool::CmpTrue : CmpBool::CmpFalse; }
+inline auto GetCmpBool(bool boolean) -> CmpBool { return boolean ? CmpBool::CmpTrue : CmpBool::CmpFalse; }
 
 // A value is an abstract class that represents a view over SQL data stored in
 // some materialized state. All values have a type and comparison functions, but
@@ -61,7 +61,7 @@ class Value {
 
   Value() : Value(TypeId::INVALID) {}
   Value(const Value &other);
-  Value &operator=(Value other);
+  auto operator=(Value other) -> Value &;
   ~Value();
   // NOLINTNEXTLINE
   friend void Swap(Value &first, Value &second) {
@@ -71,54 +71,58 @@ class Value {
     std::swap(first.type_id_, second.type_id_);
   }
   // check whether value is integer
-  bool CheckInteger() const;
-  bool CheckComparable(const Value &o) const;
+  auto CheckInteger() const -> bool;
+  auto CheckComparable(const Value &o) const -> bool;
 
   // Get the type of this value
-  inline TypeId GetTypeId() const { return type_id_; }
+  inline auto GetTypeId() const -> TypeId { return type_id_; }
 
   // Get the length of the variable length data
-  inline uint32_t GetLength() const { return Type::GetInstance(type_id_)->GetLength(*this); }
+  inline auto GetLength() const -> uint32_t { return Type::GetInstance(type_id_)->GetLength(*this); }
   // Access the raw variable length data
-  inline const char *GetData() const { return Type::GetInstance(type_id_)->GetData(*this); }
+  inline auto GetData() const -> const char * { return Type::GetInstance(type_id_)->GetData(*this); }
 
   template <class T>
-  inline T GetAs() const {
+  inline auto GetAs() const -> T {
     return *reinterpret_cast<const T *>(&value_);
   }
 
-  inline Value CastAs(const TypeId type_id) const { return Type::GetInstance(type_id_)->CastAs(*this, type_id); }
+  inline auto CastAs(const TypeId type_id) const -> Value {
+    return Type::GetInstance(type_id_)->CastAs(*this, type_id);
+  }
   // Comparison Methods
-  inline CmpBool CompareEquals(const Value &o) const { return Type::GetInstance(type_id_)->CompareEquals(*this, o); }
-  inline CmpBool CompareNotEquals(const Value &o) const {
+  inline auto CompareEquals(const Value &o) const -> CmpBool {
+    return Type::GetInstance(type_id_)->CompareEquals(*this, o);
+  }
+  inline auto CompareNotEquals(const Value &o) const -> CmpBool {
     return Type::GetInstance(type_id_)->CompareNotEquals(*this, o);
   }
-  inline CmpBool CompareLessThan(const Value &o) const {
+  inline auto CompareLessThan(const Value &o) const -> CmpBool {
     return Type::GetInstance(type_id_)->CompareLessThan(*this, o);
   }
-  inline CmpBool CompareLessThanEquals(const Value &o) const {
+  inline auto CompareLessThanEquals(const Value &o) const -> CmpBool {
     return Type::GetInstance(type_id_)->CompareLessThanEquals(*this, o);
   }
-  inline CmpBool CompareGreaterThan(const Value &o) const {
+  inline auto CompareGreaterThan(const Value &o) const -> CmpBool {
     return Type::GetInstance(type_id_)->CompareGreaterThan(*this, o);
   }
-  inline CmpBool CompareGreaterThanEquals(const Value &o) const {
+  inline auto CompareGreaterThanEquals(const Value &o) const -> CmpBool {
     return Type::GetInstance(type_id_)->CompareGreaterThanEquals(*this, o);
   }
 
   // Other mathematical functions
-  inline Value Add(const Value &o) const { return Type::GetInstance(type_id_)->Add(*this, o); }
-  inline Value Subtract(const Value &o) const { return Type::GetInstance(type_id_)->Subtract(*this, o); }
-  inline Value Multiply(const Value &o) const { return Type::GetInstance(type_id_)->Multiply(*this, o); }
-  inline Value Divide(const Value &o) const { return Type::GetInstance(type_id_)->Divide(*this, o); }
-  inline Value Modulo(const Value &o) const { return Type::GetInstance(type_id_)->Modulo(*this, o); }
-  inline Value Min(const Value &o) const { return Type::GetInstance(type_id_)->Min(*this, o); }
-  inline Value Max(const Value &o) const { return Type::GetInstance(type_id_)->Max(*this, o); }
-  inline Value Sqrt() const { return Type::GetInstance(type_id_)->Sqrt(*this); }
+  inline auto Add(const Value &o) const -> Value { return Type::GetInstance(type_id_)->Add(*this, o); }
+  inline auto Subtract(const Value &o) const -> Value { return Type::GetInstance(type_id_)->Subtract(*this, o); }
+  inline auto Multiply(const Value &o) const -> Value { return Type::GetInstance(type_id_)->Multiply(*this, o); }
+  inline auto Divide(const Value &o) const -> Value { return Type::GetInstance(type_id_)->Divide(*this, o); }
+  inline auto Modulo(const Value &o) const -> Value { return Type::GetInstance(type_id_)->Modulo(*this, o); }
+  inline auto Min(const Value &o) const -> Value { return Type::GetInstance(type_id_)->Min(*this, o); }
+  inline auto Max(const Value &o) const -> Value { return Type::GetInstance(type_id_)->Max(*this, o); }
+  inline auto Sqrt() const -> Value { return Type::GetInstance(type_id_)->Sqrt(*this); }
 
-  inline Value OperateNull(const Value &o) const { return Type::GetInstance(type_id_)->OperateNull(*this, o); }
-  inline bool IsZero() const { return Type::GetInstance(type_id_)->IsZero(*this); }
-  inline bool IsNull() const { return size_.len_ == BUSTUB_VALUE_NULL; }
+  inline auto OperateNull(const Value &o) const -> Value { return Type::GetInstance(type_id_)->OperateNull(*this, o); }
+  inline auto IsZero() const -> bool { return Type::GetInstance(type_id_)->IsZero(*this); }
+  inline auto IsNull() const -> bool { return size_.len_ == BUSTUB_VALUE_NULL; }
 
   // Serialize this value into the given storage space. The inlined parameter
   // indicates whether we are allowed to inline this value into the storage
@@ -128,14 +132,14 @@ class Value {
   inline void SerializeTo(char *storage) const { Type::GetInstance(type_id_)->SerializeTo(*this, storage); }
 
   // Deserialize a value of the given type from the given storage space.
-  inline static Value DeserializeFrom(const char *storage, const TypeId type_id) {
+  inline static auto DeserializeFrom(const char *storage, const TypeId type_id) -> Value {
     return Type::GetInstance(type_id)->DeserializeFrom(storage);
   }
 
   // Return a string version of this value
-  inline std::string ToString() const { return Type::GetInstance(type_id_)->ToString(*this); }
+  inline auto ToString() const -> std::string { return Type::GetInstance(type_id_)->ToString(*this); }
   // Create a copy of this value
-  inline Value Copy() const { return Type::GetInstance(type_id_)->Copy(*this); }
+  inline auto Copy() const -> Value { return Type::GetInstance(type_id_)->Copy(*this); }
 
  protected:
   // The actual value item

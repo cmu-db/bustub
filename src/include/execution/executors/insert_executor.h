@@ -51,10 +51,10 @@ class InsertExecutor : public AbstractExecutor {
    * NOTE: InsertExecutor::Next() does not use the `tuple` out-parameter.
    * NOTE: InsertExecutor::Next() does not use the `rid` out-parameter.
    */
-  bool Next([[maybe_unused]] Tuple *tuple, RID *rid) override;
+  auto Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the insert */
-  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); };
+  auto GetOutputSchema() -> const Schema * override { return plan_->OutputSchema(); };
 
  private:
   /** The insert plan node to be executed*/

@@ -22,32 +22,32 @@ ParallelBufferPoolManager::ParallelBufferPoolManager(size_t num_instances, size_
 // Update constructor to destruct all BufferPoolManagerInstances and deallocate any associated memory
 ParallelBufferPoolManager::~ParallelBufferPoolManager() = default;
 
-size_t ParallelBufferPoolManager::GetPoolSize() {
+auto ParallelBufferPoolManager::GetPoolSize() -> size_t {
   // Get size of all BufferPoolManagerInstances
   return 0;
 }
 
-BufferPoolManager *ParallelBufferPoolManager::GetBufferPoolManager(page_id_t page_id) {
+auto ParallelBufferPoolManager::GetBufferPoolManager(page_id_t page_id) -> BufferPoolManager * {
   // Get BufferPoolManager responsible for handling given page id. You can use this method in your other methods.
   return nullptr;
 }
 
-Page *ParallelBufferPoolManager::FetchPgImp(page_id_t page_id) {
+auto ParallelBufferPoolManager::FetchPgImp(page_id_t page_id) -> Page * {
   // Fetch page for page_id from responsible BufferPoolManagerInstance
   return nullptr;
 }
 
-bool ParallelBufferPoolManager::UnpinPgImp(page_id_t page_id, bool is_dirty) {
+auto ParallelBufferPoolManager::UnpinPgImp(page_id_t page_id, bool is_dirty) -> bool {
   // Unpin page_id from responsible BufferPoolManagerInstance
   return false;
 }
 
-bool ParallelBufferPoolManager::FlushPgImp(page_id_t page_id) {
+auto ParallelBufferPoolManager::FlushPgImp(page_id_t page_id) -> bool {
   // Flush page_id from responsible BufferPoolManagerInstance
   return false;
 }
 
-Page *ParallelBufferPoolManager::NewPgImp(page_id_t *page_id) {
+auto ParallelBufferPoolManager::NewPgImp(page_id_t *page_id) -> Page * {
   // create new page. We will request page allocation in a round robin manner from the underlying
   // BufferPoolManagerInstances
   // 1.   From a starting index of the BPMIs, call NewPageImpl until either 1) success and return 2) looped around to
@@ -57,7 +57,7 @@ Page *ParallelBufferPoolManager::NewPgImp(page_id_t *page_id) {
   return nullptr;
 }
 
-bool ParallelBufferPoolManager::DeletePgImp(page_id_t page_id) {
+auto ParallelBufferPoolManager::DeletePgImp(page_id_t page_id) -> bool {
   // Delete page_id from responsible BufferPoolManagerInstance
   return false;
 }

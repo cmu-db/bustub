@@ -83,42 +83,43 @@ class TransactionTest : public ::testing::Test {
   };
 
   /** @return the executor context in our test class */
-  ExecutorContext *GetExecutorContext() { return exec_ctx_.get(); }
-  ExecutionEngine *GetExecutionEngine() { return execution_engine_.get(); }
-  Transaction *GetTxn() { return txn_; }
-  TransactionManager *GetTxnManager() { return txn_mgr_.get(); }
-  Catalog *GetCatalog() { return catalog_.get(); }
-  BufferPoolManager *GetBPM() { return bpm_.get(); }
-  LockManager *GetLockManager() { return lock_manager_.get(); }
+  auto GetExecutorContext() -> ExecutorContext * { return exec_ctx_.get(); }
+  auto GetExecutionEngine() -> ExecutionEngine * { return execution_engine_.get(); }
+  auto GetTxn() -> Transaction * { return txn_; }
+  auto GetTxnManager() -> TransactionManager * { return txn_mgr_.get(); }
+  auto GetCatalog() -> Catalog * { return catalog_.get(); }
+  auto GetBPM() -> BufferPoolManager * { return bpm_.get(); }
+  auto GetLockManager() -> LockManager * { return lock_manager_.get(); }
 
   // The below helper functions are useful for testing.
 
-  const AbstractExpression *MakeColumnValueExpression(const Schema &schema, uint32_t tuple_idx,
-                                                      const std::string &col_name) {
+  auto MakeColumnValueExpression(const Schema &schema, uint32_t tuple_idx, const std::string &col_name)
+      -> const AbstractExpression * {
     uint32_t col_idx = schema.GetColIdx(col_name);
     auto col_type = schema.GetColumn(col_idx).GetType();
     allocated_exprs_.emplace_back(std::make_unique<ColumnValueExpression>(tuple_idx, col_idx, col_type));
     return allocated_exprs_.back().get();
   }
 
-  const AbstractExpression *MakeConstantValueExpression(const Value &val) {
+  auto MakeConstantValueExpression(const Value &val) -> const AbstractExpression * {
     allocated_exprs_.emplace_back(std::make_unique<ConstantValueExpression>(val));
     return allocated_exprs_.back().get();
   }
 
-  const AbstractExpression *MakeComparisonExpression(const AbstractExpression *lhs, const AbstractExpression *rhs,
-                                                     ComparisonType comp_type) {
+  auto MakeComparisonExpression(const AbstractExpression *lhs, const AbstractExpression *rhs, ComparisonType comp_type)
+      -> const AbstractExpression * {
     allocated_exprs_.emplace_back(std::make_unique<ComparisonExpression>(lhs, rhs, comp_type));
     return allocated_exprs_.back().get();
   }
 
-  const AbstractExpression *MakeAggregateValueExpression(bool is_group_by_term, uint32_t term_idx) {
+  auto MakeAggregateValueExpression(bool is_group_by_term, uint32_t term_idx) -> const AbstractExpression * {
     allocated_exprs_.emplace_back(
         std::make_unique<AggregateValueExpression>(is_group_by_term, term_idx, TypeId::INTEGER));
     return allocated_exprs_.back().get();
   }
 
-  const Schema *MakeOutputSchema(const std::vector<std::pair<std::string, const AbstractExpression *>> &exprs) {
+  auto MakeOutputSchema(const std::vector<std::pair<std::string, const AbstractExpression *>> &exprs)
+      -> const Schema * {
     std::vector<Column> cols;
     cols.reserve(exprs.size());
     for (const auto &input : exprs) {

@@ -37,7 +37,7 @@ class AbstractExpression {
   virtual ~AbstractExpression() = default;
 
   /** @return The value obtained by evaluating the tuple with the given schema */
-  virtual Value Evaluate(const Tuple *tuple, const Schema *schema) const = 0;
+  virtual auto Evaluate(const Tuple *tuple, const Schema *schema) const -> Value = 0;
 
   /**
    * Returns the value obtained by evaluating a JOIN.
@@ -47,8 +47,8 @@ class AbstractExpression {
    * @param right_schema The right tuple's schema
    * @return The value obtained by evaluating a JOIN on the left and right
    */
-  virtual Value EvaluateJoin(const Tuple *left_tuple, const Schema *left_schema, const Tuple *right_tuple,
-                             const Schema *right_schema) const = 0;
+  virtual auto EvaluateJoin(const Tuple *left_tuple, const Schema *left_schema, const Tuple *right_tuple,
+                            const Schema *right_schema) const -> Value = 0;
 
   /**
    * Returns the value obtained by evaluating the aggregates.
@@ -56,16 +56,17 @@ class AbstractExpression {
    * @param aggregates The aggregate values
    * @return The value obtained by checking the aggregates and group-bys
    */
-  virtual Value EvaluateAggregate(const std::vector<Value> &group_bys, const std::vector<Value> &aggregates) const = 0;
+  virtual auto EvaluateAggregate(const std::vector<Value> &group_bys, const std::vector<Value> &aggregates) const
+      -> Value = 0;
 
   /** @return the child_idx'th child of this expression */
-  const AbstractExpression *GetChildAt(uint32_t child_idx) const { return children_[child_idx]; }
+  auto GetChildAt(uint32_t child_idx) const -> const AbstractExpression * { return children_[child_idx]; }
 
   /** @return the children of this expression, ordering may matter */
-  const std::vector<const AbstractExpression *> &GetChildren() const { return children_; }
+  auto GetChildren() const -> const std::vector<const AbstractExpression *> & { return children_; }
 
   /** @return the type of this expression if it were to be evaluated */
-  virtual TypeId GetReturnType() const { return ret_type_; }
+  virtual auto GetReturnType() const -> TypeId { return ret_type_; }
 
  private:
   /** The children of this expression. Note that the order of appearance of children may matter. */

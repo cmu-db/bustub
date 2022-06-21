@@ -43,21 +43,21 @@ class BPlusTree {
                      int leaf_max_size = LEAF_PAGE_SIZE, int internal_max_size = INTERNAL_PAGE_SIZE);
 
   // Returns true if this B+ tree has no keys and values.
-  bool IsEmpty() const;
+  auto IsEmpty() const -> bool;
 
   // Insert a key-value pair into this B+ tree.
-  bool Insert(const KeyType &key, const ValueType &value, Transaction *transaction = nullptr);
+  auto Insert(const KeyType &key, const ValueType &value, Transaction *transaction = nullptr) -> bool;
 
   // Remove a key and its value from this B+ tree.
   void Remove(const KeyType &key, Transaction *transaction = nullptr);
 
   // return the value associated with a given key
-  bool GetValue(const KeyType &key, std::vector<ValueType> *result, Transaction *transaction = nullptr);
+  auto GetValue(const KeyType &key, std::vector<ValueType> *result, Transaction *transaction = nullptr) -> bool;
 
   // index iterator
-  INDEXITERATOR_TYPE Begin();
-  INDEXITERATOR_TYPE Begin(const KeyType &key);
-  INDEXITERATOR_TYPE End();
+  auto Begin() -> INDEXITERATOR_TYPE;
+  auto Begin(const KeyType &key) -> INDEXITERATOR_TYPE;
+  auto End() -> INDEXITERATOR_TYPE;
 
   // print the B+ tree
   void Print(BufferPoolManager *bpm);
@@ -71,30 +71,30 @@ class BPlusTree {
   // read data from file and remove one by one
   void RemoveFromFile(const std::string &file_name, Transaction *transaction = nullptr);
   // expose for test purpose
-  Page *FindLeafPage(const KeyType &key, bool leftMost = false);
+  auto FindLeafPage(const KeyType &key, bool leftMost = false) -> Page *;
 
  private:
   void StartNewTree(const KeyType &key, const ValueType &value);
 
-  bool InsertIntoLeaf(const KeyType &key, const ValueType &value, Transaction *transaction = nullptr);
+  auto InsertIntoLeaf(const KeyType &key, const ValueType &value, Transaction *transaction = nullptr) -> bool;
 
   void InsertIntoParent(BPlusTreePage *old_node, const KeyType &key, BPlusTreePage *new_node,
                         Transaction *transaction = nullptr);
 
   template <typename N>
-  N *Split(N *node);
+  auto Split(N *node) -> N *;
 
   template <typename N>
-  bool CoalesceOrRedistribute(N *node, Transaction *transaction = nullptr);
+  auto CoalesceOrRedistribute(N *node, Transaction *transaction = nullptr) -> bool;
 
   template <typename N>
-  bool Coalesce(N **neighbor_node, N **node, BPlusTreeInternalPage<KeyType, page_id_t, KeyComparator> **parent,
-                int index, Transaction *transaction = nullptr);
+  auto Coalesce(N **neighbor_node, N **node, BPlusTreeInternalPage<KeyType, page_id_t, KeyComparator> **parent,
+                int index, Transaction *transaction = nullptr) -> bool;
 
   template <typename N>
   void Redistribute(N *neighbor_node, N *node, int index);
 
-  bool AdjustRoot(BPlusTreePage *node);
+  auto AdjustRoot(BPlusTreePage *node) -> bool;
 
   void UpdateRootPageId(int insert_record = 0);
 

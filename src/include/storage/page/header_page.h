@@ -32,19 +32,19 @@ class HeaderPage : public Page {
   /**
    * Record related
    */
-  bool InsertRecord(const std::string &name, page_id_t root_id);
-  bool DeleteRecord(const std::string &name);
-  bool UpdateRecord(const std::string &name, page_id_t root_id);
+  auto InsertRecord(const std::string &name, page_id_t root_id) -> bool;
+  auto DeleteRecord(const std::string &name) -> bool;
+  auto UpdateRecord(const std::string &name, page_id_t root_id) -> bool;
 
   // return root_id if success
-  bool GetRootId(const std::string &name, page_id_t *root_id);
-  int GetRecordCount();
+  auto GetRootId(const std::string &name, page_id_t *root_id) -> bool;
+  auto GetRecordCount() -> int;
 
  private:
   /**
    * helper functions
    */
-  int FindRecord(const std::string &name);
+  auto FindRecord(const std::string &name) -> int;
 
   void SetRecordCount(int record_count);
 };

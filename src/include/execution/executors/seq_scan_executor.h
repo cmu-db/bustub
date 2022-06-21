@@ -42,10 +42,10 @@ class SeqScanExecutor : public AbstractExecutor {
    * @param[out] rid The next tuple RID produced by the scan
    * @return `true` if a tuple was produced, `false` if there are no more tuples
    */
-  bool Next(Tuple *tuple, RID *rid) override;
+  auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the sequential scan */
-  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); }
+  auto GetOutputSchema() -> const Schema * override { return plan_->OutputSchema(); }
 
  private:
   /** The sequential scan plan node to be executed */

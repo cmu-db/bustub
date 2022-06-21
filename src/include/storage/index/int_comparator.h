@@ -20,7 +20,7 @@ namespace bustub {
  */
 class IntComparator {
  public:
-  inline int operator()(const int lhs, const int rhs) const {
+  inline auto operator()(const int lhs, const int rhs) const -> int {
     if (lhs < rhs) {
       return -1;
     }

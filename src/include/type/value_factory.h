@@ -34,47 +34,47 @@ namespace bustub {
 
 class ValueFactory {
  public:
-  static inline Value Clone(const Value &src, __attribute__((__unused__)) AbstractPool *dataPool = nullptr) {
+  static inline auto Clone(const Value &src, __attribute__((__unused__)) AbstractPool *dataPool = nullptr) -> Value {
     return src.Copy();
   }
 
-  static inline Value GetTinyIntValue(int8_t value) { return Value(TypeId::TINYINT, value); }
+  static inline auto GetTinyIntValue(int8_t value) -> Value { return Value(TypeId::TINYINT, value); }
 
-  static inline Value GetSmallIntValue(int16_t value) { return Value(TypeId::SMALLINT, value); }
+  static inline auto GetSmallIntValue(int16_t value) -> Value { return Value(TypeId::SMALLINT, value); }
 
-  static inline Value GetIntegerValue(int32_t value) { return Value(TypeId::INTEGER, value); }
+  static inline auto GetIntegerValue(int32_t value) -> Value { return Value(TypeId::INTEGER, value); }
 
-  static inline Value GetBigIntValue(int64_t value) { return Value(TypeId::BIGINT, value); }
+  static inline auto GetBigIntValue(int64_t value) -> Value { return Value(TypeId::BIGINT, value); }
 
-  static inline Value GetTimestampValue(int64_t value) { return Value(TypeId::TIMESTAMP, value); }
+  static inline auto GetTimestampValue(int64_t value) -> Value { return Value(TypeId::TIMESTAMP, value); }
 
-  static inline Value GetDecimalValue(double value) { return Value(TypeId::DECIMAL, value); }
+  static inline auto GetDecimalValue(double value) -> Value { return Value(TypeId::DECIMAL, value); }
 
-  static inline Value GetBooleanValue(CmpBool value) {
+  static inline auto GetBooleanValue(CmpBool value) -> Value {
     return Value(TypeId::BOOLEAN, value == CmpBool::CmpNull ? BUSTUB_BOOLEAN_NULL : static_cast<int8_t>(value));
   }
 
-  static inline Value GetBooleanValue(bool value) { return Value(TypeId::BOOLEAN, static_cast<int8_t>(value)); }
+  static inline auto GetBooleanValue(bool value) -> Value { return Value(TypeId::BOOLEAN, static_cast<int8_t>(value)); }
 
-  static inline Value GetBooleanValue(int8_t value) { return Value(TypeId::BOOLEAN, value); }
+  static inline auto GetBooleanValue(int8_t value) -> Value { return Value(TypeId::BOOLEAN, value); }
 
-  static inline Value GetVarcharValue(const char *value, bool manage_data,
-                                      __attribute__((__unused__)) AbstractPool *pool = nullptr) {
+  static inline auto GetVarcharValue(const char *value, bool manage_data,
+                                     __attribute__((__unused__)) AbstractPool *pool = nullptr) -> Value {
     auto len = static_cast<uint32_t>(value == nullptr ? 0U : strlen(value) + 1);
     return GetVarcharValue(value, len, manage_data);
   }
 
-  static inline Value GetVarcharValue(const char *value, uint32_t len, bool manage_data,
-                                      __attribute__((__unused__)) AbstractPool *pool = nullptr) {
+  static inline auto GetVarcharValue(const char *value, uint32_t len, bool manage_data,
+                                     __attribute__((__unused__)) AbstractPool *pool = nullptr) -> Value {
     return Value(TypeId::VARCHAR, value, len, manage_data);
   }
 
-  static inline Value GetVarcharValue(const std::string &value,
-                                      __attribute__((__unused__)) AbstractPool *pool = nullptr) {
+  static inline auto GetVarcharValue(const std::string &value, __attribute__((__unused__)) AbstractPool *pool = nullptr)
+      -> Value {
     return Value(TypeId::VARCHAR, value);
   }
 
-  static inline Value GetNullValueByType(TypeId type_id) {
+  static inline auto GetNullValueByType(TypeId type_id) -> Value {
     Value ret_value;
     switch (type_id) {
       case TypeId::BOOLEAN:
@@ -105,7 +105,7 @@ class ValueFactory {
     return ret_value;
   }
 
-  static inline Value GetZeroValueByType(TypeId type_id) {
+  static inline auto GetZeroValueByType(TypeId type_id) -> Value {
     std::string zero_string("0");
 
     switch (type_id) {
@@ -129,7 +129,7 @@ class ValueFactory {
     throw Exception(ExceptionType::UNKNOWN_TYPE, "Unknown type for GetZeroValueType");
   }
 
-  static inline Value CastAsBigInt(const Value &value) {
+  static inline auto CastAsBigInt(const Value &value) -> Value {
     if (Type::GetInstance(TypeId::BIGINT)->IsCoercableFrom(value.GetTypeId())) {
       if (value.IsNull()) {
         return ValueFactory::GetBigIntValue(static_cast<int64_t>(BUSTUB_INT64_NULL));
@@ -172,7 +172,7 @@ class ValueFactory {
     throw Exception(Type::GetInstance(value.GetTypeId())->ToString(value) + " is not coercable to BIGINT.");
   }
 
-  static inline Value CastAsInteger(const Value &value) {
+  static inline auto CastAsInteger(const Value &value) -> Value {
     if (Type::GetInstance(TypeId::INTEGER)->IsCoercableFrom(value.GetTypeId())) {
       if (value.IsNull()) {
         return ValueFactory::GetIntegerValue(BUSTUB_INT32_NULL);
@@ -221,7 +221,7 @@ class ValueFactory {
     throw Exception(Type::GetInstance(value.GetTypeId())->ToString(value) + " is not coercable to INTEGER.");
   }
 
-  static inline Value CastAsSmallInt(const Value &value) {
+  static inline auto CastAsSmallInt(const Value &value) -> Value {
     if (Type::GetInstance(TypeId::SMALLINT)->IsCoercableFrom(value.GetTypeId())) {
       if (value.IsNull()) {
         return ValueFactory::GetSmallIntValue(static_cast<int16_t>(BUSTUB_INT16_NULL));
@@ -274,7 +274,7 @@ class ValueFactory {
     throw Exception(Type::GetInstance(value.GetTypeId())->ToString(value) + " is not coercable to SMALLINT.");
   }
 
-  static inline Value CastAsTinyInt(const Value &value) {
+  static inline auto CastAsTinyInt(const Value &value) -> Value {
     if (Type::GetInstance(TypeId::TINYINT)->IsCoercableFrom(value.GetTypeId())) {
       if (value.IsNull()) {
         return ValueFactory::GetTinyIntValue(BUSTUB_INT8_NULL);
@@ -332,7 +332,7 @@ class ValueFactory {
     throw Exception(Type::GetInstance(value.GetTypeId())->ToString(value) + " is not coercable to TINYINT.");
   }
 
-  static inline Value CastAsDecimal(const Value &value) {
+  static inline auto CastAsDecimal(const Value &value) -> Value {
     if (Type::GetInstance(TypeId::DECIMAL)->IsCoercableFrom(value.GetTypeId())) {
       if (value.IsNull()) {
         return ValueFactory::GetDecimalValue(static_cast<double>(BUSTUB_DECIMAL_NULL));
@@ -370,7 +370,7 @@ class ValueFactory {
     throw Exception(Type::GetInstance(value.GetTypeId())->ToString(value) + " is not coercable to DECIMAL.");
   }
 
-  static inline Value CastAsVarchar(const Value &value) {
+  static inline auto CastAsVarchar(const Value &value) -> Value {
     if (Type::GetInstance(TypeId::VARCHAR)->IsCoercableFrom(value.GetTypeId())) {
       if (value.IsNull()) {
         return ValueFactory::GetVarcharValue(nullptr, false);
@@ -391,7 +391,7 @@ class ValueFactory {
     throw Exception(Type::GetInstance(value.GetTypeId())->ToString(value) + " is not coercable to VARCHAR.");
   }
 
-  static inline Value CastAsTimestamp(const Value &value) {
+  static inline auto CastAsTimestamp(const Value &value) -> Value {
     if (Type::GetInstance(TypeId::TIMESTAMP)->IsCoercableFrom(value.GetTypeId())) {
       if (value.IsNull()) {
         return ValueFactory::GetTimestampValue(BUSTUB_TIMESTAMP_NULL);
@@ -471,7 +471,7 @@ class ValueFactory {
     throw Exception(Type::GetInstance(value.GetTypeId())->ToString(value) + " is not coercable to TIMESTAMP.");
   }
 
-  static inline Value CastAsBoolean(const Value &value) {
+  static inline auto CastAsBoolean(const Value &value) -> Value {
     if (Type::GetInstance(TypeId::BOOLEAN)->IsCoercableFrom(value.GetTypeId())) {
       if (value.IsNull()) {
         return ValueFactory::GetBooleanValue(BUSTUB_BOOLEAN_NULL);

@@ -126,9 +126,9 @@ class TransactionAbortException : public std::exception {
  public:
   explicit TransactionAbortException(txn_id_t txn_id, AbortReason abort_reason)
       : txn_id_(txn_id), abort_reason_(abort_reason) {}
-  txn_id_t GetTransactionId() { return txn_id_; }
-  AbortReason GetAbortReason() { return abort_reason_; }
-  std::string GetInfo() {
+  auto GetTransactionId() -> txn_id_t { return txn_id_; }
+  auto GetAbortReason() -> AbortReason { return abort_reason_; }
+  auto GetInfo() -> std::string {
     switch (abort_reason_) {
       case AbortReason::LOCK_ON_SHRINKING:
         return "Transaction " + std::to_string(txn_id_) +
@@ -174,22 +174,22 @@ class Transaction {
   DISALLOW_COPY(Transaction);
 
   /** @return the id of the thread running the transaction */
-  inline std::thread::id GetThreadId() const { return thread_id_; }
+  inline auto GetThreadId() const -> std::thread::id { return thread_id_; }
 
   /** @return the id of this transaction */
-  inline txn_id_t GetTransactionId() const { return txn_id_; }
+  inline auto GetTransactionId() const -> txn_id_t { return txn_id_; }
 
   /** @return the isolation level of this transaction */
-  inline IsolationLevel GetIsolationLevel() const { return isolation_level_; }
+  inline auto GetIsolationLevel() const -> IsolationLevel { return isolation_level_; }
 
   /** @return the list of table write records of this transaction */
-  inline std::shared_ptr<std::deque<TableWriteRecord>> GetWriteSet() { return table_write_set_; }
+  inline auto GetWriteSet() -> std::shared_ptr<std::deque<TableWriteRecord>> { return table_write_set_; }
 
   /** @return the list of index write records of this transaction */
-  inline std::shared_ptr<std::deque<IndexWriteRecord>> GetIndexWriteSet() { return index_write_set_; }
+  inline auto GetIndexWriteSet() -> std::shared_ptr<std::deque<IndexWriteRecord>> { return index_write_set_; }
 
   /** @return the page set */
-  inline std::shared_ptr<std::deque<Page *>> GetPageSet() { return page_set_; }
+  inline auto GetPageSet() -> std::shared_ptr<std::deque<Page *>> { return page_set_; }
 
   /**
    * Adds a tuple write record into the table write set.
@@ -214,7 +214,7 @@ class Transaction {
   inline void AddIntoPageSet(Page *page) { page_set_->push_back(page); }
 
   /** @return the deleted page set */
-  inline std::shared_ptr<std::unordered_set<page_id_t>> GetDeletedPageSet() { return deleted_page_set_; }
+  inline auto GetDeletedPageSet() -> std::shared_ptr<std::unordered_set<page_id_t>> { return deleted_page_set_; }
 
   /**
    * Adds a page to the deleted page set.
@@ -223,19 +223,21 @@ class Transaction {
   inline void AddIntoDeletedPageSet(page_id_t page_id) { deleted_page_set_->insert(page_id); }
 
   /** @return the set of resources under a shared lock */
-  inline std::shared_ptr<std::unordered_set<RID>> GetSharedLockSet() { return shared_lock_set_; }
+  inline auto GetSharedLockSet() -> std::shared_ptr<std::unordered_set<RID>> { return shared_lock_set_; }
 
   /** @return the set of resources under an exclusive lock */
-  inline std::shared_ptr<std::unordered_set<RID>> GetExclusiveLockSet() { return exclusive_lock_set_; }
+  inline auto GetExclusiveLockSet() -> std::shared_ptr<std::unordered_set<RID>> { return exclusive_lock_set_; }
 
   /** @return true if rid is shared locked by this transaction */
-  bool IsSharedLocked(const RID &rid) { return shared_lock_set_->find(rid) != shared_lock_set_->end(); }
+  auto IsSharedLocked(const RID &rid) -> bool { return shared_lock_set_->find(rid) != shared_lock_set_->end(); }
 
   /** @return true if rid is exclusively locked by this transaction */
-  bool IsExclusiveLocked(const RID &rid) { return exclusive_lock_set_->find(rid) != exclusive_lock_set_->end(); }
+  auto IsExclusiveLocked(const RID &rid) -> bool {
+    return exclusive_lock_set_->find(rid) != exclusive_lock_set_->end();
+  }
 
   /** @return the current state of the transaction */
-  inline TransactionState GetState() { return state_; }
+  inline auto GetState() -> TransactionState { return state_; }
 
   /**
    * Set the state of the transaction.
@@ -244,7 +246,7 @@ class Transaction {
   inline void SetState(TransactionState state) { state_ = state; }
 
   /** @return the previous LSN */
-  inline lsn_t GetPrevLSN() { return prev_lsn_; }
+  inline auto GetPrevLSN() -> lsn_t { return prev_lsn_; }
 
   /**
    * Set the previous LSN.

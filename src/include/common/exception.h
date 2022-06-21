@@ -73,10 +73,10 @@ class Exception : public std::runtime_error {
   }
 
   /** @return The type of the exception */
-  ExceptionType GetType() const { return type_; }
+  auto GetType() const -> ExceptionType { return type_; }
 
   /** @return A human-readable string for the specified exception type */
-  static std::string ExceptionTypeToString(ExceptionType type) {
+  static auto ExceptionTypeToString(ExceptionType type) -> std::string {
     switch (type) {
       case ExceptionType::INVALID:
         return "Invalid";

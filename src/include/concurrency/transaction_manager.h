@@ -41,7 +41,8 @@ class TransactionManager {
    * @param isolation_level an optional isolation level of the transaction.
    * @return an initialized transaction
    */
-  Transaction *Begin(Transaction *txn = nullptr, IsolationLevel isolation_level = IsolationLevel::REPEATABLE_READ);
+  auto Begin(Transaction *txn = nullptr, IsolationLevel isolation_level = IsolationLevel::REPEATABLE_READ)
+      -> Transaction *;
 
   /**
    * Commits a transaction.
@@ -68,7 +69,7 @@ class TransactionManager {
    * @param txn_id the id of the transaction to be found, it must exist!
    * @return the transaction with the given transaction id
    */
-  static Transaction *GetTransaction(txn_id_t txn_id) {
+  static auto GetTransaction(txn_id_t txn_id) -> Transaction * {
     TransactionManager::txn_map_mutex.lock_shared();
     assert(TransactionManager::txn_map.find(txn_id) != TransactionManager::txn_map.end());
     auto *res = TransactionManager::txn_map[txn_id];

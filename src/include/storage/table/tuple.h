@@ -46,7 +46,7 @@ class Tuple {
   Tuple(const Tuple &other);
 
   // assign operator, deep copy
-  Tuple &operator=(const Tuple &other);
+  auto operator=(const Tuple &other) -> Tuple &;
 
   ~Tuple() {
     if (allocated_) {
@@ -62,33 +62,33 @@ class Tuple {
   void DeserializeFrom(const char *storage);
 
   // return RID of current tuple
-  inline RID GetRid() const { return rid_; }
+  inline auto GetRid() const -> RID { return rid_; }
 
   // Get the address of this tuple in the table's backing store
-  inline char *GetData() const { return data_; }
+  inline auto GetData() const -> char * { return data_; }
 
   // Get length of the tuple, including varchar legth
-  inline uint32_t GetLength() const { return size_; }
+  inline auto GetLength() const -> uint32_t { return size_; }
 
   // Get the value of a specified column (const)
   // checks the schema to see how to return the Value.
-  Value GetValue(const Schema *schema, uint32_t column_idx) const;
+  auto GetValue(const Schema *schema, uint32_t column_idx) const -> Value;
 
   // Generates a key tuple given schemas and attributes
-  Tuple KeyFromTuple(const Schema &schema, const Schema &key_schema, const std::vector<uint32_t> &key_attrs);
+  auto KeyFromTuple(const Schema &schema, const Schema &key_schema, const std::vector<uint32_t> &key_attrs) -> Tuple;
 
   // Is the column value null ?
-  inline bool IsNull(const Schema *schema, uint32_t column_idx) const {
+  inline auto IsNull(const Schema *schema, uint32_t column_idx) const -> bool {
     Value value = GetValue(schema, column_idx);
     return value.IsNull();
   }
-  inline bool IsAllocated() { return allocated_; }
+  inline auto IsAllocated() -> bool { return allocated_; }
 
-  std::string ToString(const Schema *schema) const;
+  auto ToString(const Schema *schema) const -> std::string;
 
  private:
   // Get the starting storage address of specific column
-  const char *GetDataPtr(const Schema *schema, uint32_t column_idx) const;
+  auto GetDataPtr(const Schema *schema, uint32_t column_idx) const -> const char *;
 
   bool allocated_{false};  // is allocated?
   RID rid_{};              // if pointing to the table heap, the rid is valid

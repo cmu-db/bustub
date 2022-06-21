@@ -121,7 +121,7 @@ class Catalog {
    * @param schema The schema of the new table
    * @return A (non-owning) pointer to the metadata for the table
    */
-  TableInfo *CreateTable(Transaction *txn, const std::string &table_name, const Schema &schema) {
+  auto CreateTable(Transaction *txn, const std::string &table_name, const Schema &schema) -> TableInfo * {
     if (table_names_.count(table_name) != 0) {
       return NULL_TABLE_INFO;
     }
@@ -149,7 +149,7 @@ class Catalog {
    * @param table_name The name of the table
    * @return A (non-owning) pointer to the metadata for the table
    */
-  TableInfo *GetTable(const std::string &table_name) {
+  auto GetTable(const std::string &table_name) -> TableInfo * {
     auto table_oid = table_names_.find(table_name);
     if (table_oid == table_names_.end()) {
       // Table not found
@@ -167,7 +167,7 @@ class Catalog {
    * @param table_oid The OID of the table to query
    * @return A (non-owning) pointer to the metadata for the table
    */
-  TableInfo *GetTable(table_oid_t table_oid) {
+  auto GetTable(table_oid_t table_oid) -> TableInfo * {
     auto meta = tables_.find(table_oid);
     if (meta == tables_.end()) {
       return NULL_TABLE_INFO;
@@ -189,9 +189,9 @@ class Catalog {
    * @return A (non-owning) pointer to the metadata of the new table
    */
   template <class KeyType, class ValueType, class KeyComparator>
-  IndexInfo *CreateIndex(Transaction *txn, const std::string &index_name, const std::string &table_name,
-                         const Schema &schema, const Schema &key_schema, const std::vector<uint32_t> &key_attrs,
-                         std::size_t keysize, HashFunction<KeyType> hash_function) {
+  auto CreateIndex(Transaction *txn, const std::string &index_name, const std::string &table_name, const Schema &schema,
+                   const Schema &key_schema, const std::vector<uint32_t> &key_attrs, std::size_t keysize,
+                   HashFunction<KeyType> hash_function) -> IndexInfo * {
     // Reject the creation request for nonexistent table
     if (table_names_.find(table_name) == table_names_.end()) {
       return NULL_INDEX_INFO;
@@ -245,7 +245,7 @@ class Catalog {
    * @param table_name The name of the table on which to perform query
    * @return A (non-owning) pointer to the metadata for the index
    */
-  IndexInfo *GetIndex(const std::string &index_name, const std::string &table_name) {
+  auto GetIndex(const std::string &index_name, const std::string &table_name) -> IndexInfo * {
     auto table = index_names_.find(table_name);
     if (table == index_names_.end()) {
       BUSTUB_ASSERT((table_names_.find(table_name) == table_names_.end()), "Broken Invariant");
@@ -271,7 +271,7 @@ class Catalog {
    * @param table_oid The OID of the table on which to perform query
    * @return A (non-owning) pointer to the metadata for the index
    */
-  IndexInfo *GetIndex(const std::string &index_name, const table_oid_t table_oid) {
+  auto GetIndex(const std::string &index_name, const table_oid_t table_oid) -> IndexInfo * {
     // Locate the table metadata for the specified table OID
     auto table_meta = tables_.find(table_oid);
     if (table_meta == tables_.end()) {
@@ -287,7 +287,7 @@ class Catalog {
    * @param index_oid The OID of the index for which to query
    * @return A (non-owning) pointer to the metadata for the index
    */
-  IndexInfo *GetIndex(index_oid_t index_oid) {
+  auto GetIndex(index_oid_t index_oid) -> IndexInfo * {
     auto index = indexes_.find(index_oid);
     if (index == indexes_.end()) {
       return NULL_INDEX_INFO;
@@ -302,7 +302,7 @@ class Catalog {
    * @return A vector of IndexInfo* for each index on the given table, empty vector
    * in the event that the table exists but no indexes have been created for it
    */
-  std::vector<IndexInfo *> GetTableIndexes(const std::string &table_name) {
+  auto GetTableIndexes(const std::string &table_name) -> std::vector<IndexInfo *> {
     // Ensure the table exists
     if (table_names_.find(table_name) == table_names_.end()) {
       return std::vector<IndexInfo *>{};

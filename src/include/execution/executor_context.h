@@ -43,22 +43,22 @@ class ExecutorContext {
   DISALLOW_COPY_AND_MOVE(ExecutorContext);
 
   /** @return the running transaction */
-  Transaction *GetTransaction() const { return transaction_; }
+  auto GetTransaction() const -> Transaction * { return transaction_; }
 
   /** @return the catalog */
-  Catalog *GetCatalog() { return catalog_; }
+  auto GetCatalog() -> Catalog * { return catalog_; }
 
   /** @return the buffer pool manager */
-  BufferPoolManager *GetBufferPoolManager() { return bpm_; }
+  auto GetBufferPoolManager() -> BufferPoolManager * { return bpm_; }
 
   /** @return the log manager - don't worry about it for now */
-  LogManager *GetLogManager() { return nullptr; }
+  auto GetLogManager() -> LogManager * { return nullptr; }
 
   /** @return the lock manager */
-  LockManager *GetLockManager() { return lock_mgr_; }
+  auto GetLockManager() -> LockManager * { return lock_mgr_; }
 
   /** @return the transaction manager */
-  TransactionManager *GetTransactionManager() { return txn_mgr_; }
+  auto GetTransactionManager() -> TransactionManager * { return txn_mgr_; }
 
  private:
   /** The transaction context associated with this executor context */

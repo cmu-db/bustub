@@ -65,9 +65,9 @@ namespace bustub {
 
 IntegerType::IntegerType(TypeId type) : IntegerParentType(type) {}
 
-bool IntegerType::IsZero(const Value &val) const { return (val.value_.integer_ == 0); }
+auto IntegerType::IsZero(const Value &val) const -> bool { return (val.value_.integer_ == 0); }
 
-Value IntegerType::Add(const Value &left, const Value &right) const {
+auto IntegerType::Add(const Value &left, const Value &right) const -> Value {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -78,7 +78,7 @@ Value IntegerType::Add(const Value &left, const Value &right) const {
   throw Exception("type error");
 }
 
-Value IntegerType::Subtract(const Value &left, const Value &right) const {
+auto IntegerType::Subtract(const Value &left, const Value &right) const -> Value {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -90,7 +90,7 @@ Value IntegerType::Subtract(const Value &left, const Value &right) const {
   throw Exception("type error");
 }
 
-Value IntegerType::Multiply(const Value &left, const Value &right) const {
+auto IntegerType::Multiply(const Value &left, const Value &right) const -> Value {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -102,7 +102,7 @@ Value IntegerType::Multiply(const Value &left, const Value &right) const {
   throw Exception("type error");
 }
 
-Value IntegerType::Divide(const Value &left, const Value &right) const {
+auto IntegerType::Divide(const Value &left, const Value &right) const -> Value {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -118,7 +118,7 @@ Value IntegerType::Divide(const Value &left, const Value &right) const {
   throw Exception("type error");
 }
 
-Value IntegerType::Modulo(const Value &left, const Value &right) const {
+auto IntegerType::Modulo(const Value &left, const Value &right) const -> Value {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -151,7 +151,7 @@ Value IntegerType::Modulo(const Value &left, const Value &right) const {
   throw Exception("type error");
 }
 
-Value IntegerType::Sqrt(const Value &val) const {
+auto IntegerType::Sqrt(const Value &val) const -> Value {
   assert(val.CheckInteger());
   if (val.IsNull()) {
     return OperateNull(val, val);
@@ -163,7 +163,7 @@ Value IntegerType::Sqrt(const Value &val) const {
   return Value(TypeId::DECIMAL, std::sqrt(val.value_.integer_));
 }
 
-Value IntegerType::OperateNull(const Value &left __attribute__((unused)), const Value &right) const {
+auto IntegerType::OperateNull(const Value &left __attribute__((unused)), const Value &right) const -> Value {
   switch (right.GetTypeId()) {
     case TypeId::TINYINT:
     case TypeId::SMALLINT:
@@ -180,7 +180,7 @@ Value IntegerType::OperateNull(const Value &left __attribute__((unused)), const 
   throw Exception("type error");
 }
 
-CmpBool IntegerType::CompareEquals(const Value &left, const Value &right) const {
+auto IntegerType::CompareEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
 
@@ -193,7 +193,7 @@ CmpBool IntegerType::CompareEquals(const Value &left, const Value &right) const 
   throw Exception("type error");
 }
 
-CmpBool IntegerType::CompareNotEquals(const Value &left, const Value &right) const {
+auto IntegerType::CompareNotEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -205,7 +205,7 @@ CmpBool IntegerType::CompareNotEquals(const Value &left, const Value &right) con
   throw Exception("type error");
 }
 
-CmpBool IntegerType::CompareLessThan(const Value &left, const Value &right) const {
+auto IntegerType::CompareLessThan(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -217,7 +217,7 @@ CmpBool IntegerType::CompareLessThan(const Value &left, const Value &right) cons
   throw Exception("type error");
 }
 
-CmpBool IntegerType::CompareLessThanEquals(const Value &left, const Value &right) const {
+auto IntegerType::CompareLessThanEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -229,7 +229,7 @@ CmpBool IntegerType::CompareLessThanEquals(const Value &left, const Value &right
   throw Exception("type error");
 }
 
-CmpBool IntegerType::CompareGreaterThan(const Value &left, const Value &right) const {
+auto IntegerType::CompareGreaterThan(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -241,7 +241,7 @@ CmpBool IntegerType::CompareGreaterThan(const Value &left, const Value &right) c
   throw Exception("type error");
 }
 
-CmpBool IntegerType::CompareGreaterThanEquals(const Value &left, const Value &right) const {
+auto IntegerType::CompareGreaterThanEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -253,7 +253,7 @@ CmpBool IntegerType::CompareGreaterThanEquals(const Value &left, const Value &ri
   throw Exception("type error");
 }
 
-std::string IntegerType::ToString(const Value &val) const {
+auto IntegerType::ToString(const Value &val) const -> std::string {
   assert(val.CheckInteger());
 
   if (val.IsNull()) {
@@ -267,17 +267,17 @@ void IntegerType::SerializeTo(const Value &val, char *storage) const {
 }
 
 // Deserialize a value of the given type from the given storage space.
-Value IntegerType::DeserializeFrom(const char *storage) const {
+auto IntegerType::DeserializeFrom(const char *storage) const -> Value {
   int32_t val = *reinterpret_cast<const int32_t *>(storage);
   return Value(type_id_, val);
 }
 
-Value IntegerType::Copy(const Value &val) const {
+auto IntegerType::Copy(const Value &val) const -> Value {
   assert(val.CheckInteger());
   return Value(val.GetTypeId(), val.value_.integer_);
 }
 
-Value IntegerType::CastAs(const Value &val, const TypeId type_id) const {
+auto IntegerType::CastAs(const Value &val, const TypeId type_id) const -> Value {
   switch (type_id) {
     case TypeId::TINYINT: {
       if (val.IsNull()) {

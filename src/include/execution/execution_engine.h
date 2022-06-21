@@ -47,8 +47,8 @@ class ExecutionEngine {
    * @param exec_ctx The executor context in which the query executes
    * @return `true` if execution of the query plan succeeds, `false` otherwise
    */
-  bool Execute(const AbstractPlanNode *plan, std::vector<Tuple> *result_set, Transaction *txn,
-               ExecutorContext *exec_ctx) {
+  auto Execute(const AbstractPlanNode *plan, std::vector<Tuple> *result_set, Transaction *txn,
+               ExecutorContext *exec_ctx) -> bool {
     // Construct and executor for the plan
     auto executor = ExecutorFactory::CreateExecutor(exec_ctx, plan);
 

@@ -20,6 +20,6 @@ LimitExecutor::LimitExecutor(ExecutorContext *exec_ctx, const LimitPlanNode *pla
 
 void LimitExecutor::Init() {}
 
-bool LimitExecutor::Next(Tuple *tuple, RID *rid) { return false; }
+auto LimitExecutor::Next(Tuple *tuple, RID *rid) -> bool { return false; }
 
 }  // namespace bustub

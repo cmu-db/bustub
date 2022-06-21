@@ -17,23 +17,23 @@
 
 namespace bustub {
 
-bool LockManager::LockShared(Transaction *txn, const RID &rid) {
+auto LockManager::LockShared(Transaction *txn, const RID &rid) -> bool {
   txn->GetSharedLockSet()->emplace(rid);
   return true;
 }
 
-bool LockManager::LockExclusive(Transaction *txn, const RID &rid) {
+auto LockManager::LockExclusive(Transaction *txn, const RID &rid) -> bool {
   txn->GetExclusiveLockSet()->emplace(rid);
   return true;
 }
 
-bool LockManager::LockUpgrade(Transaction *txn, const RID &rid) {
+auto LockManager::LockUpgrade(Transaction *txn, const RID &rid) -> bool {
   txn->GetSharedLockSet()->erase(rid);
   txn->GetExclusiveLockSet()->emplace(rid);
   return true;
 }
 
-bool LockManager::Unlock(Transaction *txn, const RID &rid) {
+auto LockManager::Unlock(Transaction *txn, const RID &rid) -> bool {
   txn->GetSharedLockSet()->erase(rid);
   txn->GetExclusiveLockSet()->erase(rid);
   return true;

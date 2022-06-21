@@ -29,6 +29,7 @@ class ExecutorFactory {
    * @param plan The plan node that needs to be executed
    * @return An executor for the given plan in the provided context
    */
-  static std::unique_ptr<AbstractExecutor> CreateExecutor(ExecutorContext *exec_ctx, const AbstractPlanNode *plan);
+  static auto CreateExecutor(ExecutorContext *exec_ctx, const AbstractPlanNode *plan)
+      -> std::unique_ptr<AbstractExecutor>;
 };
 }  // namespace bustub

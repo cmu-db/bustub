@@ -69,16 +69,16 @@ class DiskManager {
    * @param offset offset of the log entry in the file
    * @return true if the read was successful, false otherwise
    */
-  bool ReadLog(char *log_data, int size, int offset);
+  auto ReadLog(char *log_data, int size, int offset) -> bool;
 
   /** @return the number of disk flushes */
-  int GetNumFlushes() const;
+  auto GetNumFlushes() const -> int;
 
   /** @return true iff the in-memory content has not been flushed yet */
-  bool GetFlushState() const;
+  auto GetFlushState() const -> bool;
 
   /** @return the number of disk writes */
-  int GetNumWrites() const;
+  auto GetNumWrites() const -> int;
 
   /**
    * Sets the future which is used to check for non-blocking flushes.
@@ -87,10 +87,10 @@ class DiskManager {
   inline void SetFlushLogFuture(std::future<void> *f) { flush_log_f_ = f; }
 
   /** Checks if the non-blocking flush future was set. */
-  inline bool HasFlushLogFuture() { return flush_log_f_ != nullptr; }
+  inline auto HasFlushLogFuture() -> bool { return flush_log_f_ != nullptr; }
 
  private:
-  int GetFileSize(const std::string &file_name);
+  auto GetFileSize(const std::string &file_name) -> int;
   // stream to write log file
   std::fstream log_io_;
   std::string log_name_;

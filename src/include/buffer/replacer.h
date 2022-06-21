@@ -29,7 +29,7 @@ class Replacer {
    * @param[out] frame_id id of frame that was removed, nullptr if no victim was found
    * @return true if a victim frame was found, false otherwise
    */
-  virtual bool Victim(frame_id_t *frame_id) = 0;
+  virtual auto Victim(frame_id_t *frame_id) -> bool = 0;
 
   /**
    * Pins a frame, indicating that it should not be victimized until it is unpinned.
@@ -44,7 +44,7 @@ class Replacer {
   virtual void Unpin(frame_id_t frame_id) = 0;
 
   /** @return the number of elements in the replacer that can be victimized */
-  virtual size_t Size() = 0;
+  virtual auto Size() -> size_t = 0;
 };
 
 }  // namespace bustub

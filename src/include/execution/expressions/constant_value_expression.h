@@ -25,14 +25,15 @@ class ConstantValueExpression : public AbstractExpression {
   /** Creates a new constant value expression wrapping the given value. */
   explicit ConstantValueExpression(const Value &val) : AbstractExpression({}, val.GetTypeId()), val_(val) {}
 
-  Value Evaluate(const Tuple *tuple, const Schema *schema) const override { return val_; }
+  auto Evaluate(const Tuple *tuple, const Schema *schema) const -> Value override { return val_; }
 
-  Value EvaluateJoin(const Tuple *left_tuple, const Schema *left_schema, const Tuple *right_tuple,
-                     const Schema *right_schema) const override {
+  auto EvaluateJoin(const Tuple *left_tuple, const Schema *left_schema, const Tuple *right_tuple,
+                    const Schema *right_schema) const -> Value override {
     return val_;
   }
 
-  Value EvaluateAggregate(const std::vector<Value> &group_bys, const std::vector<Value> &aggregates) const override {
+  auto EvaluateAggregate(const std::vector<Value> &group_bys, const std::vector<Value> &aggregates) const
+      -> Value override {
     return val_;
   }
 

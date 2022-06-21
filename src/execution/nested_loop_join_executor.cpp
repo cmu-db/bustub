@@ -21,6 +21,6 @@ NestedLoopJoinExecutor::NestedLoopJoinExecutor(ExecutorContext *exec_ctx, const 
 
 void NestedLoopJoinExecutor::Init() {}
 
-bool NestedLoopJoinExecutor::Next(Tuple *tuple, RID *rid) { return false; }
+auto NestedLoopJoinExecutor::Next(Tuple *tuple, RID *rid) -> bool { return false; }
 
 }  // namespace bustub

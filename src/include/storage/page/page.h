@@ -37,16 +37,16 @@ class Page {
   ~Page() = default;
 
   /** @return the actual data contained within this page */
-  inline char *GetData() { return data_; }
+  inline auto GetData() -> char * { return data_; }
 
   /** @return the page id of this page */
-  inline page_id_t GetPageId() { return page_id_; }
+  inline auto GetPageId() -> page_id_t { return page_id_; }
 
   /** @return the pin count of this page */
-  inline int GetPinCount() { return pin_count_; }
+  inline auto GetPinCount() -> int { return pin_count_; }
 
   /** @return true if the page in memory has been modified from the page on disk, false otherwise */
-  inline bool IsDirty() { return is_dirty_; }
+  inline auto IsDirty() -> bool { return is_dirty_; }
 
   /** Acquire the page write latch. */
   inline void WLatch() { rwlatch_.WLock(); }
@@ -61,7 +61,7 @@ class Page {
   inline void RUnlatch() { rwlatch_.RUnlock(); }
 
   /** @return the page LSN. */
-  inline lsn_t GetLSN() { return *reinterpret_cast<lsn_t *>(GetData() + OFFSET_LSN); }
+  inline auto GetLSN() -> lsn_t { return *reinterpret_cast<lsn_t *>(GetData() + OFFSET_LSN); }
 
   /** Sets the page LSN. */
   inline void SetLSN(lsn_t lsn) { memcpy(GetData() + OFFSET_LSN, &lsn, sizeof(lsn_t)); }

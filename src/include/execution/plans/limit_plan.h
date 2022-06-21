@@ -30,13 +30,13 @@ class LimitPlanNode : public AbstractPlanNode {
       : AbstractPlanNode(output_schema, {child}), limit_{limit} {}
 
   /** @return The type of the plan node */
-  PlanType GetType() const override { return PlanType::Limit; }
+  auto GetType() const -> PlanType override { return PlanType::Limit; }
 
   /** @return The limit */
-  size_t GetLimit() const { return limit_; }
+  auto GetLimit() const -> size_t { return limit_; }
 
   /** @return The child plan node */
-  const AbstractPlanNode *GetChildPlan() const {
+  auto GetChildPlan() const -> const AbstractPlanNode * {
     BUSTUB_ASSERT(GetChildren().size() == 1, "Limit should have at most one child plan.");
     return GetChildAt(0);
   }

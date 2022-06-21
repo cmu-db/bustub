@@ -36,19 +36,21 @@ class TableIterator {
 
   ~TableIterator() { delete tuple_; }
 
-  inline bool operator==(const TableIterator &itr) const { return tuple_->rid_.Get() == itr.tuple_->rid_.Get(); }
+  inline auto operator==(const TableIterator &itr) const -> bool {
+    return tuple_->rid_.Get() == itr.tuple_->rid_.Get();
+  }
 
-  inline bool operator!=(const TableIterator &itr) const { return !(*this == itr); }
+  inline auto operator!=(const TableIterator &itr) const -> bool { return !(*this == itr); }
 
-  const Tuple &operator*();
+  auto operator*() -> const Tuple &;
 
-  Tuple *operator->();
+  auto operator->() -> Tuple *;
 
-  TableIterator &operator++();
+  auto operator++() -> TableIterator &;
 
-  TableIterator operator++(int);
+  auto operator++(int) -> TableIterator;
 
-  TableIterator &operator=(const TableIterator &other) {
+  auto operator=(const TableIterator &other) -> TableIterator & {
     table_heap_ = other.table_heap_;
     *tuple_ = *other.tuple_;
     txn_ = other.txn_;

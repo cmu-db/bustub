@@ -20,7 +20,7 @@ namespace bustub {
 
 BooleanType::BooleanType() : Type(TypeId::BOOLEAN) {}
 
-CmpBool BooleanType::CompareEquals(const Value &left, const Value &right) const {
+auto BooleanType::CompareEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(GetTypeId() == TypeId::BOOLEAN);
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -29,7 +29,7 @@ CmpBool BooleanType::CompareEquals(const Value &left, const Value &right) const 
   return BOOLEAN_COMPARE_FUNC(==);  // NOLINT
 }
 
-CmpBool BooleanType::CompareNotEquals(const Value &left, const Value &right) const {
+auto BooleanType::CompareNotEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(GetTypeId() == TypeId::BOOLEAN);
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -38,7 +38,7 @@ CmpBool BooleanType::CompareNotEquals(const Value &left, const Value &right) con
   return BOOLEAN_COMPARE_FUNC(!=);  // NOLINT
 }
 
-CmpBool BooleanType::CompareLessThan(const Value &left, const Value &right) const {
+auto BooleanType::CompareLessThan(const Value &left, const Value &right) const -> CmpBool {
   assert(GetTypeId() == TypeId::BOOLEAN);
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -47,7 +47,7 @@ CmpBool BooleanType::CompareLessThan(const Value &left, const Value &right) cons
   return BOOLEAN_COMPARE_FUNC(<);  // NOLINT
 }
 
-CmpBool BooleanType::CompareLessThanEquals(const Value &left, const Value &right) const {
+auto BooleanType::CompareLessThanEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(GetTypeId() == TypeId::BOOLEAN);
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -56,7 +56,7 @@ CmpBool BooleanType::CompareLessThanEquals(const Value &left, const Value &right
   return BOOLEAN_COMPARE_FUNC(<=);  // NOLINT
 }
 
-CmpBool BooleanType::CompareGreaterThan(const Value &left, const Value &right) const {
+auto BooleanType::CompareGreaterThan(const Value &left, const Value &right) const -> CmpBool {
   assert(GetTypeId() == TypeId::BOOLEAN);
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -65,7 +65,7 @@ CmpBool BooleanType::CompareGreaterThan(const Value &left, const Value &right) c
   return BOOLEAN_COMPARE_FUNC(>);  // NOLINT
 }
 
-CmpBool BooleanType::CompareGreaterThanEquals(const Value &left, const Value &right) const {
+auto BooleanType::CompareGreaterThanEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(GetTypeId() == TypeId::BOOLEAN);
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -74,7 +74,7 @@ CmpBool BooleanType::CompareGreaterThanEquals(const Value &left, const Value &ri
   return BOOLEAN_COMPARE_FUNC(>=);  // NOLINT
 }
 
-std::string BooleanType::ToString(const Value &val) const {
+auto BooleanType::ToString(const Value &val) const -> std::string {
   assert(GetTypeId() == TypeId::BOOLEAN);
   if (val.value_.boolean_ == 1) {
     return "true";
@@ -90,14 +90,14 @@ void BooleanType::SerializeTo(const Value &val, char *storage) const {
 }
 
 // Deserialize a value of the given type from the given storage space.
-Value BooleanType::DeserializeFrom(const char *storage) const {
+auto BooleanType::DeserializeFrom(const char *storage) const -> Value {
   int8_t val = *reinterpret_cast<const int8_t *>(storage);
   return Value(TypeId::BOOLEAN, val);
 }
 
-Value BooleanType::Copy(const Value &val) const { return Value(TypeId::BOOLEAN, val.value_.boolean_); }
+auto BooleanType::Copy(const Value &val) const -> Value { return Value(TypeId::BOOLEAN, val.value_.boolean_); }
 
-Value BooleanType::CastAs(const Value &val, const TypeId type_id) const {
+auto BooleanType::CastAs(const Value &val, const TypeId type_id) const -> Value {
   switch (type_id) {
     case TypeId::BOOLEAN:
       return Copy(val);

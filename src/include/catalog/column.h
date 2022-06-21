@@ -51,10 +51,10 @@ class Column {
   }
 
   /** @return column name */
-  std::string GetName() const { return column_name_; }
+  auto GetName() const -> std::string { return column_name_; }
 
   /** @return column length */
-  uint32_t GetLength() const {
+  auto GetLength() const -> uint32_t {
     if (IsInlined()) {
       return fixed_length_;
     }
@@ -62,25 +62,25 @@ class Column {
   }
 
   /** @return column fixed length */
-  uint32_t GetFixedLength() const { return fixed_length_; }
+  auto GetFixedLength() const -> uint32_t { return fixed_length_; }
 
   /** @return column variable length */
-  uint32_t GetVariableLength() const { return variable_length_; }
+  auto GetVariableLength() const -> uint32_t { return variable_length_; }
 
   /** @return column's offset in the tuple */
-  uint32_t GetOffset() const { return column_offset_; }
+  auto GetOffset() const -> uint32_t { return column_offset_; }
 
   /** @return column type */
-  TypeId GetType() const { return column_type_; }
+  auto GetType() const -> TypeId { return column_type_; }
 
   /** @return true if column is inlined, false otherwise */
-  bool IsInlined() const { return column_type_ != TypeId::VARCHAR; }
+  auto IsInlined() const -> bool { return column_type_ != TypeId::VARCHAR; }
 
   /** @return a string representation of this column */
-  std::string ToString() const;
+  auto ToString() const -> std::string;
 
   /** @return the expression used to create this column */
-  const AbstractExpression *GetExpr() const { return expr_; }
+  auto GetExpr() const -> const AbstractExpression * { return expr_; }
 
  private:
   /**
@@ -88,7 +88,7 @@ class Column {
    * @param type type whose size is to be determined
    * @return size in bytes
    */
-  static uint8_t TypeSize(TypeId type) {
+  static auto TypeSize(TypeId type) -> uint8_t {
     switch (type) {
       case TypeId::BOOLEAN:
         return 1;

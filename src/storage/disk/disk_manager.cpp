@@ -168,7 +168,7 @@ void DiskManager::WriteLog(char *log_data, int size) {
  * Always read from the beginning and perform sequence read
  * @return: false means already reach the end
  */
-bool DiskManager::ReadLog(char *log_data, int size, int offset) {
+auto DiskManager::ReadLog(char *log_data, int size, int offset) -> bool {
   if (offset >= GetFileSize(log_name_)) {
     // LOG_DEBUG("end of log file");
     // LOG_DEBUG("file size is %d", GetFileSize(log_name_));
@@ -194,22 +194,22 @@ bool DiskManager::ReadLog(char *log_data, int size, int offset) {
 /**
  * Returns number of flushes made so far
  */
-int DiskManager::GetNumFlushes() const { return num_flushes_; }
+auto DiskManager::GetNumFlushes() const -> int { return num_flushes_; }
 
 /**
  * Returns number of Writes made so far
  */
-int DiskManager::GetNumWrites() const { return num_writes_; }
+auto DiskManager::GetNumWrites() const -> int { return num_writes_; }
 
 /**
  * Returns true if the log is currently being flushed
  */
-bool DiskManager::GetFlushState() const { return flush_log_; }
+auto DiskManager::GetFlushState() const -> bool { return flush_log_; }
 
 /**
  * Private helper function to get disk file size
  */
-int DiskManager::GetFileSize(const std::string &file_name) {
+auto DiskManager::GetFileSize(const std::string &file_name) -> int {
   struct stat stat_buf;
   int rc = stat(file_name.c_str(), &stat_buf);
   return rc == 0 ? static_cast<int>(stat_buf.st_size) : -1;

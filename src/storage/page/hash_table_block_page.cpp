@@ -16,17 +16,17 @@
 namespace bustub {
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-KeyType HASH_TABLE_BLOCK_TYPE::KeyAt(slot_offset_t bucket_ind) const {
+auto HASH_TABLE_BLOCK_TYPE::KeyAt(slot_offset_t bucket_ind) const -> KeyType {
   return {};
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-ValueType HASH_TABLE_BLOCK_TYPE::ValueAt(slot_offset_t bucket_ind) const {
+auto HASH_TABLE_BLOCK_TYPE::ValueAt(slot_offset_t bucket_ind) const -> ValueType {
   return {};
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-bool HASH_TABLE_BLOCK_TYPE::Insert(slot_offset_t bucket_ind, const KeyType &key, const ValueType &value) {
+auto HASH_TABLE_BLOCK_TYPE::Insert(slot_offset_t bucket_ind, const KeyType &key, const ValueType &value) -> bool {
   return false;
 }
 
@@ -34,12 +34,12 @@ template <typename KeyType, typename ValueType, typename KeyComparator>
 void HASH_TABLE_BLOCK_TYPE::Remove(slot_offset_t bucket_ind) {}
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-bool HASH_TABLE_BLOCK_TYPE::IsOccupied(slot_offset_t bucket_ind) const {
+auto HASH_TABLE_BLOCK_TYPE::IsOccupied(slot_offset_t bucket_ind) const -> bool {
   return false;
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-bool HASH_TABLE_BLOCK_TYPE::IsReadable(slot_offset_t bucket_ind) const {
+auto HASH_TABLE_BLOCK_TYPE::IsReadable(slot_offset_t bucket_ind) const -> bool {
   return false;
 }
 

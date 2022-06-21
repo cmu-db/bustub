@@ -38,16 +38,16 @@ class BPlusTreeInternalPage : public BPlusTreePage {
   // must call initialize method after "create" a new node
   void Init(page_id_t page_id, page_id_t parent_id = INVALID_PAGE_ID, int max_size = INTERNAL_PAGE_SIZE);
 
-  KeyType KeyAt(int index) const;
+  auto KeyAt(int index) const -> KeyType;
   void SetKeyAt(int index, const KeyType &key);
-  int ValueIndex(const ValueType &value) const;
-  ValueType ValueAt(int index) const;
+  auto ValueIndex(const ValueType &value) const -> int;
+  auto ValueAt(int index) const -> ValueType;
 
-  ValueType Lookup(const KeyType &key, const KeyComparator &comparator) const;
+  auto Lookup(const KeyType &key, const KeyComparator &comparator) const -> ValueType;
   void PopulateNewRoot(const ValueType &old_value, const KeyType &new_key, const ValueType &new_value);
-  int InsertNodeAfter(const ValueType &old_value, const KeyType &new_key, const ValueType &new_value);
+  auto InsertNodeAfter(const ValueType &old_value, const KeyType &new_key, const ValueType &new_value) -> int;
   void Remove(int index);
-  ValueType RemoveAndReturnOnlyChild();
+  auto RemoveAndReturnOnlyChild() -> ValueType;
 
   // Split and Merge utility methods
   void MoveAllTo(BPlusTreeInternalPage *recipient, const KeyType &middle_key, BufferPoolManager *buffer_pool_manager);

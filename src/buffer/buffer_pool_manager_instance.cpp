@@ -47,7 +47,7 @@ BufferPoolManagerInstance::~BufferPoolManagerInstance() {
   delete replacer_;
 }
 
-bool BufferPoolManagerInstance::FlushPgImp(page_id_t page_id) {
+auto BufferPoolManagerInstance::FlushPgImp(page_id_t page_id) -> bool {
   // Make sure you call DiskManager::WritePage!
   return false;
 }
@@ -56,7 +56,7 @@ void BufferPoolManagerInstance::FlushAllPgsImp() {
   // You can do it!
 }
 
-Page *BufferPoolManagerInstance::NewPgImp(page_id_t *page_id) {
+auto BufferPoolManagerInstance::NewPgImp(page_id_t *page_id) -> Page * {
   // 0.   Make sure you call AllocatePage!
   // 1.   If all the pages in the buffer pool are pinned, return nullptr.
   // 2.   Pick a victim page P from either the free list or the replacer. Always pick from the free list first.
@@ -65,7 +65,7 @@ Page *BufferPoolManagerInstance::NewPgImp(page_id_t *page_id) {
   return nullptr;
 }
 
-Page *BufferPoolManagerInstance::FetchPgImp(page_id_t page_id) {
+auto BufferPoolManagerInstance::FetchPgImp(page_id_t page_id) -> Page * {
   // 1.     Search the page table for the requested page (P).
   // 1.1    If P exists, pin it and return it immediately.
   // 1.2    If P does not exist, find a replacement page (R) from either the free list or the replacer.
@@ -76,7 +76,7 @@ Page *BufferPoolManagerInstance::FetchPgImp(page_id_t page_id) {
   return nullptr;
 }
 
-bool BufferPoolManagerInstance::DeletePgImp(page_id_t page_id) {
+auto BufferPoolManagerInstance::DeletePgImp(page_id_t page_id) -> bool {
   // 0.   Make sure you call DeallocatePage!
   // 1.   Search the page table for the requested page (P).
   // 1.   If P does not exist, return true.
@@ -85,9 +85,9 @@ bool BufferPoolManagerInstance::DeletePgImp(page_id_t page_id) {
   return false;
 }
 
-bool BufferPoolManagerInstance::UnpinPgImp(page_id_t page_id, bool is_dirty) { return false; }
+auto BufferPoolManagerInstance::UnpinPgImp(page_id_t page_id, bool is_dirty) -> bool { return false; }
 
-page_id_t BufferPoolManagerInstance::AllocatePage() {
+auto BufferPoolManagerInstance::AllocatePage() -> page_id_t {
   const page_id_t next_page_id = next_page_id_;
   next_page_id_ += num_instances_;
   ValidatePageId(next_page_id);

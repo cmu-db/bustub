@@ -65,9 +65,9 @@ namespace bustub {
 
 SmallintType::SmallintType() : IntegerParentType(TypeId::SMALLINT) {}
 
-bool SmallintType::IsZero(const Value &val) const { return (val.value_.smallint_ == 0); }
+auto SmallintType::IsZero(const Value &val) const -> bool { return (val.value_.smallint_ == 0); }
 
-Value SmallintType::Add(const Value &left, const Value &right) const {
+auto SmallintType::Add(const Value &left, const Value &right) const -> Value {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -79,7 +79,7 @@ Value SmallintType::Add(const Value &left, const Value &right) const {
   throw Exception("type error");
 }
 
-Value SmallintType::Subtract(const Value &left, const Value &right) const {
+auto SmallintType::Subtract(const Value &left, const Value &right) const -> Value {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -91,7 +91,7 @@ Value SmallintType::Subtract(const Value &left, const Value &right) const {
   throw Exception("type error");
 }
 
-Value SmallintType::Multiply(const Value &left, const Value &right) const {
+auto SmallintType::Multiply(const Value &left, const Value &right) const -> Value {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -103,7 +103,7 @@ Value SmallintType::Multiply(const Value &left, const Value &right) const {
   throw Exception("type error");
 }
 
-Value SmallintType::Divide(const Value &left, const Value &right) const {
+auto SmallintType::Divide(const Value &left, const Value &right) const -> Value {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -119,7 +119,7 @@ Value SmallintType::Divide(const Value &left, const Value &right) const {
   throw Exception("type error");
 }
 
-Value SmallintType::Modulo(const Value &left, const Value &right) const {
+auto SmallintType::Modulo(const Value &left, const Value &right) const -> Value {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -151,7 +151,7 @@ Value SmallintType::Modulo(const Value &left, const Value &right) const {
   throw Exception("type error");
 }
 
-Value SmallintType::Sqrt(const Value &val) const {
+auto SmallintType::Sqrt(const Value &val) const -> Value {
   assert(val.CheckInteger());
   if (val.IsNull()) {
     return Value(TypeId::DECIMAL, static_cast<double>(BUSTUB_DECIMAL_NULL));
@@ -163,7 +163,7 @@ Value SmallintType::Sqrt(const Value &val) const {
   return Value(TypeId::DECIMAL, std::sqrt(val.value_.smallint_));
 }
 
-Value SmallintType::OperateNull(const Value &left __attribute__((unused)), const Value &right) const {
+auto SmallintType::OperateNull(const Value &left __attribute__((unused)), const Value &right) const -> Value {
   switch (right.GetTypeId()) {
     case TypeId::TINYINT:
     case TypeId::SMALLINT:
@@ -181,7 +181,7 @@ Value SmallintType::OperateNull(const Value &left __attribute__((unused)), const
   throw Exception("type error");
 }
 
-CmpBool SmallintType::CompareEquals(const Value &left, const Value &right) const {
+auto SmallintType::CompareEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
 
@@ -194,7 +194,7 @@ CmpBool SmallintType::CompareEquals(const Value &left, const Value &right) const
   throw Exception("type error");
 }
 
-CmpBool SmallintType::CompareNotEquals(const Value &left, const Value &right) const {
+auto SmallintType::CompareNotEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -206,7 +206,7 @@ CmpBool SmallintType::CompareNotEquals(const Value &left, const Value &right) co
   throw Exception("type error");
 }
 
-CmpBool SmallintType::CompareLessThan(const Value &left, const Value &right) const {
+auto SmallintType::CompareLessThan(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -218,7 +218,7 @@ CmpBool SmallintType::CompareLessThan(const Value &left, const Value &right) con
   throw Exception("type error");
 }
 
-CmpBool SmallintType::CompareLessThanEquals(const Value &left, const Value &right) const {
+auto SmallintType::CompareLessThanEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -230,7 +230,7 @@ CmpBool SmallintType::CompareLessThanEquals(const Value &left, const Value &righ
   throw Exception("type error");
 }
 
-CmpBool SmallintType::CompareGreaterThan(const Value &left, const Value &right) const {
+auto SmallintType::CompareGreaterThan(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -242,7 +242,7 @@ CmpBool SmallintType::CompareGreaterThan(const Value &left, const Value &right) 
   throw Exception("type error");
 }
 
-CmpBool SmallintType::CompareGreaterThanEquals(const Value &left, const Value &right) const {
+auto SmallintType::CompareGreaterThanEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -254,7 +254,7 @@ CmpBool SmallintType::CompareGreaterThanEquals(const Value &left, const Value &r
   throw Exception("type error");
 }
 
-std::string SmallintType::ToString(const Value &val) const {
+auto SmallintType::ToString(const Value &val) const -> std::string {
   assert(val.CheckInteger());
   switch (val.GetTypeId()) {
     case TypeId::TINYINT:
@@ -288,12 +288,12 @@ void SmallintType::SerializeTo(const Value &val, char *storage) const {
 }
 
 // Deserialize a value of the given type from the given storage space.
-Value SmallintType::DeserializeFrom(const char *storage) const {
+auto SmallintType::DeserializeFrom(const char *storage) const -> Value {
   int16_t val = *reinterpret_cast<const int16_t *>(storage);
   return Value(type_id_, val);
 }
 
-Value SmallintType::Copy(const Value &val) const {
+auto SmallintType::Copy(const Value &val) const -> Value {
   assert(val.CheckInteger());
 
   return Value(TypeId::SMALLINT, val.value_.smallint_);
@@ -301,7 +301,7 @@ Value SmallintType::Copy(const Value &val) const {
   throw Exception("type error");
 }
 
-Value SmallintType::CastAs(const Value &val, const TypeId type_id) const {
+auto SmallintType::CastAs(const Value &val, const TypeId type_id) const -> Value {
   switch (type_id) {
     case TypeId::TINYINT: {
       if (val.IsNull()) {

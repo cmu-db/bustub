@@ -41,11 +41,11 @@ namespace bustub {
 // https://blog.galowicz.de/2016/02/20/short_file_macro/
 using cstr = const char *;
 
-static constexpr cstr PastLastSlash(cstr a, cstr b) {
+static constexpr auto PastLastSlash(cstr a, cstr b) -> cstr {
   return *a == '\0' ? b : *b == '/' ? PastLastSlash(a + 1, a + 1) : PastLastSlash(a + 1, b);
 }
 
-static constexpr cstr PastLastSlash(cstr a) { return PastLastSlash(a, a); }
+static constexpr auto PastLastSlash(cstr a) -> cstr { return PastLastSlash(a, a); }
 
 #define __SHORT_FILE__                            \
   ({                                              \
