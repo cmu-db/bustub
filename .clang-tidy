@@ -37,7 +37,7 @@ Checks:     '
             -bugprone-unhandled-self-assignment,
             -clang-analyzer-cplusplus.NewDelete,
             -clang-analyzer-cplusplus.NewDeleteLeaks,
-            -clang-analyzer-security.insecureAPI.rand
+            -clang-analyzer-security.insecureAPI.rand,
             -clang-diagnostic-implicit-int-float-conversion,
             -google-readability-avoid-underscore-in-googletest-name,
             -modernize-avoid-c-arrays,
