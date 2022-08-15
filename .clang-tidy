@@ -42,7 +42,6 @@ Checks:     '
             -google-readability-avoid-underscore-in-googletest-name,
             -modernize-avoid-c-arrays,
             -modernize-use-nodiscard,
-            -modernize-use-auto,
             -modernize-use-default-member-init,
             -modernize-use-trailing-return-type,
             -modernize-return-braced-init-list,

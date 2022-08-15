@@ -25,14 +25,14 @@ TEST(BPlusTreeTests, DISABLED_DeleteTest1) {
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
 
-  DiskManager *disk_manager = new DiskManager("test.db");
+  auto *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManagerInstance(50, disk_manager);
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm, comparator);
   GenericKey<8> index_key;
   RID rid;
   // create transaction
-  Transaction *transaction = new Transaction(0);
+  auto *transaction = new Transaction(0);
 
   // create and fetch header_page
   page_id_t page_id;
@@ -103,14 +103,14 @@ TEST(BPlusTreeTests, DISABLED_DeleteTest2) {
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
 
-  DiskManager *disk_manager = new DiskManager("test.db");
+  auto *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManagerInstance(50, disk_manager);
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm, comparator);
   GenericKey<8> index_key;
   RID rid;
   // create transaction
-  Transaction *transaction = new Transaction(0);
+  auto *transaction = new Transaction(0);
 
   // create and fetch header_page
   page_id_t page_id;

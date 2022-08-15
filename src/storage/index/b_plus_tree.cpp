@@ -228,7 +228,7 @@ auto BPLUSTREE_TYPE::FindLeafPage(const KeyType &key, bool leftMost) -> Page * {
  */
 INDEX_TEMPLATE_ARGUMENTS
 void BPLUSTREE_TYPE::UpdateRootPageId(int insert_record) {
-  HeaderPage *header_page = static_cast<HeaderPage *>(buffer_pool_manager_->FetchPage(HEADER_PAGE_ID));
+  auto *header_page = static_cast<HeaderPage *>(buffer_pool_manager_->FetchPage(HEADER_PAGE_ID));
   if (insert_record != 0) {
     // create a new record<index_name + root_page_id> in header_page
     header_page->InsertRecord(index_name_, root_page_id_);
@@ -314,7 +314,7 @@ void BPLUSTREE_TYPE::ToGraph(BPlusTreePage *page, BufferPoolManager *bpm, std::o
   std::string leaf_prefix("LEAF_");
   std::string internal_prefix("INT_");
   if (page->IsLeafPage()) {
-    LeafPage *leaf = reinterpret_cast<LeafPage *>(page);
+    auto *leaf = reinterpret_cast<LeafPage *>(page);
     // Print node name
     out << leaf_prefix << leaf->GetPageId();
     // Print node properties
@@ -345,7 +345,7 @@ void BPLUSTREE_TYPE::ToGraph(BPlusTreePage *page, BufferPoolManager *bpm, std::o
           << leaf->GetPageId() << ";\n";
     }
   } else {
-    InternalPage *inner = reinterpret_cast<InternalPage *>(page);
+    auto *inner = reinterpret_cast<InternalPage *>(page);
     // Print node name
     out << internal_prefix << inner->GetPageId();
     // Print node properties
@@ -403,7 +403,7 @@ void BPLUSTREE_TYPE::ToGraph(BPlusTreePage *page, BufferPoolManager *bpm, std::o
 INDEX_TEMPLATE_ARGUMENTS
 void BPLUSTREE_TYPE::ToString(BPlusTreePage *page, BufferPoolManager *bpm) const {
   if (page->IsLeafPage()) {
-    LeafPage *leaf = reinterpret_cast<LeafPage *>(page);
+    auto *leaf = reinterpret_cast<LeafPage *>(page);
     std::cout << "Leaf Page: " << leaf->GetPageId() << " parent: " << leaf->GetParentPageId()
               << " next: " << leaf->GetNextPageId() << std::endl;
     for (int i = 0; i < leaf->GetSize(); i++) {
@@ -412,7 +412,7 @@ void BPLUSTREE_TYPE::ToString(BPlusTreePage *page, BufferPoolManager *bpm) const
     std::cout << std::endl;
     std::cout << std::endl;
   } else {
-    InternalPage *internal = reinterpret_cast<InternalPage *>(page);
+    auto *internal = reinterpret_cast<InternalPage *>(page);
     std::cout << "Internal Page: " << internal->GetPageId() << " parent: " << internal->GetParentPageId() << std::endl;
     for (int i = 0; i < internal->GetSize(); i++) {
       std::cout << internal->KeyAt(i) << ": " << internal->ValueAt(i) << ",";

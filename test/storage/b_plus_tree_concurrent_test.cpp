@@ -43,7 +43,7 @@ void InsertHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, con
   GenericKey<8> index_key;
   RID rid;
   // create transaction
-  Transaction *transaction = new Transaction(0);
+  auto *transaction = new Transaction(0);
   for (auto key : keys) {
     int64_t value = key & 0xFFFFFFFF;
     rid.Set(static_cast<int32_t>(key >> 32), value);
@@ -59,7 +59,7 @@ void InsertHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree
   GenericKey<8> index_key;
   RID rid;
   // create transaction
-  Transaction *transaction = new Transaction(0);
+  auto *transaction = new Transaction(0);
   for (auto key : keys) {
     if (static_cast<uint64_t>(key) % total_threads == thread_itr) {
       int64_t value = key & 0xFFFFFFFF;
@@ -76,7 +76,7 @@ void DeleteHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, con
                   __attribute__((unused)) uint64_t thread_itr = 0) {
   GenericKey<8> index_key;
   // create transaction
-  Transaction *transaction = new Transaction(0);
+  auto *transaction = new Transaction(0);
   for (auto key : remove_keys) {
     index_key.SetFromInteger(key);
     tree->Remove(index_key, transaction);
@@ -90,7 +90,7 @@ void DeleteHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree
                        __attribute__((unused)) uint64_t thread_itr) {
   GenericKey<8> index_key;
   // create transaction
-  Transaction *transaction = new Transaction(0);
+  auto *transaction = new Transaction(0);
   for (auto key : remove_keys) {
     if (static_cast<uint64_t>(key) % total_threads == thread_itr) {
       index_key.SetFromInteger(key);
@@ -105,7 +105,7 @@ TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest1) {
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
 
-  DiskManager *disk_manager = new DiskManager("test.db");
+  auto *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManagerInstance(50, disk_manager);
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm, comparator);
@@ -156,7 +156,7 @@ TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest2) {
   // create KeyComparator and index schema
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
-  DiskManager *disk_manager = new DiskManager("test.db");
+  auto *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManagerInstance(50, disk_manager);
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm, comparator);
@@ -208,7 +208,7 @@ TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest1) {
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
 
-  DiskManager *disk_manager = new DiskManager("test.db");
+  auto *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManagerInstance(50, disk_manager);
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm, comparator);
@@ -250,7 +250,7 @@ TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest2) {
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
 
-  DiskManager *disk_manager = new DiskManager("test.db");
+  auto *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManagerInstance(50, disk_manager);
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm, comparator);
@@ -293,7 +293,7 @@ TEST(BPlusTreeConcurrentTest, DISABLED_MixTest) {
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
 
-  DiskManager *disk_manager = new DiskManager("test.db");
+  auto *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManagerInstance(50, disk_manager);
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm, comparator);
