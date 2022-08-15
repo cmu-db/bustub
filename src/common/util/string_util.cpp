@@ -32,7 +32,7 @@ void StringUtil::RTrim(std::string *str) {
   str->erase(std::find_if(str->rbegin(), str->rend(), [](int ch) { return std::isspace(ch) == 0; }).base(), str->end());
 }
 
-auto StringUtil::Indent(int num_indent) -> std::string { return std::string(num_indent, ' '); }
+auto StringUtil::Indent(int num_indent) -> std::string { return std::string(num_indent, ' '); }  // NOLINT
 
 auto StringUtil::StartsWith(const std::string &str, const std::string &prefix) -> bool {
   return std::equal(prefix.begin(), prefix.end(), str.begin());
@@ -165,7 +165,7 @@ std::string StringUtil::Format(std::string fmt_str, ...) {
       break;
     }
   }
-  return std::string(formatted.get());
+  return {formatted.get()};
 }
 
 auto StringUtil::Split(const std::string &input, const std::string &split) -> std::vector<std::string> {

@@ -103,7 +103,7 @@ auto Tuple::KeyFromTuple(const Schema &schema, const Schema &key_schema, const s
   for (auto idx : key_attrs) {
     values.emplace_back(this->GetValue(&schema, idx));
   }
-  return Tuple(values, &key_schema);
+  return {values, &key_schema};
 }
 
 auto Tuple::GetDataPtr(const Schema *schema, const uint32_t column_idx) const -> const char * {

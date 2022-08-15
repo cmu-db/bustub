@@ -70,7 +70,7 @@ auto ConstructTuple(Schema *schema) -> Tuple {
     }
     values.emplace_back(v);
   }
-  return Tuple(values, schema);
+  return {values, schema};
 }
 
 }  // namespace bustub

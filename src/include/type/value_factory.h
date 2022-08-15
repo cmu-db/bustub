@@ -38,25 +38,25 @@ class ValueFactory {
     return src.Copy();
   }
 
-  static inline auto GetTinyIntValue(int8_t value) -> Value { return Value(TypeId::TINYINT, value); }
+  static inline auto GetTinyIntValue(int8_t value) -> Value { return {TypeId::TINYINT, value}; }
 
-  static inline auto GetSmallIntValue(int16_t value) -> Value { return Value(TypeId::SMALLINT, value); }
+  static inline auto GetSmallIntValue(int16_t value) -> Value { return {TypeId::SMALLINT, value}; }
 
-  static inline auto GetIntegerValue(int32_t value) -> Value { return Value(TypeId::INTEGER, value); }
+  static inline auto GetIntegerValue(int32_t value) -> Value { return {TypeId::INTEGER, value}; }
 
-  static inline auto GetBigIntValue(int64_t value) -> Value { return Value(TypeId::BIGINT, value); }
+  static inline auto GetBigIntValue(int64_t value) -> Value { return {TypeId::BIGINT, value}; }
 
-  static inline auto GetTimestampValue(int64_t value) -> Value { return Value(TypeId::TIMESTAMP, value); }
+  static inline auto GetTimestampValue(int64_t value) -> Value { return {TypeId::TIMESTAMP, value}; }
 
-  static inline auto GetDecimalValue(double value) -> Value { return Value(TypeId::DECIMAL, value); }
+  static inline auto GetDecimalValue(double value) -> Value { return {TypeId::DECIMAL, value}; }
 
   static inline auto GetBooleanValue(CmpBool value) -> Value {
-    return Value(TypeId::BOOLEAN, value == CmpBool::CmpNull ? BUSTUB_BOOLEAN_NULL : static_cast<int8_t>(value));
+    return {TypeId::BOOLEAN, value == CmpBool::CmpNull ? BUSTUB_BOOLEAN_NULL : static_cast<int8_t>(value)};
   }
 
-  static inline auto GetBooleanValue(bool value) -> Value { return Value(TypeId::BOOLEAN, static_cast<int8_t>(value)); }
+  static inline auto GetBooleanValue(bool value) -> Value { return {TypeId::BOOLEAN, static_cast<int8_t>(value)}; }
 
-  static inline auto GetBooleanValue(int8_t value) -> Value { return Value(TypeId::BOOLEAN, value); }
+  static inline auto GetBooleanValue(int8_t value) -> Value { return {TypeId::BOOLEAN, value}; }
 
   static inline auto GetVarcharValue(const char *value, bool manage_data,
                                      __attribute__((__unused__)) AbstractPool *pool = nullptr) -> Value {
@@ -66,12 +66,12 @@ class ValueFactory {
 
   static inline auto GetVarcharValue(const char *value, uint32_t len, bool manage_data,
                                      __attribute__((__unused__)) AbstractPool *pool = nullptr) -> Value {
-    return Value(TypeId::VARCHAR, value, len, manage_data);
+    return {TypeId::VARCHAR, value, len, manage_data};
   }
 
   static inline auto GetVarcharValue(const std::string &value, __attribute__((__unused__)) AbstractPool *pool = nullptr)
       -> Value {
-    return Value(TypeId::VARCHAR, value);
+    return {TypeId::VARCHAR, value};
   }
 
   static inline auto GetNullValueByType(TypeId type_id) -> Value {

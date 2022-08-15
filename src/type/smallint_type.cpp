@@ -140,7 +140,7 @@ auto SmallintType::Modulo(const Value &left, const Value &right) const -> Value 
     case TypeId::BIGINT:
       return ModuloValue<int16_t, int64_t>(left, right);
     case TypeId::DECIMAL:
-      return Value(TypeId::DECIMAL, ValMod(left.value_.smallint_, right.GetAs<double>()));
+      return {TypeId::DECIMAL, ValMod(left.value_.smallint_, right.GetAs<double>())};
     case TypeId::VARCHAR: {
       auto r_value = right.CastAs(TypeId::SMALLINT);
       return ModuloValue<int16_t, int16_t>(left, r_value);
@@ -154,26 +154,26 @@ auto SmallintType::Modulo(const Value &left, const Value &right) const -> Value 
 auto SmallintType::Sqrt(const Value &val) const -> Value {
   assert(val.CheckInteger());
   if (val.IsNull()) {
-    return Value(TypeId::DECIMAL, static_cast<double>(BUSTUB_DECIMAL_NULL));
+    return {TypeId::DECIMAL, static_cast<double>(BUSTUB_DECIMAL_NULL)};
   }
 
   if (val.value_.smallint_ < 0) {
     throw Exception(ExceptionType::DECIMAL, "Cannot take square root of a negative number.");
   }
-  return Value(TypeId::DECIMAL, std::sqrt(val.value_.smallint_));
+  return {TypeId::DECIMAL, std::sqrt(val.value_.smallint_)};
 }
 
 auto SmallintType::OperateNull(const Value &left __attribute__((unused)), const Value &right) const -> Value {
   switch (right.GetTypeId()) {
     case TypeId::TINYINT:
     case TypeId::SMALLINT:
-      return Value(TypeId::SMALLINT, BUSTUB_INT16_NULL);
+      return {TypeId::SMALLINT, BUSTUB_INT16_NULL};
     case TypeId::INTEGER:
-      return Value(TypeId::INTEGER, BUSTUB_INT32_NULL);
+      return {TypeId::INTEGER, BUSTUB_INT32_NULL};
     case TypeId::BIGINT:
-      return Value(TypeId::BIGINT, BUSTUB_INT64_NULL);
+      return {TypeId::BIGINT, BUSTUB_INT64_NULL};
     case TypeId::DECIMAL:
-      return Value(TypeId::DECIMAL, static_cast<double>(BUSTUB_DECIMAL_NULL));
+      return {TypeId::DECIMAL, static_cast<double>(BUSTUB_DECIMAL_NULL)};
     default:
       break;
   }
@@ -290,13 +290,13 @@ void SmallintType::SerializeTo(const Value &val, char *storage) const {
 // Deserialize a value of the given type from the given storage space.
 auto SmallintType::DeserializeFrom(const char *storage) const -> Value {
   int16_t val = *reinterpret_cast<const int16_t *>(storage);
-  return Value(type_id_, val);
+  return {type_id_, val};
 }
 
 auto SmallintType::Copy(const Value &val) const -> Value {
   assert(val.CheckInteger());
 
-  return Value(TypeId::SMALLINT, val.value_.smallint_);
+  return {TypeId::SMALLINT, val.value_.smallint_};
 
   throw Exception("type error");
 }
@@ -305,42 +305,42 @@ auto SmallintType::CastAs(const Value &val, const TypeId type_id) const -> Value
   switch (type_id) {
     case TypeId::TINYINT: {
       if (val.IsNull()) {
-        return Value(type_id, BUSTUB_INT8_NULL);
+        return {type_id, BUSTUB_INT8_NULL};
       }
       if (val.GetAs<int16_t>() > BUSTUB_INT8_MAX || val.GetAs<int16_t>() < BUSTUB_INT8_MIN) {
         throw Exception(ExceptionType::OUT_OF_RANGE, "Numeric value out of range.");
       }
-      return Value(type_id, static_cast<int8_t>(val.GetAs<int16_t>()));
+      return {type_id, static_cast<int8_t>(val.GetAs<int16_t>())};
     }
     case TypeId::SMALLINT: {
       if (val.IsNull()) {
-        return Value(type_id, BUSTUB_INT16_NULL);
+        return {type_id, BUSTUB_INT16_NULL};
       }
       return Copy(val);
     }
     case TypeId::INTEGER: {
       if (val.IsNull()) {
-        return Value(type_id, BUSTUB_INT32_NULL);
+        return {type_id, BUSTUB_INT32_NULL};
       }
-      return Value(type_id, static_cast<int32_t>(val.GetAs<int16_t>()));
+      return {type_id, static_cast<int32_t>(val.GetAs<int16_t>())};
     }
     case TypeId::BIGINT: {
       if (val.IsNull()) {
-        return Value(type_id, BUSTUB_INT64_NULL);
+        return {type_id, BUSTUB_INT64_NULL};
       }
-      return Value(type_id, static_cast<int64_t>(val.GetAs<int16_t>()));
+      return {type_id, static_cast<int64_t>(val.GetAs<int16_t>())};
     }
     case TypeId::DECIMAL: {
       if (val.IsNull()) {
-        return Value(type_id, BUSTUB_DECIMAL_NULL);
+        return {type_id, BUSTUB_DECIMAL_NULL};
       }
-      return Value(type_id, static_cast<double>(val.GetAs<int16_t>()));
+      return {type_id, static_cast<double>(val.GetAs<int16_t>())};
     }
     case TypeId::VARCHAR: {
       if (val.IsNull()) {
-        return Value(TypeId::VARCHAR, nullptr, 0, false);
+        return {TypeId::VARCHAR, nullptr, 0, false};
       }
-      return Value(TypeId::VARCHAR, val.ToString());
+      return {TypeId::VARCHAR, val.ToString()};
     }
     default:
       break;
