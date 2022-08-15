@@ -91,7 +91,6 @@ class Column {
   static auto TypeSize(TypeId type) -> uint8_t {
     switch (type) {
       case TypeId::BOOLEAN:
-        return 1;
       case TypeId::TINYINT:
         return 1;
       case TypeId::SMALLINT:

@@ -48,11 +48,8 @@ class SimpleAggregationHashTable {
     for (const auto &agg_type : agg_types_) {
       switch (agg_type) {
         case AggregationType::CountAggregate:
-          // Count starts at zero.
-          values.emplace_back(ValueFactory::GetIntegerValue(0));
-          break;
         case AggregationType::SumAggregate:
-          // Sum starts at zero.
+          // Count/Sum starts at zero.
           values.emplace_back(ValueFactory::GetIntegerValue(0));
           break;
         case AggregationType::MinAggregate:
