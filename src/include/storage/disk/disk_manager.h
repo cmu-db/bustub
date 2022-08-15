@@ -97,10 +97,10 @@ class DiskManager {
   // stream to write db file
   std::fstream db_io_;
   std::string file_name_;
-  int num_flushes_;
-  int num_writes_;
-  bool flush_log_;
-  std::future<void> *flush_log_f_;
+  int num_flushes_{0};
+  int num_writes_{0};
+  bool flush_log_{false};
+  std::future<void> *flush_log_f_{nullptr};
   // With multiple buffer pool instances, need to protect file access
   std::mutex db_io_latch_;
 };

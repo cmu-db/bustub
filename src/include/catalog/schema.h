@@ -89,7 +89,7 @@ class Schema {
   std::vector<Column> columns_;
 
   /** True if all the columns are inlined, false otherwise. */
-  bool tuple_is_inlined_;
+  bool tuple_is_inlined_{true};
 
   /** Indices of all uninlined columns. */
   std::vector<uint32_t> uninlined_columns_;

@@ -37,11 +37,11 @@ class LockManager {
 
   class LockRequest {
    public:
-    LockRequest(txn_id_t txn_id, LockMode lock_mode) : txn_id_(txn_id), lock_mode_(lock_mode), granted_(false) {}
+    LockRequest(txn_id_t txn_id, LockMode lock_mode) : txn_id_(txn_id), lock_mode_(lock_mode) {}
 
     txn_id_t txn_id_;
     LockMode lock_mode_;
-    bool granted_;
+    bool granted_{false};
   };
 
   class LockRequestQueue {
