@@ -44,7 +44,7 @@ class RecoveryTest : public ::testing::Test {
 
 // NOLINTNEXTLINE
 TEST_F(RecoveryTest, DISABLED_RedoTest) {
-  BustubInstance *bustub_instance = new BustubInstance("test.db");
+  auto *bustub_instance = new BustubInstance("test.db");
 
   ASSERT_FALSE(enable_logging);
   LOG_INFO("Skip system recovering...");
@@ -133,7 +133,7 @@ TEST_F(RecoveryTest, DISABLED_RedoTest) {
 
 // NOLINTNEXTLINE
 TEST_F(RecoveryTest, DISABLED_UndoTest) {
-  BustubInstance *bustub_instance = new BustubInstance("test.db");
+  auto *bustub_instance = new BustubInstance("test.db");
 
   ASSERT_FALSE(enable_logging);
   LOG_INFO("Skip system recovering...");
@@ -212,7 +212,7 @@ TEST_F(RecoveryTest, DISABLED_UndoTest) {
 
 // NOLINTNEXTLINE
 TEST_F(RecoveryTest, DISABLED_CheckpointTest) {
-  BustubInstance *bustub_instance = new BustubInstance("test.db");
+  auto *bustub_instance = new BustubInstance("test.db");
 
   EXPECT_FALSE(enable_logging);
   LOG_INFO("Skip system recovering...");

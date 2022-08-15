@@ -42,7 +42,6 @@ Checks:     '
             -google-readability-avoid-underscore-in-googletest-name,
             -modernize-avoid-c-arrays,
             -modernize-use-nodiscard,
-            -modernize-use-auto,
             -modernize-use-default-member-init,
             -modernize-use-trailing-return-type,
             -modernize-return-braced-init-list,
@@ -71,6 +70,13 @@ AnalyzeTemporaryDtors: true
 
 #### Disabled checks and why: #####
 #
+# -readability-convert-member-functions-to-static,
+#     This check started going off in the upgrade from clang-tidy-8 to clang-tidy-12.  It is not always correct because 
+#     we hide the reference implementation in another repository.
+# -modernize-use-trailing-return-type,
+#    At the time of writing (8/22), all of the core BusTub code is in compliance with this. This check only fails
+#    because some GTest file that is generated at build time.  There should be a workaround...?
+#    (The file's name is gmock_main.cc).
 # -bugprone-too-small-loop-variable,
 #     Complains about uint8_t or uint16_t when the limit on the loop is a container's .size() (size_t).
 #     We usually do this when we know the maximum size of the container though, so propose leaving disabled.
