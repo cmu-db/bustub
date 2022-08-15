@@ -32,7 +32,6 @@ Checks:     '
             -bugprone-reserved-identifier,
             -bugprone-signed-char-misuse,
             -bugprone-suspicious-include,
-            -bugprone-too-small-loop-variable,
             -bugprone-unhandled-self-assignment,
             -clang-analyzer-cplusplus.NewDelete,
             -clang-analyzer-cplusplus.NewDeleteLeaks,
@@ -74,6 +73,10 @@ AnalyzeTemporaryDtors: true
 #    At the time of writing (8/22), all of the core BusTub code is in compliance with this. This check only fails
 #    because some GTest file that is generated at build time.  There should be a workaround...?
 #    (The file's name is gmock_main.cc).
+# -clang-analyzer-security.insecureAPI.rand, 
+#     This has not been investigated yet.
+# -bugprone-suspicious-include, 
+#     False positive due to GTest code.
 # -bugprone-too-small-loop-variable,
 #     Complains about uint8_t or uint16_t when the limit on the loop is a container's .size() (size_t).
 #     We usually do this when we know the maximum size of the container though, so propose leaving disabled.
