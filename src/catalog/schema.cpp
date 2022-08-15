@@ -18,7 +18,7 @@
 
 namespace bustub {
 
-Schema::Schema(const std::vector<Column> &columns) : tuple_is_inlined_(true) {
+Schema::Schema(const std::vector<Column> &columns) {
   uint32_t curr_offset = 0;
   for (uint32_t index = 0; index < columns.size(); index++) {
     Column column = columns[index];

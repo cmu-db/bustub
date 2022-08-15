@@ -50,7 +50,7 @@ class LogRecovery {
   /** Mapping the log sequence number to log file offset for undos. */
   std::unordered_map<lsn_t, int> lsn_mapping_;
 
-  int offset_ __attribute__((__unused__));
+  int offset_ __attribute__((__unused__));  // NOLINT
   char *log_buffer_;
 };
 

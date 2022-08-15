@@ -155,8 +155,7 @@ class TransactionAbortException : public std::exception {
 class Transaction {
  public:
   explicit Transaction(txn_id_t txn_id, IsolationLevel isolation_level = IsolationLevel::REPEATABLE_READ)
-      : state_(TransactionState::GROWING),
-        isolation_level_(isolation_level),
+      : isolation_level_(isolation_level),
         thread_id_(std::this_thread::get_id()),
         txn_id_(txn_id),
         prev_lsn_(INVALID_LSN),
@@ -256,7 +255,7 @@ class Transaction {
 
  private:
   /** The current transaction state. */
-  TransactionState state_;
+  TransactionState state_{TransactionState::GROWING};
   /** The isolation level of the transaction. */
   IsolationLevel isolation_level_;
   /** The thread ID, used in single-threaded transactions. */
