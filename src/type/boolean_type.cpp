@@ -92,10 +92,10 @@ void BooleanType::SerializeTo(const Value &val, char *storage) const {
 // Deserialize a value of the given type from the given storage space.
 auto BooleanType::DeserializeFrom(const char *storage) const -> Value {
   int8_t val = *reinterpret_cast<const int8_t *>(storage);
-  return Value(TypeId::BOOLEAN, val);
+  return {TypeId::BOOLEAN, val};
 }
 
-auto BooleanType::Copy(const Value &val) const -> Value { return Value(TypeId::BOOLEAN, val.value_.boolean_); }
+auto BooleanType::Copy(const Value &val) const -> Value { return {TypeId::BOOLEAN, val.value_.boolean_}; }
 
 auto BooleanType::CastAs(const Value &val, const TypeId type_id) const -> Value {
   switch (type_id) {
@@ -103,9 +103,9 @@ auto BooleanType::CastAs(const Value &val, const TypeId type_id) const -> Value 
       return Copy(val);
     case TypeId::VARCHAR: {
       if (val.IsNull()) {
-        return Value(TypeId::VARCHAR, nullptr, 0, false);
+        return {TypeId::VARCHAR, nullptr, 0, false};
       }
-      return Value(TypeId::VARCHAR, val.ToString());
+      return {TypeId::VARCHAR, val.ToString()};
     }
     default:
       break;

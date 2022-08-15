@@ -152,7 +152,7 @@ auto VarlenType::ToString(const Value &val) const -> std::string {
   if (len == 0) {
     return "";
   }
-  return std::string(GetData(val), len - 1);
+  return {GetData(val), len - 1};
 }
 
 void VarlenType::SerializeTo(const Value &val, char *storage) const {
@@ -169,13 +169,13 @@ void VarlenType::SerializeTo(const Value &val, char *storage) const {
 auto VarlenType::DeserializeFrom(const char *storage) const -> Value {
   uint32_t len = *reinterpret_cast<const uint32_t *>(storage);
   if (len == BUSTUB_VALUE_NULL) {
-    return Value(type_id_, nullptr, len, false);
+    return {type_id_, nullptr, len, false};
   }
   // set manage_data as true
-  return Value(type_id_, storage + sizeof(uint32_t), len, true);
+  return {type_id_, storage + sizeof(uint32_t), len, true};
 }
 
-auto VarlenType::Copy(const Value &val) const -> Value { return Value(val); }
+auto VarlenType::Copy(const Value &val) const -> Value { return {val}; }
 
 auto VarlenType::CastAs(const Value &value, const TypeId type_id) const -> Value {
   std::string str;
@@ -185,10 +185,10 @@ auto VarlenType::CastAs(const Value &value, const TypeId type_id) const -> Value
       str = value.ToString();
       std::transform(str.begin(), str.end(), str.begin(), ::tolower);
       if (str == "true" || str == "1" || str == "t") {
-        return Value(type_id, 1);
+        return {type_id, 1};
       }
       if (str == "false" || str == "0" || str == "f") {
-        return Value(type_id, 0);
+        return {type_id, 0};
       }
       throw Exception("Boolean value format error.");
     }
@@ -203,7 +203,7 @@ auto VarlenType::CastAs(const Value &value, const TypeId type_id) const -> Value
       if (tinyint < BUSTUB_INT8_MIN) {
         throw Exception(ExceptionType::OUT_OF_RANGE, "Numeric value out of range.");
       }
-      return Value(type_id, tinyint);
+      return {type_id, tinyint};
     }
     case TypeId::SMALLINT: {
       str = value.ToString();
@@ -216,7 +216,7 @@ auto VarlenType::CastAs(const Value &value, const TypeId type_id) const -> Value
       if (smallint < BUSTUB_INT16_MIN) {
         throw Exception(ExceptionType::OUT_OF_RANGE, "Numeric value out of range.");
       }
-      return Value(type_id, smallint);
+      return {type_id, smallint};
     }
     case TypeId::INTEGER: {
       str = value.ToString();
@@ -229,7 +229,7 @@ auto VarlenType::CastAs(const Value &value, const TypeId type_id) const -> Value
       if (integer > BUSTUB_INT32_MAX || integer < BUSTUB_INT32_MIN) {
         throw Exception(ExceptionType::OUT_OF_RANGE, "Numeric value out of range.");
       }
-      return Value(type_id, integer);
+      return {type_id, integer};
     }
     case TypeId::BIGINT: {
       str = value.ToString();
@@ -242,7 +242,7 @@ auto VarlenType::CastAs(const Value &value, const TypeId type_id) const -> Value
       if (bigint > BUSTUB_INT64_MAX || bigint < BUSTUB_INT64_MIN) {
         throw Exception(ExceptionType::OUT_OF_RANGE, "Numeric value out of range.");
       }
-      return Value(type_id, bigint);
+      return {type_id, bigint};
     }
     case TypeId::DECIMAL: {
       str = value.ToString();
@@ -255,7 +255,7 @@ auto VarlenType::CastAs(const Value &value, const TypeId type_id) const -> Value
       if (res > BUSTUB_DECIMAL_MAX || res < BUSTUB_DECIMAL_MIN) {
         throw Exception(ExceptionType::OUT_OF_RANGE, "Numeric value out of range.");
       }
-      return Value(type_id, res);
+      return {type_id, res};
     }
     case TypeId::VARCHAR:
       return value.Copy();

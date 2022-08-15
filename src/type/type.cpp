@@ -123,21 +123,21 @@ auto Type::TypeIdToString(const TypeId type_id) -> std::string {
 auto Type::GetMinValue(TypeId type_id) -> Value {
   switch (type_id) {
     case BOOLEAN:
-      return Value(type_id, 0);
+      return {type_id, 0};
     case TINYINT:
-      return Value(type_id, BUSTUB_INT8_MIN);
+      return {type_id, BUSTUB_INT8_MIN};
     case SMALLINT:
-      return Value(type_id, BUSTUB_INT16_MIN);
+      return {type_id, BUSTUB_INT16_MIN};
     case INTEGER:
-      return Value(type_id, BUSTUB_INT32_MIN);
+      return {type_id, BUSTUB_INT32_MIN};
     case BIGINT:
-      return Value(type_id, BUSTUB_INT64_MIN);
+      return {type_id, BUSTUB_INT64_MIN};
     case DECIMAL:
-      return Value(type_id, BUSTUB_DECIMAL_MIN);
+      return {type_id, BUSTUB_DECIMAL_MIN};
     case TIMESTAMP:
-      return Value(type_id, 0);
+      return {type_id, 0};
     case VARCHAR:
-      return Value(type_id, "");
+      return {type_id, ""};
     default:
       break;
   }
@@ -147,21 +147,21 @@ auto Type::GetMinValue(TypeId type_id) -> Value {
 auto Type::GetMaxValue(TypeId type_id) -> Value {
   switch (type_id) {
     case BOOLEAN:
-      return Value(type_id, 1);
+      return {type_id, 1};
     case TINYINT:
-      return Value(type_id, BUSTUB_INT8_MAX);
+      return {type_id, BUSTUB_INT8_MAX};
     case SMALLINT:
-      return Value(type_id, BUSTUB_INT16_MAX);
+      return {type_id, BUSTUB_INT16_MAX};
     case INTEGER:
-      return Value(type_id, BUSTUB_INT32_MAX);
+      return {type_id, BUSTUB_INT32_MAX};
     case BIGINT:
-      return Value(type_id, BUSTUB_INT64_MAX);
+      return {type_id, BUSTUB_INT64_MAX};
     case DECIMAL:
-      return Value(type_id, BUSTUB_DECIMAL_MAX);
+      return {type_id, BUSTUB_DECIMAL_MAX};
     case TIMESTAMP:
-      return Value(type_id, BUSTUB_TIMESTAMP_MAX);
+      return {type_id, BUSTUB_TIMESTAMP_MAX};
     case VARCHAR:
-      return Value(type_id, nullptr, 0, false);
+      return {type_id, nullptr, 0, false};
     default:
       break;
   }
