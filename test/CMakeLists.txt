@@ -35,6 +35,7 @@ add_custom_target(check-tests COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
 ##########################################
 # "make XYZ_test"
 ##########################################
+
 foreach (bustub_test_source ${BUSTUB_TEST_SOURCES})
     # Create a human readable name.
     get_filename_component(bustub_test_filename ${bustub_test_source} NAME)
@@ -45,7 +46,8 @@ foreach (bustub_test_source ${BUSTUB_TEST_SOURCES})
     add_dependencies(build-tests ${bustub_test_name})
     add_dependencies(check-tests ${bustub_test_name})
 
-    target_link_libraries(${bustub_test_name} bustub_shared gtest gmock_main)
+    # target_link_libraries(${bustub_test_name} bustub bustub_buffer bustub_catalog bustub_common_util bustub_common bustub_concurrency bustub_execution bustub_parser bustub_recovery bustub_type bustub_murmur3 bustub_pg_query bustub_sqlite3 gtest gmock_main)
+    target_link_libraries(${bustub_test_name} bustub gtest gmock_main)
 
     # Set test target properties and dependencies.
     set_target_properties(${bustub_test_name}
