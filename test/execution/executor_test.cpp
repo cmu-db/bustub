@@ -563,12 +563,13 @@ TEST_F(ExecutorTest, DISABLED_SimpleGroupByAggregation) {
     std::vector<const AbstractExpression *> aggregate_cols{col_a, col_c};
     std::vector<AggregationType> agg_types{AggregationType::CountAggregate, AggregationType::SumAggregate};
     const AbstractExpression *count_a = MakeAggregateValueExpression(false, 0);
+    const AbstractExpression *sum_c = MakeAggregateValueExpression(false, 1);
     // Make having clause
     const AbstractExpression *having = MakeComparisonExpression(
         count_a, MakeConstantValueExpression(ValueFactory::GetIntegerValue(100)), ComparisonType::GreaterThan);
 
     // Create plan
-    agg_schema = MakeOutputSchema({{"countA", count_a}, {"colB", groupby_b}});
+    agg_schema = MakeOutputSchema({{"countA", count_a}, {"colB", groupby_b}, {"sumC", sum_c}});
     agg_plan = std::make_unique<AggregationPlanNode>(agg_schema, scan_plan.get(), having, std::move(group_by_cols),
                                                      std::move(aggregate_cols), std::move(agg_types));
   }
@@ -580,6 +581,9 @@ TEST_F(ExecutorTest, DISABLED_SimpleGroupByAggregation) {
   for (const auto &tuple : result_set) {
     // Should have count_a > 100
     ASSERT_GT(tuple.GetValue(agg_schema, agg_schema->GetColIdx("countA")).GetAs<int32_t>(), 100);
+    // Should have sum_c >= 0. Data for test_1 table is randomly generated, where colC is uniformly distributed from
+    // 0 to 9999. So we can only ensure sumC column exists by checking if it's >= 0 here.
+    ASSERT_GE(tuple.GetValue(agg_schema, agg_schema->GetColIdx("sumC")).GetAs<int32_t>(), 0);
     // Should have unique col_bs.
     auto col_b = tuple.GetValue(agg_schema, agg_schema->GetColIdx("colB")).GetAs<int32_t>();
     ASSERT_EQ(encountered.count(col_b), 0);
