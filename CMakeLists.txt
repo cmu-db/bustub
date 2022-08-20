@@ -78,10 +78,6 @@ execute_process(COMMAND "${CMAKE_COMMAND}" --build .
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)  # don't override our compiler/linker options when building gtest
 add_subdirectory("${CMAKE_BINARY_DIR}/googletest-src" "${CMAKE_BINARY_DIR}/googletest-build")
 
-function(disable_target_warnings NAME)
-        target_compile_options(${NAME} PRIVATE "-w")
-endfunction()
-
 ######################################################################################################################
 # COMPILER SETUP
 ######################################################################################################################
