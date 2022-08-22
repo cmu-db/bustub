@@ -8,6 +8,8 @@
 # License. See LICENSE.TXT for details.
 #
 # Modified from the LLVM project for the Terrier project.
+#
+# Added `only_diff` cli arg to run clang-tidy on git diff.
 #===------------------------------------------------------------------------===#
 # FIXME: Integrate with clang-tidy-diff.py
 
@@ -56,6 +58,7 @@ if is_py2:
     import Queue as queue
 else:
     import queue as queue
+
 
 def find_compilation_database(path):
     """Adjusts the directory until a compilation database is found."""
@@ -107,16 +110,17 @@ def get_tidy_invocation(f, clang_tidy_binary, checks, tmpdir, build_path,
     start.append(f)
     return start
 
+
 def merge_replacement_files(tmpdir, mergefile):
     """Merge all replacement files in a directory into a single file"""
     # The fixes suggested by clang-tidy >= 4.0.0 are given under
     # the top level key 'Diagnostics' in the output yaml files
-    mergekey="Diagnostics"
-    merged=[]
+    mergekey = "Diagnostics"
+    merged = []
     for replacefile in glob.iglob(os.path.join(tmpdir, '*.yaml')):
         content = yaml.safe_load(open(replacefile, 'r'))
         if not content:
-            continue # Skip empty files.
+            continue  # Skip empty files.
         merged.extend(content.get(mergekey, []))
 
     if merged:
@@ -124,17 +128,19 @@ def merge_replacement_files(tmpdir, mergefile):
         # include/clang/Tooling/ReplacementsYaml.h, but the value
         # is actually never used inside clang-apply-replacements,
         # so we set it to '' here.
-        output = { 'MainSourceFile': '', mergekey: merged }
+        output = {'MainSourceFile': '', mergekey: merged}
         with open(mergefile, 'w') as out:
             yaml.safe_dump(output, out)
     else:
         # Empty the file:
         open(mergefile, 'w').close()
 
+
 def check_clang_apply_replacements_binary(args):
     """Checks if invoking supplied clang-apply-replacements binary works."""
     try:
-        subprocess.check_call([args.clang_apply_replacements_binary, '--version'])
+        subprocess.check_call(
+            [args.clang_apply_replacements_binary, '--version'])
     except:
         print('Unable to run clang-apply-replacements. Is clang-apply-replacements '
               'binary correctly specified?', file=sys.stderr)
@@ -157,7 +163,7 @@ def run_tidy(args, tmpdir, build_path, queue, lock, failed_files):
     """Takes filenames out of queue and runs clang-tidy on them."""
     while True:
         name = queue.get()
-        print("\r Checking: {}".format(name), end='')
+        print("Checking: {}".format(name))
         sys.stdout.flush()
         invocation = get_tidy_invocation(name, args.clang_tidy_binary, args.checks,
                                          tmpdir, build_path, args.header_filter,
@@ -169,7 +175,8 @@ def run_tidy(args, tmpdir, build_path, queue, lock, failed_files):
             queue.task_done()
             continue
 
-        proc = subprocess.Popen(invocation, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(
+            invocation, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, err = proc.communicate()
         if proc.returncode != 0:
             failed_files.append(name)
@@ -189,6 +196,7 @@ def run_tidy(args, tmpdir, build_path, queue, lock, failed_files):
                 sys.stdout.write('\n')
                 sys.stdout.write(output)
         queue.task_done()
+
 
 def main():
     parser = argparse.ArgumentParser(description='Runs clang-tidy over all files '
@@ -241,6 +249,8 @@ def main():
                              'command line.')
     parser.add_argument('-quiet', action='store_true',
                         help='Run clang-tidy in quiet mode')
+    parser.add_argument('-only-diff', action='store_true',
+                        help='Only run clang-tidy on diff file to master branch')
     args = parser.parse_args()
 
     db_path = 'compile_commands.json'
@@ -266,6 +276,28 @@ def main():
     database = json.load(open(os.path.join(build_path, db_path)))
     files = [make_absolute(entry['file'], entry['directory'])
              for entry in database]
+
+    # Running clang-tidy in the whole project is slow. Therefore, we added
+    # support for running clang-tidy on git diff. When `only_diff` is
+    # specified in the command line, we only check files modified compared
+    # with origin/master, so as to speed up clang-tidy check.
+    #
+    # This functionality is set as CMake target `check-clang-tidy-diff`.
+    # You can use `make check-clang-tidy-diff` to do a fast clang-tidy
+    # check.
+    if args.only_diff:
+        # Get the path of the repo, e.g. /Users/terrier/bustub
+        git_repo = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"], capture_output=True)
+        git_repo_path = git_repo.stdout.decode("utf-8").strip()
+        # Get all files changed compared with origin/master
+        result = subprocess.run(
+            ["git", "--no-pager", "diff", "--name-only", "origin/master"], capture_output=True)
+        git_changed_file_list = list(map(lambda x: make_absolute(
+            x, git_repo_path), result.stdout.decode("utf-8").strip().split("\n")))
+        git_changed_file_set = set(git_changed_file_list)
+        # Only retain files that exists in git diff
+        files = list(filter(lambda x: x in git_changed_file_set, files))
 
     max_task = args.j
     if max_task == 0:
@@ -329,7 +361,8 @@ def main():
             # TERRIER: We want to see the failed files
             print('The files that failed were:')
             print(pprint.pformat(failed_files))
-            print('Note that a failing .h file will fail all the .cpp files that include it.\n')
+            print(
+                'Note that a failing .h file will fail all the .cpp files that include it.\n')
 
     except KeyboardInterrupt:
         # This is a sad hack. Unfortunately subprocess goes
@@ -346,7 +379,7 @@ def main():
         except:
             print('Error exporting fixes.\n', file=sys.stderr)
             traceback.print_exc()
-            return_code=1
+            return_code = 1
 
     if args.fix:
         print('Applying fixes ...')
@@ -355,13 +388,14 @@ def main():
         except:
             print('Error applying fixes.\n', file=sys.stderr)
             traceback.print_exc()
-            return_code=1
+            return_code = 1
 
     if tmpdir:
         shutil.rmtree(tmpdir)
     print("")
     sys.stdout.flush()
     sys.exit(return_code)
+
 
 if __name__ == '__main__':
     main()
