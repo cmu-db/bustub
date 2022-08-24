@@ -85,7 +85,7 @@ Debug mode:
 $ cmake -DCMAKE_BUILD_TYPE=Debug ..
 $ make
 ```
-This enables [AddressSanitizer](https://github.com/google/sanitizers), which can generate false positives for overflow on STL containers. If you encounter this, define the environment variable `ASAN_OPTIONS=detect_container_overflow=0`.
+This enables [AddressSanitizer](https://github.com/google/sanitizers).
 
 ### Windows
 
