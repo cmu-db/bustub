@@ -28,3 +28,9 @@ GBENCHMARK_VERSION=1.4.1
 # branch: master
 # commit hash: 61a0530f28277f2e850bfc39600ce61d02b518de
 # commit hash date: 9 Jan 2018
+
+# googletest
+# url: https://github.com/google/googletest.git
+# tag: release-1.12.1
+# commit hash: 58d77fa8070e8cec2dc1ed015d66b454c8d78850
+# commit hash date: Jun 27 2022
