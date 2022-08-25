@@ -1,3 +1,4 @@
+add_subdirectory(binder)
 add_subdirectory(buffer)
 add_subdirectory(catalog)
 add_subdirectory(common)
@@ -8,9 +9,10 @@ add_subdirectory(recovery)
 add_subdirectory(storage)
 add_subdirectory(type)
 
-add_library(bustub SHARED ${ALL_OBJECT_FILES})
+add_library(bustub STATIC ${ALL_OBJECT_FILES})
 
 set(BUSTUB_LIBS
+    bustub_binder
     bustub_buffer 
     bustub_catalog 
     bustub_common 
@@ -26,7 +28,9 @@ set(BUSTUB_LIBS
 )
 
 set(BUSTUB_THIRDPARTY_LIBS
-    bustub_murmur3)
+    bustub_murmur3
+    duckdb_pg_query
+    fmt)
 
 target_link_libraries(
     bustub 

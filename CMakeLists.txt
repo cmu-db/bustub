@@ -22,7 +22,7 @@ endif ()
 # Expected directory structure.
 set(BUSTUB_BUILD_SUPPORT_DIR "${CMAKE_SOURCE_DIR}/build_support")
 set(BUSTUB_CLANG_SEARCH_PATH "/usr/local/bin" "/usr/bin" "/usr/local/opt/llvm/bin" "/usr/local/opt/llvm@12/bin"
-        "/usr/local/Cellar/llvm/12.0.1/bin")
+        "/usr/local/Cellar/llvm/12.0.1/bin" "/opt/homebrew/opt/llvm@12/bin/")
 
 ######################################################################################################################
 # DEPENDENCIES
@@ -74,14 +74,11 @@ endif()
 ######################################################################################################################
 
 # Compiler flags.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wall -Wextra -Werror")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-attributes") #TODO: remove
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -ggdb -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls")
-set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -fPIC")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fPIC")
-set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} -fPIC")
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(GCC_COVERAGE_LINK_FLAGS    "-fPIC")
 message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 message(STATUS "CMAKE_CXX_FLAGS_DEBUG: ${CMAKE_CXX_FLAGS_DEBUG}")
 message(STATUS "CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
@@ -96,9 +93,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # Includes.
 set(BUSTUB_SRC_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/src/include)
 set(BUSTUB_TEST_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/test/include)
-set(BUSTUB_THIRD_PARTY_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/third_party)
+set(BUSTUB_THIRD_PARTY_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/third_party ${PROJECT_SOURCE_DIR}/third_party/fmt/include)
 include_directories(${BUSTUB_SRC_INCLUDE_DIR} ${BUSTUB_TEST_INCLUDE_DIR} ${BUSTUB_THIRD_PARTY_INCLUDE_DIR})
 include_directories(BEFORE src) # This is needed for gtest.
+
+function(disable_target_warnings NAME)
+  target_compile_options(${NAME} PRIVATE "-w")
+endfunction()
 
 ######################################################################################################################
 # Other CMake modules
@@ -108,6 +109,7 @@ include_directories(BEFORE src) # This is needed for gtest.
 add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(third_party)
+add_subdirectory(tools)
 
 ######################################################################################################################
 # MAKE TARGETS

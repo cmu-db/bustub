@@ -15,12 +15,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# Toolchain library versions
-
-GTEST_VERSION=1.8.0
-GFLAGS_VERSION=2.2.0
-GBENCHMARK_VERSION=1.4.1
-
 # Library, Version, Commit Hash
 
 # murmur3
@@ -34,3 +28,15 @@ GBENCHMARK_VERSION=1.4.1
 # tag: release-1.12.1
 # commit hash: 58d77fa8070e8cec2dc1ed015d66b454c8d78850
 # commit hash date: Jun 27 2022
+
+# libpg_query
+# url: https://github.com/duckdb/duckdb/tree/master/third_party/libpg_query
+# branch: master
+# commit hash:c0a4ab96c626426961c207f49c19aa81448e91da
+# commit hash date: Aug 17 2022
+
+# fmt
+# url: https://github.com/fmtlib/fmt
+# tag: 9.0.0
+# commit hash: c4ee726532178e556d923372f29163bd206d7732
+# commit hash date: Jul 4 2022
