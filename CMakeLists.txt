@@ -172,4 +172,10 @@ add_custom_target(check-clang-tidy
         -clang-tidy-binary ${CLANG_TIDY_BIN}                              # using our clang-tidy binary
         -p ${CMAKE_BINARY_DIR}                                            # using cmake's generated compile commands
         )
+add_custom_target(check-clang-tidy-diff
+        ${BUSTUB_BUILD_SUPPORT_DIR}/run_clang_tidy.py                     # run LLVM's clang-tidy script
+        -clang-tidy-binary ${CLANG_TIDY_BIN}                              # using our clang-tidy binary
+        -p ${CMAKE_BINARY_DIR}                                            # using cmake's generated compile commands
+        -only-diff                                                        # only check diff files to master
+        )
 add_dependencies(check-clang-tidy gtest bustub)                    # needs gtest headers, compile_commands.json
