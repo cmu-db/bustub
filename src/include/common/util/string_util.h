@@ -40,6 +40,27 @@ class StringUtil {
   /** @return concatenation of all input strings, separated by the separator */
   static auto Join(const std::vector<std::string> &input, const std::string &separator) -> std::string;
 
+  //! Join multiple items of container with given size, transformed to string
+  //! using function, into one string using the given separator
+  template <typename C, typename S, typename Func>
+  static std::string Join(const C &input, S count, const std::string &separator, Func f) {
+    // The result
+    std::string result;
+
+    // If the input isn't empty, append the first element. We do this so we
+    // don't need to introduce an if into the loop.
+    if (count > 0) {
+      result += f(input[0]);
+    }
+
+    // Append the remaining input components, after the first
+    for (size_t i = 1; i < count; i++) {
+      result += separator + f(input[i]);
+    }
+
+    return result;
+  }
+
   /** @return prefix prepended to the beginning of each line in str */
   static auto Prefix(const std::string &str, const std::string &prefix) -> std::string;
 
@@ -80,6 +101,8 @@ class StringUtil {
    * @return a new string with no occurrences of the provided character
    */
   static auto Strip(const std::string &str, char c) -> std::string;
+
+  static auto Replace(std::string source, const std::string &from, const std::string &to) -> std::string;
 };
 
 }  // namespace bustub
