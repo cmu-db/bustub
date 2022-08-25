@@ -15,5 +15,4 @@ RUN apt-get -y update && \
       git \
       g++-12 \
       pkg-config \
-      valgrind \
       zlib1g-dev

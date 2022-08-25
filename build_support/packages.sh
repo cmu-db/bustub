@@ -97,7 +97,6 @@ install_linux() {
       git \
       g++-12 \
       pkg-config \
-      valgrind \
       zlib1g-dev
 }
 
