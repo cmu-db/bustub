@@ -66,7 +66,10 @@ We suggest working on your projects in separate branches. If you do not understa
 To ensure that you have the proper packages on your machine, run the following script to automatically install them:
 
 ```
+# Linux
 $ sudo build_support/packages.sh
+# macOS
+$ build_support/packages.sh
 ```
 
 Then run the following commands to build the system:
