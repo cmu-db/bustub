@@ -26,7 +26,7 @@ SelectStatement::SelectStatement(const Parser &parser, duckdb_libpgquery::PGSele
   }
 }
 
-std::string SelectStatement::ToString() const {
+auto SelectStatement::ToString() const -> std::string {
   std::vector<std::string> columns;
   for (auto &column : columns_) {
     columns.push_back(fmt::format("{}", column.ToString()));

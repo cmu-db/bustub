@@ -71,35 +71,35 @@ class Parser {
   void ParseQuery(const string &query);
 
   //! Returns true if the given text matches a keyword of the parser
-  static bool IsKeyword(const string &text);
+  static auto IsKeyword(const string &text) -> bool;
 
   //! Returns a list of all keywords in the parser
-  static vector<ParserKeyword> KeywordList();
+  static auto KeywordList() -> vector<ParserKeyword>;
 
   //! Tokenize a query, returning the raw tokens together with their locations
-  static vector<SimplifiedToken> Tokenize(const string &query);
+  static auto Tokenize(const string &query) -> vector<SimplifiedToken>;
 
   //! Transforms a Postgres parse tree into a set of SQL Statements
-  std::vector<std::unique_ptr<SQLStatement>> TransformParseTree(duckdb_libpgquery::PGList *tree) const;
+  auto TransformParseTree(duckdb_libpgquery::PGList *tree) const -> std::vector<std::unique_ptr<SQLStatement>>;
 
-  string NodetypeToString(duckdb_libpgquery::PGNodeTag type) const;
+  auto NodetypeToString(duckdb_libpgquery::PGNodeTag type) const -> string;
 
-  Column TransformColumnDefinition(duckdb_libpgquery::PGColumnDef *cdef) const;
-
-  //! Transforms a Postgres statement into a single SQL statement
-  unique_ptr<SQLStatement> TransformStatement(duckdb_libpgquery::PGNode *stmt) const;
+  auto TransformColumnDefinition(duckdb_libpgquery::PGColumnDef *cdef) const -> Column;
 
   //! Transforms a Postgres statement into a single SQL statement
-  unique_ptr<SQLStatement> TransformStatementInternal(duckdb_libpgquery::PGNode *stmt) const;
+  auto TransformStatement(duckdb_libpgquery::PGNode *stmt) const -> unique_ptr<SQLStatement>;
+
+  //! Transforms a Postgres statement into a single SQL statement
+  auto TransformStatementInternal(duckdb_libpgquery::PGNode *stmt) const -> unique_ptr<SQLStatement>;
 
   //! Transform a Postgres TypeName string into a TypeId
-  TypeId TransformTypeId(duckdb_libpgquery::PGTypeName *type_name) const;
+  auto TransformTypeId(duckdb_libpgquery::PGTypeName *type_name) const -> TypeId;
 
-  std::string PGNodetypeToString(duckdb_libpgquery::PGNodeTag type) const;
+  auto PGNodetypeToString(duckdb_libpgquery::PGNodeTag type) const -> std::string;
 
-  Value TransformConstant(duckdb_libpgquery::PGAConst *c) const;
+  auto TransformConstant(duckdb_libpgquery::PGAConst *c) const -> Value;
 
-  vector<Value> TransformExpressionList(duckdb_libpgquery::PGList *list) const;
+  auto TransformExpressionList(duckdb_libpgquery::PGList *list) const -> vector<Value>;
 };
 
 }  // namespace bustub

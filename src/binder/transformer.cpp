@@ -34,7 +34,7 @@
 
 namespace bustub {
 
-vector<unique_ptr<SQLStatement>> Parser::TransformParseTree(duckdb_libpgquery::PGList *tree) const {
+auto Parser::TransformParseTree(duckdb_libpgquery::PGList *tree) const -> vector<unique_ptr<SQLStatement>> {
   vector<unique_ptr<SQLStatement>> statements;
   for (auto entry = tree->head; entry != nullptr; entry = entry->next) {
     auto stmt = TransformStatement(static_cast<duckdb_libpgquery::PGNode *>(entry->data.ptr_value));
@@ -43,7 +43,7 @@ vector<unique_ptr<SQLStatement>> Parser::TransformParseTree(duckdb_libpgquery::P
   return statements;
 }
 
-unique_ptr<SQLStatement> Parser::TransformStatement(duckdb_libpgquery::PGNode *stmt) const {
+auto Parser::TransformStatement(duckdb_libpgquery::PGNode *stmt) const -> unique_ptr<SQLStatement> {
   switch (stmt->type) {
     case duckdb_libpgquery::T_PGRawStmt: {
       auto raw_stmt = reinterpret_cast<duckdb_libpgquery::PGRawStmt *>(stmt);
@@ -90,7 +90,7 @@ static const std::pair<std::string, TypeId> INTERNAL_TYPES[] = {
     {"float8", TypeId::DECIMAL},     {"tinyint", TypeId::TINYINT},
     {"int1", TypeId::TINYINT},       {"", TypeId::INVALID}};
 
-TypeId Parser::TransformTypeId(duckdb_libpgquery::PGTypeName *type_name) const {
+auto Parser::TransformTypeId(duckdb_libpgquery::PGTypeName *type_name) const -> TypeId {
   if (type_name->type != duckdb_libpgquery::T_PGTypeName) {
     throw Exception("Expected a type");
   }
@@ -107,7 +107,7 @@ TypeId Parser::TransformTypeId(duckdb_libpgquery::PGTypeName *type_name) const {
   return TypeId::INVALID;
 }
 
-Column Parser::TransformColumnDefinition(duckdb_libpgquery::PGColumnDef *cdef) const {
+auto Parser::TransformColumnDefinition(duckdb_libpgquery::PGColumnDef *cdef) const -> Column {
   string colname;
   if (cdef->colname != nullptr) {
     colname = cdef->colname;
@@ -116,7 +116,7 @@ Column Parser::TransformColumnDefinition(duckdb_libpgquery::PGColumnDef *cdef) c
   return {colname, type_id};
 }
 
-Value Parser::TransformConstant(duckdb_libpgquery::PGAConst *c) const {
+auto Parser::TransformConstant(duckdb_libpgquery::PGAConst *c) const -> Value {
   duckdb_libpgquery::PGValue pg_val = c->val;
 
   switch (pg_val.type) {
@@ -129,7 +129,7 @@ Value Parser::TransformConstant(duckdb_libpgquery::PGAConst *c) const {
   }
 }
 
-vector<Value> Parser::TransformExpressionList(duckdb_libpgquery::PGList *list) const {
+auto Parser::TransformExpressionList(duckdb_libpgquery::PGList *list) const -> vector<Value> {
   vector<Value> result;
   for (auto node = list->head; node != nullptr; node = node->next) {
     auto target = reinterpret_cast<duckdb_libpgquery::PGNode *>(node->data.ptr_value);

@@ -71,9 +71,9 @@ void Parser::ParseQuery(const std::string &query) {
   }
 }
 
-bool Parser::IsKeyword(const std::string &text) { return PostgresParser::IsKeyword(text); }
+auto Parser::IsKeyword(const std::string &text) -> bool { return PostgresParser::IsKeyword(text); }
 
-std::vector<ParserKeyword> Parser::KeywordList() {
+auto Parser::KeywordList() -> std::vector<ParserKeyword> {
   auto keywords = PostgresParser::KeywordList();
   std::vector<ParserKeyword> result;
   for (auto &kw : keywords) {
@@ -100,7 +100,7 @@ std::vector<ParserKeyword> Parser::KeywordList() {
   return result;
 }
 
-std::vector<SimplifiedToken> Parser::Tokenize(const std::string &query) {
+auto Parser::Tokenize(const std::string &query) -> std::vector<SimplifiedToken> {
   auto pg_tokens = PostgresParser::Tokenize(query);
   std::vector<SimplifiedToken> result;
   result.reserve(pg_tokens.size());

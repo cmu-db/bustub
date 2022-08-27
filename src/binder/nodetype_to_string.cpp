@@ -24,7 +24,7 @@
 
 namespace bustub {
 
-std::string Parser::NodetypeToString(duckdb_libpgquery::PGNodeTag type) const {
+auto Parser::NodetypeToString(duckdb_libpgquery::PGNodeTag type) const -> std::string {
   switch (type) {
     case duckdb_libpgquery::T_PGInvalid:
       return "T_Invalid";

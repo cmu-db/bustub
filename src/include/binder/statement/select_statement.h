@@ -21,7 +21,7 @@ class SelectStatement : public SQLStatement {
   string table_;
   vector<Column> columns_;
 
-  string ToString() const override;
+  auto ToString() const -> string override;
 };
 
 }  // namespace bustub

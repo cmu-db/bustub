@@ -25,6 +25,6 @@ CreateStatement::CreateStatement(const Parser &parser, duckdb_libpgquery::PGCrea
   }
 }
 
-std::string CreateStatement::ToString() const { return {}; }
+auto CreateStatement::ToString() const -> std::string { return {}; }
 
 }  // namespace bustub
