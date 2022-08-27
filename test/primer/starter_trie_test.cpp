@@ -184,7 +184,7 @@ TEST(StarterTrieTest, ConcurrentTest1) {
   threads.clear();
 
   auto get_task = [&](const std::string &key, int value) {
-    bool success;
+    bool success = false;
     int tval = trie.GetValue<int>(key, &success);
     EXPECT_EQ(success, true);
     EXPECT_EQ(tval, value);

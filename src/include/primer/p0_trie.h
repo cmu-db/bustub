@@ -305,6 +305,7 @@ class Trie {
    */
   template <typename T>
   T GetValue(const std::string &key, bool *success) {
+    *success = false;
     return {};
   }
 };
