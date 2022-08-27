@@ -41,7 +41,7 @@ std::vector<std::string> GenerateNRandomString(int n) {
   return rand_strs;
 }
 
-TEST(StarterTest, TrieNodeInsertTest) {
+TEST(StarterTest, DISABLED_TrieNodeInsertTest) {
   // Test Insert
   //  When same key is inserted twice, insert should return nullptr
   // When inserted key and unique_ptr's key does not match, return nullptr
@@ -60,7 +60,7 @@ TEST(StarterTest, TrieNodeInsertTest) {
   EXPECT_EQ((*child_node)->GetKeyChar(), 'c');
 }
 
-TEST(StarterTest, TrieNodeRemoveTest) {
+TEST(StarterTest, DISABLED_TrieNodeRemoveTest) {
   auto t = TrieNode('a');
   __attribute__((unused)) auto child_node = t.InsertChildNode('b', std::make_unique<TrieNode>('b'));
   child_node = t.InsertChildNode('c', std::make_unique<TrieNode>('c'));
@@ -78,7 +78,7 @@ TEST(StarterTest, TrieNodeRemoveTest) {
   EXPECT_EQ(child_node, nullptr);
 }
 
-TEST(StarterTest, TrieInsertTest) {
+TEST(StarterTest, DISABLED_TrieInsertTest) {
   {
     Trie trie;
     trie.Insert<std::string>("abc", "d");
@@ -129,7 +129,7 @@ TEST(StarterTest, TrieInsertTest) {
   }
 }
 
-TEST(StarterTrieTest, RemoveTest) {
+TEST(StarterTrieTest, DISABLED_RemoveTest) {
   {
     Trie trie;
     bool success = trie.Insert<int>("a", 5);
@@ -162,7 +162,7 @@ TEST(StarterTrieTest, RemoveTest) {
   }
 }
 
-TEST(StarterTrieTest, ConcurrentTest1) {
+TEST(StarterTrieTest, DISABLED_ConcurrentTest1) {
   Trie trie;
   constexpr int num_words = 1000;
   constexpr int num_bits = 10;
