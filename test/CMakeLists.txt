@@ -28,7 +28,10 @@ foreach (bustub_test_source ${BUSTUB_TEST_SOURCES})
     add_dependencies(build-tests ${bustub_test_name})
     add_dependencies(check-tests ${bustub_test_name})
 
-    gtest_discover_tests(${bustub_test_name})
+    gtest_discover_tests(${bustub_test_name}
+            EXTRA_ARGS
+            --gtest_color=yes
+            --gtest_output=xml:${CMAKE_BINARY_DIR}/test/${bustub_test_name}.xml)
     target_link_libraries(${bustub_test_name} bustub gtest gmock_main)
 
     # Set test target properties and dependencies.
