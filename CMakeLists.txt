@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)   # For clang-tidy.
 set(BUILD_SHARED_LIBS ON)
-set(CMAKE_CXX_STANDARD 17)              # Compile as C++17
-set(CMAKE_CXX_STANDARD_REQUIRED ON)     # Require C++17 support
+set(CMAKE_CXX_STANDARD 17)              # Compile as C++17.
+set(CMAKE_CXX_STANDARD_REQUIRED ON)     # Require C++17 support.
 
 project(BusTub
         VERSION 2022.8
@@ -25,16 +25,16 @@ set(BUSTUB_CLANG_SEARCH_PATH "/usr/local/bin" "/usr/bin" "/usr/local/opt/llvm/bi
         "/usr/local/Cellar/llvm/12.0.1/bin" "/opt/homebrew/opt/llvm@12/bin/")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    if(CMAKE_CXX_COMPILER_VERSION MATCHES "^12\.")
-        message(STATUS "✅ You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
-    else()
-        message(WARNING "❗ We strongly recommend you using clang-12 for developing bustub. You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, a different version.")
-    endif()
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    message(WARNING "❗ We strongly recommend you using `brew install llvm@12` (the one installed with homebrew) for developing bustub. You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, the one bundled by Apple.")
-else()
-    message(WARNING "❗ We strongly recommend you using clang-12 for developing bustub. You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, which is not clang.")
-endif()
+    if (CMAKE_CXX_COMPILER_VERSION MATCHES "^12.")
+        message(STATUS "You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+    else ()
+        message(WARNING "!! We recommend that you use clang-12 for developing BusTub. You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, a different version.")
+    endif ()
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    message(WARNING "!! We recommend that you use `brew install llvm@12` (the one installed with homebrew) for developing BusTub. You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, the one bundled by Apple.")
+else ()
+    message(WARNING "!! We recommend that you use clang-12 for developing BusTub. You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, which is not clang.")
+endif ()
 
 ######################################################################################################################
 # DEPENDENCIES
@@ -49,12 +49,12 @@ if (NOT DEFINED CLANG_FORMAT_BIN)
     find_program(CLANG_FORMAT_BIN
             NAMES clang-format clang-format-12
             HINTS ${BUSTUB_CLANG_SEARCH_PATH})
-endif()
+endif ()
 if ("${CLANG_FORMAT_BIN}" STREQUAL "CLANG_FORMAT_BIN-NOTFOUND")
     message(WARNING "BusTub/main couldn't find clang-format.")
-else()
+else ()
     message(STATUS "BusTub/main found clang-format at ${CLANG_FORMAT_BIN}")
-endif()
+endif ()
 
 # clang-tidy
 if (NOT DEFINED CLANG_TIDY_BIN)
@@ -62,14 +62,14 @@ if (NOT DEFINED CLANG_TIDY_BIN)
     find_program(CLANG_TIDY_BIN
             NAMES clang-tidy clang-tidy-12
             HINTS ${BUSTUB_CLANG_SEARCH_PATH})
-endif()
+endif ()
 if ("${CLANG_TIDY_BIN}" STREQUAL "CLANG_TIDY_BIN-NOTFOUND")
     message(WARNING "BusTub/main couldn't find clang-tidy.")
-else()
+else ()
     # Output compile_commands.json
     set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
     message(STATUS "BusTub/main found clang-tidy at ${CLANG_TIDY_BIN}")
-endif()
+endif ()
 
 # cpplint
 find_program(CPPLINT_BIN
@@ -77,9 +77,9 @@ find_program(CPPLINT_BIN
         HINTS "${BUSTUB_BUILD_SUPPORT_DIR}")
 if ("${CPPLINT_BIN}" STREQUAL "CPPLINT_BIN-NOTFOUND")
     message(WARNING "BusTub/main couldn't find cpplint.")
-else()
+else ()
     message(STATUS "BusTub/main found cpplint at ${CPPLINT_BIN}")
-endif()
+endif ()
 
 ######################################################################################################################
 # COMPILER SETUP
@@ -110,7 +110,7 @@ include_directories(${BUSTUB_SRC_INCLUDE_DIR} ${BUSTUB_TEST_INCLUDE_DIR} ${BUSTU
 include_directories(BEFORE src) # This is needed for gtest.
 
 function(disable_target_warnings NAME)
-  target_compile_options(${NAME} PRIVATE "-w")
+    target_compile_options(${NAME} PRIVATE "-w")
 endfunction()
 
 ######################################################################################################################
@@ -210,6 +210,6 @@ add_custom_target(check-clang-tidy-p0
         -p ${CMAKE_BINARY_DIR}                                            # using cmake's generated compile commands
         -j 1
         "src/primer/p0_trie.cpp"
-)
+        )
 
 add_dependencies(check-clang-tidy gtest bustub)                    # needs gtest headers, compile_commands.json

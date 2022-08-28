@@ -51,7 +51,7 @@ jobs:
             tidy: "/usr/bin/clang-tidy-12"
           }
           - {
-            name: "macOS 11 (Big Sur) Clang",
+            name: "macOS 11 (Big Sur) AppleClang",
             os: macos-11,
             cc: "/usr/bin/clang",
             cxx: "/usr/bin/clang++",
@@ -59,7 +59,7 @@ jobs:
             tidy: "/usr/local/opt/llvm@12/bin/clang-tidy"
           }
           - {
-            name: "macOS 12 (Monterey) Clang",
+            name: "macOS 12 (Monterey) AppleClang",
             os: macos-12,
             cc: "/usr/bin/clang",
             cxx: "/usr/bin/clang++",
