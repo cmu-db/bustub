@@ -97,7 +97,7 @@ void HASH_TABLE_BUCKET_TYPE::PrintBucket() {
     }
   }
 
-  LOG_INFO("Bucket Capacity: %lu, Size: %u, Taken: %u, Free: %u", BUCKET_ARRAY_SIZE, size, taken, free);
+  LOG_INFO("Bucket Capacity: %llu, Size: %u, Taken: %u, Free: %u", BUCKET_ARRAY_SIZE, size, taken, free);
 }
 
 // DO NOT REMOVE ANYTHING BELOW THIS LINE

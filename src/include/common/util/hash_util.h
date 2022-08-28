@@ -97,6 +97,7 @@ class HashUtil {
       }
       default: {
         BUSTUB_ASSERT(false, "Unsupported type.");
+        return 0;
       }
     }
   }
