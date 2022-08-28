@@ -61,7 +61,7 @@ We suggest working on your projects in separate branches. If you do not understa
 
 ## Build
 
-You're recommended to develop bustub on Ubuntu 20.04, Ubuntu 22.04, and macOS (M1/M2/Intel).
+We recommend developing BusTub on Ubuntu 20.04, Ubuntu 22.04, or macOS (M1/M2/Intel). We do not support any other environments (i.e., do not open issues or come to office hours to debug them). We do not support WSL.
 
 ### Linux / Mac (Recommended)
 
