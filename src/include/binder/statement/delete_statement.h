@@ -19,7 +19,7 @@ class DeleteStatement : public SQLStatement {
 
   string table_;
 
-  string ToString() const override;
+  auto ToString() const -> string override;
 };
 
 }  // namespace bustub

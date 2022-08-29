@@ -2,7 +2,7 @@
 #include "binder/parser.h"
 #include "common/util/string_util.h"
 
-int main() {
+auto main() -> int {
   // TODO(chi): add Bustub class with a `execute_sql` interface, instead of setting up everything here.
 
   std::string query;

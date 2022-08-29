@@ -43,7 +43,7 @@ class StringUtil {
   //! Join multiple items of container with given size, transformed to string
   //! using function, into one string using the given separator
   template <typename C, typename S, typename Func>
-  static std::string Join(const C &input, S count, const std::string &separator, Func f) {
+  static auto Join(const C &input, S count, const std::string &separator, Func f) -> std::string {
     // The result
     std::string result;
 

@@ -31,6 +31,6 @@ InsertStatement::InsertStatement(const Parser &parser, duckdb_libpgquery::PGInse
   }
 }
 
-std::string InsertStatement::ToString() const { return {}; }
+auto InsertStatement::ToString() const -> std::string { return {}; }
 
 }  // namespace bustub

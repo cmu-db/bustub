@@ -22,7 +22,7 @@ class InsertStatement : public SQLStatement {
   vector<Column> columns_;
   vector<vector<Value>> values_;
 
-  string ToString() const override;
+  auto ToString() const -> string override;
 };
 
 }  // namespace bustub

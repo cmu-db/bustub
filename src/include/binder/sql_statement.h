@@ -35,7 +35,7 @@ class SQLStatement {
 
  public:
   //! Convert this statement to string
-  virtual string ToString() const { throw Exception("ToString not supported for this type of SQLStatement"); }
+  virtual auto ToString() const -> string { throw Exception("ToString not supported for this type of SQLStatement"); }
 };
 
 }  // namespace bustub

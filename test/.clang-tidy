@@ -1,0 +1,11 @@
+---
+Checks:     '
+            -modernize-use-trailing-return-type,
+            '
+InheritParentConfig: true
+
+#### Disabled checks and why: #####
+#
+# -modernize-use-trailing-return-type,
+#    At the time of writing (8/22), all of the core BusTub code is in compliance with this. This check only fails
+#    because some GTest file (gmock_main.cc) that is generated at build time.  There should be a workaround...?

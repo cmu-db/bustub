@@ -26,9 +26,9 @@
 
 namespace bustub {
 
-bool KeywordHelper::IsKeyword(const string &text) { return Parser::IsKeyword(text); }
+auto KeywordHelper::IsKeyword(const string &text) -> bool { return Parser::IsKeyword(text); }
 
-bool KeywordHelper::RequiresQuotes(const string &text) {
+auto KeywordHelper::RequiresQuotes(const string &text) -> bool {
   for (size_t i = 0; i < text.size(); i++) {
     if (i > 0 && (text[i] >= '0' && text[i] <= '9')) {
       continue;
@@ -44,7 +44,7 @@ bool KeywordHelper::RequiresQuotes(const string &text) {
   return IsKeyword(text);
 }
 
-string KeywordHelper::WriteOptionallyQuoted(const string &text, char quote) {
+auto KeywordHelper::WriteOptionallyQuoted(const string &text, char quote) -> string {
   if (!RequiresQuotes(text)) {
     return text;
   }
