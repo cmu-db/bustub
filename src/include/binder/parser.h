@@ -52,47 +52,47 @@ struct PGList;
 }  // namespace duckdb_libpgquery
 
 namespace bustub {
-using std::vector;
 
-//! The parser is responsible for parsing the query and converting it into a set
-//! of parsed statements. The parsed statements can then be converted into a
-//! plan and executed.
+// The parser is responsible for parsing the query and converting it into a set
+// of parsed statements. The parsed statements can then be converted into a
+// plan and executed.
 class Parser {
  public:
   Parser() = default;
 
-  //! The parsed SQL statements from an invocation to ParseQuery.
+  // The parsed SQL statements from an invocation to ParseQuery.
   vector<unique_ptr<SQLStatement>> statements_;
 
-  //! Attempts to parse a query into a series of SQL statements. Returns
-  //! whether or not the parsing was successful. If the parsing was
-  //! successful, the parsed statements will be stored in the statements
-  //! variable.
+  // Attempts to parse a query into a series of SQL statements. Returns
+  // whether or not the parsing was successful. If the parsing was
+  // successful, the parsed statements will be stored in the statements
+  // variable.
   void ParseQuery(const string &query);
 
-  //! Returns true if the given text matches a keyword of the parser
+  // Returns true if the given text matches a keyword of the parser
   static auto IsKeyword(const string &text) -> bool;
 
-  //! Returns a list of all keywords in the parser
+  // Returns a list of all keywords in the parser
   static auto KeywordList() -> vector<ParserKeyword>;
 
-  //! Tokenize a query, returning the raw tokens together with their locations
+  // Tokenize a query, returning the raw tokens together with their locations
   static auto Tokenize(const string &query) -> vector<SimplifiedToken>;
 
-  //! Transforms a Postgres parse tree into a set of SQL Statements
+  // Transforms a Postgres parse tree into a set of SQL Statements
   auto TransformParseTree(duckdb_libpgquery::PGList *tree) const -> std::vector<std::unique_ptr<SQLStatement>>;
 
-  auto NodetypeToString(duckdb_libpgquery::PGNodeTag type) const -> string;
+  // Get the string of a Postgres node type
+  static auto NodetypeToString(duckdb_libpgquery::PGNodeTag type) -> string;
 
   auto TransformColumnDefinition(duckdb_libpgquery::PGColumnDef *cdef) const -> Column;
 
-  //! Transforms a Postgres statement into a single SQL statement
+  // Transforms a Postgres statement into a single SQL statement
   auto TransformStatement(duckdb_libpgquery::PGNode *stmt) const -> unique_ptr<SQLStatement>;
 
-  //! Transforms a Postgres statement into a single SQL statement
+  // Transforms a Postgres statement into a single SQL statement
   auto TransformStatementInternal(duckdb_libpgquery::PGNode *stmt) const -> unique_ptr<SQLStatement>;
 
-  //! Transform a Postgres TypeName string into a TypeId
+  // Transform a Postgres TypeName string into a TypeId
   auto TransformTypeId(duckdb_libpgquery::PGTypeName *type_name) const -> TypeId;
 
   auto PGNodetypeToString(duckdb_libpgquery::PGNodeTag type) const -> std::string;

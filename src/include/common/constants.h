@@ -57,7 +57,7 @@ static constexpr int BUCKET_SIZE = 50;                                        //
 static constexpr uint64_t COLUMN_IDENTIFIER_ROW_ID = static_cast<uint64_t>(-1);
 
 // size of extendible hash bucket
-//! inline std directives that we use frequently
+// inline std directives that we use frequently
 using std::make_shared;
 using std::make_unique;
 using std::move;

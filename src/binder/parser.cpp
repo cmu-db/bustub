@@ -54,13 +54,7 @@ void Parser::ParseQuery(const std::string &query) {
     return;
   }
 
-  try {
-    // if it succeeded, we transform the Postgres parse tree into a list of
-    // SQLStatements
-    statements_ = TransformParseTree(parser.parse_tree);
-  } catch (Exception &ex) {
-    LOG_ERROR("Experienced an error when transforming the Postgres parse tree into BusTub statements.");
-  }
+  statements_ = TransformParseTree(parser.parse_tree);
 
   if (!statements_.empty()) {
     auto &last_statement = statements_.back();

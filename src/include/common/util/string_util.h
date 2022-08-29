@@ -40,8 +40,8 @@ class StringUtil {
   /** @return concatenation of all input strings, separated by the separator */
   static auto Join(const std::vector<std::string> &input, const std::string &separator) -> std::string;
 
-  //! Join multiple items of container with given size, transformed to string
-  //! using function, into one string using the given separator
+  // Join multiple items of container with given size, transformed to string
+  // using function, into one string using the given separator
   template <typename C, typename S, typename Func>
   static auto Join(const C &input, S count, const std::string &separator, Func f) -> std::string {
     // The result
