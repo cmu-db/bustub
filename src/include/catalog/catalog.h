@@ -322,6 +322,14 @@ class Catalog {
     return indexes;
   }
 
+  auto GetTableNames() -> std::vector<std::string> {
+    std::vector<std::string> result;
+    for (const auto &x : table_names_) {
+      result.push_back(x.first);
+    }
+    return result;
+  }
+
  private:
   [[maybe_unused]] BufferPoolManager *bpm_;
   [[maybe_unused]] LockManager *lock_manager_;

@@ -39,6 +39,7 @@
 #include "binder/simplified_token.h"
 #include "binder/sql_statement.h"
 #include "binder/tokens.h"
+#include "catalog/catalog.h"
 #include "catalog/column.h"
 #include "nodes/parsenodes.hpp"
 #include "pg_definitions.hpp"
@@ -67,7 +68,7 @@ class Parser {
   // whether or not the parsing was successful. If the parsing was
   // successful, the parsed statements will be stored in the statements
   // variable.
-  void ParseQuery(const string &query);
+  void ParseAndBindQuery(const string &query, const Catalog &catalog);
 
   // Returns true if the given text matches a keyword of the parser
   static auto IsKeyword(const string &text) -> bool;

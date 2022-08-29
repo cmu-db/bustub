@@ -40,7 +40,7 @@ using duckdb::PostgresParser;
 using duckdb_libpgquery::PGKeywordCategory;
 using duckdb_libpgquery::PGSimplifiedTokenType;
 
-void Parser::ParseQuery(const std::string &query) {
+void Parser::ParseAndBindQuery(const std::string &query, const Catalog &catalog) {
   PostgresParser parser;
   parser.Parse(query);
   if (!parser.success) {

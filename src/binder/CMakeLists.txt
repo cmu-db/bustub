@@ -1,6 +1,3 @@
-include_directories(../../third_party/libpg_query/include)
-include_directories(../../third_party/libpg_query)
-
 add_subdirectory(statement)
 
 add_library(

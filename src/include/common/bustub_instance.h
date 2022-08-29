@@ -10,11 +10,14 @@
 //
 //===----------------------------------------------------------------------===//
 
+#pragma once
+
 #include <string>
 
 #include "buffer/buffer_pool_manager_instance.h"
 #include "common/config.h"
 #include "concurrency/lock_manager.h"
+#include "execution/executor_context.h"
 #include "recovery/checkpoint_manager.h"
 #include "recovery/log_manager.h"
 #include "storage/disk/disk_manager.h"
@@ -22,37 +25,20 @@
 namespace bustub {
 
 class BustubInstance {
+ private:
+  auto GetExecutionContext(Transaction *txn) -> std::unique_ptr<ExecutorContext>;
+
  public:
-  explicit BustubInstance(const std::string &db_file_name) {
-    enable_logging = false;
+  explicit BustubInstance(const std::string &db_file_name);
 
-    // storage related
-    disk_manager_ = new DiskManager(db_file_name);
+  ~BustubInstance();
 
-    // log related
-    log_manager_ = new LogManager(disk_manager_);
+  auto ExecuteSql(const std::string &sql) -> std::vector<std::string>;
 
-    buffer_pool_manager_ = new BufferPoolManagerInstance(BUFFER_POOL_SIZE, disk_manager_, log_manager_);
+  void GenerateTestTable();
 
-    // txn related
-    lock_manager_ = new LockManager();
-    transaction_manager_ = new TransactionManager(lock_manager_, log_manager_);
-
-    // checkpoints
-    checkpoint_manager_ = new CheckpointManager(transaction_manager_, log_manager_, buffer_pool_manager_);
-  }
-
-  ~BustubInstance() {
-    if (enable_logging) {
-      log_manager_->StopFlushThread();
-    }
-    delete checkpoint_manager_;
-    delete log_manager_;
-    delete buffer_pool_manager_;
-    delete lock_manager_;
-    delete transaction_manager_;
-    delete disk_manager_;
-  }
+  // TODO(chi): change to unique_ptr. Currently they're directly referenced by recovery test, so
+  // we cannot do anything on them until someone decides to refactor the recovery test.
 
   DiskManager *disk_manager_;
   BufferPoolManager *buffer_pool_manager_;
@@ -60,6 +46,7 @@ class BustubInstance {
   TransactionManager *transaction_manager_;
   LogManager *log_manager_;
   CheckpointManager *checkpoint_manager_;
+  Catalog *catalog_;
 };
 
 }  // namespace bustub
