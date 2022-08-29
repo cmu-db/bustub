@@ -38,7 +38,7 @@ jobs:
             name: "Ubuntu 22.04 Clang",
             os: "ubuntu-22.04",
             cc: "/usr/bin/clang-12",
-            cxx: "/usr/bin/clang++12",
+            cxx: "/usr/bin/clang++-12",
             format: "/usr/bin/clang-format-12",
             tidy: "/usr/bin/clang-tidy-12"
           }
@@ -46,12 +46,12 @@ jobs:
             name: "Ubuntu 20.04 Clang",
             os: "ubuntu-20.04",
             cc: "/usr/bin/clang-12",
-            cxx: "/usr/bin/clang++12",
+            cxx: "/usr/bin/clang++-12",
             format: "/usr/bin/clang-format-12",
             tidy: "/usr/bin/clang-tidy-12"
           }
           - {
-            name: "macOS 11 (Big Sur) Clang",
+            name: "macOS 11 (Big Sur) AppleClang",
             os: macos-11,
             cc: "/usr/bin/clang",
             cxx: "/usr/bin/clang++",
@@ -59,7 +59,7 @@ jobs:
             tidy: "/usr/local/opt/llvm@12/bin/clang-tidy"
           }
           - {
-            name: "macOS 12 (Monterey) Clang",
+            name: "macOS 12 (Monterey) AppleClang",
             os: macos-12,
             cc: "/usr/bin/clang",
             cxx: "/usr/bin/clang++",
@@ -84,7 +84,7 @@ jobs:
         run: bash ./build_support/packages.sh -y
 
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCC=${{matrix.config.cc}} -DCXX=${{matrix.config.cxx}} -DCLANG_FORMAT_BIN=${{matrix.config.format}} -DCLANG_TIDY_BIN=${{matrix.config.tidy}}
+        run: CC=${{matrix.config.cc}} CXX=${{matrix.config.cxx}} cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCLANG_FORMAT_BIN=${{matrix.config.format}} -DCLANG_TIDY_BIN=${{matrix.config.tidy}}
 
       - name: Build
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
