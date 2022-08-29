@@ -80,6 +80,9 @@ class ReaderWriterLatch {
       }
     } else {
       if (reader_count_ == MAX_READERS - 1) {
+        // TODO(Chi): this implementation will lead to deadlock after reader count reaches
+        // the maximum. See https://github.com/cmu-db/bustub/issues/254 for details.
+        // It's a rare case, and we won't fix it for now.
         reader_.notify_one();
       }
     }
