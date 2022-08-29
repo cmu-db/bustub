@@ -22,10 +22,10 @@ The following instructions are adapted from the Github documentation on [duplica
    $ cd bustub-public
    
    # If you pull / push over HTTPS
-   $ git push --mirror https://github.com/student/bustub-private.git
+   $ git push https://github.com/student/bustub-private.git master
 
    # If you pull / push over SSH
-   $ git push --mirror git@github.com:student/bustub-private.git
+   $ git push git@github.com:student/bustub-private.git master
    ```
    This copies everything in the public BusTub repository to your own private repository. You can now delete your local clone of the public repository:
    ```
