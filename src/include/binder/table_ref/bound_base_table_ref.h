@@ -3,7 +3,7 @@
 #include <fmt/format.h>
 #include <string>
 #include <utility>
-#include "../bound_tableref.h"
+#include "../bound_table_ref.h"
 
 namespace bustub {
 class BoundBaseTableRef : public BoundTableRef {

@@ -10,20 +10,10 @@
 namespace bustub {
 class BoundConstant : public BoundExpression {
  public:
-  explicit BoundConstant(duckdb_libpgquery::PGValue val) : BoundExpression(ExpressionType::CONSTANT), val_(0) {
-    switch (val.type) {
-      case duckdb_libpgquery::T_PGInteger:
-        assert(val.val.ival <= BUSTUB_INT32_MAX);
-        val_ = val.val.ival;
-        break;
-      default:
-        throw Exception(fmt::format("unsupported pg value: {}", Parser::NodetypeToString(val.type)));
-    }
-  }
+  explicit BoundConstant(const Value &val) : BoundExpression(ExpressionType::CONSTANT), val_(val) {}
 
-  auto ToString() const -> std::string override { return fmt::format("{}", val_); }
+  auto ToString() const -> std::string override { return val_.ToString(); }
 
-  // The value of the constant, currently only support int, will add more in the future.
-  int val_;
+  Value val_;
 };
 }  // namespace bustub

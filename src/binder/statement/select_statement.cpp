@@ -1,7 +1,8 @@
 #include "binder/statement/select_statement.h"
 #include <fmt/format.h>
+#include "binder/expressions/bound_column_ref.h"
 #include "binder/expressions/bound_constant.h"
-#include "binder/tableref/bound_basetable_ref.h"
+#include "binder/table_ref/bound_base_table_ref.h"
 
 namespace bustub {
 
@@ -30,7 +31,7 @@ SelectStatement::SelectStatement(const Parser &parser, duckdb_libpgquery::PGSele
   if (pg_stmt->targetList != nullptr) {
     select_list_ = BindSelectList(pg_stmt->targetList);
   } else {
-    throw Exception("no target list");
+    throw Exception("no select list");
   }
 
   // TODO(chi): If there are any extra args (e.g. group by, having) not supported by the binder,
@@ -62,11 +63,40 @@ auto SelectStatement::BindSelectList(duckdb_libpgquery::PGList *list) -> vector<
 }
 
 auto SelectStatement::BindConstant(duckdb_libpgquery::PGAConst *node) -> unique_ptr<BoundExpression> {
-  return make_unique<BoundConstant>(node->val);
+  auto bound_val = Value(TypeId::INTEGER);
+  const auto &val = node->val;
+  switch (val.type) {
+    case duckdb_libpgquery::T_PGInteger:
+      assert(val.val.ival <= BUSTUB_INT32_MAX);
+      bound_val = Value(TypeId::INTEGER, static_cast<int32_t>(val.val.ival));
+      break;
+    default:
+      throw Exception(fmt::format("unsupported pg value: {}", Parser::NodetypeToString(val.type)));
+  }
+  return make_unique<BoundConstant>(move(bound_val));
 }
 
 auto SelectStatement::BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> unique_ptr<BoundExpression> {
-  return make_unique<BoundExpression>();
+  auto fields = node->fields;
+  auto head_node = static_cast<duckdb_libpgquery::PGNode *>(fields->head->data.ptr_value);
+  switch (head_node->type) {
+    case duckdb_libpgquery::T_PGString: {
+      if (fields->length < 1) {
+        throw Exception("Unexpected field length");
+      }
+      vector<string> column_names;
+      for (auto node = fields->head; node != nullptr; node = node->next) {
+        column_names.emplace_back(reinterpret_cast<duckdb_libpgquery::PGValue *>(node->data.ptr_value)->val.str);
+      }
+      if (column_names.size() != 1) {
+        throw Exception(fmt::format("unsupported ColumnRef: multiple elements found"));
+      }
+      auto colref = make_unique<BoundColumnRef>("test", move(column_names[0]));
+      return colref;
+    }
+    default:
+      throw Exception("ColumnRef not implemented!");
+  }
 }
 
 auto SelectStatement::BindResTarget(duckdb_libpgquery::PGResTarget *root) -> unique_ptr<BoundExpression> {

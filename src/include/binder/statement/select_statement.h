@@ -12,7 +12,7 @@
 #include <vector>
 
 #include "binder/bound_expression.h"
-#include "binder/bound_tableref.h"
+#include "binder/bound_table_ref.h"
 #include "binder/parser.h"
 
 namespace bustub {
