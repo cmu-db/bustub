@@ -12,7 +12,9 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
+#include <vector>
 
 #include "buffer/buffer_pool_manager_instance.h"
 #include "common/config.h"

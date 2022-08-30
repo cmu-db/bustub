@@ -54,7 +54,7 @@ void Parser::ParseAndBindQuery(const std::string &query, const Catalog &catalog)
     return;
   }
 
-  statements_ = TransformParseTree(parser.parse_tree);
+  statements_ = TransformParseTree(catalog, parser.parse_tree);
 
   if (!statements_.empty()) {
     auto &last_statement = statements_.back();

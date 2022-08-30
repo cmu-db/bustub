@@ -127,7 +127,12 @@ class Catalog {
     }
 
     // Construct the table heap
-    auto table = std::make_unique<TableHeap>(bpm_, lock_manager_, log_manager_, txn);
+    std::unique_ptr<TableHeap> table = nullptr;
+    // When txn == nullptr, it means that we're running binder tests (where no txn will be provided). We don't need
+    // to create TableHeap in this case.
+    if (txn != nullptr) {
+      table = std::make_unique<TableHeap>(bpm_, lock_manager_, log_manager_, txn);
+    }
 
     // Fetch the table OID for the new table
     const auto table_oid = next_table_oid_.fetch_add(1);
@@ -149,7 +154,7 @@ class Catalog {
    * @param table_name The name of the table
    * @return A (non-owning) pointer to the metadata for the table
    */
-  auto GetTable(const std::string &table_name) -> TableInfo * {
+  auto GetTable(const std::string &table_name) const -> TableInfo * {
     auto table_oid = table_names_.find(table_name);
     if (table_oid == table_names_.end()) {
       // Table not found

@@ -19,22 +19,42 @@ namespace bustub {
 
 class SelectStatement : public SQLStatement {
  public:
-  explicit SelectStatement(const Parser &parser, duckdb_libpgquery::PGSelectStmt *pg_stmt);
+  explicit SelectStatement(const Catalog &catalog, duckdb_libpgquery::PGSelectStmt *pg_stmt);
 
-  static auto BindSelectList(duckdb_libpgquery::PGList *list) -> vector<unique_ptr<BoundExpression>>;
+  void BindSelectList(duckdb_libpgquery::PGList *list);
 
-  static auto BindExpression(duckdb_libpgquery::PGNode *node) -> unique_ptr<BoundExpression>;
+  void BindWhere(duckdb_libpgquery::PGNode *root);
 
-  static auto BindConstant(duckdb_libpgquery::PGAConst *node) -> unique_ptr<BoundExpression>;
+  void BindGroupBy(duckdb_libpgquery::PGList *list);
 
-  static auto BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> unique_ptr<BoundExpression>;
+  void BindHaving(duckdb_libpgquery::PGNode *root);
 
-  static auto BindResTarget(duckdb_libpgquery::PGResTarget *root) -> unique_ptr<BoundExpression>;
+  auto BindExpression(duckdb_libpgquery::PGNode *node) -> unique_ptr<BoundExpression>;
+
+  auto BindConstant(duckdb_libpgquery::PGAConst *node) -> unique_ptr<BoundExpression>;
+
+  auto BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> unique_ptr<BoundExpression>;
+
+  auto BindResTarget(duckdb_libpgquery::PGResTarget *root) -> unique_ptr<BoundExpression>;
+
+  auto BindStar(duckdb_libpgquery::PGAStar *node) -> unique_ptr<BoundExpression>;
+
+  auto BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> unique_ptr<BoundExpression>;
+
+  auto ResolveColumn(const string &col_name) -> unique_ptr<BoundExpression>;
+
+  auto ResolveColumnWithTable(const string &table_name, const string &col_name) -> unique_ptr<BoundExpression>;
 
   unique_ptr<BoundTableRef> table_;
   vector<unique_ptr<BoundExpression>> select_list_;
+  unique_ptr<BoundExpression> where_;
+  vector<unique_ptr<BoundExpression>> group_by_;
+  unique_ptr<BoundExpression> having_;
 
   auto ToString() const -> string override;
+
+ private:
+  const Catalog &catalog_;
 };
 
 }  // namespace bustub

@@ -12,7 +12,10 @@ enum class ExpressionType : uint8_t {
   INVALID = 0,     // invalid expression type
   CONSTANT = 1,    // constant expression type
   COLUMN_REF = 3,  // a column in a table
-  TYPE_CAST = 4,   // out of cartesian product
+  TYPE_CAST = 4,   // type cast expression type
+  FUNCTION = 5,    // function expression type
+  AGG_CALL = 6,    // aggregation function expression type
+  STAR = 7,        // star expression type, will be rewritten by binder
 };
 
 class BoundExpression {

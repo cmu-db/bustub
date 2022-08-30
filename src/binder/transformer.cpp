@@ -34,20 +34,22 @@
 
 namespace bustub {
 
-auto Parser::TransformParseTree(duckdb_libpgquery::PGList *tree) const -> vector<unique_ptr<SQLStatement>> {
+auto Parser::TransformParseTree(const Catalog &catalog, duckdb_libpgquery::PGList *tree) const
+    -> vector<unique_ptr<SQLStatement>> {
   vector<unique_ptr<SQLStatement>> statements;
   for (auto entry = tree->head; entry != nullptr; entry = entry->next) {
-    auto stmt = TransformStatement(static_cast<duckdb_libpgquery::PGNode *>(entry->data.ptr_value));
+    auto stmt = TransformStatement(catalog, static_cast<duckdb_libpgquery::PGNode *>(entry->data.ptr_value));
     statements.push_back(move(stmt));
   }
   return statements;
 }
 
-auto Parser::TransformStatement(duckdb_libpgquery::PGNode *stmt) const -> unique_ptr<SQLStatement> {
+auto Parser::TransformStatement(const Catalog &catalog, duckdb_libpgquery::PGNode *stmt) const
+    -> unique_ptr<SQLStatement> {
   switch (stmt->type) {
     case duckdb_libpgquery::T_PGRawStmt: {
       auto raw_stmt = reinterpret_cast<duckdb_libpgquery::PGRawStmt *>(stmt);
-      auto result = TransformStatement(raw_stmt->stmt);
+      auto result = TransformStatement(catalog, raw_stmt->stmt);
       if (result) {
         result->stmt_location_ = raw_stmt->stmt_location;
         result->stmt_length_ = raw_stmt->stmt_len;
@@ -59,7 +61,7 @@ auto Parser::TransformStatement(duckdb_libpgquery::PGNode *stmt) const -> unique
     case duckdb_libpgquery::T_PGInsertStmt:
       return make_unique<InsertStatement>(*this, reinterpret_cast<duckdb_libpgquery::PGInsertStmt *>(stmt));
     case duckdb_libpgquery::T_PGSelectStmt:
-      return std::make_unique<SelectStatement>(*this, reinterpret_cast<duckdb_libpgquery::PGSelectStmt *>(stmt));
+      return std::make_unique<SelectStatement>(catalog, reinterpret_cast<duckdb_libpgquery::PGSelectStmt *>(stmt));
     case duckdb_libpgquery::T_PGDeleteStmt:
       return make_unique<DeleteStatement>(*this, reinterpret_cast<duckdb_libpgquery::PGDeleteStmt *>(stmt));
     case duckdb_libpgquery::T_PGIndexStmt:

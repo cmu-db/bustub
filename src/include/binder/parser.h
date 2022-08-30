@@ -80,7 +80,8 @@ class Parser {
   static auto Tokenize(const string &query) -> vector<SimplifiedToken>;
 
   // Transforms a Postgres parse tree into a set of SQL Statements
-  auto TransformParseTree(duckdb_libpgquery::PGList *tree) const -> std::vector<std::unique_ptr<SQLStatement>>;
+  auto TransformParseTree(const Catalog &catalog, duckdb_libpgquery::PGList *tree) const
+      -> std::vector<std::unique_ptr<SQLStatement>>;
 
   // Get the string of a Postgres node type
   static auto NodetypeToString(duckdb_libpgquery::PGNodeTag type) -> string;
@@ -88,7 +89,7 @@ class Parser {
   auto TransformColumnDefinition(duckdb_libpgquery::PGColumnDef *cdef) const -> Column;
 
   // Transforms a Postgres statement into a single SQL statement
-  auto TransformStatement(duckdb_libpgquery::PGNode *stmt) const -> unique_ptr<SQLStatement>;
+  auto TransformStatement(const Catalog &catalog, duckdb_libpgquery::PGNode *stmt) const -> unique_ptr<SQLStatement>;
 
   // Transforms a Postgres statement into a single SQL statement
   auto TransformStatementInternal(duckdb_libpgquery::PGNode *stmt) const -> unique_ptr<SQLStatement>;

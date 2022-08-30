@@ -43,9 +43,9 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
         result += "\n";
       }
       return {result};
-    } else {
-      throw Exception(fmt::format("unsupported internal command: {}", sql));
     }
+    throw Exception(fmt::format("unsupported internal command: {}", sql));
+
   } else {
     bustub::Parser parser;
     parser.ParseAndBindQuery(sql, *catalog_);

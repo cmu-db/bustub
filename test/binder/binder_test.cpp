@@ -17,7 +17,13 @@ namespace bustub {
 
 auto TryBind(const string &query) {
   bustub::Parser parser;
-  parser.ParseQuery(query);
+  bustub::Catalog catalog(nullptr, nullptr, nullptr);
+  catalog.CreateTable(
+      nullptr, "y",
+      bustub::Schema(std::vector{bustub::Column{"x", TypeId::INTEGER}, bustub::Column{"z", TypeId::INTEGER},
+                                 bustub::Column{"a", TypeId::INTEGER}, bustub::Column{"b", TypeId::INTEGER},
+                                 bustub::Column{"c", TypeId::INTEGER}}));
+  parser.ParseAndBindQuery(query, catalog);
   return std::move(parser.statements_);
 }
 
@@ -56,21 +62,21 @@ TEST(BinderTest, BindSelectFromMultipleCol) {
   }
 }
 
-TEST(BinderTest, DISABLED_BindSelectExpr) {
+TEST(BinderTest, BindSelectExpr) {
   auto statements = TryBind("select max(a), min(b), first(c) from y");
   for (const auto &statement : statements) {
     std::cout << statement->ToString() << std::endl;
   }
 }
 
-TEST(BinderTest, DISABLED_BindAgg) {
+TEST(BinderTest, BindAgg) {
   auto statements = TryBind("select z, max(a), min(b), first(c) from y group by z having z > 0");
   for (const auto &statement : statements) {
     std::cout << statement->ToString() << std::endl;
   }
 }
 
-TEST(BinderTest, BindCrossJoin) {
+TEST(BinderTest, DISABLED_BindCrossJoin) {
   auto statements = TryBind("select * from a, b");
   for (const auto &statement : statements) {
     std::cout << statement->ToString() << std::endl;
