@@ -6,6 +6,10 @@
 #include "../bound_table_ref.h"
 
 namespace bustub {
+
+/**
+ * A bound table ref type for single table. e.g., `SELECT x FROM y`, where `y` is `BoundBaseTableRef`.
+ */
 class BoundBaseTableRef : public BoundTableRef {
  public:
   explicit BoundBaseTableRef(std::string table)

@@ -6,9 +6,10 @@
 #include <string>
 
 namespace bustub {
-//===--------------------------------------------------------------------===//
-// Table Reference Types
-//===--------------------------------------------------------------------===//
+
+/**
+ * Table reference types
+ */
 enum class TableReferenceType : uint8_t {
   INVALID = 0,        // invalid table reference type
   BASE_TABLE = 1,     // base table reference
@@ -17,6 +18,9 @@ enum class TableReferenceType : uint8_t {
   EMPTY = 8           // placeholder for empty FROM
 };
 
+/**
+ * A bound table ref.
+ */
 class BoundTableRef {
  public:
   explicit BoundTableRef(TableReferenceType type) : type_(type) {}
@@ -30,6 +34,7 @@ class BoundTableRef {
       case TableReferenceType::EMPTY:
         return "<empty>";
       default:
+        // for other types of table reference, `ToString` should be derived in child classes.
         assert(false && "entered unreachable code");
     }
   }

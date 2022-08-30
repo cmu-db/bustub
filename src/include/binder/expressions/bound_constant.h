@@ -8,6 +8,10 @@
 #include "type/limits.h"
 
 namespace bustub {
+
+/**
+ * A bound constant, e.g. `1`.
+ */
 class BoundConstant : public BoundExpression {
  public:
   explicit BoundConstant(const Value &val) : BoundExpression(ExpressionType::CONSTANT), val_(val) {}

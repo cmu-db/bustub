@@ -8,6 +8,10 @@
 #include "type/limits.h"
 
 namespace bustub {
+
+/**
+ * A bound column ref. e.g. `y.x` in the select list.
+ */
 class BoundColumnRef : public BoundExpression {
  public:
   explicit BoundColumnRef(string table, string col)

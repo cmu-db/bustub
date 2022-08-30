@@ -5,9 +5,10 @@
 #include <string>
 
 namespace bustub {
-//===--------------------------------------------------------------------===//
-// Expression Types
-//===--------------------------------------------------------------------===//
+
+/**
+ * All types of expressions in binder.
+ */
 enum class ExpressionType : uint8_t {
   INVALID = 0,     // invalid expression type
   CONSTANT = 1,    // constant expression type
@@ -20,6 +21,9 @@ enum class ExpressionType : uint8_t {
   BINARY_OP = 9    // binary expression type
 };
 
+/**
+ * A bound expression.
+ */
 class BoundExpression {
  public:
   explicit BoundExpression(ExpressionType type) : type_(type) {}
@@ -28,7 +32,7 @@ class BoundExpression {
 
   virtual auto ToString() const -> std::string { return "<invalid>"; };
 
-  // The type of table reference
+  /** The type of expression */
   ExpressionType type_{ExpressionType::INVALID};
 };
 

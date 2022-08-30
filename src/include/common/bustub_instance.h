@@ -28,6 +28,9 @@ namespace bustub {
 
 class BustubInstance {
  private:
+  /**
+   * Get the execution context from the BusTub instance.
+   */
   auto GetExecutionContext(Transaction *txn) -> std::unique_ptr<ExecutorContext>;
 
  public:
@@ -35,8 +38,14 @@ class BustubInstance {
 
   ~BustubInstance();
 
+  /**
+   * Execute a SQL in the BusTub instance.
+   */
   auto ExecuteSql(const std::string &sql) -> std::vector<std::string>;
 
+  /**
+   * FOR TEST ONLY. Generate test tables in this BusTub instance.
+   */
   void GenerateTestTable();
 
   // TODO(chi): change to unique_ptr. Currently they're directly referenced by recovery test, so

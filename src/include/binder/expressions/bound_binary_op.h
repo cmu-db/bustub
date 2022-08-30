@@ -10,6 +10,10 @@
 #include "type/limits.h"
 
 namespace bustub {
+
+/**
+ * A bound binary op. e.g. `a+b`.
+ */
 class BoundBinaryOp : public BoundExpression {
  public:
   explicit BoundBinaryOp(string op_name, unique_ptr<BoundExpression> larg, unique_ptr<BoundExpression> rarg)

@@ -10,6 +10,10 @@
 #include "type/limits.h"
 
 namespace bustub {
+
+/**
+ * A bound unary op, e.g. `-x`.
+ */
 class BoundUnaryOp : public BoundExpression {
  public:
   explicit BoundUnaryOp(string op_name, unique_ptr<BoundExpression> arg)

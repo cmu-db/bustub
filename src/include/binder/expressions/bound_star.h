@@ -8,6 +8,10 @@
 #include "type/limits.h"
 
 namespace bustub {
+
+/**
+ * The star in select list, e.g. `SELECT * FROM x`.
+ */
 class BoundStar : public BoundExpression {
  public:
   BoundStar() : BoundExpression(ExpressionType::STAR) {}

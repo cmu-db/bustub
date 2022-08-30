@@ -10,6 +10,10 @@
 #include "type/limits.h"
 
 namespace bustub {
+
+/**
+ * A bound agg call. e.g. `sum(x)`.
+ */
 class BoundAggCall : public BoundExpression {
  public:
   explicit BoundAggCall(string func_name, vector<unique_ptr<BoundExpression>> args)

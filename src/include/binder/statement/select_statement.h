@@ -21,6 +21,9 @@ class SelectStatement : public SQLStatement {
  public:
   explicit SelectStatement(const Catalog &catalog, duckdb_libpgquery::PGSelectStmt *pg_stmt);
 
+  // The following parts are undocumented. One `BindXXX` functions simply corresponds to a
+  // node type in the Postgres parse tree.
+
   void BindSelectList(duckdb_libpgquery::PGList *list);
 
   void BindWhere(duckdb_libpgquery::PGNode *root);
@@ -47,15 +50,28 @@ class SelectStatement : public SQLStatement {
 
   auto ResolveColumnWithTable(const string &table_name, const string &col_name) -> unique_ptr<BoundExpression>;
 
+  /** bound FROM clause */
   unique_ptr<BoundTableRef> table_;
+
+  /** bound select list */
   vector<unique_ptr<BoundExpression>> select_list_;
+
+  /** bound WHERE clause */
   unique_ptr<BoundExpression> where_;
+
+  /** bound GROUP BY clause */
   vector<unique_ptr<BoundExpression>> group_by_;
+
+  /** bound HAVING clause */
   unique_ptr<BoundExpression> having_;
 
+  /** convert the bound statement to string */
   auto ToString() const -> string override;
 
  private:
+  /** Catalog will be used during the binding process. SHOULD ONLY BE USED IN
+   * CODE PATH OF CONSTRUCTORS, otherwise it's a dangling reference.
+   */
   const Catalog &catalog_;
 };
 
