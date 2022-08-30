@@ -57,9 +57,9 @@ namespace bustub {
 // The parser is responsible for parsing the query and converting it into a set
 // of parsed statements. The parsed statements can then be converted into a
 // plan and executed.
-class Parser {
+class Binder {
  public:
-  Parser() = default;
+  Binder() = default;
 
   // The parsed SQL statements from an invocation to ParseQuery.
   vector<unique_ptr<SQLStatement>> statements_;
@@ -83,25 +83,13 @@ class Parser {
   auto TransformParseTree(const Catalog &catalog, duckdb_libpgquery::PGList *tree) const
       -> std::vector<std::unique_ptr<SQLStatement>>;
 
-  // Get the string of a Postgres node type
-  static auto NodetypeToString(duckdb_libpgquery::PGNodeTag type) -> string;
-
-  auto TransformColumnDefinition(duckdb_libpgquery::PGColumnDef *cdef) const -> Column;
-
   // Transforms a Postgres statement into a single SQL statement
   auto TransformStatement(const Catalog &catalog, duckdb_libpgquery::PGNode *stmt) const -> unique_ptr<SQLStatement>;
 
-  // Transforms a Postgres statement into a single SQL statement
-  auto TransformStatementInternal(duckdb_libpgquery::PGNode *stmt) const -> unique_ptr<SQLStatement>;
-
-  // Transform a Postgres TypeName string into a TypeId
-  auto TransformTypeId(duckdb_libpgquery::PGTypeName *type_name) const -> TypeId;
+  // Get the string of a Postgres node type
+  static auto NodetypeToString(duckdb_libpgquery::PGNodeTag type) -> string;
 
   auto PGNodetypeToString(duckdb_libpgquery::PGNodeTag type) const -> std::string;
-
-  auto TransformConstant(duckdb_libpgquery::PGAConst *c) const -> Value;
-
-  auto TransformExpressionList(duckdb_libpgquery::PGList *list) const -> vector<Value>;
 };
 
 }  // namespace bustub

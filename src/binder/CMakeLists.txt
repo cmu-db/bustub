@@ -6,7 +6,7 @@ add_library(
   keyword_helper.cpp
   sql_statement.cpp
   nodetype_to_string.cpp
-  parser.cpp
+  binder.cpp
   transformer.cpp)
 set(ALL_OBJECT_FILES
     ${ALL_OBJECT_FILES} $<TARGET_OBJECTS:bustub_binder>

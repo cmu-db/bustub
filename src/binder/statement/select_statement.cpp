@@ -30,7 +30,7 @@ SelectStatement::SelectStatement(const Catalog &catalog, duckdb_libpgquery::PGSe
           break;
         }
         default:
-          throw Exception(fmt::format("unsupported node type: {}", Parser::NodetypeToString(node->type)));
+          throw Exception(fmt::format("unsupported node type: {}", Binder::NodetypeToString(node->type)));
       }
     }
   } else {
@@ -118,7 +118,7 @@ auto SelectStatement::BindConstant(duckdb_libpgquery::PGAConst *node) -> unique_
       bound_val = Value(TypeId::INTEGER, static_cast<int32_t>(val.val.ival));
       break;
     default:
-      throw Exception(fmt::format("unsupported pg value: {}", Parser::NodetypeToString(val.type)));
+      throw Exception(fmt::format("unsupported pg value: {}", Binder::NodetypeToString(val.type)));
   }
   return make_unique<BoundConstant>(move(bound_val));
 }
@@ -150,7 +150,7 @@ auto SelectStatement::BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> uni
       return BindStar(reinterpret_cast<duckdb_libpgquery::PGAStar *>(head_node));
     }
     default:
-      throw Exception(fmt::format("ColumnRef type {} not implemented!", Parser::NodetypeToString(head_node->type)));
+      throw Exception(fmt::format("ColumnRef type {} not implemented!", Binder::NodetypeToString(head_node->type)));
   }
 }
 
@@ -318,7 +318,7 @@ auto SelectStatement::BindExpression(duckdb_libpgquery::PGNode *node) -> unique_
     case duckdb_libpgquery::T_PGAExpr:
       return BindAExpr(reinterpret_cast<duckdb_libpgquery::PGAExpr *>(node));
     default:
-      throw Exception(fmt::format("Expr of type {} not implemented", Parser::NodetypeToString(node->type)));
+      throw Exception(fmt::format("Expr of type {} not implemented", Binder::NodetypeToString(node->type)));
   }
 }
 

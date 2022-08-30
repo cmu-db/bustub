@@ -9,13 +9,13 @@
 
 #include <string>
 
-#include "binder/parser.h"
+#include "binder/binder.h"
 
 namespace bustub {
 
 class DeleteStatement : public SQLStatement {
  public:
-  explicit DeleteStatement(const Parser &parser, duckdb_libpgquery::PGDeleteStmt *pg_stmt);
+  explicit DeleteStatement(duckdb_libpgquery::PGDeleteStmt *pg_stmt);
 
   string table_;
 

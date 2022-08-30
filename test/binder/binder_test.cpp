@@ -10,13 +10,13 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "binder/parser.h"
+#include "binder/binder.h"
 #include "gtest/gtest.h"
 
 namespace bustub {
 
 auto TryBind(const string &query) {
-  bustub::Parser parser;
+  bustub::Binder binder;
   bustub::Catalog catalog(nullptr, nullptr, nullptr);
   catalog.CreateTable(
       nullptr, "y",
@@ -32,8 +32,8 @@ auto TryBind(const string &query) {
       nullptr, "b",
       bustub::Schema(std::vector{bustub::Column{"x", TypeId::INTEGER}, bustub::Column{"y", TypeId::INTEGER}}));
 
-  parser.ParseAndBindQuery(query, catalog);
-  return std::move(parser.statements_);
+  binder.ParseAndBindQuery(query, catalog);
+  return std::move(binder.statements_);
 }
 
 void PrintStatements(const vector<unique_ptr<SQLStatement>> &statements) {

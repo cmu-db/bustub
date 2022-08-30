@@ -10,13 +10,13 @@
 #include <string>
 #include <vector>
 
-#include "binder/parser.h"
+#include "binder/binder.h"
 
 namespace bustub {
 
 class InsertStatement : public SQLStatement {
  public:
-  explicit InsertStatement(const Parser &parser, duckdb_libpgquery::PGInsertStmt *pg_stmt);
+  explicit InsertStatement(duckdb_libpgquery::PGInsertStmt *pg_stmt);
 
   string table_;
   vector<Column> columns_;

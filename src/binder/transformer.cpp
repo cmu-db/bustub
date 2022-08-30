@@ -20,7 +20,7 @@
 // THE SOFTWARE.
 //===----------------------------------------------------------------------===//
 
-#include "binder/parser.h"
+#include "binder/binder.h"
 
 #include "binder/sql_statement.h"
 #include "binder/statement/create_statement.h"
@@ -34,7 +34,7 @@
 
 namespace bustub {
 
-auto Parser::TransformParseTree(const Catalog &catalog, duckdb_libpgquery::PGList *tree) const
+auto Binder::TransformParseTree(const Catalog &catalog, duckdb_libpgquery::PGList *tree) const
     -> vector<unique_ptr<SQLStatement>> {
   vector<unique_ptr<SQLStatement>> statements;
   for (auto entry = tree->head; entry != nullptr; entry = entry->next) {
@@ -44,7 +44,7 @@ auto Parser::TransformParseTree(const Catalog &catalog, duckdb_libpgquery::PGLis
   return statements;
 }
 
-auto Parser::TransformStatement(const Catalog &catalog, duckdb_libpgquery::PGNode *stmt) const
+auto Binder::TransformStatement(const Catalog &catalog, duckdb_libpgquery::PGNode *stmt) const
     -> unique_ptr<SQLStatement> {
   switch (stmt->type) {
     case duckdb_libpgquery::T_PGRawStmt: {
@@ -57,100 +57,18 @@ auto Parser::TransformStatement(const Catalog &catalog, duckdb_libpgquery::PGNod
       return result;
     }
     case duckdb_libpgquery::T_PGCreateStmt:
-      return make_unique<CreateStatement>(*this, reinterpret_cast<duckdb_libpgquery::PGCreateStmt *>(stmt));
+      return make_unique<CreateStatement>(reinterpret_cast<duckdb_libpgquery::PGCreateStmt *>(stmt));
     case duckdb_libpgquery::T_PGInsertStmt:
-      return make_unique<InsertStatement>(*this, reinterpret_cast<duckdb_libpgquery::PGInsertStmt *>(stmt));
+      return make_unique<InsertStatement>(reinterpret_cast<duckdb_libpgquery::PGInsertStmt *>(stmt));
     case duckdb_libpgquery::T_PGSelectStmt:
       return std::make_unique<SelectStatement>(catalog, reinterpret_cast<duckdb_libpgquery::PGSelectStmt *>(stmt));
     case duckdb_libpgquery::T_PGDeleteStmt:
-      return make_unique<DeleteStatement>(*this, reinterpret_cast<duckdb_libpgquery::PGDeleteStmt *>(stmt));
+      return make_unique<DeleteStatement>(reinterpret_cast<duckdb_libpgquery::PGDeleteStmt *>(stmt));
     case duckdb_libpgquery::T_PGIndexStmt:
     case duckdb_libpgquery::T_PGUpdateStmt:
     default:
       throw NotImplementedException(NodetypeToString(stmt->type));
   }
-}
-
-static const std::pair<std::string, TypeId> INTERNAL_TYPES[] = {
-    {"int", TypeId::INTEGER},        {"int4", TypeId::INTEGER},
-    {"signed", TypeId::INTEGER},     {"integer", TypeId::INTEGER},
-    {"integral", TypeId::INTEGER},   {"int32", TypeId::INTEGER},
-    {"varchar", TypeId::VARCHAR},    {"bpchar", TypeId::VARCHAR},
-    {"text", TypeId::VARCHAR},       {"string", TypeId::VARCHAR},
-    {"char", TypeId::VARCHAR},       {"nvarchar", TypeId::VARCHAR},
-    {"int8", TypeId::BIGINT},        {"bigint", TypeId::BIGINT},
-    {"int64", TypeId::BIGINT},       {"long", TypeId::BIGINT},
-    {"oid", TypeId::BIGINT},         {"int2", TypeId::SMALLINT},
-    {"smallint", TypeId::SMALLINT},  {"short", TypeId::SMALLINT},
-    {"int16", TypeId::SMALLINT},     {"timestamp", TypeId::TIMESTAMP},
-    {"datetime", TypeId::TIMESTAMP}, {"timestamp_us", TypeId::TIMESTAMP},
-    {"bool", TypeId::BOOLEAN},       {"boolean", TypeId::BOOLEAN},
-    {"logical", TypeId::BOOLEAN},    {"decimal", TypeId::DECIMAL},
-    {"dec", TypeId::DECIMAL},        {"numeric", TypeId::DECIMAL},
-    {"real", TypeId::DECIMAL},       {"float4", TypeId::DECIMAL},
-    {"float", TypeId::DECIMAL},      {"double", TypeId::DECIMAL},
-    {"float8", TypeId::DECIMAL},     {"tinyint", TypeId::TINYINT},
-    {"int1", TypeId::TINYINT},       {"", TypeId::INVALID}};
-
-auto Parser::TransformTypeId(duckdb_libpgquery::PGTypeName *type_name) const -> TypeId {
-  if (type_name->type != duckdb_libpgquery::T_PGTypeName) {
-    throw Exception("Expected a type");
-  }
-
-  auto name = (reinterpret_cast<duckdb_libpgquery::PGValue *>(type_name->names->tail->data.ptr_value)->val.str);
-  // transform it to the SQL type
-  auto lower_str = StringUtil::Lower(name);
-
-  for (uint64_t index = 0; !INTERNAL_TYPES[index].first.empty(); index++) {
-    if (INTERNAL_TYPES[index].first == lower_str) {
-      return INTERNAL_TYPES[index].second;
-    }
-  }
-  return TypeId::INVALID;
-}
-
-auto Parser::TransformColumnDefinition(duckdb_libpgquery::PGColumnDef *cdef) const -> Column {
-  string colname;
-  if (cdef->colname != nullptr) {
-    colname = cdef->colname;
-  }
-  TypeId type_id = TransformTypeId(cdef->typeName);
-  return {colname, type_id};
-}
-
-auto Parser::TransformConstant(duckdb_libpgquery::PGAConst *c) const -> Value {
-  duckdb_libpgquery::PGValue pg_val = c->val;
-
-  switch (pg_val.type) {
-    case duckdb_libpgquery::T_PGInteger:
-      assert(pg_val.val.ival <= BUSTUB_INT32_MAX);
-      return {TypeId::INTEGER, static_cast<int32_t>(pg_val.val.ival)};
-    default:
-      throw NotImplementedException(
-          StringUtil::Format("Constant type %s is not implemented!", NodetypeToString(pg_val.type).c_str()));
-  }
-}
-
-auto Parser::TransformExpressionList(duckdb_libpgquery::PGList *list) const -> vector<Value> {
-  vector<Value> result;
-  for (auto node = list->head; node != nullptr; node = node->next) {
-    auto target = reinterpret_cast<duckdb_libpgquery::PGNode *>(node->data.ptr_value);
-    assert(target);
-
-    switch (target->type) {
-      case duckdb_libpgquery::T_PGAConst: {
-        auto val = TransformConstant(reinterpret_cast<duckdb_libpgquery::PGAConst *>(target));
-        result.push_back(val);
-        break;
-      }
-      case duckdb_libpgquery::T_PGRowExpr:
-      default:
-        throw NotImplementedException(
-            StringUtil::Format("Expression type %s is not implemented!", NodetypeToString(target->type).c_str()));
-        break;
-    }
-  }
-  return result;
 }
 
 }  // namespace bustub

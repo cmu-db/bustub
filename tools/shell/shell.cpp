@@ -1,5 +1,5 @@
 #include <iostream>
-#include "binder/parser.h"
+#include "binder/binder.h"
 #include "common/bustub_instance.h"
 #include "common/exception.h"
 #include "common/util/string_util.h"

@@ -20,7 +20,7 @@
 // THE SOFTWARE.
 //===----------------------------------------------------------------------===//
 
-#include "binder/parser.h"
+#include "binder/binder.h"
 
 #include <fmt/core.h>
 #include <iostream>
@@ -40,7 +40,7 @@ using duckdb::PostgresParser;
 using duckdb_libpgquery::PGKeywordCategory;
 using duckdb_libpgquery::PGSimplifiedTokenType;
 
-void Parser::ParseAndBindQuery(const std::string &query, const Catalog &catalog) {
+void Binder::ParseAndBindQuery(const std::string &query, const Catalog &catalog) {
   PostgresParser parser;
   parser.Parse(query);
   if (!parser.success) {
@@ -65,9 +65,9 @@ void Parser::ParseAndBindQuery(const std::string &query, const Catalog &catalog)
   }
 }
 
-auto Parser::IsKeyword(const std::string &text) -> bool { return PostgresParser::IsKeyword(text); }
+auto Binder::IsKeyword(const std::string &text) -> bool { return PostgresParser::IsKeyword(text); }
 
-auto Parser::KeywordList() -> std::vector<ParserKeyword> {
+auto Binder::KeywordList() -> std::vector<ParserKeyword> {
   auto keywords = PostgresParser::KeywordList();
   std::vector<ParserKeyword> result;
   for (auto &kw : keywords) {
@@ -94,7 +94,7 @@ auto Parser::KeywordList() -> std::vector<ParserKeyword> {
   return result;
 }
 
-auto Parser::Tokenize(const std::string &query) -> std::vector<SimplifiedToken> {
+auto Binder::Tokenize(const std::string &query) -> std::vector<SimplifiedToken> {
   auto pg_tokens = PostgresParser::Tokenize(query);
   std::vector<SimplifiedToken> result;
   result.reserve(pg_tokens.size());

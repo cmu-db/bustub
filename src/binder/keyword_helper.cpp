@@ -21,12 +21,12 @@
 //===----------------------------------------------------------------------===//
 
 #include "binder/keyword_helper.h"
-#include "binder/parser.h"
+#include "binder/binder.h"
 #include "common/util/string_util.h"
 
 namespace bustub {
 
-auto KeywordHelper::IsKeyword(const string &text) -> bool { return Parser::IsKeyword(text); }
+auto KeywordHelper::IsKeyword(const string &text) -> bool { return Binder::IsKeyword(text); }
 
 auto KeywordHelper::RequiresQuotes(const string &text) -> bool {
   for (size_t i = 0; i < text.size(); i++) {

@@ -1,6 +1,6 @@
 #include "common/bustub_instance.h"
 #include <fmt/format.h>
-#include "binder/parser.h"
+#include "binder/binder.h"
 #include "catalog/table_generator.h"
 #include "recovery/log_manager.h"
 
@@ -47,10 +47,10 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
     throw Exception(fmt::format("unsupported internal command: {}", sql));
   }
 
-  bustub::Parser parser;
-  parser.ParseAndBindQuery(sql, *catalog_);
+  bustub::Binder binder;
+  binder.ParseAndBindQuery(sql, *catalog_);
   std::vector<std::string> result = {};
-  for (auto &&statement : parser.statements_) {
+  for (auto &&statement : binder.statements_) {
     result.push_back(statement->ToString());
   }
   return result;
