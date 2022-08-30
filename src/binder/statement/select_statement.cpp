@@ -187,9 +187,8 @@ auto SelectStatement::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> uniqu
     // bind function as agg call
 
     // rewrite count(*) to count_star()
-    if (function_name == "count" && children.size() == 1 && children[0]->type_ == ExpressionType::STAR) {
+    if (function_name == "count" && children.empty()) {
       function_name = "count_star";
-      children.clear();
     }
 
     return make_unique<BoundAggCall>(function_name, move(children));

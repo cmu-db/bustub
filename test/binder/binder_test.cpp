@@ -135,7 +135,7 @@ TEST(BinderTest, BindUnaryOp) {
 }
 
 TEST(BinderTest, BindBinaryOp) {
-  auto statements = TryBind("select x+z from y");
+  auto statements = TryBind("select x+z,z+x,x*z,x/z from y");
   PrintStatements(statements);
 }
 
