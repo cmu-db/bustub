@@ -269,8 +269,8 @@ void SelectStatement::BindWhere(duckdb_libpgquery::PGNode *root) { where_ = Bind
 
 void SelectStatement::BindGroupBy(duckdb_libpgquery::PGList *list) {
   for (auto c = list->head; c != nullptr; c = lnext(c)) {
-    // auto node = reinterpret_cast<duckdb_libpgquery::PGNode *>(c->data.ptr_value);
-    group_by_.emplace_back(make_unique<BoundExpression>());
+    auto node = reinterpret_cast<duckdb_libpgquery::PGNode *>(c->data.ptr_value);
+    group_by_.emplace_back(BindExpression(node));
   }
 }
 
