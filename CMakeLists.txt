@@ -48,8 +48,7 @@ enable_testing()
 # attempt to find the binary if user did not specify
 find_program(CLANG_FORMAT_BIN
         NAMES clang-format clang-format-12
-        HINTS ${BUSTUB_CLANG_SEARCH_PATH}
-        NO_CACHE)
+        HINTS ${BUSTUB_CLANG_SEARCH_PATH})
 
 if ("${CLANG_FORMAT_BIN}" STREQUAL "CLANG_FORMAT_BIN-NOTFOUND")
     message(WARNING "BusTub/main couldn't find clang-format.")
@@ -60,8 +59,7 @@ endif ()
 # attempt to find the binary if user did not specify
 find_program(CLANG_TIDY_BIN
         NAMES clang-tidy clang-tidy-12
-        HINTS ${BUSTUB_CLANG_SEARCH_PATH}
-        NO_CACHE)
+        HINTS ${BUSTUB_CLANG_SEARCH_PATH})
 
 if ("${CLANG_TIDY_BIN}" STREQUAL "CLANG_TIDY_BIN-NOTFOUND")
     message(WARNING "BusTub/main couldn't find clang-tidy.")
@@ -74,8 +72,7 @@ endif ()
 # cpplint
 find_program(CPPLINT_BIN
         NAMES cpplint cpplint.py
-        HINTS "${BUSTUB_BUILD_SUPPORT_DIR}"
-        NO_CACHE)
+        HINTS "${BUSTUB_BUILD_SUPPORT_DIR}")
 
 if ("${CPPLINT_BIN}" STREQUAL "CPPLINT_BIN-NOTFOUND")
     message(WARNING "BusTub/main couldn't find cpplint.")
