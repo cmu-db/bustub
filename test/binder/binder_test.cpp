@@ -23,6 +23,15 @@ auto TryBind(const string &query) {
       bustub::Schema(std::vector{bustub::Column{"x", TypeId::INTEGER}, bustub::Column{"z", TypeId::INTEGER},
                                  bustub::Column{"a", TypeId::INTEGER}, bustub::Column{"b", TypeId::INTEGER},
                                  bustub::Column{"c", TypeId::INTEGER}}));
+
+  catalog.CreateTable(
+      nullptr, "a",
+      bustub::Schema(std::vector{bustub::Column{"x", TypeId::INTEGER}, bustub::Column{"y", TypeId::INTEGER}}));
+
+  catalog.CreateTable(
+      nullptr, "b",
+      bustub::Schema(std::vector{bustub::Column{"x", TypeId::INTEGER}, bustub::Column{"y", TypeId::INTEGER}}));
+
   parser.ParseAndBindQuery(query, catalog);
   return std::move(parser.statements_);
 }
@@ -68,12 +77,12 @@ TEST(BinderTest, BindAgg) {
   PrintStatements(statements);
 }
 
-TEST(BinderTest, BindCrossJoin) {
-  auto statements = TryBind("select * from a, b");
+TEST(BinderTest, DISABLED_BindCrossJoin) {
+  auto statements = TryBind("select * from a, b where a.x = b.y");
   PrintStatements(statements);
 }
 
-TEST(BinderTest, BindJoin) {
+TEST(BinderTest, DISABLED_BindJoin) {
   auto statements = TryBind("select * from a INNER JOIN b ON a.x = b.y");
   PrintStatements(statements);
 }
@@ -108,6 +117,26 @@ TEST(BinderTest, DISABLED_BindCreateDropTable) {
 TEST(BinderTest, DISABLED_BindInsert) {
   TryBind("INSERT INTO y VALUES (1,2,3,4,5), (6,7,8,9,10)");
   TryBind("INSERT INTO y SELECT * FROM y WHERE x < 500");
+}
+
+TEST(BinderTest, BindAliasInAgg) {
+  auto statements = TryBind("select z, max(a) as max_a, min(b), first(c) from y group by z having max(a) > 0");
+  PrintStatements(statements);
+}
+
+TEST(BinderTest, BindAlias) {
+  auto statements = TryBind("select a as a2 from y");
+  PrintStatements(statements);
+}
+
+TEST(BinderTest, BindUnaryOp) {
+  auto statements = TryBind("select -x from y");
+  PrintStatements(statements);
+}
+
+TEST(BinderTest, BindBinaryOp) {
+  auto statements = TryBind("select x+z from y");
+  PrintStatements(statements);
 }
 
 TEST(BinderTest, DISABLED_BindUpdate) { TryBind("UPDATE y SET z = z + 1;"); }

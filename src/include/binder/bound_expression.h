@@ -15,7 +15,9 @@ enum class ExpressionType : uint8_t {
   TYPE_CAST = 4,   // type cast expression type
   FUNCTION = 5,    // function expression type
   AGG_CALL = 6,    // aggregation function expression type
-  STAR = 7,        // star expression type, will be rewritten by binder
+  STAR = 7,        // star expression type, will be rewritten by binder and won't appear in plan
+  UNARY_OP = 8,    // unary expression type
+  BINARY_OP = 9    // binary expression type
 };
 
 class BoundExpression {

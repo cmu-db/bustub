@@ -1,9 +1,11 @@
 #include "binder/statement/select_statement.h"
 #include <fmt/format.h>
 #include "binder/expressions/bound_agg_call.h"
+#include "binder/expressions/bound_binary_op.h"
 #include "binder/expressions/bound_column_ref.h"
 #include "binder/expressions/bound_constant.h"
 #include "binder/expressions/bound_star.h"
+#include "binder/expressions/bound_unary_op.h"
 #include "binder/table_ref/bound_base_table_ref.h"
 #include "catalog/catalog.h"
 #include "common/util/string_util.h"
@@ -274,7 +276,35 @@ void SelectStatement::BindGroupBy(duckdb_libpgquery::PGList *list) {
 
 void SelectStatement::BindHaving(duckdb_libpgquery::PGNode *root) { having_ = BindExpression(root); }
 
+auto SelectStatement::BindAExpr(duckdb_libpgquery::PGAExpr *root) -> unique_ptr<BoundExpression> {
+  assert(root);
+  auto name = string((reinterpret_cast<duckdb_libpgquery::PGValue *>(root->name->head->data.ptr_value))->val.str);
+
+  if (root->kind != duckdb_libpgquery::PG_AEXPR_OP) {
+    throw Exception("unsupported op in AExpr");
+  }
+
+  unique_ptr<BoundExpression> left_expr = nullptr;
+  unique_ptr<BoundExpression> right_expr = nullptr;
+
+  if (root->lexpr != nullptr) {
+    left_expr = BindExpression(root->lexpr);
+  }
+  if (root->rexpr != nullptr) {
+    right_expr = BindExpression(root->rexpr);
+  }
+
+  if (left_expr && right_expr) {
+    return make_unique<BoundBinaryOp>(name, move(left_expr), move(right_expr));
+  }
+  if (!left_expr && right_expr) {
+    return make_unique<BoundUnaryOp>(name, move(right_expr));
+  }
+  throw Exception("unsupported AExpr: left == null while right != null");
+}
+
 auto SelectStatement::BindExpression(duckdb_libpgquery::PGNode *node) -> unique_ptr<BoundExpression> {
+  assert(node);
   switch (node->type) {
     case duckdb_libpgquery::T_PGColumnRef:
       return BindColumnRef(reinterpret_cast<duckdb_libpgquery::PGColumnRef *>(node));
@@ -287,7 +317,7 @@ auto SelectStatement::BindExpression(duckdb_libpgquery::PGNode *node) -> unique_
     case duckdb_libpgquery::T_PGFuncCall:
       return BindFuncCall(reinterpret_cast<duckdb_libpgquery::PGFuncCall *>(node));
     case duckdb_libpgquery::T_PGAExpr:
-      return make_unique<BoundExpression>();
+      return BindAExpr(reinterpret_cast<duckdb_libpgquery::PGAExpr *>(node));
     default:
       throw Exception(fmt::format("Expr of type {} not implemented", Parser::NodetypeToString(node->type)));
   }

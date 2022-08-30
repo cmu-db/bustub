@@ -41,6 +41,8 @@ class SelectStatement : public SQLStatement {
 
   auto BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> unique_ptr<BoundExpression>;
 
+  auto BindAExpr(duckdb_libpgquery::PGAExpr *root) -> unique_ptr<BoundExpression>;
+
   auto ResolveColumn(const string &col_name) -> unique_ptr<BoundExpression>;
 
   auto ResolveColumnWithTable(const string &table_name, const string &col_name) -> unique_ptr<BoundExpression>;
