@@ -27,60 +27,91 @@ auto TryBind(const string &query) {
   return std::move(parser.statements_);
 }
 
-TEST(BinderTest, BindSelectValue) {
-  auto statements = TryBind("select 1");
+void PrintStatements(const vector<unique_ptr<SQLStatement>> &statements) {
   for (const auto &statement : statements) {
     std::cout << statement->ToString() << std::endl;
   }
+}
+
+TEST(BinderTest, BindSelectValue) {
+  auto statements = TryBind("select 1");
+  PrintStatements(statements);
 }
 
 TEST(BinderTest, BindSelectFrom) {
   auto statements = TryBind("select x from y");
-  for (const auto &statement : statements) {
-    std::cout << statement->ToString() << std::endl;
-  }
+  PrintStatements(statements);
 }
 
 TEST(BinderTest, BindSelectFromWhere) {
   auto statements = TryBind("select x from y where z = 1");
-  for (const auto &statement : statements) {
-    std::cout << statement->ToString() << std::endl;
-  }
+  PrintStatements(statements);
 }
 
 TEST(BinderTest, BindSelectFromStar) {
   auto statements = TryBind("select * from y");
-  for (const auto &statement : statements) {
-    std::cout << statement->ToString() << std::endl;
-  }
+  PrintStatements(statements);
 }
 
 TEST(BinderTest, BindSelectFromMultipleCol) {
   auto statements = TryBind("select a, b, c from y");
-  for (const auto &statement : statements) {
-    std::cout << statement->ToString() << std::endl;
-  }
+  PrintStatements(statements);
 }
 
 TEST(BinderTest, BindSelectExpr) {
   auto statements = TryBind("select max(a), min(b), first(c) from y");
-  for (const auto &statement : statements) {
-    std::cout << statement->ToString() << std::endl;
-  }
+  PrintStatements(statements);
 }
 
 TEST(BinderTest, BindAgg) {
-  auto statements = TryBind("select z, max(a), min(b), first(c) from y group by z having z > 0");
-  for (const auto &statement : statements) {
-    std::cout << statement->ToString() << std::endl;
-  }
+  auto statements = TryBind("select z, max(a), min(b), first(c) from y group by z having max(a) > 0");
+  PrintStatements(statements);
 }
 
-TEST(BinderTest, DISABLED_BindCrossJoin) {
+TEST(BinderTest, BindCrossJoin) {
   auto statements = TryBind("select * from a, b");
-  for (const auto &statement : statements) {
-    std::cout << statement->ToString() << std::endl;
-  }
+  PrintStatements(statements);
 }
+
+TEST(BinderTest, BindJoin) {
+  auto statements = TryBind("select * from a INNER JOIN b ON a.x = b.y");
+  PrintStatements(statements);
+}
+
+TEST(BinderTest, BindSelectStar) {
+  auto statements = TryBind("select * from y");
+  PrintStatements(statements);
+}
+
+TEST(BinderTest, BindCountStar) {
+  auto statements = TryBind("select count(*) from y");
+  PrintStatements(statements);
+}
+
+TEST(BinderTest, BindSelectTableColumn) {
+  auto statements = TryBind("select y.x from y");
+  PrintStatements(statements);
+}
+
+TEST(BinderTest, FailBindUnknownColumn) {
+  EXPECT_THROW(TryBind("select zzzz from y"), Exception);
+  EXPECT_THROW(TryBind("select y.zzzz from y"), Exception);
+  EXPECT_THROW(TryBind("select x.zzzz from y"), Exception);
+  EXPECT_THROW(TryBind("select zzzz"), Exception);
+}
+
+TEST(BinderTest, DISABLED_BindCreateDropTable) {
+  TryBind("CREATE TABLE tablex (v1 int)");
+  TryBind("DROP TABLE tablex");
+}
+
+TEST(BinderTest, DISABLED_BindInsert) {
+  TryBind("INSERT INTO y VALUES (1,2,3,4,5), (6,7,8,9,10)");
+  TryBind("INSERT INTO y SELECT * FROM y WHERE x < 500");
+}
+
+TEST(BinderTest, DISABLED_BindUpdate) { TryBind("UPDATE y SET z = z + 1;"); }
+
+TEST(BinderTest, DISABLED_BindDelete) { TryBind("DELETE FROM y WHERE z = 1"); }
 
 }  // namespace bustub

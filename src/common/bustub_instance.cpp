@@ -45,16 +45,15 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
       return {result};
     }
     throw Exception(fmt::format("unsupported internal command: {}", sql));
-
-  } else {
-    bustub::Parser parser;
-    parser.ParseAndBindQuery(sql, *catalog_);
-    std::vector<std::string> result = {};
-    for (auto &&statement : parser.statements_) {
-      result.push_back(statement->ToString());
-    }
-    return result;
   }
+
+  bustub::Parser parser;
+  parser.ParseAndBindQuery(sql, *catalog_);
+  std::vector<std::string> result = {};
+  for (auto &&statement : parser.statements_) {
+    result.push_back(statement->ToString());
+  }
+  return result;
 }
 
 void BustubInstance::GenerateTestTable() {

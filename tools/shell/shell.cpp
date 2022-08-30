@@ -14,9 +14,13 @@ auto main() -> int {
 
   auto bustub = std::make_unique<BustubInstance>("test.db");
 
+  std::cout << "Note: This shell will be able to enter interactive mode only after you have completed the buffer pool manager. It will be able to execute SQL queries after you have implemented necessary query executors." << std::endl << std::endl;
+
   // Generate test tables
   // TODO(chi): remove after we finished bind / execute create table and insert.
   bustub->GenerateTestTable();
+
+  std::cout << "Welcome to the BusTub shell! Type \\help to learn more." << std::endl << std::endl;
 
   while (true) {
     std::cout << "> ";

@@ -2,8 +2,10 @@
 
 #include <fmt/format.h>
 #include <cassert>
+#include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 #include "../bound_expression.h"
 #include "type/limits.h"
 

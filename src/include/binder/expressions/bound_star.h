@@ -10,7 +10,7 @@
 namespace bustub {
 class BoundStar : public BoundExpression {
  public:
-  explicit BoundStar() : BoundExpression(ExpressionType::STAR) {}
+  BoundStar() : BoundExpression(ExpressionType::STAR) {}
 
   auto ToString() const -> std::string override { return "*"; }
 };

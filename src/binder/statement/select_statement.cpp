@@ -141,9 +141,8 @@ auto SelectStatement::BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> uni
       if (column_names.size() == 2) {
         // select table.col
         return ResolveColumnWithTable(column_names[0], column_names[1]);
-      } else {
-        throw Exception(fmt::format("unsupported ColumnRef: zero or multiple elements found"));
       }
+      throw Exception(fmt::format("unsupported ColumnRef: zero or multiple elements found"));
     }
     case duckdb_libpgquery::T_PGAStar: {
       return BindStar(reinterpret_cast<duckdb_libpgquery::PGAStar *>(head_node));
