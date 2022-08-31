@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include "binder/sql_statement.h"
+#include "binder/bound_statement.h"
 #include "catalog/column.h"
 
 namespace duckdb_libpgquery {

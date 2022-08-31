@@ -38,7 +38,6 @@
 
 #include "binder/bound_statement.h"
 #include "binder/simplified_token.h"
-#include "binder/sql_statement.h"
 #include "catalog/column.h"
 #include "nodes/parsenodes.hpp"
 #include "type/type_id.h"
@@ -84,7 +83,7 @@ class Binder {
 
   /** Transform a Postgres statement into a single SQL statement. */
   auto TransformStatement(const Catalog &catalog, duckdb_libpgquery::PGNode *stmt) const
-      -> std::unique_ptr<SQLStatement>;
+      -> std::unique_ptr<BoundStatement>;
 
   /** Get the std::string representation of a Postgres node tag. */
   static auto NodeTagToString(duckdb_libpgquery::PGNodeTag type) -> std::string;

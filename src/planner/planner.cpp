@@ -20,7 +20,8 @@ void Planner::PlanQuery(const BoundStatement &statement) {
   }
 }
 
-unique_ptr<AbstractExpression> Planner::PlanExpression(const BoundExpression &expr, const AbstractPlanNode &child) {
+std::unique_ptr<AbstractExpression> Planner::PlanExpression(const BoundExpression &expr,
+                                                            const AbstractPlanNode &child) {
   switch (expr.type_) {
     case ExpressionType::AGG_CALL:
       throw Exception("agg call should be handled by PlanSelect");
@@ -51,8 +52,8 @@ std::unique_ptr<Schema> MakeOutputSchema(const std::vector<std::pair<std::string
   return std::make_unique<Schema>(cols);
 }
 
-unique_ptr<AbstractPlanNode> Planner::PlanSelect(const SelectStatement &statement) {
-  unique_ptr<AbstractPlanNode> plan = nullptr;
+std::unique_ptr<AbstractPlanNode> Planner::PlanSelect(const SelectStatement &statement) {
+  std::unique_ptr<AbstractPlanNode> plan = nullptr;
 
   switch (statement.table_->type_) {
     case TableReferenceType::EMPTY:
@@ -120,7 +121,7 @@ unique_ptr<AbstractPlanNode> Planner::PlanSelect(const SelectStatement &statemen
   }
 }
 
-unique_ptr<AbstractPlanNode> Planner::PlanTableRef(const BoundTableRef &table_ref) {
+std::unique_ptr<AbstractPlanNode> Planner::PlanTableRef(const BoundTableRef &table_ref) {
   switch (table_ref.type_) {
     case TableReferenceType::BASE_TABLE: {
       // We always scan ALL columns of the table, and use projection executor to
@@ -134,8 +135,16 @@ unique_ptr<AbstractPlanNode> Planner::PlanTableRef(const BoundTableRef &table_re
       const auto &base_table_ref = dynamic_cast<const BoundBaseTableRef &>(table_ref);
       auto table = catalog_.GetTable(base_table_ref.table_);
       assert(table);
-      auto schema = SaveSchema(make_unique<Schema>(table->schema_));
-      return make_unique<SeqScanPlanNode>(schema, nullptr, table->oid_);
+      const auto &schema = table->schema_;
+      std::vector<std::pair<std::string, const AbstractExpression *>> output_schema;
+
+      size_t idx = 0;
+      for (const auto &column : schema.GetColumns()) {
+        output_schema.push_back(
+            {column.GetName(), SaveExpression(std::make_unique<ColumnValueExpression>(0, idx, column.GetType()))});
+        idx += 1;
+      }
+      return std::make_unique<SeqScanPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), nullptr, table->oid_);
     }
     default:
       break;

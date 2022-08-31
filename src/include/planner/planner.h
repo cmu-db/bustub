@@ -22,11 +22,11 @@ class Planner {
 
   void PlanQuery(const BoundStatement &statement);
 
-  unique_ptr<AbstractPlanNode> PlanSelect(const SelectStatement &statement);
+  std::unique_ptr<AbstractPlanNode> PlanSelect(const SelectStatement &statement);
 
-  unique_ptr<AbstractPlanNode> PlanTableRef(const BoundTableRef &table_ref);
+  std::unique_ptr<AbstractPlanNode> PlanTableRef(const BoundTableRef &table_ref);
 
-  unique_ptr<AbstractExpression> PlanExpression(const BoundExpression &expr, const AbstractPlanNode &child);
+  std::unique_ptr<AbstractExpression> PlanExpression(const BoundExpression &expr, const AbstractPlanNode &child);
 
   std::unique_ptr<AbstractPlanNode> plan_;
 

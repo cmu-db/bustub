@@ -33,6 +33,9 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
 
   // Catalog.
   catalog_ = new Catalog(buffer_pool_manager_, nullptr, nullptr);
+
+  // execution engine
+  execution_engine_ = new ExecutionEngine(buffer_pool_manager_, transaction_manager_, catalog_);
 }
 
 auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::string> {
@@ -57,10 +60,26 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
   binder.ParseAndBindQuery(sql, *catalog_);
   std::vector<std::string> result = {};
   for (const auto &statement : binder.statements_) {
-    result.push_back(statement->ToString());
+    std::cerr << "=== BINDER ===" << std::endl;
+    std::cerr << statement->ToString() << std::endl;
     bustub::Planner planner(*catalog_);
     planner.PlanQuery(*statement);
-    result.push_back(planner.plan_->ToString());
+    std::cerr << "=== PLANNER ===" << std::endl;
+    std::cerr << planner.plan_->ToString() << std::endl;
+    auto txn = transaction_manager_->Begin();
+    auto exec_ctx = MakeExecutorContext(txn);
+    std::vector<Tuple> result_set{};
+    execution_engine_->Execute(planner.plan_.get(), &result_set, txn, exec_ctx.get());
+    delete txn;
+    auto schema = planner.plan_->OutputSchema();
+    for (const auto &tuple : result_set) {
+      std::string row;
+      for (uint32_t i = 0; i < schema->GetColumnCount(); i++) {
+        row += tuple.GetValue(schema, i).ToString();
+        row += " ";
+      }
+      result.push_back(row);
+    }
   }
   return result;
 }
@@ -82,6 +101,7 @@ BustubInstance::~BustubInstance() {
   if (enable_logging) {
     log_manager_->StopFlushThread();
   }
+  delete execution_engine_;
   delete catalog_;
   delete checkpoint_manager_;
   delete log_manager_;
