@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <fmt/format.h>
 #include <utility>
 #include <vector>
 
@@ -78,6 +79,14 @@ class AggregationPlanNode : public AbstractPlanNode {
   auto GetAggregateTypes() const -> const std::vector<AggregationType> & { return agg_types_; }
 
  private:
+  std::string HelperVecExprFmt(const std::vector<const AbstractExpression *> &exprs) const {
+    std::vector<std::string> joins;
+    for (const auto &expr : exprs) {
+      joins.push_back(fmt::format("{}", *expr));
+    }
+    return fmt::format("{}", fmt::join(joins, ", "));
+  }
+
   /** A HAVING clause expression (may be `nullptr`) */
   const AbstractExpression *having_;
   /** The GROUP BY expressions */
@@ -86,6 +95,12 @@ class AggregationPlanNode : public AbstractPlanNode {
   std::vector<const AbstractExpression *> aggregates_;
   /** The aggregation types */
   std::vector<AggregationType> agg_types_;
+
+ protected:
+  auto PlanNodeToString() const -> std::string override {
+    auto aggregates = HelperVecExprFmt(aggregates_);
+    return fmt::format("Agg {{ types=[{}], aggregates=[{}] }}", fmt::join(agg_types_, ", "), aggregates);
+  }
 };
 
 /** AggregateKey represents a key in an aggregation operation */
@@ -133,3 +148,27 @@ struct hash<bustub::AggregateKey> {
 };
 
 }  // namespace std
+
+template <>
+struct fmt::formatter<bustub::AggregationType> : formatter<std::string> {
+  template <typename FormatContext>
+  auto format(bustub::AggregationType c, FormatContext &ctx) const {
+    using bustub::AggregationType;
+    std::string name = "unknown";
+    switch (c) {
+      case AggregationType::CountAggregate:
+        name = "count";
+        break;
+      case AggregationType::SumAggregate:
+        name = "sum";
+        break;
+      case AggregationType::MinAggregate:
+        name = "min";
+        break;
+      case AggregationType::MaxAggregate:
+        name = "max";
+        break;
+    }
+    return formatter<std::string>::format(name, ctx);
+  }
+};

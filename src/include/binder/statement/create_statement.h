@@ -19,7 +19,7 @@ struct PGCreateStmt;
 
 namespace bustub {
 
-class CreateStatement : public SQLStatement {
+class CreateStatement : public BoundStatement {
  public:
   explicit CreateStatement(duckdb_libpgquery::PGCreateStmt *pg_stmt);
 

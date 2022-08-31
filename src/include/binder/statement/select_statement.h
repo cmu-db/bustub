@@ -32,7 +32,7 @@ class Catalog;
 class BoundTableRef;
 class BoundExpression;
 
-class SelectStatement : public SQLStatement {
+class SelectStatement : public BoundStatement {
  public:
   explicit SelectStatement(const Catalog &catalog, duckdb_libpgquery::PGSelectStmt *pg_stmt);
 

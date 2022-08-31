@@ -2,6 +2,7 @@
 #include "binder/binder.h"
 #include "catalog/table_generator.h"
 #include "fmt/format.h"
+#include "planner/planner.h"
 #include "recovery/log_manager.h"
 
 namespace bustub {
@@ -46,14 +47,20 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
       }
       return {result};
     }
+    if (sql == "\\help") {
+      return {"help!\n"};
+    }
     throw Exception(fmt::format("unsupported internal command: {}", sql));
   }
 
   bustub::Binder binder;
   binder.ParseAndBindQuery(sql, *catalog_);
   std::vector<std::string> result = {};
-  for (auto &&statement : binder.statements_) {
+  for (const auto &statement : binder.statements_) {
     result.push_back(statement->ToString());
+    bustub::Planner planner(*catalog_);
+    planner.PlanQuery(*statement);
+    result.push_back(planner.plan_->ToString());
   }
   return result;
 }

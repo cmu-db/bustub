@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <fmt/format.h>
 #include <utility>
 #include <vector>
 
@@ -68,6 +69,9 @@ class AbstractExpression {
   /** @return the type of this expression if it were to be evaluated */
   virtual auto GetReturnType() const -> TypeId { return ret_type_; }
 
+  /** @return the string representation of the plan node and its children */
+  virtual auto ToString() const -> std::string { return "<unknown>"; }
+
  private:
   /** The children of this expression. Note that the order of appearance of children may matter. */
   std::vector<const AbstractExpression *> children_;
@@ -75,3 +79,21 @@ class AbstractExpression {
   TypeId ret_type_;
 };
 }  // namespace bustub
+
+template <typename T>
+struct fmt::formatter<T, std::enable_if_t<std::is_base_of<bustub::AbstractExpression, T>::value, char>>
+    : fmt::formatter<std::string> {
+  template <typename FormatCtx>
+  auto format(const bustub::AbstractExpression &x, FormatCtx &ctx) const {
+    return fmt::formatter<std::string>::format(x.ToString(), ctx);
+  }
+};
+
+template <typename T>
+struct fmt::formatter<std::unique_ptr<T>, std::enable_if_t<std::is_base_of<bustub::AbstractExpression, T>::value, char>>
+    : fmt::formatter<std::string> {
+  template <typename FormatCtx>
+  auto format(const std::unique_ptr<bustub::AbstractExpression> &x, FormatCtx &ctx) const {
+    return fmt::formatter<std::string>::format(x->ToString(), ctx);
+  }
+};

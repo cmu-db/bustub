@@ -32,6 +32,8 @@ class BoundExpression {
 
   virtual auto ToString() const -> std::string { return "<invalid>"; };
 
+  bool IsInvalid() { return type_ == ExpressionType::INVALID; }
+
   /** The type of this expression. */
   ExpressionType type_{ExpressionType::INVALID};
 };

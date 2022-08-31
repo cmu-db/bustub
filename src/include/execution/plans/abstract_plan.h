@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <fmt/format.h>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -65,6 +67,25 @@ class AbstractPlanNode {
   /** @return the type of this plan node */
   virtual auto GetType() const -> PlanType = 0;
 
+  /** @return the string representation of the plan node and its children */
+  auto ToString() const -> std::string {
+    return fmt::format("{} | {}\n{}", PlanNodeToString(), output_schema_->ToString(), ChildrenToString(2));
+  }
+
+ protected:
+  /** @return the string representation of the plan node itself */
+  virtual auto PlanNodeToString() const -> std::string { return "<unknown>"; }
+
+  /** @return the string representation of the plan node's children */
+  auto ChildrenToString(int indent) const -> std::string {
+    std::vector<std::string> children_str;
+    std::string indent_str(indent, ' ');
+    for (const auto &child : children_) {
+      children_str.push_back(fmt::format("{}{}", indent_str, child->ToString()));
+    }
+    return fmt::format("{}", fmt::join(children_str, "\n"));
+  }
+
  private:
   /**
    * The schema for the output of this plan node. In the volcano model, every plan node will spit out tuples,
@@ -75,3 +96,21 @@ class AbstractPlanNode {
   std::vector<const AbstractPlanNode *> children_;
 };
 }  // namespace bustub
+
+template <typename T>
+struct fmt::formatter<T, std::enable_if_t<std::is_base_of<bustub::AbstractPlanNode, T>::value, char>>
+    : fmt::formatter<std::string> {
+  template <typename FormatCtx>
+  auto format(const bustub::AbstractPlanNode &x, FormatCtx &ctx) const {
+    return fmt::formatter<std::string>::format(x.ToString(), ctx);
+  }
+};
+
+template <typename T>
+struct fmt::formatter<std::unique_ptr<T>, std::enable_if_t<std::is_base_of<bustub::AbstractPlanNode, T>::value, char>>
+    : fmt::formatter<std::string> {
+  template <typename FormatCtx>
+  auto format(const std::unique_ptr<bustub::AbstractPlanNode> &x, FormatCtx &ctx) const {
+    return fmt::formatter<std::string>::format(x->ToString(), ctx);
+  }
+};

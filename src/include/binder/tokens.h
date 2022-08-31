@@ -13,7 +13,7 @@ namespace bustub {
 //===--------------------------------------------------------------------===//
 // Statements
 //===--------------------------------------------------------------------===//
-class SQLStatement;
+class BoundStatement;
 
 class CreateStatement;
 class DeleteStatement;
