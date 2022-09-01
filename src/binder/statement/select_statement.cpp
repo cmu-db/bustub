@@ -114,12 +114,12 @@ void SelectStatement::BindSelectList(duckdb_libpgquery::PGList *list) {
 }
 
 auto SelectStatement::BindConstant(duckdb_libpgquery::PGAConst *node) -> std::unique_ptr<BoundExpression> {
-  assert(node);
+  BUSTUB_ASSERT(node, "nullptr");
   auto bound_val = Value(TypeId::INTEGER);
   const auto &val = node->val;
   switch (val.type) {
     case duckdb_libpgquery::T_PGInteger:
-      assert(val.val.ival <= BUSTUB_INT32_MAX);
+      BUSTUB_ASSERT(val.val.ival <= BUSTUB_INT32_MAX, "value out of range");
       bound_val = Value(TypeId::INTEGER, static_cast<int32_t>(val.val.ival));
       break;
     default:
@@ -129,7 +129,7 @@ auto SelectStatement::BindConstant(duckdb_libpgquery::PGAConst *node) -> std::un
 }
 
 auto SelectStatement::BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> std::unique_ptr<BoundExpression> {
-  assert(node);
+  BUSTUB_ASSERT(node, "nullptr");
   auto fields = node->fields;
   auto head_node = static_cast<duckdb_libpgquery::PGNode *>(fields->head->data.ptr_value);
   switch (head_node->type) {
@@ -160,7 +160,7 @@ auto SelectStatement::BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> std
 }
 
 auto SelectStatement::BindResTarget(duckdb_libpgquery::PGResTarget *root) -> std::unique_ptr<BoundExpression> {
-  assert(root);
+  BUSTUB_ASSERT(root, "nullptr");
   auto expr = BindExpression(root->val);
   if (!expr) {
     return nullptr;
@@ -169,12 +169,12 @@ auto SelectStatement::BindResTarget(duckdb_libpgquery::PGResTarget *root) -> std
 }
 
 auto SelectStatement::BindStar(duckdb_libpgquery::PGAStar *node) -> std::unique_ptr<BoundExpression> {
-  assert(node);
+  BUSTUB_ASSERT(node, "nullptr");
   return std::make_unique<BoundStar>();
 }
 
 auto SelectStatement::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_ptr<BoundExpression> {
-  assert(root);
+  BUSTUB_ASSERT(root, "nullptr");
   auto name = root->funcname;
   auto function_name =
       StringUtil::Lower(reinterpret_cast<duckdb_libpgquery::PGValue *>(name->head->data.ptr_value)->val.str);
@@ -281,7 +281,7 @@ void SelectStatement::BindGroupBy(duckdb_libpgquery::PGList *list) {
 void SelectStatement::BindHaving(duckdb_libpgquery::PGNode *root) { having_ = BindExpression(root); }
 
 auto SelectStatement::BindAExpr(duckdb_libpgquery::PGAExpr *root) -> std::unique_ptr<BoundExpression> {
-  assert(root);
+  BUSTUB_ASSERT(root, "nullptr");
   auto name = std::string((reinterpret_cast<duckdb_libpgquery::PGValue *>(root->name->head->data.ptr_value))->val.str);
 
   if (root->kind != duckdb_libpgquery::PG_AEXPR_OP) {
@@ -308,7 +308,7 @@ auto SelectStatement::BindAExpr(duckdb_libpgquery::PGAExpr *root) -> std::unique
 }
 
 auto SelectStatement::BindExpression(duckdb_libpgquery::PGNode *node) -> std::unique_ptr<BoundExpression> {
-  assert(node);
+  BUSTUB_ASSERT(node, "nullptr");
   switch (node->type) {
     case duckdb_libpgquery::T_PGColumnRef:
       return BindColumnRef(reinterpret_cast<duckdb_libpgquery::PGColumnRef *>(node));
