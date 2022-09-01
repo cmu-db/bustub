@@ -45,7 +45,8 @@ class BustubInstance {
 
   /**
    * FOR TEST ONLY. Generate test tables in this BusTub instance.
-   * We would normally make it `private` and `friend` the tests.
+   * It's used in the shell to predefine some tables, as we don't support
+   * create / drop table and insert for now. Should remove it in the future.
    */
   void GenerateTestTable();
 

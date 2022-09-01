@@ -58,6 +58,11 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
   return result;
 }
 
+/**
+ * FOR TEST ONLY. Generate test tables in this BusTub instance.
+ * It's used in the shell to predefine some tables, as we don't support
+ * create / drop table and insert for now. Should remove it in the future.
+ */
 void BustubInstance::GenerateTestTable() {
   auto txn = transaction_manager_->Begin();
   auto exec_ctx = MakeExecutorContext(txn);
