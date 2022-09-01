@@ -12,11 +12,11 @@
 
 #pragma once
 
-#include <fmt/format.h>
 #include <utility>
 #include <vector>
 
 #include "catalog/schema.h"
+#include "fmt/core.h"
 #include "storage/table/tuple.h"
 
 namespace bustub {

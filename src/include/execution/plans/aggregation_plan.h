@@ -12,12 +12,12 @@
 
 #pragma once
 
-#include <fmt/format.h>
 #include <utility>
 #include <vector>
 
 #include "common/util/hash_util.h"
 #include "execution/plans/abstract_plan.h"
+#include "fmt/core.h"
 #include "storage/table/tuple.h"
 
 namespace bustub {
@@ -79,13 +79,7 @@ class AggregationPlanNode : public AbstractPlanNode {
   auto GetAggregateTypes() const -> const std::vector<AggregationType> & { return agg_types_; }
 
  private:
-  std::string HelperVecExprFmt(const std::vector<const AbstractExpression *> &exprs) const {
-    std::vector<std::string> joins;
-    for (const auto &expr : exprs) {
-      joins.push_back(fmt::format("{}", *expr));
-    }
-    return fmt::format("{}", fmt::join(joins, ", "));
-  }
+  std::string HelperVecExprFmt(const std::vector<const AbstractExpression *> &exprs) const;
 
   /** A HAVING clause expression (may be `nullptr`) */
   const AbstractExpression *having_;
@@ -97,10 +91,7 @@ class AggregationPlanNode : public AbstractPlanNode {
   std::vector<AggregationType> agg_types_;
 
  protected:
-  auto PlanNodeToString() const -> std::string override {
-    auto aggregates = HelperVecExprFmt(aggregates_);
-    return fmt::format("Agg {{ types=[{}], aggregates=[{}] }}", fmt::join(agg_types_, ", "), aggregates);
-  }
+  auto PlanNodeToString() const -> std::string override;
 };
 
 /** AggregateKey represents a key in an aggregation operation */

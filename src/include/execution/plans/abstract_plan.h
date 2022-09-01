@@ -12,12 +12,12 @@
 
 #pragma once
 
-#include <fmt/format.h>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "catalog/schema.h"
+#include "fmt/core.h"
 
 namespace bustub {
 
@@ -77,14 +77,7 @@ class AbstractPlanNode {
   virtual auto PlanNodeToString() const -> std::string { return "<unknown>"; }
 
   /** @return the string representation of the plan node's children */
-  auto ChildrenToString(int indent) const -> std::string {
-    std::vector<std::string> children_str;
-    std::string indent_str(indent, ' ');
-    for (const auto &child : children_) {
-      children_str.push_back(fmt::format("{}{}", indent_str, child->ToString()));
-    }
-    return fmt::format("{}", fmt::join(children_str, "\n"));
-  }
+  auto ChildrenToString(int indent) const -> std::string;
 
  private:
   /**

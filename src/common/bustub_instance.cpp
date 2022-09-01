@@ -1,9 +1,15 @@
 #include "common/bustub_instance.h"
 #include "binder/binder.h"
+#include "buffer/buffer_pool_manager_instance.h"
 #include "catalog/table_generator.h"
+#include "concurrency/lock_manager.h"
+#include "execution/execution_engine.h"
+#include "execution/executor_context.h"
 #include "fmt/format.h"
 #include "planner/planner.h"
+#include "recovery/checkpoint_manager.h"
 #include "recovery/log_manager.h"
+#include "storage/disk/disk_manager.h"
 
 namespace bustub {
 
