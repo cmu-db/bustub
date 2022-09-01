@@ -1,6 +1,5 @@
 #pragma once
 
-#include <fmt/format.h>
 #include <cassert>
 #include <memory>
 #include <string>
@@ -19,7 +18,7 @@ class BoundAggCall : public BoundExpression {
   explicit BoundAggCall(std::string func_name, std::vector<std::unique_ptr<BoundExpression>> args)
       : BoundExpression(ExpressionType::AGG_CALL), func_name_(std::move(func_name)), args_(move(args)) {}
 
-  auto ToString() const -> std::string override { return fmt::format("{}({})", func_name_, fmt::join(args_, ", ")); }
+  auto ToString() const -> std::string override;
 
   /** Function name. */
   std::string func_name_;

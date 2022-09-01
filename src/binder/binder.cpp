@@ -20,28 +20,28 @@
 // THE SOFTWARE.
 //===----------------------------------------------------------------------===//
 
-#include "binder/binder.h"
-
-#include <fmt/core.h>
 #include <iostream>
 #include <unordered_set>
+
+#include "binder/binder.h"
 #include "binder/sql_statement.h"
 #include "binder/statement/create_statement.h"
 #include "binder/statement/delete_statement.h"
 #include "binder/statement/insert_statement.h"
 #include "binder/statement/select_statement.h"
+#include "binder/tokens.h"
 #include "common/exception.h"
 #include "common/logger.h"
 #include "common/util/string_util.h"
+#include "fmt/core.h"
+#include "pg_definitions.hpp"
+#include "postgres_parser.hpp"
 #include "type/decimal_type.h"
 
 namespace bustub {
-using duckdb::PostgresParser;
-using duckdb_libpgquery::PGKeywordCategory;
-using duckdb_libpgquery::PGSimplifiedTokenType;
 
 void Binder::ParseAndBindQuery(const std::string &query, const Catalog &catalog) {
-  PostgresParser parser;
+  duckdb::PostgresParser parser;
   parser.Parse(query);
   if (!parser.success) {
     LOG_INFO("Query failed to parse!");
@@ -65,10 +65,10 @@ void Binder::ParseAndBindQuery(const std::string &query, const Catalog &catalog)
   }
 }
 
-auto Binder::IsKeyword(const std::string &text) -> bool { return PostgresParser::IsKeyword(text); }
+auto Binder::IsKeyword(const std::string &text) -> bool { return duckdb::PostgresParser::IsKeyword(text); }
 
 auto Binder::KeywordList() -> std::vector<ParserKeyword> {
-  auto keywords = PostgresParser::KeywordList();
+  auto keywords = duckdb::PostgresParser::KeywordList();
   std::vector<ParserKeyword> result;
   for (auto &kw : keywords) {
     ParserKeyword res;
@@ -95,7 +95,7 @@ auto Binder::KeywordList() -> std::vector<ParserKeyword> {
 }
 
 auto Binder::Tokenize(const std::string &query) -> std::vector<SimplifiedToken> {
-  auto pg_tokens = PostgresParser::Tokenize(query);
+  auto pg_tokens = duckdb::PostgresParser::Tokenize(query);
   std::vector<SimplifiedToken> result;
   result.reserve(pg_tokens.size());
   for (auto &pg_token : pg_tokens) {

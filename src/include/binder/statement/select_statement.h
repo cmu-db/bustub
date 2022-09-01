@@ -10,19 +10,21 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "binder/simplified_token.h"
 #include "binder/sql_statement.h"
+#include "catalog/column.h"
 
 namespace duckdb_libpgquery {
-  struct PGList;
-  struct PGSelectStmt;
-  struct PGAConst;
-  struct PGAStar;
-  struct PGFuncCall;
-  struct PGNode;
-  struct PGColumnRef;
-  struct PGResTarget;
-  struct PGAExpr;
-}
+struct PGList;
+struct PGSelectStmt;
+struct PGAConst;
+struct PGAStar;
+struct PGFuncCall;
+struct PGNode;
+struct PGColumnRef;
+struct PGResTarget;
+struct PGAExpr;
+}  // namespace duckdb_libpgquery
 
 namespace bustub {
 
@@ -61,7 +63,8 @@ class SelectStatement : public SQLStatement {
 
   auto ResolveColumn(const std::string &col_name) -> std::unique_ptr<BoundExpression>;
 
-  auto ResolveColumnWithTable(const std::string &table_name, const std::string &col_name) -> std::unique_ptr<BoundExpression>;
+  auto ResolveColumnWithTable(const std::string &table_name, const std::string &col_name)
+      -> std::unique_ptr<BoundExpression>;
 
   /** Bound FROM clause. */
   std::unique_ptr<BoundTableRef> table_;

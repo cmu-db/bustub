@@ -1,8 +1,8 @@
 #pragma once
 
-#include <fmt/format.h>
 #include <memory>
 #include <string>
+#include "fmt/core.h"
 
 namespace bustub {
 
@@ -10,15 +10,15 @@ namespace bustub {
  * All types of expressions in binder.
  */
 enum class ExpressionType : uint8_t {
-  INVALID = 0,     /**< Invalid expression type. */
-  CONSTANT = 1,    /**< Constant expression type. */
-  COLUMN_REF = 3,  /**< A column in a table. */
-  TYPE_CAST = 4,   /**< Type cast expression type. */
-  FUNCTION = 5,    /**< Function expression type. */
-  AGG_CALL = 6,    /**< Aggregation function expression type. */
-  STAR = 7,        /**< Star expression type, will be rewritten by binder and won't appear in plan. */
-  UNARY_OP = 8,    /**< Unary expression type. */
-  BINARY_OP = 9    /**< Binary expression type. */
+  INVALID = 0,    /**< Invalid expression type. */
+  CONSTANT = 1,   /**< Constant expression type. */
+  COLUMN_REF = 3, /**< A column in a table. */
+  TYPE_CAST = 4,  /**< Type cast expression type. */
+  FUNCTION = 5,   /**< Function expression type. */
+  AGG_CALL = 6,   /**< Aggregation function expression type. */
+  STAR = 7,       /**< Star expression type, will be rewritten by binder and won't appear in plan. */
+  UNARY_OP = 8,   /**< Unary expression type. */
+  BINARY_OP = 9   /**< Binary expression type. */
 };
 
 /**

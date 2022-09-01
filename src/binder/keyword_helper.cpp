@@ -48,7 +48,8 @@ auto KeywordHelper::WriteOptionallyQuoted(const std::string &text, char quote) -
   if (!RequiresQuotes(text)) {
     return text;
   }
-  return std::string(1, quote) + StringUtil::Replace(text, std::string(1, quote), std::string(2, quote)) + std::string(1, quote);
+  return std::string(1, quote) + StringUtil::Replace(text, std::string(1, quote), std::string(2, quote)) +
+         std::string(1, quote);
 }
 
 }  // namespace bustub

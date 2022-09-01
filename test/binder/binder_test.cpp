@@ -11,11 +11,12 @@
 //===----------------------------------------------------------------------===//
 
 #include "binder/binder.h"
+#include "catalog/catalog.h"
 #include "gtest/gtest.h"
 
 namespace bustub {
 
-auto TryBind(const string &query) {
+auto TryBind(const std::string &query) {
   bustub::Binder binder;
   bustub::Catalog catalog(nullptr, nullptr, nullptr);
   catalog.CreateTable(
@@ -36,7 +37,7 @@ auto TryBind(const string &query) {
   return std::move(binder.statements_);
 }
 
-void PrintStatements(const vector<unique_ptr<SQLStatement>> &statements) {
+void PrintStatements(const std::vector<std::unique_ptr<SQLStatement>> &statements) {
   for (const auto &statement : statements) {
     std::cout << statement->ToString() << std::endl;
   }

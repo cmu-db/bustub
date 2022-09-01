@@ -1,11 +1,11 @@
 #pragma once
 
-#include <fmt/format.h>
 #include <cassert>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
+
 #include "binder/bound_expression.h"
 
 namespace bustub {
@@ -15,7 +15,8 @@ namespace bustub {
  */
 class BoundBinaryOp : public BoundExpression {
  public:
-  explicit BoundBinaryOp(std::string op_name, std::unique_ptr<BoundExpression> larg, std::unique_ptr<BoundExpression> rarg)
+  explicit BoundBinaryOp(std::string op_name, std::unique_ptr<BoundExpression> larg,
+                         std::unique_ptr<BoundExpression> rarg)
       : BoundExpression(ExpressionType::BINARY_OP),
         op_name_(std::move(op_name)),
         larg_(std::move(larg)),

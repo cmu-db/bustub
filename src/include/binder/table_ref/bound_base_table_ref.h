@@ -1,9 +1,9 @@
 #pragma once
 
-#include <fmt/format.h>
 #include <string>
 #include <utility>
 #include "binder/bound_table_ref.h"
+#include "fmt/core.h"
 
 namespace bustub {
 

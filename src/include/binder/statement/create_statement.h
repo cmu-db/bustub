@@ -10,7 +10,12 @@
 #include <string>
 #include <vector>
 
-#include "binder/binder.h"
+#include "binder/sql_statement.h"
+#include "catalog/column.h"
+
+namespace duckdb_libpgquery {
+struct PGCreateStmt;
+}  // namespace duckdb_libpgquery
 
 namespace bustub {
 

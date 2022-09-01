@@ -1,10 +1,10 @@
 #pragma once
 
-#include <fmt/format.h>
 #include <cassert>
 #include <string>
 #include <utility>
 
+#include "binder/bound_expression.h"
 #include "type/value.h"
 
 namespace bustub {

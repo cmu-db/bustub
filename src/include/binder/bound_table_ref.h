@@ -1,9 +1,10 @@
 #pragma once
 
-#include <fmt/format.h>
 #include <cassert>
 #include <memory>
 #include <string>
+
+#include "fmt/core.h"
 
 namespace bustub {
 
@@ -11,11 +12,11 @@ namespace bustub {
  * Table reference types
  */
 enum class TableReferenceType : uint8_t {
-  INVALID = 0,        /**< Invalid table reference type. */
-  BASE_TABLE = 1,     /**< Base table reference. */
-  JOIN = 3,           /**< Output of join. */
-  CROSS_PRODUCT = 4,  /**< Output of cartesian product. */
-  EMPTY = 8           /**< Placeholder for empty FROM. */
+  INVALID = 0,       /**< Invalid table reference type. */
+  BASE_TABLE = 1,    /**< Base table reference. */
+  JOIN = 3,          /**< Output of join. */
+  CROSS_PRODUCT = 4, /**< Output of cartesian product. */
+  EMPTY = 8          /**< Placeholder for empty FROM. */
 };
 
 /**

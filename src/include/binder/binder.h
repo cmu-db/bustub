@@ -38,17 +38,14 @@
 
 #include "binder/simplified_token.h"
 #include "binder/sql_statement.h"
-#include "binder/tokens.h"
 #include "catalog/column.h"
 #include "nodes/parsenodes.hpp"
-#include "pg_definitions.hpp"
-#include "postgres_parser.hpp"
 #include "type/type_id.h"
 #include "type/value.h"
 
 namespace duckdb_libpgquery {
-struct PGNode;
 struct PGList;
+struct PGNode;
 }  // namespace duckdb_libpgquery
 
 namespace bustub {
@@ -85,7 +82,8 @@ class Binder {
       -> std::vector<std::unique_ptr<SQLStatement>>;
 
   /** Transform a Postgres statement into a single SQL statement. */
-  auto TransformStatement(const Catalog &catalog, duckdb_libpgquery::PGNode *stmt) const -> std::unique_ptr<SQLStatement>;
+  auto TransformStatement(const Catalog &catalog, duckdb_libpgquery::PGNode *stmt) const
+      -> std::unique_ptr<SQLStatement>;
 
   /** Get the std::string representation of a Postgres node tag. */
   static auto NodetypeToString(duckdb_libpgquery::PGNodeTag type) -> std::string;

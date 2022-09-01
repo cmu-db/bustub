@@ -1,7 +1,7 @@
 #include "common/bustub_instance.h"
-#include <fmt/format.h>
 #include "binder/binder.h"
 #include "catalog/table_generator.h"
+#include "fmt/format.h"
 #include "recovery/log_manager.h"
 
 namespace bustub {

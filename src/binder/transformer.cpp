@@ -21,13 +21,13 @@
 //===----------------------------------------------------------------------===//
 
 #include "binder/binder.h"
-#include "binder/sql_statement.h"
-#include "binder/table_ref/bound_base_table_ref.h"
 #include "binder/bound_expression.h"
+#include "binder/sql_statement.h"
 #include "binder/statement/create_statement.h"
 #include "binder/statement/delete_statement.h"
 #include "binder/statement/insert_statement.h"
 #include "binder/statement/select_statement.h"
+#include "binder/table_ref/bound_base_table_ref.h"
 #include "common/exception.h"
 #include "common/logger.h"
 #include "common/util/string_util.h"

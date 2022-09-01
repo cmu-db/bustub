@@ -9,7 +9,12 @@
 
 #include <string>
 
-#include "binder/binder.h"
+#include "binder/sql_statement.h"
+#include "catalog/column.h"
+
+namespace duckdb_libpgquery {
+struct PGDeleteStmt;
+}  // namespace duckdb_libpgquery
 
 namespace bustub {
 
