@@ -18,7 +18,7 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
   // Storage related.
   disk_manager_ = new DiskManager(db_file_name);
 
-  // log related
+  // Log related.
   log_manager_ = new LogManager(disk_manager_);
 
   buffer_pool_manager_ = new BufferPoolManagerInstance(BUFFER_POOL_SIZE, disk_manager_, log_manager_);
