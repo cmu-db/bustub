@@ -2,7 +2,7 @@
 
 namespace bustub {
 
-DeleteStatement::DeleteStatement(const Parser &parser, duckdb_libpgquery::PGDeleteStmt *pg_stmt)
+DeleteStatement::DeleteStatement(duckdb_libpgquery::PGDeleteStmt *pg_stmt)
     : SQLStatement(StatementType::DELETE_STATEMENT) {}
 
 auto DeleteStatement::ToString() const -> std::string { return {}; }

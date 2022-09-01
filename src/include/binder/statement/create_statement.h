@@ -10,18 +10,23 @@
 #include <string>
 #include <vector>
 
-#include "binder/parser.h"
+#include "binder/sql_statement.h"
+#include "catalog/column.h"
+
+namespace duckdb_libpgquery {
+struct PGCreateStmt;
+}  // namespace duckdb_libpgquery
 
 namespace bustub {
 
 class CreateStatement : public SQLStatement {
  public:
-  explicit CreateStatement(const Parser &parser, duckdb_libpgquery::PGCreateStmt *pg_stmt);
+  explicit CreateStatement(duckdb_libpgquery::PGCreateStmt *pg_stmt);
 
-  string table_;
-  vector<Column> columns_;
+  std::string table_;
+  std::vector<Column> columns_;
 
-  auto ToString() const -> string override;
+  auto ToString() const -> std::string override;
 };
 
 }  // namespace bustub

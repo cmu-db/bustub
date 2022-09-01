@@ -38,14 +38,14 @@ namespace bustub {
 
 class KeywordHelper {
  public:
-  //! Returns true if the given text matches a keyword of the parser
-  static auto IsKeyword(const string &text) -> bool;
+  /** Return true if the given text matches a keyword of the parser. */
+  static auto IsKeyword(const std::string &text) -> bool;
 
-  //! Returns true if the given string needs to be quoted when written as an identifier
-  static auto RequiresQuotes(const string &text) -> bool;
+  /** Return true if the given std::string needs to be quoted when written as an identifier. */
+  static auto RequiresQuotes(const std::string &text) -> bool;
 
-  //! Writes a string that is optionally quoted + escaped so it can be used as an identifier
-  static auto WriteOptionallyQuoted(const string &text, char quote = '"') -> string;
+  // Writes a std::string that is optionally quoted + escaped so it can be used as an identifier
+  static auto WriteOptionallyQuoted(const std::string &text, char quote = '"') -> std::string;
 };
 
 }  // namespace bustub

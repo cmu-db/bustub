@@ -35,8 +35,8 @@
 
 namespace bustub {
 
-//! Simplified tokens are a simplified (dense) representation of the lexer
-//! Used for simple syntax highlighting in the tests
+/** Simplified tokens are a simplified (dense) representation of the lexer
+ * used for simple syntax highlighting in the tests. */
 enum class SimplifiedTokenType : uint8_t {
   SIMPLIFIED_TOKEN_IDENTIFIER,
   SIMPLIFIED_TOKEN_NUMERIC_CONSTANT,

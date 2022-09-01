@@ -40,8 +40,8 @@ class StringUtil {
   /** @return concatenation of all input strings, separated by the separator */
   static auto Join(const std::vector<std::string> &input, const std::string &separator) -> std::string;
 
-  //! Join multiple items of container with given size, transformed to string
-  //! using function, into one string using the given separator
+  /** @return join multiple items of container with given size, transformed to string
+  using function, into one string using the given separator. */
   template <typename C, typename S, typename Func>
   static auto Join(const C &input, S count, const std::string &separator, Func f) -> std::string {
     // The result
@@ -102,6 +102,14 @@ class StringUtil {
    */
   static auto Strip(const std::string &str, char c) -> std::string;
 
+  /**
+   * Replace parts of the string from `from` to `to`.
+   *
+   * @param source input string
+   * @param from substring to be searched
+   * @param to replace `from` to `to`
+   * @return a new string with all occurrences of `from` replaced with `to`.
+   */
   static auto Replace(std::string source, const std::string &from, const std::string &to) -> std::string;
 };
 

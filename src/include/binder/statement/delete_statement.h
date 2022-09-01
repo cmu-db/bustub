@@ -9,17 +9,22 @@
 
 #include <string>
 
-#include "binder/parser.h"
+#include "binder/sql_statement.h"
+#include "catalog/column.h"
+
+namespace duckdb_libpgquery {
+struct PGDeleteStmt;
+}  // namespace duckdb_libpgquery
 
 namespace bustub {
 
 class DeleteStatement : public SQLStatement {
  public:
-  explicit DeleteStatement(const Parser &parser, duckdb_libpgquery::PGDeleteStmt *pg_stmt);
+  explicit DeleteStatement(duckdb_libpgquery::PGDeleteStmt *pg_stmt);
 
-  string table_;
+  std::string table_;
 
-  auto ToString() const -> string override;
+  auto ToString() const -> std::string override;
 };
 
 }  // namespace bustub

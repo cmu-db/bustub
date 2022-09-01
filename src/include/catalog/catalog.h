@@ -127,7 +127,13 @@ class Catalog {
     }
 
     // Construct the table heap
-    auto table = std::make_unique<TableHeap>(bpm_, lock_manager_, log_manager_, txn);
+    std::unique_ptr<TableHeap> table = nullptr;
+    // TODO(Wan,chi): This should be refactored into a private ctor for the binder tests, we shouldn't allow nullptr.
+    // When bpm_ == nullptr, it means that we're running binder tests (where no txn will be provided). We don't need
+    // to create TableHeap in this case.
+    if (bpm_ != nullptr) {
+      table = std::make_unique<TableHeap>(bpm_, lock_manager_, log_manager_, txn);
+    }
 
     // Fetch the table OID for the new table
     const auto table_oid = next_table_oid_.fetch_add(1);
@@ -149,7 +155,7 @@ class Catalog {
    * @param table_name The name of the table
    * @return A (non-owning) pointer to the metadata for the table
    */
-  auto GetTable(const std::string &table_name) -> TableInfo * {
+  auto GetTable(const std::string &table_name) const -> TableInfo * {
     auto table_oid = table_names_.find(table_name);
     if (table_oid == table_names_.end()) {
       // Table not found
@@ -320,6 +326,14 @@ class Catalog {
     }
 
     return indexes;
+  }
+
+  auto GetTableNames() -> std::vector<std::string> {
+    std::vector<std::string> result;
+    for (const auto &x : table_names_) {
+      result.push_back(x.first);
+    }
+    return result;
   }
 
  private:

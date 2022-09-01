@@ -21,14 +21,14 @@
 //===----------------------------------------------------------------------===//
 
 #include "binder/keyword_helper.h"
-#include "binder/parser.h"
+#include "binder/binder.h"
 #include "common/util/string_util.h"
 
 namespace bustub {
 
-auto KeywordHelper::IsKeyword(const string &text) -> bool { return Parser::IsKeyword(text); }
+auto KeywordHelper::IsKeyword(const std::string &text) -> bool { return Binder::IsKeyword(text); }
 
-auto KeywordHelper::RequiresQuotes(const string &text) -> bool {
+auto KeywordHelper::RequiresQuotes(const std::string &text) -> bool {
   for (size_t i = 0; i < text.size(); i++) {
     if (i > 0 && (text[i] >= '0' && text[i] <= '9')) {
       continue;
@@ -44,11 +44,12 @@ auto KeywordHelper::RequiresQuotes(const string &text) -> bool {
   return IsKeyword(text);
 }
 
-auto KeywordHelper::WriteOptionallyQuoted(const string &text, char quote) -> string {
+auto KeywordHelper::WriteOptionallyQuoted(const std::string &text, char quote) -> std::string {
   if (!RequiresQuotes(text)) {
     return text;
   }
-  return string(1, quote) + StringUtil::Replace(text, string(1, quote), string(2, quote)) + string(1, quote);
+  return std::string(1, quote) + StringUtil::Replace(text, std::string(1, quote), std::string(2, quote)) +
+         std::string(1, quote);
 }
 
 }  // namespace bustub

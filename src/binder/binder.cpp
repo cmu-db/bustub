@@ -20,28 +20,28 @@
 // THE SOFTWARE.
 //===----------------------------------------------------------------------===//
 
-#include "binder/parser.h"
-
-#include <fmt/core.h>
 #include <iostream>
 #include <unordered_set>
+
+#include "binder/binder.h"
 #include "binder/sql_statement.h"
 #include "binder/statement/create_statement.h"
 #include "binder/statement/delete_statement.h"
 #include "binder/statement/insert_statement.h"
 #include "binder/statement/select_statement.h"
+#include "binder/tokens.h"
 #include "common/exception.h"
 #include "common/logger.h"
 #include "common/util/string_util.h"
+#include "fmt/core.h"
+#include "pg_definitions.hpp"
+#include "postgres_parser.hpp"
 #include "type/decimal_type.h"
 
 namespace bustub {
-using duckdb::PostgresParser;
-using duckdb_libpgquery::PGKeywordCategory;
-using duckdb_libpgquery::PGSimplifiedTokenType;
 
-void Parser::ParseQuery(const std::string &query) {
-  PostgresParser parser;
+void Binder::ParseAndBindQuery(const std::string &query, const Catalog &catalog) {
+  duckdb::PostgresParser parser;
   parser.Parse(query);
   if (!parser.success) {
     LOG_INFO("Query failed to parse!");
@@ -54,13 +54,7 @@ void Parser::ParseQuery(const std::string &query) {
     return;
   }
 
-  try {
-    // if it succeeded, we transform the Postgres parse tree into a list of
-    // SQLStatements
-    statements_ = TransformParseTree(parser.parse_tree);
-  } catch (Exception &ex) {
-    LOG_ERROR("Experienced an error when transforming the Postgres parse tree into BusTub statements.");
-  }
+  statements_ = TransformParseTree(catalog, parser.parse_tree);
 
   if (!statements_.empty()) {
     auto &last_statement = statements_.back();
@@ -71,10 +65,10 @@ void Parser::ParseQuery(const std::string &query) {
   }
 }
 
-auto Parser::IsKeyword(const std::string &text) -> bool { return PostgresParser::IsKeyword(text); }
+auto Binder::IsKeyword(const std::string &text) -> bool { return duckdb::PostgresParser::IsKeyword(text); }
 
-auto Parser::KeywordList() -> std::vector<ParserKeyword> {
-  auto keywords = PostgresParser::KeywordList();
+auto Binder::KeywordList() -> std::vector<ParserKeyword> {
+  auto keywords = duckdb::PostgresParser::KeywordList();
   std::vector<ParserKeyword> result;
   for (auto &kw : keywords) {
     ParserKeyword res;
@@ -100,8 +94,8 @@ auto Parser::KeywordList() -> std::vector<ParserKeyword> {
   return result;
 }
 
-auto Parser::Tokenize(const std::string &query) -> std::vector<SimplifiedToken> {
-  auto pg_tokens = PostgresParser::Tokenize(query);
+auto Binder::Tokenize(const std::string &query) -> std::vector<SimplifiedToken> {
+  auto pg_tokens = duckdb::PostgresParser::Tokenize(query);
   std::vector<SimplifiedToken> result;
   result.reserve(pg_tokens.size());
   for (auto &pg_token : pg_tokens) {
