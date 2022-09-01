@@ -57,7 +57,15 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
       return {result};
     }
     if (sql == "\\help") {
-      return {"help!\n"};
+      return {"Welcome to the BusTub shell!\n",
+              "",
+              "\\dt: show all tables",
+              "\\help: show this message again",
+              "",
+              "BusTub shell currently only supports a small set of Postgres queries.",
+              "We'll set up a doc describing the current status later.",
+              "It will siliently ignore some parts of the query, so it's normal that",
+              "you'll get a wrong result when typing some unsupported SQLs."};
     }
     throw Exception(fmt::format("unsupported internal command: {}", sql));
   }
@@ -85,13 +93,23 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
 
     // Return the result set as a vector of string.
     auto schema = planner.plan_->OutputSchema();
+
+    // Generate header for the result set.
+    std::string header;
+    for (const auto &column : schema->GetColumns()) {
+      header += column.GetName();
+      header += "\t";
+    }
+    result.emplace_back(move(header));
+
+    // Transforming result set into strings.
     for (const auto &tuple : result_set) {
       std::string row;
       for (uint32_t i = 0; i < schema->GetColumnCount(); i++) {
         row += tuple.GetValue(schema, i).ToString();
-        row += " ";
+        row += "\t";
       }
-      result.push_back(row);
+      result.emplace_back(move(row));
     }
   }
   return result;
