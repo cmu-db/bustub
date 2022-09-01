@@ -11,6 +11,8 @@ auto BustubInstance::MakeExecutorContext(Transaction *txn) -> std::unique_ptr<Ex
 }
 
 BustubInstance::BustubInstance(const std::string &db_file_name) {
+  // TODO(chi): revisit this when designing the recovery project.
+
   enable_logging = false;
 
   // Storage related.

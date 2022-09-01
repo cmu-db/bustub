@@ -84,7 +84,7 @@ void SelectStatement::BindSelectList(duckdb_libpgquery::PGList *list) {
 
     auto expr = BindExpression(target);
 
-    // Process `select *`.
+    // Process `SELECT *`.
     if (expr->type_ == ExpressionType::STAR) {
       if (select_list_.empty()) {
         switch (table_->type_) {
@@ -142,11 +142,11 @@ auto SelectStatement::BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> std
         column_names.emplace_back(reinterpret_cast<duckdb_libpgquery::PGValue *>(node->data.ptr_value)->val.str);
       }
       if (column_names.size() == 1) {
-        // select col
+        // Bind `SELECT col`.
         return ResolveColumn(column_names[0]);
       }
       if (column_names.size() == 2) {
-        // select table.col
+        // Bind `SELECT table.col`.
         return ResolveColumnWithTable(column_names[0], column_names[1]);
       }
       throw Exception(fmt::format("unsupported ColumnRef: zero or multiple elements found"));
@@ -189,13 +189,12 @@ auto SelectStatement::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::
 
   if (function_name == "min" || function_name == "max" || function_name == "first" || function_name == "last" ||
       function_name == "sum" || function_name == "count") {
-    // bind function as agg call
-
-    // rewrite count(*) to count_star()
+    // Rewrite count(*) to count_star().
     if (function_name == "count" && children.empty()) {
       function_name = "count_star";
     }
 
+    // Bind function as agg call.
     return std::make_unique<BoundAggCall>(function_name, move(children));
   }
   throw Exception(fmt::format("unsupported func call {}", function_name));
