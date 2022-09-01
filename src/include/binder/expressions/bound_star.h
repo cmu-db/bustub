@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cassert>
 #include <string>
 #include <utility>
 #include "binder/bound_expression.h"

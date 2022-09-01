@@ -16,6 +16,13 @@
 
 namespace bustub {
 
+/**
+ * @brief Bind a query using the schema below:
+ *
+ * * `CREATE TABLE y (x INT, z INT, a INT, b INT, c INT)`
+ * * `CREATE TABLE a (x INT, y INT)`
+ * * `CREATE TABLE b (x INT, y INT)`
+ */
 auto TryBind(const std::string &query) {
   bustub::Binder binder;
   bustub::Catalog catalog(nullptr, nullptr, nullptr);
@@ -78,11 +85,13 @@ TEST(BinderTest, BindAgg) {
   PrintStatements(statements);
 }
 
+// TODO(chi): join is not supported yet
 TEST(BinderTest, DISABLED_BindCrossJoin) {
   auto statements = TryBind("select * from a, b where a.x = b.y");
   PrintStatements(statements);
 }
 
+// TODO(chi): join is not supported yet
 TEST(BinderTest, DISABLED_BindJoin) {
   auto statements = TryBind("select * from a INNER JOIN b ON a.x = b.y");
   PrintStatements(statements);
@@ -110,11 +119,13 @@ TEST(BinderTest, FailBindUnknownColumn) {
   EXPECT_THROW(TryBind("select zzzz"), Exception);
 }
 
+// TODO(chi): create / drop table is not supported yet
 TEST(BinderTest, DISABLED_BindCreateDropTable) {
   TryBind("CREATE TABLE tablex (v1 int)");
   TryBind("DROP TABLE tablex");
 }
 
+// TODO(chi): insert is not supported yet
 TEST(BinderTest, DISABLED_BindInsert) {
   TryBind("INSERT INTO y VALUES (1,2,3,4,5), (6,7,8,9,10)");
   TryBind("INSERT INTO y SELECT * FROM y WHERE x < 500");
@@ -140,8 +151,10 @@ TEST(BinderTest, BindBinaryOp) {
   PrintStatements(statements);
 }
 
+// TODO(chi): update is not supported yet
 TEST(BinderTest, DISABLED_BindUpdate) { TryBind("UPDATE y SET z = z + 1;"); }
 
+// TODO(chi): delete is not supported yet
 TEST(BinderTest, DISABLED_BindDelete) { TryBind("DELETE FROM y WHERE z = 1"); }
 
 }  // namespace bustub

@@ -6,7 +6,7 @@ add_library(
   binder.cpp
   fmt_impl.cpp
   keyword_helper.cpp
-  nodetype_to_string.cpp
+  node_tag_to_string.cpp
   sql_statement.cpp
   transformer.cpp
   )

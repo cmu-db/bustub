@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cassert>
 #include <memory>
 #include <string>
 
@@ -9,7 +8,7 @@
 namespace bustub {
 
 /**
- * Table reference types
+ * Table reference types.
  */
 enum class TableReferenceType : uint8_t {
   INVALID = 0,       /**< Invalid table reference type. */

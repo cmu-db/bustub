@@ -5,14 +5,12 @@
 #include "common/util/string_util.h"
 
 auto main() -> int {
-  using bustub::BustubInstance;
-  using bustub::Exception;
 
   // TODO(chi): add Bustub class with a `execute_sql` interface, instead of setting up everything here.
 
   std::string query;
 
-  auto bustub = std::make_unique<BustubInstance>("test.db");
+  auto bustub = std::make_unique<bustub::BustubInstance>("test.db");
 
   std::cout << "Note: This shell will be able to enter interactive mode only after you have completed the buffer pool manager. It will be able to execute SQL queries after you have implemented necessary query executors." << std::endl << std::endl;
 
@@ -36,7 +34,7 @@ auto main() -> int {
       for (const auto &line : result) {
         std::cout << line << std::endl;
       }
-    } catch (Exception &ex) {
+    } catch (bustub::Exception &ex) {
       std::cerr << ex.what() << std::endl;
     }
   }

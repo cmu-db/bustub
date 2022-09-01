@@ -46,7 +46,6 @@ namespace bustub {
 #define INVALID_SCHEMA ""
 
 // size of extendible hash bucket
-// inline std directives that we use frequently
 
 using frame_id_t = int32_t;    // frame id type
 using page_id_t = int32_t;     // page id type

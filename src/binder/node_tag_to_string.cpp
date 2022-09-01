@@ -24,7 +24,7 @@
 
 namespace bustub {
 
-auto Binder::NodetypeToString(duckdb_libpgquery::PGNodeTag type) -> std::string {
+auto Binder::NodeTagToString(duckdb_libpgquery::PGNodeTag type) -> std::string {
   switch (type) {
     case duckdb_libpgquery::T_PGInvalid:
       return "T_Invalid";

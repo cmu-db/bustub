@@ -31,7 +31,7 @@ class BustubInstance {
   /**
    * Get the executor context from the BusTub instance.
    */
-  auto GetExecutorContext(Transaction *txn) -> std::unique_ptr<ExecutorContext>;
+  auto MakeExecutorContext(Transaction *txn) -> std::unique_ptr<ExecutorContext>;
 
  public:
   explicit BustubInstance(const std::string &db_file_name);

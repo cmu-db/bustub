@@ -86,7 +86,7 @@ class Binder {
       -> std::unique_ptr<SQLStatement>;
 
   /** Get the std::string representation of a Postgres node tag. */
-  static auto NodetypeToString(duckdb_libpgquery::PGNodeTag type) -> std::string;
+  static auto NodeTagToString(duckdb_libpgquery::PGNodeTag type) -> std::string;
 };
 
 }  // namespace bustub

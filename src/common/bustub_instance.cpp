@@ -6,7 +6,7 @@
 
 namespace bustub {
 
-auto BustubInstance::GetExecutorContext(Transaction *txn) -> std::unique_ptr<ExecutorContext> {
+auto BustubInstance::MakeExecutorContext(Transaction *txn) -> std::unique_ptr<ExecutorContext> {
   return std::make_unique<ExecutorContext>(txn, catalog_, buffer_pool_manager_, transaction_manager_, lock_manager_);
 }
 
@@ -58,7 +58,7 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
 
 void BustubInstance::GenerateTestTable() {
   auto txn = transaction_manager_->Begin();
-  auto exec_ctx = GetExecutorContext(txn);
+  auto exec_ctx = MakeExecutorContext(txn);
   TableGenerator gen{exec_ctx.get()};
   gen.GenerateTestTables();
   delete txn;

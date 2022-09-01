@@ -68,7 +68,7 @@ auto Binder::TransformStatement(const Catalog &catalog, duckdb_libpgquery::PGNod
     case duckdb_libpgquery::T_PGIndexStmt:
     case duckdb_libpgquery::T_PGUpdateStmt:
     default:
-      throw NotImplementedException(NodetypeToString(stmt->type));
+      throw NotImplementedException(NodeTagToString(stmt->type));
   }
 }
 
