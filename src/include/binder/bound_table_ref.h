@@ -35,7 +35,7 @@ class BoundTableRef {
         return "<empty>";
       default:
         // For other types of table reference, `ToString` should be derived in child classes.
-        assert(false && "entered unreachable code");
+        BUSTUB_ASSERT(false, "entered unreachable code");
     }
   }
 

@@ -84,7 +84,7 @@ std::unique_ptr<AbstractPlanNode> Planner::PlanSelect(const SelectStatement &sta
       int term_idx = 0;
       for (const auto &item : statement.select_list_) {
         const auto &agg_call = dynamic_cast<const BoundAggCall &>(*item);
-        assert(agg_call.args_.size() == 1);
+        BUSTUB_ASSERT(agg_call.args_.size() == 1, "only agg call of one arg is supported for now");
         auto abstract_expr = SaveExpression(PlanExpression(*agg_call.args_[0], *plan));
         input_exprs.push_back(abstract_expr);
         if (agg_call.func_name_ == "min") {
@@ -134,7 +134,7 @@ std::unique_ptr<AbstractPlanNode> Planner::PlanTableRef(const BoundTableRef &tab
 
       const auto &base_table_ref = dynamic_cast<const BoundBaseTableRef &>(table_ref);
       auto table = catalog_.GetTable(base_table_ref.table_);
-      assert(table);
+      BUSTUB_ASSERT(table, "table not found");
       const auto &schema = table->schema_;
       std::vector<std::pair<std::string, const AbstractExpression *>> output_schema;
 
