@@ -10,15 +10,15 @@ namespace bustub {
  * All types of expressions in binder.
  */
 enum class ExpressionType : uint8_t {
-  INVALID = 0,     // invalid expression type
-  CONSTANT = 1,    // constant expression type
-  COLUMN_REF = 3,  // a column in a table
-  TYPE_CAST = 4,   // type cast expression type
-  FUNCTION = 5,    // function expression type
-  AGG_CALL = 6,    // aggregation function expression type
-  STAR = 7,        // star expression type, will be rewritten by binder and won't appear in plan
-  UNARY_OP = 8,    // unary expression type
-  BINARY_OP = 9    // binary expression type
+  INVALID = 0,     /**< Invalid expression type. */
+  CONSTANT = 1,    /**< Constant expression type. */
+  COLUMN_REF = 3,  /**< A column in a table. */
+  TYPE_CAST = 4,   /**< Type cast expression type. */
+  FUNCTION = 5,    /**< Function expression type. */
+  AGG_CALL = 6,    /**< Aggregation function expression type. */
+  STAR = 7,        /**< Star expression type, will be rewritten by binder and won't appear in plan. */
+  UNARY_OP = 8,    /**< Unary expression type. */
+  BINARY_OP = 9    /**< Binary expression type. */
 };
 
 /**
@@ -32,7 +32,7 @@ class BoundExpression {
 
   virtual auto ToString() const -> std::string { return "<invalid>"; };
 
-  /** The type of expression */
+  /** The type of this expression. */
   ExpressionType type_{ExpressionType::INVALID};
 };
 

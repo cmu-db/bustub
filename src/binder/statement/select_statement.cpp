@@ -18,7 +18,7 @@ SelectStatement::SelectStatement(const Catalog &catalog, duckdb_libpgquery::PGSe
       where_(make_unique<BoundExpression>()),
       having_(make_unique<BoundExpression>()),
       catalog_(catalog) {
-  // bind from clause
+  // Bind FROM clause.
   if (pg_stmt->fromClause != nullptr) {
     // Extract the table name from the FROM clause.
     for (auto c = pg_stmt->fromClause->head; c != nullptr; c = lnext(c)) {
@@ -37,7 +37,7 @@ SelectStatement::SelectStatement(const Catalog &catalog, duckdb_libpgquery::PGSe
     table_ = make_unique<BoundTableRef>(TableReferenceType::EMPTY);
   }
 
-  // bind select list
+  // Bind SELECT list.
   if (pg_stmt->targetList != nullptr) {
     BindSelectList(pg_stmt->targetList);
   } else {
@@ -79,7 +79,7 @@ void SelectStatement::BindSelectList(duckdb_libpgquery::PGList *list) {
 
     auto expr = BindExpression(target);
 
-    // Process `select *`
+    // Process `select *`.
     if (expr->type_ == ExpressionType::STAR) {
       if (select_list_.empty()) {
         switch (table_->type_) {

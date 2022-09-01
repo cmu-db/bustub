@@ -50,22 +50,21 @@ class SelectStatement : public SQLStatement {
 
   auto ResolveColumnWithTable(const string &table_name, const string &col_name) -> unique_ptr<BoundExpression>;
 
-  /** bound FROM clause */
+  /** Bound FROM clause. */
   unique_ptr<BoundTableRef> table_;
 
-  /** bound select list */
+  /** Bound SELECT list. */
   vector<unique_ptr<BoundExpression>> select_list_;
 
-  /** bound WHERE clause */
+  /** Bound WHERE clause. */
   unique_ptr<BoundExpression> where_;
 
-  /** bound GROUP BY clause */
+  /** Bound GROUP BY clause. */
   vector<unique_ptr<BoundExpression>> group_by_;
 
-  /** bound HAVING clause */
+  /** Bound HAVING clause. */
   unique_ptr<BoundExpression> having_;
 
-  /** convert the bound statement to string */
   auto ToString() const -> string override;
 
  private:

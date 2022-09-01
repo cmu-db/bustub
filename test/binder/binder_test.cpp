@@ -2,7 +2,7 @@
 //
 //                         BusTub
 //
-// clock_replacer_test.cpp
+// binder_test.cpp
 //
 // Identification: test/binder/binder_test.cpp
 //

@@ -11,15 +11,15 @@ namespace bustub {
  * Table reference types
  */
 enum class TableReferenceType : uint8_t {
-  INVALID = 0,        // invalid table reference type
-  BASE_TABLE = 1,     // base table reference
-  JOIN = 3,           // output of join
-  CROSS_PRODUCT = 4,  // out of cartesian product
-  EMPTY = 8           // placeholder for empty FROM
+  INVALID = 0,        /**< Invalid table reference type. */
+  BASE_TABLE = 1,     /**< Base table reference. */
+  JOIN = 3,           /**< Output of join. */
+  CROSS_PRODUCT = 4,  /**< Output of cartesian product. */
+  EMPTY = 8           /**< Placeholder for empty FROM. */
 };
 
 /**
- * A bound table ref.
+ * A bound table reference.
  */
 class BoundTableRef {
  public:
@@ -34,12 +34,12 @@ class BoundTableRef {
       case TableReferenceType::EMPTY:
         return "<empty>";
       default:
-        // for other types of table reference, `ToString` should be derived in child classes.
+        // For other types of table reference, `ToString` should be derived in child classes.
         assert(false && "entered unreachable code");
     }
   }
 
-  // The type of table reference
+  /** The type of table reference. */
   TableReferenceType type_{TableReferenceType::INVALID};
 };
 

@@ -29,9 +29,9 @@ namespace bustub {
 class BustubInstance {
  private:
   /**
-   * Get the execution context from the BusTub instance.
+   * Get the executor context from the BusTub instance.
    */
-  auto GetExecutionContext(Transaction *txn) -> std::unique_ptr<ExecutorContext>;
+  auto GetExecutorContext(Transaction *txn) -> std::unique_ptr<ExecutorContext>;
 
  public:
   explicit BustubInstance(const std::string &db_file_name);
@@ -45,6 +45,7 @@ class BustubInstance {
 
   /**
    * FOR TEST ONLY. Generate test tables in this BusTub instance.
+   * We would normally make it `private` and `friend` the tests.
    */
   void GenerateTestTable();
 

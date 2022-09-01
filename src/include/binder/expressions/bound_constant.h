@@ -4,13 +4,12 @@
 #include <cassert>
 #include <string>
 #include <utility>
-#include "../bound_expression.h"
-#include "type/limits.h"
+#include "binder/bound_expression.h"
 
 namespace bustub {
 
 /**
- * A bound constant, e.g. `1`.
+ * A bound constant, e.g., `1`.
  */
 class BoundConstant : public BoundExpression {
  public:
@@ -18,6 +17,7 @@ class BoundConstant : public BoundExpression {
 
   auto ToString() const -> std::string override { return val_.ToString(); }
 
+  /** The constant being bound. */
   Value val_;
 };
 }  // namespace bustub

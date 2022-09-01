@@ -39,7 +39,6 @@
 #include "binder/simplified_token.h"
 #include "binder/sql_statement.h"
 #include "binder/tokens.h"
-#include "catalog/catalog.h"
 #include "catalog/column.h"
 #include "nodes/parsenodes.hpp"
 #include "pg_definitions.hpp"
@@ -66,27 +65,27 @@ class Binder {
   vector<unique_ptr<SQLStatement>> statements_;
 
   /** Attempts to parse a query into a series of SQL statements. The parsed statements
-   * will be stored in the statements variable.
+   * will be stored in the `statements_` variable.
    */
   void ParseAndBindQuery(const string &query, const Catalog &catalog);
 
-  /** Returns true if the given text matches a keyword of the parser */
+  /** Return true if the given text matches a keyword of the parser. */
   static auto IsKeyword(const string &text) -> bool;
 
-  /** Returns a list of all keywords in the parser */
+  /** Return a list of all keywords in the parser. */
   static auto KeywordList() -> vector<ParserKeyword>;
 
-  /** Tokenize a query, returning the raw tokens together with their locations */
+  /** Tokenize a query, returning the raw tokens together with their locations. */
   static auto Tokenize(const string &query) -> vector<SimplifiedToken>;
 
-  /** Transforms a Postgres parse tree into a set of SQL Statements */
+  /** Transform a Postgres parse tree into a vector of SQL Statements. */
   auto TransformParseTree(const Catalog &catalog, duckdb_libpgquery::PGList *tree) const
       -> std::vector<std::unique_ptr<SQLStatement>>;
 
-  /** Transforms a Postgres statement into a single SQL statement */
+  /** Transform a Postgres statement into a single SQL statement. */
   auto TransformStatement(const Catalog &catalog, duckdb_libpgquery::PGNode *stmt) const -> unique_ptr<SQLStatement>;
 
-  /** Get the string of a Postgres node type */
+  /** Get the string representation of a Postgres node tag. */
   static auto NodetypeToString(duckdb_libpgquery::PGNodeTag type) -> string;
 };
 

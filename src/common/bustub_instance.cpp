@@ -13,7 +13,7 @@ auto BustubInstance::GetExecutionContext(Transaction *txn) -> std::unique_ptr<Ex
 BustubInstance::BustubInstance(const std::string &db_file_name) {
   enable_logging = false;
 
-  // storage related
+  // Storage related.
   disk_manager_ = new DiskManager(db_file_name);
 
   // log related
@@ -21,20 +21,20 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
 
   buffer_pool_manager_ = new BufferPoolManagerInstance(BUFFER_POOL_SIZE, disk_manager_, log_manager_);
 
-  // txn related
+  // Transaction (txn) related.
   lock_manager_ = new LockManager();
   transaction_manager_ = new TransactionManager(lock_manager_, log_manager_);
 
-  // checkpoints
+  // Checkpoint related.
   checkpoint_manager_ = new CheckpointManager(transaction_manager_, log_manager_, buffer_pool_manager_);
 
-  // catalog
+  // Catalog.
   catalog_ = new Catalog(buffer_pool_manager_, nullptr, nullptr);
 }
 
 auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::string> {
   if (!sql.empty() && sql[0] == '\\') {
-    // internal commands
+    // Internal meta-commands, like in `psql`.
     if (sql == "\\dt") {
       std::string result;
       auto table_names = catalog_->GetTableNames();

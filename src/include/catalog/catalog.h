@@ -128,6 +128,7 @@ class Catalog {
 
     // Construct the table heap
     std::unique_ptr<TableHeap> table = nullptr;
+    // TODO(Wan): This should be refactored into a private ctor for the binder tests, we shouldn't allow nullptr.
     // When txn == nullptr, it means that we're running binder tests (where no txn will be provided). We don't need
     // to create TableHeap in this case.
     if (txn != nullptr) {

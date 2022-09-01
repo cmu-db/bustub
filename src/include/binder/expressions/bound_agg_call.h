@@ -6,13 +6,12 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "../bound_expression.h"
-#include "type/limits.h"
+#include "binder/bound_expression.h"
 
 namespace bustub {
 
 /**
- * A bound agg call. e.g. `sum(x)`.
+ * A bound aggregate call, e.g., `sum(x)`.
  */
 class BoundAggCall : public BoundExpression {
  public:
@@ -21,10 +20,10 @@ class BoundAggCall : public BoundExpression {
 
   auto ToString() const -> std::string override { return fmt::format("{}({})", func_name_, fmt::join(args_, ", ")); }
 
-  // Function name
+  /** Function name. */
   std::string func_name_;
 
-  // Arguments of the agg call
+  /** Arguments of the agg call. */
   vector<unique_ptr<BoundExpression>> args_;
 };
 }  // namespace bustub

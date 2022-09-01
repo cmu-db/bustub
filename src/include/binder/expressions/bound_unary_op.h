@@ -6,13 +6,12 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "../bound_expression.h"
-#include "type/limits.h"
+#include "binder/bound_expression.h"
 
 namespace bustub {
 
 /**
- * A bound unary op, e.g. `-x`.
+ * A bound unary operation, e.g., `-x`.
  */
 class BoundUnaryOp : public BoundExpression {
  public:
@@ -21,10 +20,10 @@ class BoundUnaryOp : public BoundExpression {
 
   auto ToString() const -> std::string override { return fmt::format("({}{})", op_name_, arg_); }
 
-  // Operator name
+  /** Operator name. */
   std::string op_name_;
 
-  // Argument of the op
+  /** Argument of the op. */
   unique_ptr<BoundExpression> arg_;
 };
 }  // namespace bustub

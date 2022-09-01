@@ -4,13 +4,12 @@
 #include <cassert>
 #include <string>
 #include <utility>
-#include "../bound_expression.h"
-#include "type/limits.h"
+#include "binder/bound_expression.h"
 
 namespace bustub {
 
 /**
- * The star in select list, e.g. `SELECT * FROM x`.
+ * The star in SELECT list, e.g. `SELECT * FROM x`.
  */
 class BoundStar : public BoundExpression {
  public:
