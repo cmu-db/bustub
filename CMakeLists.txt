@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)   # For clang-tidy.
-set(BUILD_SHARED_LIBS OFF)
+set(BUILD_SHARED_LIBS OFF)              # We expect external libraries to be linked statically.
 set(CMAKE_CXX_STANDARD 17)              # Compile as C++17.
 set(CMAKE_CXX_STANDARD_REQUIRED ON)     # Require C++17 support.
 
@@ -174,7 +174,7 @@ add_custom_target(check-lint echo '${BUSTUB_LINT_FILES}' | xargs -n12 -P8
         ${CPPLINT_BIN}
         --verbose=2 --quiet
         --linelength=120
-        --filter=-legal/copyright,-build/header_guard,-runtime/references
+        --filter=-legal/copyright,-build/header_guard,-runtime/references # https://github.com/cpplint/cpplint/issues/148
         )
 
 ###########################################################

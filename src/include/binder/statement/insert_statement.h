@@ -18,11 +18,11 @@ class InsertStatement : public SQLStatement {
  public:
   explicit InsertStatement(duckdb_libpgquery::PGInsertStmt *pg_stmt);
 
-  string table_;
-  vector<Column> columns_;
-  vector<vector<Value>> values_;
+  std::string table_;
+  std::vector<Column> columns_;
+  std::vector<std::vector<Value>> values_;
 
-  auto ToString() const -> string override;
+  auto ToString() const -> std::string override;
 };
 
 }  // namespace bustub

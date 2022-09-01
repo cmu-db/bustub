@@ -10,12 +10,25 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "binder/sql_statement.h"
 
-#include "binder/binder.h"
-#include "binder/bound_expression.h"
-#include "binder/bound_table_ref.h"
+namespace duckdb_libpgquery {
+  struct PGList;
+  struct PGSelectStmt;
+  struct PGAConst;
+  struct PGAStar;
+  struct PGFuncCall;
+  struct PGNode;
+  struct PGColumnRef;
+  struct PGResTarget;
+  struct PGAExpr;
+}
 
 namespace bustub {
+
+class Catalog;
+class BoundTableRef;
+class BoundExpression;
 
 class SelectStatement : public SQLStatement {
  public:
@@ -32,40 +45,40 @@ class SelectStatement : public SQLStatement {
 
   void BindHaving(duckdb_libpgquery::PGNode *root);
 
-  auto BindExpression(duckdb_libpgquery::PGNode *node) -> unique_ptr<BoundExpression>;
+  auto BindExpression(duckdb_libpgquery::PGNode *node) -> std::unique_ptr<BoundExpression>;
 
-  auto BindConstant(duckdb_libpgquery::PGAConst *node) -> unique_ptr<BoundExpression>;
+  auto BindConstant(duckdb_libpgquery::PGAConst *node) -> std::unique_ptr<BoundExpression>;
 
-  auto BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> unique_ptr<BoundExpression>;
+  auto BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> std::unique_ptr<BoundExpression>;
 
-  auto BindResTarget(duckdb_libpgquery::PGResTarget *root) -> unique_ptr<BoundExpression>;
+  auto BindResTarget(duckdb_libpgquery::PGResTarget *root) -> std::unique_ptr<BoundExpression>;
 
-  auto BindStar(duckdb_libpgquery::PGAStar *node) -> unique_ptr<BoundExpression>;
+  auto BindStar(duckdb_libpgquery::PGAStar *node) -> std::unique_ptr<BoundExpression>;
 
-  auto BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> unique_ptr<BoundExpression>;
+  auto BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_ptr<BoundExpression>;
 
-  auto BindAExpr(duckdb_libpgquery::PGAExpr *root) -> unique_ptr<BoundExpression>;
+  auto BindAExpr(duckdb_libpgquery::PGAExpr *root) -> std::unique_ptr<BoundExpression>;
 
-  auto ResolveColumn(const string &col_name) -> unique_ptr<BoundExpression>;
+  auto ResolveColumn(const std::string &col_name) -> std::unique_ptr<BoundExpression>;
 
-  auto ResolveColumnWithTable(const string &table_name, const string &col_name) -> unique_ptr<BoundExpression>;
+  auto ResolveColumnWithTable(const std::string &table_name, const std::string &col_name) -> std::unique_ptr<BoundExpression>;
 
   /** Bound FROM clause. */
-  unique_ptr<BoundTableRef> table_;
+  std::unique_ptr<BoundTableRef> table_;
 
   /** Bound SELECT list. */
-  vector<unique_ptr<BoundExpression>> select_list_;
+  std::vector<std::unique_ptr<BoundExpression>> select_list_;
 
   /** Bound WHERE clause. */
-  unique_ptr<BoundExpression> where_;
+  std::unique_ptr<BoundExpression> where_;
 
   /** Bound GROUP BY clause. */
-  vector<unique_ptr<BoundExpression>> group_by_;
+  std::vector<std::unique_ptr<BoundExpression>> group_by_;
 
   /** Bound HAVING clause. */
-  unique_ptr<BoundExpression> having_;
+  std::unique_ptr<BoundExpression> having_;
 
-  auto ToString() const -> string override;
+  auto ToString() const -> std::string override;
 
  private:
   /** Catalog will be used during the binding process. SHOULD ONLY BE USED IN

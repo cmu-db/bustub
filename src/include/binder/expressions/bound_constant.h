@@ -4,9 +4,12 @@
 #include <cassert>
 #include <string>
 #include <utility>
-#include "binder/bound_expression.h"
+
+#include "type/value.h"
 
 namespace bustub {
+
+class BoundExpression;
 
 /**
  * A bound constant, e.g., `1`.

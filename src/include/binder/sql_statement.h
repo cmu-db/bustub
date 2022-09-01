@@ -35,7 +35,7 @@ class SQLStatement {
 
  public:
   /** Render this statement as a string. */
-  virtual auto ToString() const -> string { throw Exception("ToString not supported for this type of SQLStatement"); }
+  virtual auto ToString() const -> std::string { throw Exception("ToString not supported for this type of SQLStatement"); }
 };
 
 }  // namespace bustub

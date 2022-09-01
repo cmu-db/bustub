@@ -15,11 +15,11 @@ namespace bustub {
  */
 class BoundBinaryOp : public BoundExpression {
  public:
-  explicit BoundBinaryOp(string op_name, unique_ptr<BoundExpression> larg, unique_ptr<BoundExpression> rarg)
+  explicit BoundBinaryOp(std::string op_name, std::unique_ptr<BoundExpression> larg, std::unique_ptr<BoundExpression> rarg)
       : BoundExpression(ExpressionType::BINARY_OP),
         op_name_(std::move(op_name)),
-        larg_(move(larg)),
-        rarg_(move(rarg)) {}
+        larg_(std::move(larg)),
+        rarg_(std::move(rarg)) {}
 
   auto ToString() const -> std::string override { return fmt::format("({}{}{})", larg_, op_name_, rarg_); }
 
@@ -27,9 +27,9 @@ class BoundBinaryOp : public BoundExpression {
   std::string op_name_;
 
   /** Left argument of the op. */
-  unique_ptr<BoundExpression> larg_;
+  std::unique_ptr<BoundExpression> larg_;
 
   /** Right argument of the op. */
-  unique_ptr<BoundExpression> rarg_;
+  std::unique_ptr<BoundExpression> rarg_;
 };
 }  // namespace bustub

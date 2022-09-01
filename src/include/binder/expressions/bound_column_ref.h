@@ -13,15 +13,15 @@ namespace bustub {
  */
 class BoundColumnRef : public BoundExpression {
  public:
-  explicit BoundColumnRef(string table, string col)
+  explicit BoundColumnRef(std::string table, std::string col)
       : BoundExpression(ExpressionType::COLUMN_REF), table_(std::move(table)), col_(std::move(col)) {}
 
   auto ToString() const -> std::string override { return fmt::format("{}.{}", table_, col_); }
 
   /** Name of the table. */
-  string table_;
+  std::string table_;
 
   /** The position of the column in the schema. */
-  string col_;
+  std::string col_;
 };
 }  // namespace bustub

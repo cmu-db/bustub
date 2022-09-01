@@ -15,8 +15,8 @@ namespace bustub {
  */
 class BoundUnaryOp : public BoundExpression {
  public:
-  explicit BoundUnaryOp(string op_name, unique_ptr<BoundExpression> arg)
-      : BoundExpression(ExpressionType::UNARY_OP), op_name_(std::move(op_name)), arg_(move(arg)) {}
+  explicit BoundUnaryOp(std::string op_name, std::unique_ptr<BoundExpression> arg)
+      : BoundExpression(ExpressionType::UNARY_OP), op_name_(std::move(op_name)), arg_(std::move(arg)) {}
 
   auto ToString() const -> std::string override { return fmt::format("({}{})", op_name_, arg_); }
 
@@ -24,6 +24,6 @@ class BoundUnaryOp : public BoundExpression {
   std::string op_name_;
 
   /** Argument of the op. */
-  unique_ptr<BoundExpression> arg_;
+  std::unique_ptr<BoundExpression> arg_;
 };
 }  // namespace bustub

@@ -1,3 +1,4 @@
+#include "binder/sql_statement.h"
 #include "binder/statement/select_statement.h"
 #include <fmt/format.h>
 #include "binder/expressions/bound_agg_call.h"
@@ -6,6 +7,7 @@
 #include "binder/expressions/bound_constant.h"
 #include "binder/expressions/bound_star.h"
 #include "binder/expressions/bound_unary_op.h"
+#include "binder/binder.h"
 #include "binder/table_ref/bound_base_table_ref.h"
 #include "catalog/catalog.h"
 #include "common/util/string_util.h"
@@ -14,9 +16,9 @@ namespace bustub {
 
 SelectStatement::SelectStatement(const Catalog &catalog, duckdb_libpgquery::PGSelectStmt *pg_stmt)
     : SQLStatement(StatementType::SELECT_STATEMENT),
-      table_(make_unique<BoundTableRef>()),
-      where_(make_unique<BoundExpression>()),
-      having_(make_unique<BoundExpression>()),
+      table_(std::make_unique<BoundTableRef>()),
+      where_(std::make_unique<BoundExpression>()),
+      having_(std::make_unique<BoundExpression>()),
       catalog_(catalog) {
   // Bind FROM clause.
   if (pg_stmt->fromClause != nullptr) {
@@ -26,7 +28,7 @@ SelectStatement::SelectStatement(const Catalog &catalog, duckdb_libpgquery::PGSe
       switch (node->type) {
         case duckdb_libpgquery::T_PGRangeVar: {
           auto *table_ref = reinterpret_cast<duckdb_libpgquery::PGRangeVar *>(node);
-          table_ = make_unique<BoundBaseTableRef>(table_ref->relname);
+          table_ = std::make_unique<BoundBaseTableRef>(table_ref->relname);
           break;
         }
         default:
@@ -34,7 +36,7 @@ SelectStatement::SelectStatement(const Catalog &catalog, duckdb_libpgquery::PGSe
       }
     }
   } else {
-    table_ = make_unique<BoundTableRef>(TableReferenceType::EMPTY);
+    table_ = std::make_unique<BoundTableRef>(TableReferenceType::EMPTY);
   }
 
   // Bind SELECT list.
@@ -62,8 +64,8 @@ SelectStatement::SelectStatement(const Catalog &catalog, duckdb_libpgquery::PGSe
   // in project write-ups / READMEs.
 }
 
-auto SelectStatement::ToString() const -> string {
-  vector<string> columns;
+auto SelectStatement::ToString() const -> std::string {
+  std::vector<std::string> columns;
   for (const auto &expr : select_list_) {
     columns.push_back(fmt::format("{}", expr));
   }
@@ -72,7 +74,7 @@ auto SelectStatement::ToString() const -> string {
 }
 
 void SelectStatement::BindSelectList(duckdb_libpgquery::PGList *list) {
-  vector<unique_ptr<BoundExpression>> exprs;
+  std::vector<std::unique_ptr<BoundExpression>> exprs;
 
   for (auto node = list->head; node != nullptr; node = lnext(node)) {
     auto target = reinterpret_cast<duckdb_libpgquery::PGNode *>(node->data.ptr_value);
@@ -92,7 +94,7 @@ void SelectStatement::BindSelectList(duckdb_libpgquery::PGList *list) {
             }
 
             for (const auto &column : table_info->schema_.GetColumns()) {
-              select_list_.push_back(make_unique<BoundColumnRef>(table_name, column.GetName()));
+              select_list_.push_back(std::make_unique<BoundColumnRef>(table_name, column.GetName()));
             }
             return;
           }
@@ -108,7 +110,7 @@ void SelectStatement::BindSelectList(duckdb_libpgquery::PGList *list) {
   }
 }
 
-auto SelectStatement::BindConstant(duckdb_libpgquery::PGAConst *node) -> unique_ptr<BoundExpression> {
+auto SelectStatement::BindConstant(duckdb_libpgquery::PGAConst *node) -> std::unique_ptr<BoundExpression> {
   assert(node);
   auto bound_val = Value(TypeId::INTEGER);
   const auto &val = node->val;
@@ -120,10 +122,10 @@ auto SelectStatement::BindConstant(duckdb_libpgquery::PGAConst *node) -> unique_
     default:
       throw Exception(fmt::format("unsupported pg value: {}", Binder::NodetypeToString(val.type)));
   }
-  return make_unique<BoundConstant>(move(bound_val));
+  return std::make_unique<BoundConstant>(std::move(bound_val));
 }
 
-auto SelectStatement::BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> unique_ptr<BoundExpression> {
+auto SelectStatement::BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> std::unique_ptr<BoundExpression> {
   assert(node);
   auto fields = node->fields;
   auto head_node = static_cast<duckdb_libpgquery::PGNode *>(fields->head->data.ptr_value);
@@ -132,7 +134,7 @@ auto SelectStatement::BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> uni
       if (fields->length < 1) {
         throw Exception("Unexpected field length");
       }
-      vector<string> column_names;
+      std::vector<std::string> column_names;
       for (auto node = fields->head; node != nullptr; node = node->next) {
         column_names.emplace_back(reinterpret_cast<duckdb_libpgquery::PGValue *>(node->data.ptr_value)->val.str);
       }
@@ -154,7 +156,7 @@ auto SelectStatement::BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> uni
   }
 }
 
-auto SelectStatement::BindResTarget(duckdb_libpgquery::PGResTarget *root) -> unique_ptr<BoundExpression> {
+auto SelectStatement::BindResTarget(duckdb_libpgquery::PGResTarget *root) -> std::unique_ptr<BoundExpression> {
   assert(root);
   auto expr = BindExpression(root->val);
   if (!expr) {
@@ -163,18 +165,18 @@ auto SelectStatement::BindResTarget(duckdb_libpgquery::PGResTarget *root) -> uni
   return expr;
 }
 
-auto SelectStatement::BindStar(duckdb_libpgquery::PGAStar *node) -> unique_ptr<BoundExpression> {
+auto SelectStatement::BindStar(duckdb_libpgquery::PGAStar *node) -> std::unique_ptr<BoundExpression> {
   assert(node);
-  return make_unique<BoundStar>();
+  return std::make_unique<BoundStar>();
 }
 
-auto SelectStatement::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> unique_ptr<BoundExpression> {
+auto SelectStatement::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_ptr<BoundExpression> {
   assert(root);
   auto name = root->funcname;
   auto function_name =
       StringUtil::Lower(reinterpret_cast<duckdb_libpgquery::PGValue *>(name->head->data.ptr_value)->val.str);
 
-  vector<unique_ptr<BoundExpression>> children;
+  std::vector<std::unique_ptr<BoundExpression>> children;
   if (root->args != nullptr) {
     for (auto node = root->args->head; node != nullptr; node = node->next) {
       auto child_expr = BindExpression(static_cast<duckdb_libpgquery::PGNode *>(node->data.ptr_value));
@@ -191,12 +193,12 @@ auto SelectStatement::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> uniqu
       function_name = "count_star";
     }
 
-    return make_unique<BoundAggCall>(function_name, move(children));
+    return std::make_unique<BoundAggCall>(function_name, move(children));
   }
   throw Exception(fmt::format("unsupported func call {}", function_name));
 }
 
-auto SelectStatement::ResolveColumn(const string &col_name) -> unique_ptr<BoundExpression> {
+auto SelectStatement::ResolveColumn(const std::string &col_name) -> std::unique_ptr<BoundExpression> {
   switch (table_->type_) {
     case TableReferenceType::BASE_TABLE: {
       auto base_table_ref = dynamic_cast<BoundBaseTableRef *>(table_.get());
@@ -206,12 +208,12 @@ auto SelectStatement::ResolveColumn(const string &col_name) -> unique_ptr<BoundE
         throw Exception(fmt::format("invalid table {}", table_name));
       }
       bool found = false;
-      auto expr = make_unique<BoundExpression>();
+      auto expr = std::make_unique<BoundExpression>();
       for (const auto &column : table_info->schema_.GetColumns()) {
         auto name = column.GetName();
         if (name == col_name) {
           if (!found) {
-            expr = make_unique<BoundColumnRef>(table_name, name);
+            expr = std::make_unique<BoundColumnRef>(table_name, name);
             found = true;
           } else {
             throw Exception(fmt::format("column {} appears in multiple tables", col_name));
@@ -228,8 +230,8 @@ auto SelectStatement::ResolveColumn(const string &col_name) -> unique_ptr<BoundE
   }
 }
 
-auto SelectStatement::ResolveColumnWithTable(const string &table_name, const string &col_name)
-    -> unique_ptr<BoundExpression> {
+auto SelectStatement::ResolveColumnWithTable(const std::string &table_name, const std::string &col_name)
+    -> std::unique_ptr<BoundExpression> {
   switch (table_->type_) {
     case TableReferenceType::BASE_TABLE: {
       auto base_table_ref = dynamic_cast<BoundBaseTableRef *>(table_.get());
@@ -246,12 +248,12 @@ auto SelectStatement::ResolveColumnWithTable(const string &table_name, const str
     throw Exception(fmt::format("invalid table {}", table_name));
   }
   bool found = false;
-  auto expr = make_unique<BoundExpression>();
+  auto expr = std::make_unique<BoundExpression>();
   for (const auto &column : table_info->schema_.GetColumns()) {
     auto name = column.GetName();
     if (name == col_name) {
       if (!found) {
-        expr = make_unique<BoundColumnRef>(table_name, name);
+        expr = std::make_unique<BoundColumnRef>(table_name, name);
         found = true;
       } else {
         throw Exception(fmt::format("column {} appears in multiple tables", col_name));
@@ -275,16 +277,16 @@ void SelectStatement::BindGroupBy(duckdb_libpgquery::PGList *list) {
 
 void SelectStatement::BindHaving(duckdb_libpgquery::PGNode *root) { having_ = BindExpression(root); }
 
-auto SelectStatement::BindAExpr(duckdb_libpgquery::PGAExpr *root) -> unique_ptr<BoundExpression> {
+auto SelectStatement::BindAExpr(duckdb_libpgquery::PGAExpr *root) -> std::unique_ptr<BoundExpression> {
   assert(root);
-  auto name = string((reinterpret_cast<duckdb_libpgquery::PGValue *>(root->name->head->data.ptr_value))->val.str);
+  auto name = std::string((reinterpret_cast<duckdb_libpgquery::PGValue *>(root->name->head->data.ptr_value))->val.str);
 
   if (root->kind != duckdb_libpgquery::PG_AEXPR_OP) {
     throw Exception("unsupported op in AExpr");
   }
 
-  unique_ptr<BoundExpression> left_expr = nullptr;
-  unique_ptr<BoundExpression> right_expr = nullptr;
+  std::unique_ptr<BoundExpression> left_expr = nullptr;
+  std::unique_ptr<BoundExpression> right_expr = nullptr;
 
   if (root->lexpr != nullptr) {
     left_expr = BindExpression(root->lexpr);
@@ -294,15 +296,15 @@ auto SelectStatement::BindAExpr(duckdb_libpgquery::PGAExpr *root) -> unique_ptr<
   }
 
   if (left_expr && right_expr) {
-    return make_unique<BoundBinaryOp>(name, move(left_expr), move(right_expr));
+    return std::make_unique<BoundBinaryOp>(name, move(left_expr), move(right_expr));
   }
   if (!left_expr && right_expr) {
-    return make_unique<BoundUnaryOp>(name, move(right_expr));
+    return std::make_unique<BoundUnaryOp>(name, move(right_expr));
   }
   throw Exception("unsupported AExpr: left == null while right != null");
 }
 
-auto SelectStatement::BindExpression(duckdb_libpgquery::PGNode *node) -> unique_ptr<BoundExpression> {
+auto SelectStatement::BindExpression(duckdb_libpgquery::PGNode *node) -> std::unique_ptr<BoundExpression> {
   assert(node);
   switch (node->type) {
     case duckdb_libpgquery::T_PGColumnRef:

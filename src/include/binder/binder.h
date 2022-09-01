@@ -53,6 +53,8 @@ struct PGList;
 
 namespace bustub {
 
+class Catalog;
+
 /**
  * The binder is responsible for transforming the Postgres parse tree to a binder tree
  * which can be recognized unambiguously by the BusTub planner.
@@ -62,31 +64,31 @@ class Binder {
   Binder() = default;
 
   /** The parsed SQL statements from an invocation to ParseQuery. */
-  vector<unique_ptr<SQLStatement>> statements_;
+  std::vector<std::unique_ptr<SQLStatement>> statements_;
 
   /** Attempts to parse a query into a series of SQL statements. The parsed statements
    * will be stored in the `statements_` variable.
    */
-  void ParseAndBindQuery(const string &query, const Catalog &catalog);
+  void ParseAndBindQuery(const std::string &query, const Catalog &catalog);
 
   /** Return true if the given text matches a keyword of the parser. */
-  static auto IsKeyword(const string &text) -> bool;
+  static auto IsKeyword(const std::string &text) -> bool;
 
   /** Return a list of all keywords in the parser. */
-  static auto KeywordList() -> vector<ParserKeyword>;
+  static auto KeywordList() -> std::vector<ParserKeyword>;
 
   /** Tokenize a query, returning the raw tokens together with their locations. */
-  static auto Tokenize(const string &query) -> vector<SimplifiedToken>;
+  static auto Tokenize(const std::string &query) -> std::vector<SimplifiedToken>;
 
-  /** Transform a Postgres parse tree into a vector of SQL Statements. */
+  /** Transform a Postgres parse tree into a std::vector of SQL Statements. */
   auto TransformParseTree(const Catalog &catalog, duckdb_libpgquery::PGList *tree) const
       -> std::vector<std::unique_ptr<SQLStatement>>;
 
   /** Transform a Postgres statement into a single SQL statement. */
-  auto TransformStatement(const Catalog &catalog, duckdb_libpgquery::PGNode *stmt) const -> unique_ptr<SQLStatement>;
+  auto TransformStatement(const Catalog &catalog, duckdb_libpgquery::PGNode *stmt) const -> std::unique_ptr<SQLStatement>;
 
-  /** Get the string representation of a Postgres node tag. */
-  static auto NodetypeToString(duckdb_libpgquery::PGNodeTag type) -> string;
+  /** Get the std::string representation of a Postgres node tag. */
+  static auto NodetypeToString(duckdb_libpgquery::PGNodeTag type) -> std::string;
 };
 
 }  // namespace bustub

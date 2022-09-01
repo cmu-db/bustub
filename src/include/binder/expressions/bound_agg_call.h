@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+
 #include "binder/bound_expression.h"
 
 namespace bustub {
@@ -15,7 +16,7 @@ namespace bustub {
  */
 class BoundAggCall : public BoundExpression {
  public:
-  explicit BoundAggCall(string func_name, vector<unique_ptr<BoundExpression>> args)
+  explicit BoundAggCall(std::string func_name, std::vector<std::unique_ptr<BoundExpression>> args)
       : BoundExpression(ExpressionType::AGG_CALL), func_name_(std::move(func_name)), args_(move(args)) {}
 
   auto ToString() const -> std::string override { return fmt::format("{}({})", func_name_, fmt::join(args_, ", ")); }
@@ -24,6 +25,6 @@ class BoundAggCall : public BoundExpression {
   std::string func_name_;
 
   /** Arguments of the agg call. */
-  vector<unique_ptr<BoundExpression>> args_;
+  std::vector<std::unique_ptr<BoundExpression>> args_;
 };
 }  // namespace bustub

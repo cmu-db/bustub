@@ -18,10 +18,10 @@ class CreateStatement : public SQLStatement {
  public:
   explicit CreateStatement(duckdb_libpgquery::PGCreateStmt *pg_stmt);
 
-  string table_;
-  vector<Column> columns_;
+  std::string table_;
+  std::vector<Column> columns_;
 
-  auto ToString() const -> string override;
+  auto ToString() const -> std::string override;
 };
 
 }  // namespace bustub

@@ -17,9 +17,9 @@ class DeleteStatement : public SQLStatement {
  public:
   explicit DeleteStatement(duckdb_libpgquery::PGDeleteStmt *pg_stmt);
 
-  string table_;
+  std::string table_;
 
-  auto ToString() const -> string override;
+  auto ToString() const -> std::string override;
 };
 
 }  // namespace bustub
