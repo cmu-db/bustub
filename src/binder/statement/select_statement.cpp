@@ -204,7 +204,7 @@ auto SelectStatement::ResolveColumn(const std::string &col_name) -> std::unique_
   switch (table_->type_) {
     case TableReferenceType::BASE_TABLE: {
       auto base_table_ref = dynamic_cast<BoundBaseTableRef *>(table_.get());
-      // TODO: handle case-insensitive table / column names
+      // TODO(chi): handle case-insensitive table / column names
       const auto &table_name = base_table_ref->table_;
       auto table_info = catalog_.GetTable(table_name);
       if (table_info == nullptr) {

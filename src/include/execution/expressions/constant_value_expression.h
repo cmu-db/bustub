@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <memory>
+#include <string>
 #include <vector>
 
 #include "execution/expressions/abstract_expression.h"

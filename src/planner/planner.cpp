@@ -28,7 +28,7 @@ std::unique_ptr<AbstractExpression> Planner::PlanExpression(const BoundExpressio
     case ExpressionType::COLUMN_REF: {
       auto column_ref_expr = dynamic_cast<const BoundColumnRef &>(expr);
       auto schema = child.OutputSchema();
-      // TODO: differentiate multiple tables
+      // TODO(chi): differentiate multiple tables
       uint32_t col_idx = schema->GetColIdx(column_ref_expr.col_);
       auto col_type = schema->GetColumn(col_idx).GetType();
       return std::make_unique<ColumnValueExpression>(0, col_idx, col_type);
@@ -63,7 +63,7 @@ std::unique_ptr<AbstractPlanNode> Planner::PlanSelect(const SelectStatement &sta
       break;
   }
 
-  // TODO: plan where
+  // TODO(chi): plan where
 
   if (!statement.group_by_.empty()) {
     // plan group-by agg
@@ -89,7 +89,7 @@ std::unique_ptr<AbstractPlanNode> Planner::PlanSelect(const SelectStatement &sta
         input_exprs.push_back(abstract_expr);
         if (agg_call.func_name_ == "min") {
           agg_types.push_back(AggregationType::MinAggregate);
-          // TODO: deduce correct output schema
+          // TODO(chi): deduce correct output schema
           output_schema.push_back(
               {"min", SaveExpression(std::make_unique<AggregateValueExpression>(false, term_idx, TypeId::INTEGER))});
         } else if (agg_call.func_name_ == "max") {

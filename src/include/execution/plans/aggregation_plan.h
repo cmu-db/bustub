@@ -14,6 +14,8 @@
 
 #include <utility>
 #include <vector>
+#include <memory>
+#include <string>
 
 #include "common/util/hash_util.h"
 #include "execution/plans/abstract_plan.h"

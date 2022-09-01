@@ -1,10 +1,10 @@
 #pragma once
 
 #include <memory>
-#include <unordered_map>
-#include <vector>
-
 #include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include "binder/bound_statement.h"
 #include "binder/statement/select_statement.h"
@@ -18,7 +18,7 @@ namespace bustub {
 
 class Planner {
  public:
-  Planner(const Catalog &catalog) : catalog_(catalog) {}
+  explicit Planner(const Catalog &catalog) : catalog_(catalog) {}
 
   void PlanQuery(const BoundStatement &statement);
 
