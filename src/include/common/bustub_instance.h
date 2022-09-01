@@ -39,7 +39,7 @@ class BustubInstance {
   ~BustubInstance();
 
   /**
-   * Execute a SQL in the BusTub instance.
+   * Execute a SQL query in the BusTub instance.
    */
   auto ExecuteSql(const std::string &sql) -> std::vector<std::string>;
 
