@@ -27,8 +27,8 @@ set(BUSTUB_LIBS
     bustub_storage_index
     bustub_storage_page
     bustub_storage_table
-    bustub_primer
     bustub_planner
+    bustub_primer
 )
 
 set(BUSTUB_THIRDPARTY_LIBS

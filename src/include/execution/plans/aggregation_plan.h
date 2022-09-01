@@ -12,10 +12,10 @@
 
 #pragma once
 
-#include <utility>
-#include <vector>
 #include <memory>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "common/util/hash_util.h"
 #include "execution/plans/abstract_plan.h"
@@ -81,7 +81,7 @@ class AggregationPlanNode : public AbstractPlanNode {
   auto GetAggregateTypes() const -> const std::vector<AggregationType> & { return agg_types_; }
 
  private:
-  std::string HelperVecExprFmt(const std::vector<const AbstractExpression *> &exprs) const;
+  auto HelperVecExprFmt(const std::vector<const AbstractExpression *> &exprs) const -> std::string;
 
   /** A HAVING clause expression (may be `nullptr`) */
   const AbstractExpression *having_;

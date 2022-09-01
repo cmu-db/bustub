@@ -14,8 +14,9 @@ auto AbstractPlanNode::ChildrenToString(int indent) const -> std::string {
   return fmt::format("{}", fmt::join(children_str, "\n"));
 }
 
-std::string AggregationPlanNode::HelperVecExprFmt(const std::vector<const AbstractExpression *> &exprs) const {
+auto AggregationPlanNode::HelperVecExprFmt(const std::vector<const AbstractExpression *> &exprs) const -> std::string {
   std::vector<std::string> joins;
+  joins.reserve(exprs.size());
   for (const auto &expr : exprs) {
     joins.push_back(fmt::format("{}", *expr));
   }

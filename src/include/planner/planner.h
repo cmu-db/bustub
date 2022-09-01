@@ -22,25 +22,26 @@ class Planner {
 
   void PlanQuery(const BoundStatement &statement);
 
-  std::unique_ptr<AbstractPlanNode> PlanSelect(const SelectStatement &statement);
+  auto PlanSelect(const SelectStatement &statement) -> std::unique_ptr<AbstractPlanNode>;
 
-  std::unique_ptr<AbstractPlanNode> PlanTableRef(const BoundTableRef &table_ref);
+  auto PlanTableRef(const BoundTableRef &table_ref) -> std::unique_ptr<AbstractPlanNode>;
 
-  std::unique_ptr<AbstractExpression> PlanExpression(const BoundExpression &expr, const AbstractPlanNode &child);
+  auto PlanExpression(const BoundExpression &expr, const AbstractPlanNode &child)
+      -> std::unique_ptr<AbstractExpression>;
 
   std::unique_ptr<AbstractPlanNode> plan_;
 
-  const AbstractPlanNode *SavePlanNode(std::unique_ptr<AbstractPlanNode> plan_node) {
+  auto SavePlanNode(std::unique_ptr<AbstractPlanNode> plan_node) -> const AbstractPlanNode * {
     allocated_plan_nodes_.emplace_back(move(plan_node));
     return allocated_plan_nodes_.back().get();
   }
 
-  const Schema *SaveSchema(std::unique_ptr<Schema> schema) {
+  auto SaveSchema(std::unique_ptr<Schema> schema) -> const Schema * {
     allocated_output_schemas_.emplace_back(move(schema));
     return allocated_output_schemas_.back().get();
   }
 
-  const AbstractExpression *SaveExpression(std::unique_ptr<AbstractExpression> expression) {
+  auto SaveExpression(std::unique_ptr<AbstractExpression> expression) -> const AbstractExpression * {
     allocated_expressions_.emplace_back(move(expression));
     return allocated_expressions_.back().get();
   }
