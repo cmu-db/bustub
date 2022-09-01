@@ -66,17 +66,24 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
   binder.ParseAndBindQuery(sql, *catalog_);
   std::vector<std::string> result = {};
   for (const auto &statement : binder.statements_) {
+    // Bind the query.
     std::cerr << "=== BINDER ===" << std::endl;
     std::cerr << statement->ToString() << std::endl;
+
+    // Plan the query.
     bustub::Planner planner(*catalog_);
     planner.PlanQuery(*statement);
     std::cerr << "=== PLANNER ===" << std::endl;
     std::cerr << planner.plan_->ToString() << std::endl;
+
+    // Execute the query.
     auto txn = transaction_manager_->Begin();
     auto exec_ctx = MakeExecutorContext(txn);
     std::vector<Tuple> result_set{};
     execution_engine_->Execute(planner.plan_.get(), &result_set, txn, exec_ctx.get());
     delete txn;
+
+    // Return the result set as a vector of string.
     auto schema = planner.plan_->OutputSchema();
     for (const auto &tuple : result_set) {
       std::string row;

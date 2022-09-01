@@ -113,10 +113,13 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> std::unique_ptr<Ab
     return std::make_unique<AggregationPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), SavePlanNode(move(plan)),
                                                  nullptr, std::vector<const AbstractExpression *>{}, move(input_exprs),
                                                  move(agg_types));
-  } else if (agg_call_cnt == 0) {
+  }
+
+  if (agg_call_cnt == 0) {
     // just select
     return plan;
   }
+
   throw Exception("invalid select list: agg calls appear with other columns");
 }
 
