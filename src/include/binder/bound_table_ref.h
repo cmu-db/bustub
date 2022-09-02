@@ -35,7 +35,7 @@ class BoundTableRef {
         return "<empty>";
       default:
         // For other types of table reference, `ToString` should be derived in child classes.
-        assert(false && "entered unreachable code");
+        BUSTUB_ASSERT(false, "entered unreachable code");
     }
   }
 
@@ -60,5 +60,34 @@ struct fmt::formatter<std::unique_ptr<T>, std::enable_if_t<std::is_base_of<bustu
   template <typename FormatCtx>
   auto format(const std::unique_ptr<bustub::BoundTableRef> &x, FormatCtx &ctx) const {
     return fmt::formatter<std::string>::format(x->ToString(), ctx);
+  }
+};
+
+template <>
+struct fmt::formatter<bustub::TableReferenceType> : formatter<string_view> {
+  template <typename FormatContext>
+  auto format(bustub::TableReferenceType c, FormatContext &ctx) const {
+    string_view name;
+    switch (c) {
+      case bustub::TableReferenceType::INVALID:
+        name = "Invalid";
+        break;
+      case bustub::TableReferenceType::BASE_TABLE:
+        name = "BaseTable";
+        break;
+      case bustub::TableReferenceType::JOIN:
+        name = "Join";
+        break;
+      case bustub::TableReferenceType::CROSS_PRODUCT:
+        name = "CrossProduct";
+        break;
+      case bustub::TableReferenceType::EMPTY:
+        name = "Empty";
+        break;
+      default:
+        name = "Unknown";
+        break;
+    }
+    return formatter<string_view>::format(name, ctx);
   }
 };

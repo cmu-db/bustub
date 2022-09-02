@@ -16,15 +16,20 @@
 #include <string>
 #include <vector>
 
-#include "buffer/buffer_pool_manager_instance.h"
 #include "common/config.h"
-#include "concurrency/lock_manager.h"
-#include "execution/executor_context.h"
-#include "recovery/checkpoint_manager.h"
-#include "recovery/log_manager.h"
-#include "storage/disk/disk_manager.h"
 
 namespace bustub {
+
+class Transaction;
+class ExecutorContext;
+class DiskManager;
+class BufferPoolManager;
+class LockManager;
+class TransactionManager;
+class LogManager;
+class CheckpointManager;
+class Catalog;
+class ExecutionEngine;
 
 class BustubInstance {
  private:
@@ -60,6 +65,7 @@ class BustubInstance {
   LogManager *log_manager_;
   CheckpointManager *checkpoint_manager_;
   Catalog *catalog_;
+  ExecutionEngine *execution_engine_;
 };
 
 }  // namespace bustub

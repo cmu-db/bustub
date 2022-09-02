@@ -8,6 +8,7 @@ add_subdirectory(execution)
 add_subdirectory(recovery)
 add_subdirectory(storage)
 add_subdirectory(type)
+add_subdirectory(planner)
 add_subdirectory(primer)
 
 add_library(bustub STATIC ${ALL_OBJECT_FILES})
@@ -26,6 +27,7 @@ set(BUSTUB_LIBS
     bustub_storage_index
     bustub_storage_page
     bustub_storage_table
+    bustub_planner
     bustub_primer
 )
 

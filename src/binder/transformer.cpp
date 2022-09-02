@@ -22,7 +22,7 @@
 
 #include "binder/binder.h"
 #include "binder/bound_expression.h"
-#include "binder/sql_statement.h"
+#include "binder/bound_statement.h"
 #include "binder/statement/create_statement.h"
 #include "binder/statement/delete_statement.h"
 #include "binder/statement/insert_statement.h"
@@ -36,8 +36,8 @@
 namespace bustub {
 
 auto Binder::TransformParseTree(const Catalog &catalog, duckdb_libpgquery::PGList *tree) const
-    -> std::vector<std::unique_ptr<SQLStatement>> {
-  std::vector<std::unique_ptr<SQLStatement>> statements;
+    -> std::vector<std::unique_ptr<BoundStatement>> {
+  std::vector<std::unique_ptr<BoundStatement>> statements;
   for (auto entry = tree->head; entry != nullptr; entry = entry->next) {
     auto stmt = TransformStatement(catalog, static_cast<duckdb_libpgquery::PGNode *>(entry->data.ptr_value));
     statements.push_back(move(stmt));
@@ -46,7 +46,7 @@ auto Binder::TransformParseTree(const Catalog &catalog, duckdb_libpgquery::PGLis
 }
 
 auto Binder::TransformStatement(const Catalog &catalog, duckdb_libpgquery::PGNode *stmt) const
-    -> std::unique_ptr<SQLStatement> {
+    -> std::unique_ptr<BoundStatement> {
   switch (stmt->type) {
     case duckdb_libpgquery::T_PGRawStmt: {
       auto raw_stmt = reinterpret_cast<duckdb_libpgquery::PGRawStmt *>(stmt);

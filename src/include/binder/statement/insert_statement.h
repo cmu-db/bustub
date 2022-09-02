@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "binder/sql_statement.h"
+#include "binder/bound_statement.h"
 #include "catalog/column.h"
 #include "type/value.h"
 
@@ -20,7 +20,7 @@ struct PGInsertStmt;
 
 namespace bustub {
 
-class InsertStatement : public SQLStatement {
+class InsertStatement : public BoundStatement {
  public:
   explicit InsertStatement(duckdb_libpgquery::PGInsertStmt *pg_stmt);
 

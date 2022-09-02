@@ -15,11 +15,13 @@
 
 namespace bustub {
 
-/** SQLStatement is the base class of any type of SQL statement. */
-class SQLStatement {
+/**
+ * BoundStatement is the base class of any type of bound SQL statement.
+ */
+class BoundStatement {
  public:
-  explicit SQLStatement(StatementType type);
-  virtual ~SQLStatement() = default;
+  explicit BoundStatement(StatementType type);
+  virtual ~BoundStatement() = default;
 
   /** The statement type. */
   StatementType type_;

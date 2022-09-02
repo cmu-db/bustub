@@ -32,7 +32,7 @@
 
 #include <string>
 
-#include "common/constants.h"
+#include "common/config.h"
 
 namespace bustub {
 

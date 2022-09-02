@@ -12,6 +12,9 @@
 
 #pragma once
 
+#include <memory>
+#include <string>
+
 #include "catalog/catalog.h"
 #include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
@@ -41,6 +44,11 @@ class SeqScanPlanNode : public AbstractPlanNode {
 
   /** @return The identifier of the table that should be scanned */
   auto GetTableOid() const -> table_oid_t { return table_oid_; }
+
+ protected:
+  auto PlanNodeToString() const -> std::string override {
+    return fmt::format("SeqScan {{ table_oid={} }}", table_oid_);
+  }
 
  private:
   /** The predicate that all returned tuples must satisfy */

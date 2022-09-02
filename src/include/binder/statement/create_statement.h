@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "binder/sql_statement.h"
+#include "binder/bound_statement.h"
 #include "catalog/column.h"
 
 namespace duckdb_libpgquery {
@@ -19,7 +19,7 @@ struct PGCreateStmt;
 
 namespace bustub {
 
-class CreateStatement : public SQLStatement {
+class CreateStatement : public BoundStatement {
  public:
   explicit CreateStatement(duckdb_libpgquery::PGCreateStmt *pg_stmt);
 

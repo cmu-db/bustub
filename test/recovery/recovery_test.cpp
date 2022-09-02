@@ -13,13 +13,19 @@
 #include <string>
 #include <vector>
 
+#include "buffer/buffer_pool_manager_instance.h"
 #include "common/bustub_instance.h"
 #include "common/config.h"
 #include "concurrency/lock_manager.h"
 #include "concurrency/transaction_manager.h"
+#include "execution/execution_engine.h"
+#include "execution/executor_context.h"
 #include "gtest/gtest.h"
 #include "logging/common.h"
+#include "recovery/checkpoint_manager.h"
+#include "recovery/log_manager.h"
 #include "recovery/log_recovery.h"
+#include "storage/disk/disk_manager.h"
 #include "storage/table/table_heap.h"
 #include "storage/table/table_iterator.h"
 #include "storage/table/tuple.h"

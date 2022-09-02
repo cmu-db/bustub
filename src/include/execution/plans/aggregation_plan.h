@@ -12,11 +12,14 @@
 
 #pragma once
 
+#include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
 #include "common/util/hash_util.h"
 #include "execution/plans/abstract_plan.h"
+#include "fmt/core.h"
 #include "storage/table/tuple.h"
 
 namespace bustub {
@@ -78,6 +81,8 @@ class AggregationPlanNode : public AbstractPlanNode {
   auto GetAggregateTypes() const -> const std::vector<AggregationType> & { return agg_types_; }
 
  private:
+  auto HelperVecExprFmt(const std::vector<const AbstractExpression *> &exprs) const -> std::string;
+
   /** A HAVING clause expression (may be `nullptr`) */
   const AbstractExpression *having_;
   /** The GROUP BY expressions */
@@ -86,6 +91,9 @@ class AggregationPlanNode : public AbstractPlanNode {
   std::vector<const AbstractExpression *> aggregates_;
   /** The aggregation types */
   std::vector<AggregationType> agg_types_;
+
+ protected:
+  auto PlanNodeToString() const -> std::string override;
 };
 
 /** AggregateKey represents a key in an aggregation operation */
@@ -133,3 +141,27 @@ struct hash<bustub::AggregateKey> {
 };
 
 }  // namespace std
+
+template <>
+struct fmt::formatter<bustub::AggregationType> : formatter<std::string> {
+  template <typename FormatContext>
+  auto format(bustub::AggregationType c, FormatContext &ctx) const {
+    using bustub::AggregationType;
+    std::string name = "unknown";
+    switch (c) {
+      case AggregationType::CountAggregate:
+        name = "count";
+        break;
+      case AggregationType::SumAggregate:
+        name = "sum";
+        break;
+      case AggregationType::MinAggregate:
+        name = "min";
+        break;
+      case AggregationType::MaxAggregate:
+        name = "max";
+        break;
+    }
+    return formatter<std::string>::format(name, ctx);
+  }
+};

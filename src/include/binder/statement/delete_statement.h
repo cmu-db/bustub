@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include "binder/sql_statement.h"
+#include "binder/bound_statement.h"
 #include "catalog/column.h"
 
 namespace duckdb_libpgquery {
@@ -18,7 +18,7 @@ struct PGDeleteStmt;
 
 namespace bustub {
 
-class DeleteStatement : public SQLStatement {
+class DeleteStatement : public BoundStatement {
  public:
   explicit DeleteStatement(duckdb_libpgquery::PGDeleteStmt *pg_stmt);
 

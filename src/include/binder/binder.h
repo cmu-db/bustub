@@ -37,7 +37,6 @@
 #include <string>
 
 #include "binder/simplified_token.h"
-#include "binder/sql_statement.h"
 #include "catalog/column.h"
 #include "nodes/parsenodes.hpp"
 #include "type/type_id.h"
@@ -51,6 +50,7 @@ struct PGNode;
 namespace bustub {
 
 class Catalog;
+class BoundStatement;
 
 /**
  * The binder is responsible for transforming the Postgres parse tree to a binder tree
@@ -61,7 +61,7 @@ class Binder {
   Binder() = default;
 
   /** The parsed SQL statements from an invocation to ParseQuery. */
-  std::vector<std::unique_ptr<SQLStatement>> statements_;
+  std::vector<std::unique_ptr<BoundStatement>> statements_;
 
   /** Attempts to parse a query into a series of SQL statements. The parsed statements
    * will be stored in the `statements_` variable.
@@ -79,11 +79,11 @@ class Binder {
 
   /** Transform a Postgres parse tree into a std::vector of SQL Statements. */
   auto TransformParseTree(const Catalog &catalog, duckdb_libpgquery::PGList *tree) const
-      -> std::vector<std::unique_ptr<SQLStatement>>;
+      -> std::vector<std::unique_ptr<BoundStatement>>;
 
   /** Transform a Postgres statement into a single SQL statement. */
   auto TransformStatement(const Catalog &catalog, duckdb_libpgquery::PGNode *stmt) const
-      -> std::unique_ptr<SQLStatement>;
+      -> std::unique_ptr<BoundStatement>;
 
   /** Get the std::string representation of a Postgres node tag. */
   static auto NodeTagToString(duckdb_libpgquery::PGNodeTag type) -> std::string;

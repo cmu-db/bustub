@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <memory>
+#include <string>
 #include <vector>
 
 #include "execution/expressions/abstract_expression.h"
@@ -36,6 +38,9 @@ class ConstantValueExpression : public AbstractExpression {
       -> Value override {
     return val_;
   }
+
+  /** @return the string representation of the plan node and its children */
+  auto ToString() const -> std::string override { return val_.ToString(); }
 
  private:
   Value val_;

@@ -1,12 +1,12 @@
 #include "binder/statement/select_statement.h"
 #include "binder/binder.h"
+#include "binder/bound_statement.h"
 #include "binder/expressions/bound_agg_call.h"
 #include "binder/expressions/bound_binary_op.h"
 #include "binder/expressions/bound_column_ref.h"
 #include "binder/expressions/bound_constant.h"
 #include "binder/expressions/bound_star.h"
 #include "binder/expressions/bound_unary_op.h"
-#include "binder/sql_statement.h"
 #include "binder/table_ref/bound_base_table_ref.h"
 #include "binder/tokens.h"
 #include "catalog/catalog.h"
@@ -18,7 +18,7 @@
 namespace bustub {
 
 SelectStatement::SelectStatement(const Catalog &catalog, duckdb_libpgquery::PGSelectStmt *pg_stmt)
-    : SQLStatement(StatementType::SELECT_STATEMENT),
+    : BoundStatement(StatementType::SELECT_STATEMENT),
       table_(std::make_unique<BoundTableRef>()),
       where_(std::make_unique<BoundExpression>()),
       having_(std::make_unique<BoundExpression>()),
@@ -204,6 +204,7 @@ auto SelectStatement::ResolveColumn(const std::string &col_name) -> std::unique_
   switch (table_->type_) {
     case TableReferenceType::BASE_TABLE: {
       auto base_table_ref = dynamic_cast<BoundBaseTableRef *>(table_.get());
+      // TODO(chi): handle case-insensitive table / column names
       const auto &table_name = base_table_ref->table_;
       auto table_info = catalog_.GetTable(table_name);
       if (table_info == nullptr) {
@@ -213,7 +214,7 @@ auto SelectStatement::ResolveColumn(const std::string &col_name) -> std::unique_
       auto expr = std::make_unique<BoundExpression>();
       for (const auto &column : table_info->schema_.GetColumns()) {
         auto name = column.GetName();
-        if (name == col_name) {
+        if (StringUtil::Lower(name) == col_name) {
           if (!found) {
             expr = std::make_unique<BoundColumnRef>(table_name, name);
             found = true;
@@ -253,7 +254,7 @@ auto SelectStatement::ResolveColumnWithTable(const std::string &table_name, cons
   auto expr = std::make_unique<BoundExpression>();
   for (const auto &column : table_info->schema_.GetColumns()) {
     auto name = column.GetName();
-    if (name == col_name) {
+    if (StringUtil::Lower(name) == col_name) {
       if (!found) {
         expr = std::make_unique<BoundColumnRef>(table_name, name);
         found = true;

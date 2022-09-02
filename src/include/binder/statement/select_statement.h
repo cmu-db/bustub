@@ -10,8 +10,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "binder/bound_statement.h"
 #include "binder/simplified_token.h"
-#include "binder/sql_statement.h"
 #include "catalog/column.h"
 
 namespace duckdb_libpgquery {
@@ -32,7 +32,7 @@ class Catalog;
 class BoundTableRef;
 class BoundExpression;
 
-class SelectStatement : public SQLStatement {
+class SelectStatement : public BoundStatement {
  public:
   explicit SelectStatement(const Catalog &catalog, duckdb_libpgquery::PGSelectStmt *pg_stmt);
 

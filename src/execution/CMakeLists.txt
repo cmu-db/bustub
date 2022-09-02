@@ -4,6 +4,7 @@ add_library(
   aggregation_executor.cpp
   delete_executor.cpp
   distinct_executor.cpp
+  fmt_impl.cpp
   hash_join_executor.cpp
   index_scan_executor.cpp
   insert_executor.cpp

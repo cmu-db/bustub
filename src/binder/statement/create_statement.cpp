@@ -3,7 +3,7 @@
 namespace bustub {
 
 CreateStatement::CreateStatement(duckdb_libpgquery::PGCreateStmt *pg_stmt)
-    : SQLStatement(StatementType::CREATE_STATEMENT) {}
+    : BoundStatement(StatementType::CREATE_STATEMENT) {}
 
 auto CreateStatement::ToString() const -> std::string { return {}; }
 
