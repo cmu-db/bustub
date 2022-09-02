@@ -40,7 +40,7 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
   // Catalog.
   catalog_ = new Catalog(buffer_pool_manager_, nullptr, nullptr);
 
-  // execution engine
+  // Execution engine.
   execution_engine_ = new ExecutionEngine(buffer_pool_manager_, transaction_manager_, catalog_);
 }
 
@@ -64,8 +64,8 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
               "",
               "BusTub shell currently only supports a small set of Postgres queries.",
               "We'll set up a doc describing the current status later.",
-              "It will siliently ignore some parts of the query, so it's normal that",
-              "you'll get a wrong result when typing some unsupported SQLs."};
+              "It will silently ignore some parts of the query, so it's normal that",
+              "you'll get a wrong result when executing unsupported SQL queries."};
     }
     throw Exception(fmt::format("unsupported internal command: {}", sql));
   }
@@ -89,6 +89,8 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
     auto exec_ctx = MakeExecutorContext(txn);
     std::vector<Tuple> result_set{};
     execution_engine_->Execute(planner.plan_.get(), &result_set, txn, exec_ctx.get());
+
+    // TODO(chi): commit or abort the transaction.
     delete txn;
 
     // Return the result set as a vector of string.
@@ -100,7 +102,7 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
       header += column.GetName();
       header += "\t";
     }
-    result.emplace_back(move(header));
+    result.emplace_back(std::move(header));
 
     // Transforming result set into strings.
     for (const auto &tuple : result_set) {
@@ -109,7 +111,7 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
         row += tuple.GetValue(schema, i).ToString();
         row += "\t";
       }
-      result.emplace_back(move(row));
+      result.emplace_back(std::move(row));
     }
   }
   return result;

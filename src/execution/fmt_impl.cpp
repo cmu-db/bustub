@@ -7,6 +7,7 @@ namespace bustub {
 
 auto AbstractPlanNode::ChildrenToString(int indent) const -> std::string {
   std::vector<std::string> children_str;
+  children_str.reserve(children_.size());
   std::string indent_str(indent, ' ');
   for (const auto &child : children_) {
     children_str.push_back(fmt::format("{}{}", indent_str, child->ToString()));

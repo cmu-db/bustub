@@ -16,7 +16,7 @@
 namespace bustub {
 
 /**
- * BoundSQLStatement is the base class of any type of bound SQL statement.
+ * BoundStatement is the base class of any type of bound SQL statement.
  */
 class BoundStatement {
  public:

@@ -44,17 +44,17 @@ class Planner {
   // TODO(chi): refactor ALL OF THE ARGS TO UNIQUE_PTR/SHARED_PTR instead of guessing about the ownership.
 
   auto SavePlanNode(std::unique_ptr<AbstractPlanNode> plan_node) -> const AbstractPlanNode * {
-    allocated_plan_nodes_.emplace_back(move(plan_node));
+    allocated_plan_nodes_.emplace_back(std::move(plan_node));
     return allocated_plan_nodes_.back().get();
   }
 
   auto SaveSchema(std::unique_ptr<Schema> schema) -> const Schema * {
-    allocated_output_schemas_.emplace_back(move(schema));
+    allocated_output_schemas_.emplace_back(std::move(schema));
     return allocated_output_schemas_.back().get();
   }
 
   auto SaveExpression(std::unique_ptr<AbstractExpression> expression) -> const AbstractExpression * {
-    allocated_expressions_.emplace_back(move(expression));
+    allocated_expressions_.emplace_back(std::move(expression));
     return allocated_expressions_.back().get();
   }
 

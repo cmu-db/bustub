@@ -36,7 +36,6 @@
 
 #include <string>
 
-#include "binder/bound_statement.h"
 #include "binder/simplified_token.h"
 #include "catalog/column.h"
 #include "nodes/parsenodes.hpp"
@@ -51,6 +50,7 @@ struct PGNode;
 namespace bustub {
 
 class Catalog;
+class BoundStatement;
 
 /**
  * The binder is responsible for transforming the Postgres parse tree to a binder tree
