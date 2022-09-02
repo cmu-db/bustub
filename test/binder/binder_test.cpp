@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "binder/binder.h"
+#include "binder/bound_statement.h"
 #include "catalog/catalog.h"
 #include "gtest/gtest.h"
 

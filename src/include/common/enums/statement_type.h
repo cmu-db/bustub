@@ -2,7 +2,7 @@
 //
 //                         BusTub
 //
-// constants.h
+// statement_type.h
 //
 // Identification: src/include/enums/statement_type.h
 //
@@ -12,7 +12,8 @@
 
 #pragma once
 
-#include "common/constants.h"
+#include "common/config.h"
+#include "fmt/core.h"
 
 namespace bustub {
 
@@ -47,3 +48,40 @@ enum class StatementType : uint8_t {
 };
 
 }  // namespace bustub
+
+template <>
+struct fmt::formatter<bustub::StatementType> : formatter<string_view> {
+  template <typename FormatContext>
+  auto format(bustub::StatementType c, FormatContext &ctx) const {
+    string_view name;
+    switch (c) {
+      case bustub::StatementType::INVALID_STATEMENT:
+        name = "Invalid";
+        break;
+      case bustub::StatementType::SELECT_STATEMENT:
+        name = "Select";
+        break;
+      case bustub::StatementType::INSERT_STATEMENT:
+        name = "Insert";
+        break;
+      case bustub::StatementType::UPDATE_STATEMENT:
+        name = "Update";
+        break;
+      case bustub::StatementType::CREATE_STATEMENT:
+        name = "Create";
+        break;
+      case bustub::StatementType::DELETE_STATEMENT:
+        name = "Delete";
+        break;
+      case bustub::StatementType::EXPLAIN_STATEMENT:
+        name = "Explain";
+        break;
+      case bustub::StatementType::DROP_STATEMENT:
+        name = "Drop";
+        break;
+      default:
+        name = "Unknown";
+    }
+    return formatter<string_view>::format(name, ctx);
+  }
+};

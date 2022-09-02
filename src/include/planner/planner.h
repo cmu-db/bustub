@@ -6,15 +6,17 @@
 #include <utility>
 #include <vector>
 
-#include "binder/bound_statement.h"
-#include "binder/statement/select_statement.h"
 #include "binder/tokens.h"
 #include "catalog/catalog.h"
 #include "catalog/column.h"
-#include "execution/expressions/abstract_expression.h"
-#include "execution/plans/abstract_plan.h"
 
 namespace bustub {
+
+class BoundStatement;
+class SelectStatement;
+class AbstractPlanNode;
+class BoundExpression;
+class BoundTableRef;
 
 /**
  * The planner takes a bound statement, and transforms it into the BusTub plan tree.

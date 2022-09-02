@@ -43,4 +43,6 @@ using lsn_t = int32_t;         // log sequence number type
 using slot_offset_t = size_t;  // slot offset type
 using oid_t = uint16_t;
 
+static constexpr int VARCHAR_DEFAULT_LENGTH = 128;  // default length for varchar when constructing the column
+
 }  // namespace bustub

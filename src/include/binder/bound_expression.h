@@ -57,3 +57,44 @@ struct fmt::formatter<std::unique_ptr<T>, std::enable_if_t<std::is_base_of<bustu
     return fmt::formatter<std::string>::format(x->ToString(), ctx);
   }
 };
+
+template <>
+struct fmt::formatter<bustub::ExpressionType> : formatter<string_view> {
+  template <typename FormatContext>
+  auto format(bustub::ExpressionType c, FormatContext &ctx) const {
+    string_view name;
+    switch (c) {
+      case bustub::ExpressionType::INVALID:
+        name = "Invalid";
+        break;
+      case bustub::ExpressionType::CONSTANT:
+        name = "Constant";
+        break;
+      case bustub::ExpressionType::COLUMN_REF:
+        name = "ColumnRef";
+        break;
+      case bustub::ExpressionType::TYPE_CAST:
+        name = "TypeCast";
+        break;
+      case bustub::ExpressionType::FUNCTION:
+        name = "Function";
+        break;
+      case bustub::ExpressionType::AGG_CALL:
+        name = "AggregationCall";
+        break;
+      case bustub::ExpressionType::STAR:
+        name = "Star";
+        break;
+      case bustub::ExpressionType::UNARY_OP:
+        name = "UnaryOperation";
+        break;
+      case bustub::ExpressionType::BINARY_OP:
+        name = "BinaryOperation";
+        break;
+      default:
+        name = "Unknown";
+        break;
+    }
+    return formatter<string_view>::format(name, ctx);
+  }
+};

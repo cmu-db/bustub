@@ -1,11 +1,16 @@
 #include "planner/planner.h"
+#include "binder/bound_statement.h"
 #include "binder/expressions/bound_agg_call.h"
 #include "binder/expressions/bound_column_ref.h"
+#include "binder/statement/select_statement.h"
 #include "binder/table_ref/bound_base_table_ref.h"
+#include "execution/expressions/abstract_expression.h"
 #include "execution/expressions/aggregate_value_expression.h"
 #include "execution/expressions/column_value_expression.h"
+#include "execution/plans/abstract_plan.h"
 #include "execution/plans/aggregation_plan.h"
 #include "execution/plans/seq_scan_plan.h"
+#include "fmt/format.h"
 
 namespace bustub {
 
@@ -16,7 +21,7 @@ void Planner::PlanQuery(const BoundStatement &statement) {
       return;
     }
     default:
-      throw Exception("the statement is not supported in planner yet");
+      throw Exception(fmt::format("the statement {} is not supported in planner yet", statement.type_));
   }
 }
 
@@ -36,7 +41,7 @@ auto Planner::PlanExpression(const BoundExpression &expr, const AbstractPlanNode
     default:
       break;
   }
-  throw Exception("not supported");
+  throw Exception(fmt::format("expression type {} not supported in planner yet", expr.type_));
 }
 
 auto MakeOutputSchema(const std::vector<std::pair<std::string, const AbstractExpression *>> &exprs)
@@ -47,7 +52,7 @@ auto MakeOutputSchema(const std::vector<std::pair<std::string, const AbstractExp
     if (input.second->GetReturnType() != TypeId::VARCHAR) {
       cols.emplace_back(input.first, input.second->GetReturnType(), input.second);
     } else {
-      cols.emplace_back(input.first, input.second->GetReturnType(), 128, input.second);
+      cols.emplace_back(input.first, input.second->GetReturnType(), VARCHAR_DEFAULT_LENGTH, input.second);
     }
   }
   return std::make_unique<Schema>(cols);
@@ -151,7 +156,7 @@ auto Planner::PlanTableRef(const BoundTableRef &table_ref) -> std::unique_ptr<Ab
     default:
       break;
   }
-  throw Exception("the table ref type is not supported in planner yet");
+  throw Exception(fmt::format("the table ref type {} is not supported in planner yet", table_ref.type_));
 }
 
 }  // namespace bustub
