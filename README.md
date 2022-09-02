@@ -88,9 +88,17 @@ Debug mode:
 
 ```
 $ cmake -DCMAKE_BUILD_TYPE=Debug ..
-$ make
+$ make -j
 ```
-This enables [AddressSanitizer](https://github.com/google/sanitizers).
+This enables [AddressSanitizer](https://github.com/google/sanitizers) by default.
+
+If you want to use other sanitizers,
+
+
+```
+$ cmake -DCMAKE_BUILD_TYPE=Debug -DBUSTUB_SANITIZER=thread ..
+$ make -j
+```
 
 ### Windows (Not Guaranteed to Work)
 
