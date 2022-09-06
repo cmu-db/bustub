@@ -2,7 +2,7 @@
 //
 //                         BusTub
 //
-// hash_table.h
+// disk_hash_table.h
 //
 // Identification: src/include/container/hash/hash_table.h
 //

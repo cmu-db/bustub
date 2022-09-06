@@ -2,7 +2,7 @@
 //
 //                         BusTub
 //
-// extendible_hash_table.cpp
+// disk_extendible_hash_table.cpp
 //
 // Identification: src/container/hash/extendible_hash_table.cpp
 //

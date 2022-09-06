@@ -2,7 +2,7 @@
 //
 //                         BusTub
 //
-// extendible_hash_table.h
+// disk_extendible_hash_table.h
 //
 // Identification: src/include/container/disk/hash/extendible_hash_table.h
 //
