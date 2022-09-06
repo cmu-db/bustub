@@ -35,6 +35,7 @@ static constexpr int PAGE_SIZE = 4096;                                        //
 static constexpr int BUFFER_POOL_SIZE = 10;                                   // size of buffer pool
 static constexpr int LOG_BUFFER_SIZE = ((BUFFER_POOL_SIZE + 1) * PAGE_SIZE);  // size of a log buffer in byte
 static constexpr int BUCKET_SIZE = 50;                                        // size of extendible hash bucket
+static constexpr int LRUK_REPLACER_K = 10;                                    // lookback window for lru-k replacer
 
 using frame_id_t = int32_t;    // frame id type
 using page_id_t = int32_t;     // page id type

@@ -11,9 +11,11 @@
 //===----------------------------------------------------------------------===//
 
 #include "buffer/buffer_pool_manager_instance.h"
+
 #include <cstdio>
 #include <random>
 #include <string>
+
 #include "buffer/buffer_pool_manager.h"
 #include "gtest/gtest.h"
 
@@ -24,13 +26,14 @@ namespace bustub {
 TEST(BufferPoolManagerInstanceTest, DISABLED_BinaryDataTest) {
   const std::string db_name = "test.db";
   const size_t buffer_pool_size = 10;
+  const size_t k = 5;
 
   std::random_device r;
   std::default_random_engine rng(r());
   std::uniform_int_distribution<char> uniform_dist(0);
 
   auto *disk_manager = new DiskManager(db_name);
-  auto *bpm = new BufferPoolManagerInstance(buffer_pool_size, disk_manager);
+  auto *bpm = new BufferPoolManagerInstance(buffer_pool_size, disk_manager, k);
 
   page_id_t page_id_temp;
   auto *page0 = bpm->NewPage(&page_id_temp);
@@ -89,9 +92,10 @@ TEST(BufferPoolManagerInstanceTest, DISABLED_BinaryDataTest) {
 TEST(BufferPoolManagerInstanceTest, DISABLED_SampleTest) {
   const std::string db_name = "test.db";
   const size_t buffer_pool_size = 10;
+  const size_t k = 5;
 
   auto *disk_manager = new DiskManager(db_name);
-  auto *bpm = new BufferPoolManagerInstance(buffer_pool_size, disk_manager);
+  auto *bpm = new BufferPoolManagerInstance(buffer_pool_size, disk_manager, k);
 
   page_id_t page_id_temp;
   auto *page0 = bpm->NewPage(&page_id_temp);

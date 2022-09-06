@@ -16,13 +16,13 @@
 
 namespace bustub {
 
-BufferPoolManagerInstance::BufferPoolManagerInstance(size_t pool_size, DiskManager *disk_manager,
+BufferPoolManagerInstance::BufferPoolManagerInstance(size_t pool_size, DiskManager *disk_manager, size_t replacer_k,
                                                      LogManager *log_manager)
     : pool_size_(pool_size), disk_manager_(disk_manager), log_manager_(log_manager) {
   // we allocate a consecutive memory space for the buffer pool
   pages_ = new Page[pool_size_];
   page_table_ = new ExtendibleHashTable<page_id_t, frame_id_t>(bucket_size_);
-  replacer_ = new LRUReplacer(pool_size);
+  replacer_ = new LRUKReplacer(pool_size, replacer_k);
 
   // Initially, every page is in the free list.
   for (size_t i = 0; i < pool_size_; ++i) {

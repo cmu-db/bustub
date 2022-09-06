@@ -17,7 +17,8 @@
 #include <unordered_map>
 
 #include "buffer/buffer_pool_manager.h"
-#include "buffer/lru_replacer.h"
+#include "buffer/lru_k_replacer.h"
+#include "common/config.h"
 #include "container/hash/extendible_hash_table.h"
 #include "recovery/log_manager.h"
 #include "storage/disk/disk_manager.h"
@@ -36,7 +37,8 @@ class BufferPoolManagerInstance : public BufferPoolManager {
    * @param disk_manager the disk manager
    * @param log_manager the log manager (for testing only: nullptr = disable logging)
    */
-  BufferPoolManagerInstance(size_t pool_size, DiskManager *disk_manager, LogManager *log_manager = nullptr);
+  BufferPoolManagerInstance(size_t pool_size, DiskManager *disk_manager, size_t replacer_k = LRUK_REPLACER_K,
+                            LogManager *log_manager = nullptr);
 
   /**
    * Destroys an existing BufferPoolManagerInstance.
@@ -121,7 +123,7 @@ class BufferPoolManagerInstance : public BufferPoolManager {
   /** Page table for keeping track of buffer pool pages. */
   ExtendibleHashTable<page_id_t, frame_id_t> *page_table_;
   /** Replacer to find unpinned pages for replacement. */
-  Replacer *replacer_;
+  LRUKReplacer *replacer_;
   /** List of free pages. */
   std::list<frame_id_t> free_list_;
   /** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */
