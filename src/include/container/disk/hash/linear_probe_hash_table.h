@@ -4,7 +4,7 @@
 //
 // linear_probe_hash_table.h
 //
-// Identification: src/include/container/hash/linear_probe_hash_table.h
+// Identification: src/include/container/disk/hash/linear_probe_hash_table.h
 //
 // Copyright (c) 2015-2019, Carnegie Mellon University Database Group
 //
@@ -19,10 +19,8 @@
 #include "buffer/buffer_pool_manager.h"
 #include "concurrency/transaction.h"
 #include "container/hash/hash_function.h"
-#include "container/hash/hash_table.h"
 #include "storage/page/hash_table_block_page.h"
 #include "storage/page/hash_table_header_page.h"
-#include "storage/page/hash_table_page_defs.h"
 
 namespace bustub {
 
@@ -34,7 +32,7 @@ namespace bustub {
  * table dynamically grows once full.
  */
 template <typename KeyType, typename ValueType, typename KeyComparator>
-class LinearProbeHashTable : public HashTable<KeyType, ValueType, KeyComparator> {
+class LinearProbeHashTable {
  public:
   /**
    * Creates a new LinearProbeHashTable
@@ -54,7 +52,7 @@ class LinearProbeHashTable : public HashTable<KeyType, ValueType, KeyComparator>
    * @param value the value to be associated with the key
    * @return true if insert succeeded, false otherwise
    */
-  auto Insert(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool override;
+  auto Insert(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool;
 
   /**
    * Deletes the associated value for the given key.
@@ -63,7 +61,7 @@ class LinearProbeHashTable : public HashTable<KeyType, ValueType, KeyComparator>
    * @param value the value to delete
    * @return true if remove succeeded, false otherwise
    */
-  auto Remove(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool override;
+  auto Remove(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool;
 
   /**
    * Performs a point query on the hash table.
@@ -72,7 +70,7 @@ class LinearProbeHashTable : public HashTable<KeyType, ValueType, KeyComparator>
    * @param[out] result the value(s) associated with a given key
    * @return the value(s) associated with the given key
    */
-  auto GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result) -> bool override;
+  auto GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result) -> bool;
 
   /**
    * Resizes the table to at least twice the initial size provided.
@@ -87,6 +85,13 @@ class LinearProbeHashTable : public HashTable<KeyType, ValueType, KeyComparator>
   auto GetSize() -> size_t;
 
  private:
+  auto GetHeaderPage() -> HashTableHeaderPage *;
+  auto GetBlockPage(page_id_t block_page_id) -> HASH_TABLE_BLOCK_TYPE *;
+  void ResizeInsert(HashTableHeaderPage *header_page, const KeyType &key, const ValueType &value);
+  void DeleteBlockPages(HashTableHeaderPage *old_header_page);
+  void CreateNewBlockPages(HashTableHeaderPage *header_page, size_t num_blocks);
+  auto GetValueLatchFree(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result) -> bool;
+
   // member variable
   page_id_t header_page_id_;
   BufferPoolManager *buffer_pool_manager_;

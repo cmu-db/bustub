@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 
-#include "container/hash/extendible_hash_table.h"
+#include "container/disk/hash/disk_extendible_hash_table.h"
 #include "container/hash/hash_function.h"
 #include "storage/index/index.h"
 
@@ -43,7 +43,7 @@ class ExtendibleHashTableIndex : public Index {
   // comparator for key
   KeyComparator comparator_;
   // container
-  ExtendibleHashTable<KeyType, ValueType, KeyComparator> container_;
+  DiskExtendibleHashTable<KeyType, ValueType, KeyComparator> container_;
 };
 
 }  // namespace bustub
