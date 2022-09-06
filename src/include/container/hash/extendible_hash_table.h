@@ -9,166 +9,163 @@
 // Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
+/**
+ * extendible_hash_table.h
+ *
+ * Implementation of in-memory hash table using extendible hashing
+ */
 
 #pragma once
 
-#include <queue>
-#include <string>
+#include <list>
+#include <memory>
+#include <mutex>  // NOLINT
+#include <utility>
 #include <vector>
 
-#include "buffer/buffer_pool_manager.h"
-#include "concurrency/transaction.h"
-#include "container/hash/hash_function.h"
-#include "storage/page/hash_table_bucket_page.h"
-#include "storage/page/hash_table_directory_page.h"
+#include "container/hash/hash_table.h"
 
 namespace bustub {
 
-#define HASH_TABLE_TYPE ExtendibleHashTable<KeyType, ValueType, KeyComparator>
-
 /**
- * Implementation of extendible hash table that is backed by a buffer pool
- * manager. Non-unique keys are supported. Supports insert and delete. The
- * table grows/shrinks dynamically as buckets become full/empty.
+ * ExtendibleHashTable implements a hash table using extendible hashing.
+ * @tparam K key type
+ * @tparam V value type
  */
-template <typename KeyType, typename ValueType, typename KeyComparator>
-class ExtendibleHashTable {
+template <typename K, typename V>
+class ExtendibleHashTable : public HashTable<K, V> {
  public:
   /**
-   * Creates a new ExtendibleHashTable.
+   * @brief Create a new ExtendibleHashTable.
+   * @param bucket_size: fixed size for each bucket
+   */
+  explicit ExtendibleHashTable(size_t bucket_size);
+
+  /**
+   * @brief Get the global depth of the directory.
+   * @return The global depth of the directory.
+   */
+  auto GetGlobalDepth() const -> int;
+
+  /**
+   * @brief Get the local depth of the bucket that the given directory index points to.
+   * @param dir_index The index in the directory.
+   * @return The local depth of the bucket.
+   */
+  auto GetLocalDepth(int dir_index) const -> int;
+
+  /**
+   * @brief Get the number of buckets in the directory.
+   * @return The number of buckets in the directory.
+   */
+  auto GetNumBuckets() const -> int;
+
+  /**
+   * @brief Find the value associated with the given key.
+   * @param key The key to be searched.
+   * @param[out] value The value associated with the key.
+   * @return True if the key is found, false otherwise.
+   */
+  auto Find(const K &key, V &value) -> bool override;
+
+  /**
+   * @brief Given the key, remove the corresponding key-value pair in the hash table.
+   * Shrink & Combination is not required for this project
+   * @param key The key to be deleted.
+   * @return True if the key exists, false otherwise.
+   */
+  auto Remove(const K &key) -> bool override;
+
+  /**
+   * @brief Insert the given key-value pair into the hash table.
+   * If a key already exists, the value should be updated.
+   * If the bucket is full, do the following first before inserting:
+   *    1. If the local depth of the bucket is equal to the global depth,
+   *        increment the global depth and double the size of the directory.
+   *    2. Increment the local depth of the bucket.
+   *    3. Split the bucket and redistribute directory pointers & the kv pairs in the bucket.
    *
-   * @param buffer_pool_manager buffer pool manager to be used
-   * @param comparator comparator for keys
-   * @param hash_fn the hash function
+   * @param key The key to be inserted.
+   * @param value The value to be inserted.
    */
-  explicit ExtendibleHashTable(const std::string &name, BufferPoolManager *buffer_pool_manager,
-                               const KeyComparator &comparator, HashFunction<KeyType> hash_fn);
+  void Insert(const K &key, const V &value) override;
 
   /**
-   * Inserts a key-value pair into the hash table.
-   *
-   * @param transaction the current transaction
-   * @param key the key to create
-   * @param value the value to be associated with the key
-   * @return true if insert succeeded, false otherwise
+   * Bucket class for each hash table bucket that the directory points to.
    */
-  auto Insert(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool;
+  class Bucket {
+   public:
+    explicit Bucket(size_t size, int depth = 0);
 
-  /**
-   * Deletes the associated value for the given key.
-   *
-   * @param transaction the current transaction
-   * @param key the key to delete
-   * @param value the value to delete
-   * @return true if remove succeeded, false otherwise
-   */
-  auto Remove(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool;
+    /** @brief Check if a bucket is full. */
+    inline auto IsFull() const -> bool { return list_.size() == size_; }
 
-  /**
-   * Performs a point query on the hash table.
-   *
-   * @param transaction the current transaction
-   * @param key the key to look up
-   * @param[out] result the value(s) associated with a given key
-   * @return the value(s) associated with the given key
-   */
-  auto GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result) -> bool;
+    /** @brief Get the local depth of the bucket. */
+    inline auto GetDepth() const -> int { return depth_; }
 
-  /**
-   * Returns the global depth.  Do not touch.
-   */
-  auto GetGlobalDepth() -> uint32_t;
+    /** @brief Increment the local depth of a bucket. */
+    inline void IncrementDepth() { depth_++; }
 
-  /**
-   * Helper function to verify the integrity of the extendible hash table's directory.  Do not touch.
-   */
-  void VerifyIntegrity();
+    inline auto GetItems() -> std::list<std::pair<K, V>> & { return list_; }
+
+    /**
+     * @brief Find the value associated with the given key.
+     * @param key The key to be searched.
+     * @param[out] value The value associated with the key.
+     * @return True if the key is found, false otherwise.
+     */
+    auto Find(const K &key, V &value) -> bool;
+
+    /**
+     * @brief Given the key, remove the corresponding key-value pair in the bucket.
+     * @param key The key to be deleted.
+     * @return True if the key exists, false otherwise.
+     */
+    auto Remove(const K &key) -> bool;
+
+    /**
+     * @brief Insert the given key-value pair into the bucket. If a key already exists, the value should be updated. If
+     * the bucket is full, do nothing and return false.
+     * @param key The key to be inserted.
+     * @param value The value to be inserted.
+     * @return True if the key-value pair is inserted, false otherwise.
+     */
+    auto Insert(const K &key, const V &value) -> bool;
+
+   private:
+    // TODO(student): You may add additional private members and helper functions
+    size_t size_;
+    int depth_;
+    std::list<std::pair<K, V>> list_;
+  };
 
  private:
-  /**
-   * Hash - simple helper to downcast MurmurHash's 64-bit hash to 32-bit
-   * for extendible hashing.
-   *
-   * @param key the key to hash
-   * @return the downcasted 32-bit hash
-   */
-  inline auto Hash(KeyType key) -> uint32_t;
+  // TODO(student): You may add additional private members and helper functions
+  int global_depth_;    // The global depth of the directory
+  size_t bucket_size_;  // The size of a bucket
+  int num_buckets_;     // The number of buckets in the hash table
+  mutable std::mutex latch_;
+  std::vector<std::shared_ptr<Bucket>> dir_;  // The directory of the hash table
 
   /**
-   * KeyToDirectoryIndex - maps a key to a directory index
-   *
-   * In Extendible Hashing we map a key to a directory index
-   * using the following hash + mask function.
-   *
-   * DirectoryIndex = Hash(key) & GLOBAL_DEPTH_MASK
-   *
-   * where GLOBAL_DEPTH_MASK is a mask with exactly GLOBAL_DEPTH 1's from LSB
-   * upwards.  For example, global depth 3 corresponds to 0x00000007 in a 32-bit
-   * representation.
-   *
-   * @param key the key to use for lookup
-   * @param dir_page to use for lookup of global depth
-   * @return the directory index
+   * @brief Redistribute the kv pairs in a full bucket.
+   * @param bucket The bucket to be redistributed.
    */
-  inline auto KeyToDirectoryIndex(KeyType key, HashTableDirectoryPage *dir_page) -> uint32_t;
+  auto RedistributeBucket(std::shared_ptr<Bucket> bucket) -> void;
+
+  /*****************************************************************
+   * Must acquire latch_ first before calling the below functions. *
+   *****************************************************************/
 
   /**
-   * Get the bucket page_id corresponding to a key.
-   *
-   * @param key the key for lookup
-   * @param dir_page a pointer to the hash table's directory page
-   * @return the bucket page_id corresponding to the input key
+   * @brief For the given key, return the entry index in the directory where the key hashes to.
+   * @param key The key to be hashed.
+   * @return The entry index in the directory.
    */
-  inline auto KeyToPageId(KeyType key, HashTableDirectoryPage *dir_page) -> uint32_t;
-
-  /**
-   * Fetches the directory page from the buffer pool manager.
-   *
-   * @return a pointer to the directory page
-   */
-  auto FetchDirectoryPage() -> HashTableDirectoryPage *;
-
-  /**
-   * Fetches the a bucket page from the buffer pool manager using the bucket's page_id.
-   *
-   * @param bucket_page_id the page_id to fetch
-   * @return a pointer to a bucket page
-   */
-  auto FetchBucketPage(page_id_t bucket_page_id) -> HASH_TABLE_BUCKET_TYPE *;
-
-  /**
-   * Performs insertion with an optional bucket splitting.
-   *
-   * @param transaction a pointer to the current transaction
-   * @param key the key to insert
-   * @param value the value to insert
-   * @return whether or not the insertion was successful
-   */
-  auto SplitInsert(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool;
-
-  /**
-   * Optionally merges an empty bucket into it's pair.  This is called by Remove,
-   * if Remove makes a bucket empty.
-   *
-   * There are three conditions under which we skip the merge:
-   * 1. The bucket is no longer empty.
-   * 2. The bucket has local depth 0.
-   * 3. The bucket's local depth doesn't match its split image's local depth.
-   *
-   * @param transaction a pointer to the current transaction
-   * @param key the key that was removed
-   * @param value the value that was removed
-   */
-  void Merge(Transaction *transaction, const KeyType &key, const ValueType &value);
-
-  // member variables
-  page_id_t directory_page_id_;
-  BufferPoolManager *buffer_pool_manager_;
-  KeyComparator comparator_;
-
-  // Readers includes inserts and removes, writers are splits and merges
-  ReaderWriterLatch table_latch_;
-  HashFunction<KeyType> hash_fn_;
+  auto IndexOf(const K &key) -> size_t;
+  auto GetGlobalDepthInternal() const -> int;
+  auto GetLocalDepthInternal(int dir_index) const -> int;
+  auto GetNumBucketsInternal() const -> int;
 };
 
 }  // namespace bustub

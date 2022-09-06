@@ -6,133 +6,106 @@
 //
 // Identification: src/container/hash/extendible_hash_table.cpp
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2022, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
-#include <iostream>
-#include <string>
+#include <cassert>
+#include <cstdlib>
+#include <functional>
+#include <list>
 #include <utility>
-#include <vector>
 
-#include "common/exception.h"
-#include "common/logger.h"
-#include "common/rid.h"
 #include "container/hash/extendible_hash_table.h"
+#include "storage/page/page.h"
 
 namespace bustub {
 
-template <typename KeyType, typename ValueType, typename KeyComparator>
-HASH_TABLE_TYPE::ExtendibleHashTable(const std::string &name, BufferPoolManager *buffer_pool_manager,
-                                     const KeyComparator &comparator, HashFunction<KeyType> hash_fn)
-    : buffer_pool_manager_(buffer_pool_manager), comparator_(comparator), hash_fn_(std::move(hash_fn)) {
-  //  implement me!
+template <typename K, typename V>
+ExtendibleHashTable<K, V>::ExtendibleHashTable(size_t bucket_size)
+    : global_depth_(0), bucket_size_(bucket_size), num_buckets_(1) {}
+
+template <typename K, typename V>
+auto ExtendibleHashTable<K, V>::IndexOf(const K &key) -> size_t {
+  int mask = (1 << global_depth_) - 1;
+  return std::hash<K>()(key) & mask;
 }
 
-/*****************************************************************************
- * HELPERS
- *****************************************************************************/
-/**
- * Hash - simple helper to downcast MurmurHash's 64-bit hash to 32-bit
- * for extendible hashing.
- *
- * @param key the key to hash
- * @return the downcasted 32-bit hash
- */
-template <typename KeyType, typename ValueType, typename KeyComparator>
-auto HASH_TABLE_TYPE::Hash(KeyType key) -> uint32_t {
-  return static_cast<uint32_t>(hash_fn_.GetHash(key));
+template <typename K, typename V>
+auto ExtendibleHashTable<K, V>::GetGlobalDepth() const -> int {
+  std::scoped_lock<std::mutex> lock(latch_);
+  return GetGlobalDepthInternal();
 }
 
-template <typename KeyType, typename ValueType, typename KeyComparator>
-inline auto HASH_TABLE_TYPE::KeyToDirectoryIndex(KeyType key, HashTableDirectoryPage *dir_page) -> uint32_t {
-  return 0;
+template <typename K, typename V>
+auto ExtendibleHashTable<K, V>::GetGlobalDepthInternal() const -> int {
+  return global_depth_;
 }
 
-template <typename KeyType, typename ValueType, typename KeyComparator>
-inline auto HASH_TABLE_TYPE::KeyToPageId(KeyType key, HashTableDirectoryPage *dir_page) -> uint32_t {
-  return 0;
+template <typename K, typename V>
+auto ExtendibleHashTable<K, V>::GetLocalDepth(int dir_index) const -> int {
+  std::scoped_lock<std::mutex> lock(latch_);
+  return GetLocalDepthInternal(dir_index);
 }
 
-template <typename KeyType, typename ValueType, typename KeyComparator>
-auto HASH_TABLE_TYPE::FetchDirectoryPage() -> HashTableDirectoryPage * {
-  return nullptr;
+template <typename K, typename V>
+auto ExtendibleHashTable<K, V>::GetLocalDepthInternal(int dir_index) const -> int {
+  return dir_[dir_index]->GetDepth();
 }
 
-template <typename KeyType, typename ValueType, typename KeyComparator>
-auto HASH_TABLE_TYPE::FetchBucketPage(page_id_t bucket_page_id) -> HASH_TABLE_BUCKET_TYPE * {
-  return nullptr;
+template <typename K, typename V>
+auto ExtendibleHashTable<K, V>::GetNumBuckets() const -> int {
+  std::scoped_lock<std::mutex> lock(latch_);
+  return GetNumBucketsInternal();
 }
 
-/*****************************************************************************
- * SEARCH
- *****************************************************************************/
-template <typename KeyType, typename ValueType, typename KeyComparator>
-auto HASH_TABLE_TYPE::GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result) -> bool {
+template <typename K, typename V>
+auto ExtendibleHashTable<K, V>::GetNumBucketsInternal() const -> int {
+  return num_buckets_;
+}
+
+template <typename K, typename V>
+auto ExtendibleHashTable<K, V>::Find(const K &key, V &value) -> bool {
   return false;
 }
 
-/*****************************************************************************
- * INSERTION
- *****************************************************************************/
-template <typename KeyType, typename ValueType, typename KeyComparator>
-auto HASH_TABLE_TYPE::Insert(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool {
+template <typename K, typename V>
+auto ExtendibleHashTable<K, V>::Remove(const K &key) -> bool {
   return false;
 }
 
-template <typename KeyType, typename ValueType, typename KeyComparator>
-auto HASH_TABLE_TYPE::SplitInsert(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool {
+template <typename K, typename V>
+void ExtendibleHashTable<K, V>::Insert(const K &key, const V &value) {}
+
+template <typename K, typename V>
+void ExtendibleHashTable<K, V>::RedistributeBucket(std::shared_ptr<Bucket> bucket) {}
+
+//===--------------------------------------------------------------------===//
+// Bucket
+//===--------------------------------------------------------------------===//
+template <typename K, typename V>
+ExtendibleHashTable<K, V>::Bucket::Bucket(size_t array_size, int depth) : size_(array_size), depth_(depth) {}
+
+template <typename K, typename V>
+auto ExtendibleHashTable<K, V>::Bucket::Find(const K &key, V &value) -> bool {
   return false;
 }
 
-/*****************************************************************************
- * REMOVE
- *****************************************************************************/
-template <typename KeyType, typename ValueType, typename KeyComparator>
-auto HASH_TABLE_TYPE::Remove(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool {
+template <typename K, typename V>
+auto ExtendibleHashTable<K, V>::Bucket::Remove(const K &key) -> bool {
   return false;
 }
 
-/*****************************************************************************
- * MERGE
- *****************************************************************************/
-template <typename KeyType, typename ValueType, typename KeyComparator>
-void HASH_TABLE_TYPE::Merge(Transaction *transaction, const KeyType &key, const ValueType &value) {}
-
-/*****************************************************************************
- * GETGLOBALDEPTH - DO NOT TOUCH
- *****************************************************************************/
-template <typename KeyType, typename ValueType, typename KeyComparator>
-auto HASH_TABLE_TYPE::GetGlobalDepth() -> uint32_t {
-  table_latch_.RLock();
-  HashTableDirectoryPage *dir_page = FetchDirectoryPage();
-  uint32_t global_depth = dir_page->GetGlobalDepth();
-  assert(buffer_pool_manager_->UnpinPage(directory_page_id_, false, nullptr));
-  table_latch_.RUnlock();
-  return global_depth;
+template <typename K, typename V>
+auto ExtendibleHashTable<K, V>::Bucket::Insert(const K &key, const V &value) -> bool {
+  return false;
 }
 
-/*****************************************************************************
- * VERIFY INTEGRITY - DO NOT TOUCH
- *****************************************************************************/
-template <typename KeyType, typename ValueType, typename KeyComparator>
-void HASH_TABLE_TYPE::VerifyIntegrity() {
-  table_latch_.RLock();
-  HashTableDirectoryPage *dir_page = FetchDirectoryPage();
-  dir_page->VerifyIntegrity();
-  assert(buffer_pool_manager_->UnpinPage(directory_page_id_, false, nullptr));
-  table_latch_.RUnlock();
-}
-
-/*****************************************************************************
- * TEMPLATE DEFINITIONS - DO NOT TOUCH
- *****************************************************************************/
-template class ExtendibleHashTable<int, int, IntComparator>;
-
-template class ExtendibleHashTable<GenericKey<4>, RID, GenericComparator<4>>;
-template class ExtendibleHashTable<GenericKey<8>, RID, GenericComparator<8>>;
-template class ExtendibleHashTable<GenericKey<16>, RID, GenericComparator<16>>;
-template class ExtendibleHashTable<GenericKey<32>, RID, GenericComparator<32>>;
-template class ExtendibleHashTable<GenericKey<64>, RID, GenericComparator<64>>;
+template class ExtendibleHashTable<page_id_t, Page *>;
+template class ExtendibleHashTable<Page *, std::list<Page *>::iterator>;
+template class ExtendibleHashTable<int, int>;
+// test purpose
+template class ExtendibleHashTable<int, std::string>;
+template class ExtendibleHashTable<int, std::list<int>::iterator>;
 
 }  // namespace bustub

@@ -2,56 +2,32 @@
 //
 //                         BusTub
 //
-// hash_table.h
+// disk_hash_table.h
 //
 // Identification: src/include/container/hash/hash_table.h
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2022, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
+/**
+ * hash_table.h
+ *
+ * Abstract class for hash table implementation
+ */
 
 #pragma once
 
-#include <queue>
-#include <string>
-#include <vector>
-
-#include "concurrency/transaction.h"
-#include "storage/page/hash_table_page_defs.h"
-
 namespace bustub {
 
-template <typename KeyType, typename ValueType, typename KeyComparator>
+template <typename K, typename V>
 class HashTable {
  public:
+  HashTable() = default;
   virtual ~HashTable() = default;
-
-  /**
-   * Inserts a key-value pair into the hash table.
-   * @param transaction the current transaction
-   * @param key the key to create
-   * @param value the value to be associated with the key
-   * @return true if insert succeeded, false otherwise
-   */
-  virtual auto Insert(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool = 0;
-
-  /**
-   * Deletes the associated value for the given key.
-   * @param transaction the current transaction
-   * @param key the key to delete
-   * @param value the value to delete
-   * @return true if remove succeeded, false otherwise
-   */
-  virtual auto Remove(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool = 0;
-
-  /**
-   * Performs a point query on the hash table.
-   * @param transaction the current transaction
-   * @param key the key to look up
-   * @param[out] result the value(s) associated with a given key
-   * @return the value(s) associated with the given key
-   */
-  virtual auto GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result) -> bool = 0;
+  // lookup and modifier
+  virtual auto Find(const K &key, V &value) -> bool = 0;
+  virtual auto Remove(const K &key) -> bool = 0;
+  virtual void Insert(const K &key, const V &value) = 0;
 };
 
 }  // namespace bustub

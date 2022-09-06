@@ -17,8 +17,8 @@
 #include <string>
 #include <vector>
 
+#include "container/disk/hash/linear_probe_hash_table.h"
 #include "container/hash/hash_function.h"
-#include "container/hash/linear_probe_hash_table.h"
 #include "storage/index/index.h"
 
 namespace bustub {
