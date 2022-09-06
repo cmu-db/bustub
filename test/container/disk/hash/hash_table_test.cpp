@@ -15,7 +15,7 @@
 
 #include "buffer/buffer_pool_manager_instance.h"
 #include "common/logger.h"
-#include "container/hash/extendible_hash_table.h"
+#include "container/disk/hash/disk_extendible_hash_table.h"
 #include "gtest/gtest.h"
 #include "murmur3/MurmurHash3.h"
 
@@ -27,7 +27,7 @@ namespace bustub {
 TEST(HashTableTest, DISABLED_SampleTest) {
   auto *disk_manager = new DiskManager("test.db");
   auto *bpm = new BufferPoolManagerInstance(50, disk_manager);
-  ExtendibleHashTable<int, int, IntComparator> ht("blah", bpm, IntComparator(), HashFunction<int>());
+  DiskExtendibleHashTable<int, int, IntComparator> ht("blah", bpm, IntComparator(), HashFunction<int>());
 
   // insert a few values
   for (int i = 0; i < 5; i++) {
