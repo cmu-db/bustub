@@ -18,7 +18,7 @@
 #include "common/exception.h"
 #include "common/logger.h"
 #include "common/rid.h"
-#include "container/hash/linear_probe_hash_table.h"
+#include "container/disk/hash/linear_probe_hash_table.h"
 
 namespace bustub {
 

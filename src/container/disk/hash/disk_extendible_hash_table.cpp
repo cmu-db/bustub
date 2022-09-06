@@ -18,13 +18,13 @@
 #include "common/exception.h"
 #include "common/logger.h"
 #include "common/rid.h"
-#include "container/hash/extendible_hash_table.h"
+#include "container/disk/hash/disk_extendible_hash_table.h"
 
 namespace bustub {
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-HASH_TABLE_TYPE::ExtendibleHashTable(const std::string &name, BufferPoolManager *buffer_pool_manager,
-                                     const KeyComparator &comparator, HashFunction<KeyType> hash_fn)
+HASH_TABLE_TYPE::DiskExtendibleHashTable(const std::string &name, BufferPoolManager *buffer_pool_manager,
+                                         const KeyComparator &comparator, HashFunction<KeyType> hash_fn)
     : buffer_pool_manager_(buffer_pool_manager), comparator_(comparator), hash_fn_(std::move(hash_fn)) {
   //  implement me!
 }
@@ -50,7 +50,7 @@ inline auto HASH_TABLE_TYPE::KeyToDirectoryIndex(KeyType key, HashTableDirectory
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
-inline auto HASH_TABLE_TYPE::KeyToPageId(KeyType key, HashTableDirectoryPage *dir_page) -> uint32_t {
+inline auto HASH_TABLE_TYPE::KeyToPageId(KeyType key, HashTableDirectoryPage *dir_page) -> page_id_t {
   return 0;
 }
 
@@ -127,12 +127,12 @@ void HASH_TABLE_TYPE::VerifyIntegrity() {
 /*****************************************************************************
  * TEMPLATE DEFINITIONS - DO NOT TOUCH
  *****************************************************************************/
-template class ExtendibleHashTable<int, int, IntComparator>;
+template class DiskExtendibleHashTable<int, int, IntComparator>;
 
-template class ExtendibleHashTable<GenericKey<4>, RID, GenericComparator<4>>;
-template class ExtendibleHashTable<GenericKey<8>, RID, GenericComparator<8>>;
-template class ExtendibleHashTable<GenericKey<16>, RID, GenericComparator<16>>;
-template class ExtendibleHashTable<GenericKey<32>, RID, GenericComparator<32>>;
-template class ExtendibleHashTable<GenericKey<64>, RID, GenericComparator<64>>;
+template class DiskExtendibleHashTable<GenericKey<4>, RID, GenericComparator<4>>;
+template class DiskExtendibleHashTable<GenericKey<8>, RID, GenericComparator<8>>;
+template class DiskExtendibleHashTable<GenericKey<16>, RID, GenericComparator<16>>;
+template class DiskExtendibleHashTable<GenericKey<32>, RID, GenericComparator<32>>;
+template class DiskExtendibleHashTable<GenericKey<64>, RID, GenericComparator<64>>;
 
 }  // namespace bustub
