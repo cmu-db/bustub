@@ -18,6 +18,7 @@
 
 #include "buffer/buffer_pool_manager.h"
 #include "buffer/lru_replacer.h"
+#include "container/hash/extendible_hash_table.h"
 #include "recovery/log_manager.h"
 #include "storage/disk/disk_manager.h"
 #include "storage/page/page.h"
@@ -36,16 +37,6 @@ class BufferPoolManagerInstance : public BufferPoolManager {
    * @param log_manager the log manager (for testing only: nullptr = disable logging)
    */
   BufferPoolManagerInstance(size_t pool_size, DiskManager *disk_manager, LogManager *log_manager = nullptr);
-  /**
-   * Creates a new BufferPoolManagerInstance.
-   * @param pool_size the size of the buffer pool
-   * @param num_instances total number of BPIs in parallel BPM
-   * @param instance_index index of this BPI in the parallel BPM
-   * @param disk_manager the disk manager
-   * @param log_manager the log manager (for testing only: nullptr = disable logging)
-   */
-  BufferPoolManagerInstance(size_t pool_size, uint32_t num_instances, uint32_t instance_index,
-                            DiskManager *disk_manager, LogManager *log_manager = nullptr);
 
   /**
    * Destroys an existing BufferPoolManagerInstance.
@@ -101,34 +92,25 @@ class BufferPoolManagerInstance : public BufferPoolManager {
   void FlushAllPgsImp() override;
 
   /**
-   * Allocate a page on disk.∂
+   * Allocate a page on disk. Caller should acquire the latch before calling this function.
    * @return the id of the allocated page
    */
   auto AllocatePage() -> page_id_t;
 
   /**
-   * Deallocate a page on disk.
+   * Deallocate a page on disk. Caller should acquire the latch before calling this function.
    * @param page_id id of the page to deallocate
    */
   void DeallocatePage(__attribute__((unused)) page_id_t page_id) {
     // This is a no-nop right now without a more complex data structure to track deallocated pages
   }
 
-  /**
-   * Validate that the page_id being used is accessible to this BPI. This can be used in all of the functions to
-   * validate input data and ensure that a parallel BPM is routing requests to the correct BPI
-   * @param page_id
-   */
-  void ValidatePageId(page_id_t page_id) const;
-
   /** Number of pages in the buffer pool. */
   const size_t pool_size_;
-  /** How many instances are in the parallel BPM (if present, otherwise just 1 BPI) */
-  const uint32_t num_instances_ = 1;
-  /** Index of this BPI in the parallel BPM (if present, otherwise just 0) */
-  const uint32_t instance_index_ = 0;
-  /** Each BPI maintains its own counter for page_ids to hand out, must ensure they mod back to its instance_index_ */
-  std::atomic<page_id_t> next_page_id_ = instance_index_;
+  /** The next page id to be allocated  */
+  std::atomic<page_id_t> next_page_id_ = 0;
+  /** Bucket size for the extendible hash table */
+  const size_t bucket_size_ = 4;
 
   /** Array of buffer pool pages. */
   Page *pages_;
@@ -137,7 +119,7 @@ class BufferPoolManagerInstance : public BufferPoolManager {
   /** Pointer to the log manager. */
   LogManager *log_manager_ __attribute__((__unused__));
   /** Page table for keeping track of buffer pool pages. */
-  std::unordered_map<page_id_t, frame_id_t> page_table_;
+  ExtendibleHashTable<page_id_t, frame_id_t> *page_table_;
   /** Replacer to find unpinned pages for replacement. */
   Replacer *replacer_;
   /** List of free pages. */
