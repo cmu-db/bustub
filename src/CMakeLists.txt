@@ -23,6 +23,7 @@ set(BUSTUB_LIBS
     bustub_recovery 
     bustub_type
     bustub_container_hash
+    bustub_container_disk_hash
     bustub_storage_disk
     bustub_storage_index
     bustub_storage_page
