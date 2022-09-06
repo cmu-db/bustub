@@ -18,22 +18,10 @@ namespace bustub {
 
 BufferPoolManagerInstance::BufferPoolManagerInstance(size_t pool_size, DiskManager *disk_manager,
                                                      LogManager *log_manager)
-    : BufferPoolManagerInstance(pool_size, 1, 0, disk_manager, log_manager) {}
-
-BufferPoolManagerInstance::BufferPoolManagerInstance(size_t pool_size, uint32_t num_instances, uint32_t instance_index,
-                                                     DiskManager *disk_manager, LogManager *log_manager)
-    : pool_size_(pool_size),
-      num_instances_(num_instances),
-      instance_index_(instance_index),
-      next_page_id_(instance_index),
-      disk_manager_(disk_manager),
-      log_manager_(log_manager) {
-  BUSTUB_ASSERT(num_instances > 0, "If BPI is not part of a pool, then the pool size should just be 1");
-  BUSTUB_ASSERT(
-      instance_index < num_instances,
-      "BPI index cannot be greater than the number of BPIs in the pool. In non-parallel case, index should just be 1.");
-  // We allocate a consecutive memory space for the buffer pool.
+    : pool_size_(pool_size), disk_manager_(disk_manager), log_manager_(log_manager) {
+  // we allocate a consecutive memory space for the buffer pool
   pages_ = new Page[pool_size_];
+  page_table_ = new ExtendibleHashTable<page_id_t, frame_id_t>(bucket_size_);
   replacer_ = new LRUReplacer(pool_size);
 
   // Initially, every page is in the free list.
@@ -44,6 +32,7 @@ BufferPoolManagerInstance::BufferPoolManagerInstance(size_t pool_size, uint32_t 
 
 BufferPoolManagerInstance::~BufferPoolManagerInstance() {
   delete[] pages_;
+  delete page_table_;
   delete replacer_;
 }
 
@@ -87,15 +76,6 @@ auto BufferPoolManagerInstance::DeletePgImp(page_id_t page_id) -> bool {
 
 auto BufferPoolManagerInstance::UnpinPgImp(page_id_t page_id, bool is_dirty) -> bool { return false; }
 
-auto BufferPoolManagerInstance::AllocatePage() -> page_id_t {
-  const page_id_t next_page_id = next_page_id_;
-  next_page_id_ += num_instances_;
-  ValidatePageId(next_page_id);
-  return next_page_id;
-}
-
-void BufferPoolManagerInstance::ValidatePageId(const page_id_t page_id) const {
-  assert(page_id % num_instances_ == instance_index_);  // allocated pages mod back to this BPI
-}
+auto BufferPoolManagerInstance::AllocatePage() -> page_id_t { return next_page_id_++; }
 
 }  // namespace bustub
