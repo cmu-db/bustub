@@ -36,43 +36,15 @@ BufferPoolManagerInstance::~BufferPoolManagerInstance() {
   delete replacer_;
 }
 
-auto BufferPoolManagerInstance::FlushPgImp(page_id_t page_id) -> bool {
-  // Make sure you call DiskManager::WritePage!
-  return false;
-}
+auto BufferPoolManagerInstance::FlushPgImp(page_id_t page_id) -> bool { return false; }
 
-void BufferPoolManagerInstance::FlushAllPgsImp() {
-  // You can do it!
-}
+void BufferPoolManagerInstance::FlushAllPgsImp() {}
 
-auto BufferPoolManagerInstance::NewPgImp(page_id_t *page_id) -> Page * {
-  // 0.   Make sure you call AllocatePage!
-  // 1.   If all the pages in the buffer pool are pinned, return nullptr.
-  // 2.   Pick a victim page P from either the free list or the replacer. Always pick from the free list first.
-  // 3.   Update P's metadata, zero out memory and add P to the page table.
-  // 4.   Set the page ID output parameter. Return a pointer to P.
-  return nullptr;
-}
+auto BufferPoolManagerInstance::NewPgImp(page_id_t *page_id) -> Page * { return nullptr; }
 
-auto BufferPoolManagerInstance::FetchPgImp(page_id_t page_id) -> Page * {
-  // 1.     Search the page table for the requested page (P).
-  // 1.1    If P exists, pin it and return it immediately.
-  // 1.2    If P does not exist, find a replacement page (R) from either the free list or the replacer.
-  //        Note that pages are always found from the free list first.
-  // 2.     If R is dirty, write it back to the disk.
-  // 3.     Delete R from the page table and insert P.
-  // 4.     Update P's metadata, read in the page content from disk, and then return a pointer to P.
-  return nullptr;
-}
+auto BufferPoolManagerInstance::FetchPgImp(page_id_t page_id) -> Page * { return nullptr; }
 
-auto BufferPoolManagerInstance::DeletePgImp(page_id_t page_id) -> bool {
-  // 0.   Make sure you call DeallocatePage!
-  // 1.   Search the page table for the requested page (P).
-  // 1.   If P does not exist, return true.
-  // 2.   If P exists, but has a non-zero pin-count, return false. Someone is using the page.
-  // 3.   Otherwise, P can be deleted. Remove P from the page table, reset its metadata and return it to the free list.
-  return false;
-}
+auto BufferPoolManagerInstance::DeletePgImp(page_id_t page_id) -> bool { return false; }
 
 auto BufferPoolManagerInstance::UnpinPgImp(page_id_t page_id, bool is_dirty) -> bool { return false; }
 

@@ -77,9 +77,6 @@ auto ExtendibleHashTable<K, V>::Remove(const K &key) -> bool {
 template <typename K, typename V>
 void ExtendibleHashTable<K, V>::Insert(const K &key, const V &value) {}
 
-template <typename K, typename V>
-void ExtendibleHashTable<K, V>::RedistributeBucket(std::shared_ptr<Bucket> bucket) {}
-
 //===--------------------------------------------------------------------===//
 // Bucket
 //===--------------------------------------------------------------------===//
