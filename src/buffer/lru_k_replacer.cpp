@@ -16,14 +16,6 @@ namespace bustub {
 
 LRUKReplacer::LRUKReplacer(size_t num_frames, size_t k) : replacer_size_(num_frames), k_(k) {}
 
-/**
- * @brief When multiple pages have max backward k distance and they are pinned then unpinned,
- * the lru algo still evicts them based on their earliest access timestamp.
- *
- * @param frame_id
- * @return true
- * @return false
- */
 auto LRUKReplacer::Evict(frame_id_t *frame_id) -> bool { return false; }
 
 void LRUKReplacer::RecordAccess(frame_id_t frame_id) {}
