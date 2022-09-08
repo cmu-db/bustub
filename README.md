@@ -56,6 +56,10 @@ The following instructions are adapted from the Github documentation on [duplica
    ```
    $ git pull public master
    ```
+7. **Disable GitHub Actions** from the project settings of your private repository, otherwise you may run out of GitHub Actions quota.
+   ```
+   Settings > Actions > General > Actions permissions > Disable actions.
+   ```
 
 We suggest working on your projects in separate branches. If you do not understand how Git branches work, [learn how](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging). If you fail to do this, you might lose all your work at some point in the semester, and nobody will be able to help you.
 
