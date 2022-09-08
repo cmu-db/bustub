@@ -66,16 +66,18 @@ auto ExtendibleHashTable<K, V>::GetNumBucketsInternal() const -> int {
 
 template <typename K, typename V>
 auto ExtendibleHashTable<K, V>::Find(const K &key, V &value) -> bool {
-  return false;
+  UNREACHABLE("not implemented");
 }
 
 template <typename K, typename V>
 auto ExtendibleHashTable<K, V>::Remove(const K &key) -> bool {
-  return false;
+  UNREACHABLE("not implemented");
 }
 
 template <typename K, typename V>
-void ExtendibleHashTable<K, V>::Insert(const K &key, const V &value) {}
+void ExtendibleHashTable<K, V>::Insert(const K &key, const V &value) {
+  UNREACHABLE("not implemented");
+}
 
 //===--------------------------------------------------------------------===//
 // Bucket
@@ -85,17 +87,17 @@ ExtendibleHashTable<K, V>::Bucket::Bucket(size_t array_size, int depth) : size_(
 
 template <typename K, typename V>
 auto ExtendibleHashTable<K, V>::Bucket::Find(const K &key, V &value) -> bool {
-  return false;
+  UNREACHABLE("not implemented");
 }
 
 template <typename K, typename V>
 auto ExtendibleHashTable<K, V>::Bucket::Remove(const K &key) -> bool {
-  return false;
+  UNREACHABLE("not implemented");
 }
 
 template <typename K, typename V>
 auto ExtendibleHashTable<K, V>::Bucket::Insert(const K &key, const V &value) -> bool {
-  return false;
+  UNREACHABLE("not implemented");
 }
 
 template class ExtendibleHashTable<page_id_t, Page *>;
