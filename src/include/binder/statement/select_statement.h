@@ -24,6 +24,7 @@ struct PGNode;
 struct PGColumnRef;
 struct PGResTarget;
 struct PGAExpr;
+struct PGJoinExpr;
 }  // namespace duckdb_libpgquery
 
 namespace bustub {
@@ -49,9 +50,13 @@ class SelectStatement : public BoundStatement {
 
   auto BindExpression(duckdb_libpgquery::PGNode *node) -> std::unique_ptr<BoundExpression>;
 
+  auto BindExpressionWithScope(duckdb_libpgquery::PGNode *node, const BoundTableRef &scope)
+      -> std::unique_ptr<BoundExpression>;
+
   auto BindConstant(duckdb_libpgquery::PGAConst *node) -> std::unique_ptr<BoundExpression>;
 
-  auto BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> std::unique_ptr<BoundExpression>;
+  auto BindColumnRef(duckdb_libpgquery::PGColumnRef *node, const bustub::BoundTableRef &scope)
+      -> std::unique_ptr<BoundExpression>;
 
   auto BindResTarget(duckdb_libpgquery::PGResTarget *root) -> std::unique_ptr<BoundExpression>;
 
@@ -59,11 +64,18 @@ class SelectStatement : public BoundStatement {
 
   auto BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_ptr<BoundExpression>;
 
-  auto BindAExpr(duckdb_libpgquery::PGAExpr *root) -> std::unique_ptr<BoundExpression>;
+  auto BindAExpr(duckdb_libpgquery::PGAExpr *root, const bustub::BoundTableRef &scope)
+      -> std::unique_ptr<BoundExpression>;
 
-  auto ResolveColumn(const std::string &col_name) -> std::unique_ptr<BoundExpression>;
+  auto BindFrom(duckdb_libpgquery::PGList *list) -> std::unique_ptr<BoundTableRef>;
 
-  auto ResolveColumnWithTable(const std::string &table_name, const std::string &col_name)
+  auto BindTableRef(duckdb_libpgquery::PGNode *node) -> std::unique_ptr<BoundTableRef>;
+
+  auto BindJoin(duckdb_libpgquery::PGJoinExpr *root) -> std::unique_ptr<BoundTableRef>;
+
+  void AddAllColumnsToList(const BoundTableRef &table_ref);
+
+  auto ResolveColumn(const BoundTableRef &table_ref, const std::vector<std::string> &col_name)
       -> std::unique_ptr<BoundExpression>;
 
   /** Bound FROM clause. */

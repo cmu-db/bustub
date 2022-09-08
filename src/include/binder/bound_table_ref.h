@@ -39,6 +39,8 @@ class BoundTableRef {
     }
   }
 
+  auto IsInvalid() const -> bool { return type_ == TableReferenceType::INVALID; }
+
   /** The type of table reference. */
   TableReferenceType type_{TableReferenceType::INVALID};
 };
