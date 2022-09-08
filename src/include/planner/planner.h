@@ -35,7 +35,7 @@ class Planner {
 
   auto PlanTableRef(const BoundTableRef &table_ref) -> std::unique_ptr<AbstractPlanNode>;
 
-  auto PlanExpression(const BoundExpression &expr, const AbstractPlanNode &child)
+  auto PlanExpression(const BoundExpression &expr, const std::vector<const AbstractPlanNode *> &children)
       -> std::unique_ptr<AbstractExpression>;
 
   /** the root plan node of the plan tree */

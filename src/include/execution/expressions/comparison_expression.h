@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -54,6 +55,11 @@ class ComparisonExpression : public AbstractExpression {
     return ValueFactory::GetBooleanValue(PerformComparison(lhs, rhs));
   }
 
+  /** @return the string representation of the plan node and its children */
+  auto ToString() const -> std::string override {
+    return fmt::format("{}{}{}", *GetChildAt(0), comp_type_, *GetChildAt(1));
+  }
+
  private:
   auto PerformComparison(const Value &lhs, const Value &rhs) const -> CmpBool {
     switch (comp_type_) {
@@ -74,7 +80,38 @@ class ComparisonExpression : public AbstractExpression {
     }
   }
 
-  std::vector<const AbstractExpression *> children_;
   ComparisonType comp_type_;
 };
 }  // namespace bustub
+
+template <>
+struct fmt::formatter<bustub::ComparisonType> : formatter<string_view> {
+  template <typename FormatContext>
+  auto format(bustub::ComparisonType c, FormatContext &ctx) const {
+    string_view name;
+    switch (c) {
+      case bustub::ComparisonType::Equal:
+        name = "=";
+        break;
+      case bustub::ComparisonType::NotEqual:
+        name = "!=";
+        break;
+      case bustub::ComparisonType::LessThan:
+        name = "<";
+        break;
+      case bustub::ComparisonType::LessThanOrEqual:
+        name = "<=";
+        break;
+      case bustub::ComparisonType::GreaterThan:
+        name = ">";
+        break;
+      case bustub::ComparisonType::GreaterThanOrEqual:
+        name = ">=";
+        break;
+      default:
+        name = "Unknown";
+        break;
+    }
+    return formatter<string_view>::format(name, ctx);
+  }
+};

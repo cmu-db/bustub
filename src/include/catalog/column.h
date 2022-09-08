@@ -77,7 +77,7 @@ class Column {
   auto IsInlined() const -> bool { return column_type_ != TypeId::VARCHAR; }
 
   /** @return a string representation of this column */
-  auto ToString() const -> std::string;
+  auto ToString(bool simplified = true) const -> std::string;
 
   /** @return the expression used to create this column */
   auto GetExpr() const -> const AbstractExpression * { return expr_; }

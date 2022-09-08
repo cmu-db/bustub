@@ -19,7 +19,7 @@ class BoundColumnRef : public BoundExpression {
   /** Name of the table. */
   std::string table_;
 
-  /** The position of the column in the schema. */
+  /** The name of the column in the schema. */
   std::string col_;
 };
 }  // namespace bustub

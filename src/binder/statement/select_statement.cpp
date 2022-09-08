@@ -1,4 +1,5 @@
 #include "binder/statement/select_statement.h"
+#include <memory>
 #include "binder/binder.h"
 #include "binder/bound_statement.h"
 #include "binder/expressions/bound_agg_call.h"

@@ -54,7 +54,7 @@ class ColumnValueExpression : public AbstractExpression {
   auto GetColIdx() const -> uint32_t { return col_idx_; }
 
   /** @return the string representation of the plan node and its children */
-  auto ToString() const -> std::string override { return fmt::format("#{}", col_idx_); }
+  auto ToString() const -> std::string override { return fmt::format("#{}.{}", tuple_idx_, col_idx_); }
 
  private:
   /** Tuple index 0 = left side of join, tuple index 1 = right side of join */

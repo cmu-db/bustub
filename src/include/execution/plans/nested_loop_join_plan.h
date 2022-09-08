@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -55,9 +56,13 @@ class NestedLoopJoinPlanNode : public AbstractPlanNode {
     return GetChildAt(1);
   }
 
- private:
   /** The join predicate */
   const AbstractExpression *predicate_;
+
+ protected:
+  auto PlanNodeToString() const -> std::string override {
+    return fmt::format("NestedLoopJoin {{ predicate={} }}", predicate_->ToString());
+  }
 };
 
 }  // namespace bustub
