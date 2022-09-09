@@ -29,7 +29,7 @@ class MockScanExecutor : public AbstractExecutor {
   /**
    * Construct a new MockScanExecutor instance.
    * @param exec_ctx The executor context
-   * @param plan The sequential scan plan to be executed
+   * @param plan The mock scan plan to be executed
    */
   MockScanExecutor(ExecutorContext *exec_ctx, const MockScanPlanNode *plan);
 

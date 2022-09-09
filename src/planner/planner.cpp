@@ -222,9 +222,13 @@ auto Planner::PlanTableRef(const BoundTableRef &table_ref) -> std::unique_ptr<Ab
         idx += 1;
       }
 
-      // Plan as MockScanExecutor if it is a mock table.
-      if (StringUtil::StartsWith(table->name_, "__mock")) {
-        return std::make_unique<MockScanPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), 100);
+      if (StringUtil::StartsWith(table->name_, "__")) {
+        // Plan as MockScanExecutor if it is a mock table.
+        if (StringUtil::StartsWith(table->name_, "__mock")) {
+          return std::make_unique<MockScanPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), 100);
+        }
+      } else {
+        throw bustub::Exception(fmt::format("unsupported internal table: {}", table->name_));
       }
       // Otherwise, plan as normal SeqScan.
       return std::make_unique<SeqScanPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), nullptr, table->oid_);
