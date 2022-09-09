@@ -86,14 +86,12 @@ TEST(BinderTest, BindAgg) {
   PrintStatements(statements);
 }
 
-// TODO(chi): join is not supported yet
-TEST(BinderTest, DISABLED_BindCrossJoin) {
+TEST(BinderTest, BindCrossJoin) {
   auto statements = TryBind("select * from a, b where a.x = b.y");
   PrintStatements(statements);
 }
 
-// TODO(chi): join is not supported yet
-TEST(BinderTest, DISABLED_BindJoin) {
+TEST(BinderTest, BindJoin) {
   auto statements = TryBind("select * from a INNER JOIN b ON a.x = b.y");
   PrintStatements(statements);
 }
