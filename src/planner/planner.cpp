@@ -45,6 +45,8 @@ auto Planner::PlanExpression(const BoundExpression &expr, const std::vector<cons
         throw Exception("column ref should have at least one child");
       }
       if (children.size() == 1) {
+        // Projections, Filters, and other executors evaluating expressions with one single child will
+        // use this branch.
         const auto &child = children[0];
         auto schema = child->OutputSchema();
         uint32_t col_idx = schema->GetColIdx(fmt::format("{}.{}", column_ref_expr.table_, column_ref_expr.col_));
@@ -52,6 +54,21 @@ auto Planner::PlanExpression(const BoundExpression &expr, const std::vector<cons
         return std::make_unique<ColumnValueExpression>(0, col_idx, col_type);
       }
       if (children.size() == 2) {
+        /**
+         * Joins will use this branch to plan expressions.
+         *
+         * If an expression is for join condition, e.g.
+         * SELECT * from test_1 inner join test_2 on test_1.colA = test_2.col2
+         * The plan will be like:
+         * ```
+         * NestedLoopJoin condition={ ColumnRef 0.0=ColumnRef 1.1 }
+         *   SeqScan colA, colB
+         *   SeqScan col1, col2
+         * ```
+         * In `ColumnRef n.m`, when executor is using the expression, it picks from its
+         * nth children's mth column to get the data.
+         */
+
         const auto &left = children[0];
         const auto &right = children[1];
         auto left_schema = left->OutputSchema();
