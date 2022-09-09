@@ -19,7 +19,7 @@
 
 #include "common/util/hash_util.h"
 #include "execution/plans/abstract_plan.h"
-#include "fmt/core.h"
+#include "fmt/format.h"
 #include "storage/table/tuple.h"
 
 namespace bustub {

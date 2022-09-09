@@ -32,7 +32,9 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
   // Log related.
   log_manager_ = new LogManager(disk_manager_);
 
-  buffer_pool_manager_ = new BufferPoolManagerInstance(BUFFER_POOL_SIZE, disk_manager_, LRUK_REPLACER_K, log_manager_);
+  // We need more frames for GenerateTestTable to work. Therefore, we use 128 instead of the default
+  // buffer pool size specified in `config.h`.
+  buffer_pool_manager_ = new BufferPoolManagerInstance(128, disk_manager_, LRUK_REPLACER_K, log_manager_);
 
   // Transaction (txn) related.
   lock_manager_ = new LockManager();

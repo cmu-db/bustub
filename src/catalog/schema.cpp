@@ -38,7 +38,23 @@ Schema::Schema(const std::vector<Column> &columns) {
   length_ = curr_offset;
 }
 
-auto Schema::ToString() const -> std::string {
+auto Schema::ToString(bool simplified) const -> std::string {
+  if (simplified) {
+    std::ostringstream os;
+    bool first = true;
+    os << "(";
+    for (uint32_t i = 0; i < GetColumnCount(); i++) {
+      if (first) {
+        first = false;
+      } else {
+        os << ", ";
+      }
+      os << columns_[i].ToString(simplified);
+    }
+    os << ")";
+    return (os.str());
+  }
+
   std::ostringstream os;
 
   os << "Schema["

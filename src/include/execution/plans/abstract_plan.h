@@ -18,7 +18,7 @@
 #include <vector>
 
 #include "catalog/schema.h"
-#include "fmt/core.h"
+#include "fmt/format.h"
 
 namespace bustub {
 
@@ -34,7 +34,8 @@ enum class PlanType {
   Distinct,
   NestedLoopJoin,
   NestedIndexJoin,
-  HashJoin
+  HashJoin,
+  Filter
 };
 
 /**
@@ -70,7 +71,7 @@ class AbstractPlanNode {
 
   /** @return the string representation of the plan node and its children */
   auto ToString() const -> std::string {
-    return fmt::format("{} | {}\n{}", PlanNodeToString(), output_schema_->ToString(), ChildrenToString(2));
+    return fmt::format("{} | {}{}", PlanNodeToString(), output_schema_->ToString(), ChildrenToString(2));
   }
 
  protected:

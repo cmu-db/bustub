@@ -13,7 +13,7 @@
 #pragma once
 
 #include "common/config.h"
-#include "fmt/core.h"
+#include "fmt/format.h"
 
 namespace bustub {
 

@@ -18,10 +18,11 @@
 #include <vector>
 
 #include "catalog/schema.h"
-#include "fmt/core.h"
+#include "fmt/format.h"
 #include "storage/table/tuple.h"
 
 namespace bustub {
+
 /**
  * AbstractExpression is the base class of all the expressions in the system.
  * Expressions are modeled as trees, i.e. every expression may have a variable number of children.
