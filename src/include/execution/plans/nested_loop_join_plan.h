@@ -62,7 +62,7 @@ class NestedLoopJoinPlanNode : public AbstractPlanNode {
 
  protected:
   auto PlanNodeToString() const -> std::string override {
-    return fmt::format("NestedLoopJoin {{ predicate={} }}", predicate_->ToString());
+    return fmt::format("NestedLoopJoin {{ predicate={} }}", *predicate_);
   }
 };
 

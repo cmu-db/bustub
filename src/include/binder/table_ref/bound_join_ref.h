@@ -6,7 +6,7 @@
 
 #include "binder/bound_expression.h"
 #include "binder/bound_table_ref.h"
-#include "fmt/core.h"
+#include "fmt/format.h"
 
 namespace bustub {
 

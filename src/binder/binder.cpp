@@ -33,7 +33,7 @@
 #include "common/exception.h"
 #include "common/logger.h"
 #include "common/util/string_util.h"
-#include "fmt/core.h"
+#include "fmt/format.h"
 #include "pg_definitions.hpp"
 #include "postgres_parser.hpp"
 #include "type/decimal_type.h"
