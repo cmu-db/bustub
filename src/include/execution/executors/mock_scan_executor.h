@@ -27,7 +27,7 @@ namespace bustub {
 class MockScanExecutor : public AbstractExecutor {
  public:
   /**
-   * Construct a new SeqScanExecutor instance.
+   * Construct a new MockScanExecutor instance.
    * @param exec_ctx The executor context
    * @param plan The sequential scan plan to be executed
    */
