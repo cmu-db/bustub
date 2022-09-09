@@ -47,7 +47,7 @@ class BoundJoinRef : public BoundTableRef {
   /** The right side of the join. */
   std::unique_ptr<BoundTableRef> right_;
 
-  /** Join condition */
+  /** Join condition. */
   std::unique_ptr<BoundExpression> condition_;
 };
 }  // namespace bustub
