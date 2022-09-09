@@ -23,10 +23,12 @@
 #include "execution/executors/index_scan_executor.h"
 #include "execution/executors/insert_executor.h"
 #include "execution/executors/limit_executor.h"
+#include "execution/executors/mock_scan_executor.h"
 #include "execution/executors/nested_index_join_executor.h"
 #include "execution/executors/nested_loop_join_executor.h"
 #include "execution/executors/seq_scan_executor.h"
 #include "execution/executors/update_executor.h"
+#include "execution/plans/mock_scan_plan.h"
 #include "storage/index/generic_key.h"
 
 namespace bustub {
@@ -109,6 +111,11 @@ auto ExecutorFactory::CreateExecutor(ExecutorContext *exec_ctx, const AbstractPl
       auto left = ExecutorFactory::CreateExecutor(exec_ctx, hash_join_plan->GetLeftPlan());
       auto right = ExecutorFactory::CreateExecutor(exec_ctx, hash_join_plan->GetRightPlan());
       return std::make_unique<HashJoinExecutor>(exec_ctx, hash_join_plan, std::move(left), std::move(right));
+    }
+
+    case PlanType::MockScan: {
+      const auto *mock_scan_plan = dynamic_cast<const MockScanPlanNode *>(plan);
+      return std::make_unique<MockScanExecutor>(exec_ctx, mock_scan_plan);
     }
 
     default:

@@ -9,6 +9,7 @@ add_library(
   index_scan_executor.cpp
   insert_executor.cpp
   limit_executor.cpp
+  mock_scan_executor.cpp
   nested_index_join_executor.cpp
   nested_loop_join_executor.cpp
   seq_scan_executor.cpp
@@ -16,5 +17,5 @@ add_library(
   executor_factory.cpp)
 
 set(ALL_OBJECT_FILES
-    ${ALL_OBJECT_FILES} $<TARGET_OBJECTS:bustub_execution>
-    PARENT_SCOPE)
+  ${ALL_OBJECT_FILES} $<TARGET_OBJECTS:bustub_execution>
+  PARENT_SCOPE)
