@@ -22,7 +22,7 @@
 namespace bustub {
 
 /**
- * The MockScanExecutor executor executes a sequential table scan.
+ * The MockScanExecutor executor executes a sequential table scan for tests.
  */
 class MockScanExecutor : public AbstractExecutor {
  public:
