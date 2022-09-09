@@ -31,15 +31,16 @@ auto TryBind(const std::string &query) {
       nullptr, "y",
       bustub::Schema(std::vector{bustub::Column{"x", TypeId::INTEGER}, bustub::Column{"z", TypeId::INTEGER},
                                  bustub::Column{"a", TypeId::INTEGER}, bustub::Column{"b", TypeId::INTEGER},
-                                 bustub::Column{"c", TypeId::INTEGER}}));
+                                 bustub::Column{"c", TypeId::INTEGER}}),
+      false);
 
   catalog.CreateTable(
       nullptr, "a",
-      bustub::Schema(std::vector{bustub::Column{"x", TypeId::INTEGER}, bustub::Column{"y", TypeId::INTEGER}}));
+      bustub::Schema(std::vector{bustub::Column{"x", TypeId::INTEGER}, bustub::Column{"y", TypeId::INTEGER}}), false);
 
   catalog.CreateTable(
       nullptr, "b",
-      bustub::Schema(std::vector{bustub::Column{"x", TypeId::INTEGER}, bustub::Column{"y", TypeId::INTEGER}}));
+      bustub::Schema(std::vector{bustub::Column{"x", TypeId::INTEGER}, bustub::Column{"y", TypeId::INTEGER}}), false);
 
   binder.ParseAndBindQuery(query, catalog);
   return std::move(binder.statements_);

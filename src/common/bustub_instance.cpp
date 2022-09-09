@@ -3,6 +3,7 @@
 #include "binder/bound_statement.h"
 #include "binder/statement/select_statement.h"
 #include "buffer/buffer_pool_manager_instance.h"
+#include "catalog/schema.h"
 #include "catalog/table_generator.h"
 #include "concurrency/lock_manager.h"
 #include "execution/execution_engine.h"
@@ -96,7 +97,7 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
     std::vector<Tuple> result_set{};
     execution_engine_->Execute(planner.plan_.get(), &result_set, txn, exec_ctx.get());
 
-    // TODO(chi): commit or abort the transaction.
+    // TODO(chi): decide commit or abort the transaction after trasnalction manager is implemented.
     delete txn;
 
     // Return the result set as a vector of string.
@@ -133,6 +134,23 @@ void BustubInstance::GenerateTestTable() {
   auto exec_ctx = MakeExecutorContext(txn);
   TableGenerator gen{exec_ctx.get()};
   gen.GenerateTestTables();
+
+  // TODO(chi): decide commit or abort the transaction after trasnalction manager is implemented.
+  delete txn;
+}
+
+/**
+ * FOR TEST ONLY. Generate test tables in this BusTub instance.
+ * It's used in the shell to predefine some tables, as we don't support
+ * create / drop table and insert for now. Should remove it in the future.
+ */
+void BustubInstance::GenerateMockTable() {
+  auto txn = transaction_manager_->Begin();
+  std::vector<Column> mock_table_1_columns{Column{"colA", TypeId::INTEGER}, {Column{"colB", TypeId::INTEGER}}};
+  auto mock_table_1_schema = Schema(mock_table_1_columns);
+  catalog_->CreateTable(txn, "__mock_table_1", mock_table_1_schema, false);
+
+  // TODO(chi): decide commit or abort the transaction after trasnalction manager is implemented.
   delete txn;
 }
 

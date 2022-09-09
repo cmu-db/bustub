@@ -55,6 +55,13 @@ class BustubInstance {
    */
   void GenerateTestTable();
 
+  /**
+   * FOR TEST ONLY. Generate mock tables in this BusTub instance.
+   * It's used in the shell to predefine some tables, as we don't support
+   * create / drop table and insert for now. Should remove it in the future.
+   */
+  void GenerateMockTable();
+
   // TODO(chi): change to unique_ptr. Currently they're directly referenced by recovery test, so
   // we cannot do anything on them until someone decides to refactor the recovery test.
 

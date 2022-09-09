@@ -117,21 +117,24 @@ class Catalog {
   /**
    * Create a new table and return its metadata.
    * @param txn The transaction in which the table is being created
-   * @param table_name The name of the new table
+   * @param table_name The name of the new table, note that all tables beginning with `__` are reserved for the system.
    * @param schema The schema of the new table
+   * @param create_table_heap whether to create a table heap for the new table
    * @return A (non-owning) pointer to the metadata for the table
    */
-  auto CreateTable(Transaction *txn, const std::string &table_name, const Schema &schema) -> TableInfo * {
+  auto CreateTable(Transaction *txn, const std::string &table_name, const Schema &schema, bool create_table_heap = true)
+      -> TableInfo * {
     if (table_names_.count(table_name) != 0) {
       return NULL_TABLE_INFO;
     }
 
     // Construct the table heap
     std::unique_ptr<TableHeap> table = nullptr;
+
     // TODO(Wan,chi): This should be refactored into a private ctor for the binder tests, we shouldn't allow nullptr.
-    // When bpm_ == nullptr, it means that we're running binder tests (where no txn will be provided). We don't need
-    // to create TableHeap in this case.
-    if (bpm_ != nullptr) {
+    // When create_table_heap == false, it means that we're running binder tests (where no txn will be provided) or
+    // we are running shell without buffer pool. We don't need to create TableHeap in this case.
+    if (create_table_heap) {
       table = std::make_unique<TableHeap>(bpm_, lock_manager_, log_manager_, txn);
     }
 

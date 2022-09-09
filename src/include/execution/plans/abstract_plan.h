@@ -35,7 +35,8 @@ enum class PlanType {
   NestedLoopJoin,
   NestedIndexJoin,
   HashJoin,
-  Filter
+  Filter,
+  MockScan
 };
 
 /**

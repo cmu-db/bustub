@@ -9,6 +9,7 @@
 #include "binder/table_ref/bound_join_ref.h"
 #include "common/exception.h"
 #include "common/macros.h"
+#include "common/util/string_util.h"
 #include "execution/expressions/abstract_expression.h"
 #include "execution/expressions/aggregate_value_expression.h"
 #include "execution/expressions/column_value_expression.h"
@@ -17,6 +18,7 @@
 #include "execution/plans/abstract_plan.h"
 #include "execution/plans/aggregation_plan.h"
 #include "execution/plans/filter_plan.h"
+#include "execution/plans/mock_scan_plan.h"
 #include "execution/plans/nested_loop_join_plan.h"
 #include "execution/plans/seq_scan_plan.h"
 #include "fmt/format.h"
@@ -219,6 +221,16 @@ auto Planner::PlanTableRef(const BoundTableRef &table_ref) -> std::unique_ptr<Ab
                                    SaveExpression(std::make_unique<ColumnValueExpression>(0, idx, column.GetType())));
         idx += 1;
       }
+
+      if (StringUtil::StartsWith(table->name_, "__")) {
+        // Plan as MockScanExecutor if it is a mock table.
+        if (StringUtil::StartsWith(table->name_, "__mock")) {
+          return std::make_unique<MockScanPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), 100);
+        }
+      } else {
+        throw bustub::Exception(fmt::format("unsupported internal table: {}", table->name_));
+      }
+      // Otherwise, plan as normal SeqScan.
       return std::make_unique<SeqScanPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), nullptr, table->oid_);
     }
     case TableReferenceType::CROSS_PRODUCT: {
