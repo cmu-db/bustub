@@ -40,3 +40,9 @@
 # tag: 9.0.0
 # commit hash: c4ee726532178e556d923372f29163bd206d7732
 # commit hash date: Jul 4 2022
+
+# linenoise
+# url: https://github.com/antirez/linenoise
+# branch: master
+# commit hash: 97d2850af13c339369093b78abe5265845d78220
+# commit hash date: Mar 12 2020
