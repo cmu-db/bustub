@@ -18,7 +18,8 @@ enum class ExpressionType : uint8_t {
   AGG_CALL = 6,   /**< Aggregation function expression type. */
   STAR = 7,       /**< Star expression type, will be rewritten by binder and won't appear in plan. */
   UNARY_OP = 8,   /**< Unary expression type. */
-  BINARY_OP = 9   /**< Binary expression type. */
+  BINARY_OP = 9,  /**< Binary expression type. */
+  ALIAS = 10,     /**< Alias expression type. */
 };
 
 /**
@@ -90,6 +91,9 @@ struct fmt::formatter<bustub::ExpressionType> : formatter<string_view> {
         break;
       case bustub::ExpressionType::BINARY_OP:
         name = "BinaryOperation";
+        break;
+      case bustub::ExpressionType::ALIAS:
+        name = "Alias";
         break;
       default:
         name = "Unknown";
