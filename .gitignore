@@ -263,3 +263,6 @@ docs/dev
 
 # Clangd cache index
 .cache
+
+# Submission zip files
+*.zip
