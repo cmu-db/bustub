@@ -28,7 +28,7 @@ auto Planner::PlanBinaryOp(const BoundBinaryOp &expr, const std::vector<const Ab
   auto [_2, right] = PlanExpression(*expr.rarg_, children);
   const auto &op_name = expr.op_name_;
 
-  if (op_name == "=") {
+  if (op_name == "=" || op_name == "==") {
     return std::make_unique<ComparisonExpression>(SaveExpression(std::move(left)), SaveExpression(std::move(right)),
                                                   ComparisonType::Equal);
   }
