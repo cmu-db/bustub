@@ -13,8 +13,11 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <utility>
+
+#include "fmt/format.h"
 
 #include "common/exception.h"
 #include "common/macros.h"
@@ -130,3 +133,21 @@ class Column {
 };
 
 }  // namespace bustub
+
+template <typename T>
+struct fmt::formatter<T, std::enable_if_t<std::is_base_of<bustub::Column, T>::value, char>>
+    : fmt::formatter<std::string> {
+  template <typename FormatCtx>
+  auto format(const bustub::Column &x, FormatCtx &ctx) const {
+    return fmt::formatter<std::string>::format(x.ToString(), ctx);
+  }
+};
+
+template <typename T>
+struct fmt::formatter<std::unique_ptr<T>, std::enable_if_t<std::is_base_of<bustub::Column, T>::value, char>>
+    : fmt::formatter<std::string> {
+  template <typename FormatCtx>
+  auto format(const std::unique_ptr<bustub::Column> &x, FormatCtx &ctx) const {
+    return fmt::formatter<std::string>::format(x->ToString(), ctx);
+  }
+};

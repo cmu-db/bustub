@@ -5,6 +5,8 @@
 
 #include "fmt/format.h"
 
+#include "common/macros.h"
+
 namespace bustub {
 
 /**

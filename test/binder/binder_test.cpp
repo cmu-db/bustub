@@ -25,8 +25,8 @@ namespace bustub {
  * * `CREATE TABLE b (x INT, y INT)`
  */
 auto TryBind(const std::string &query) {
-  bustub::Binder binder;
   bustub::Catalog catalog(nullptr, nullptr, nullptr);
+  bustub::Binder binder(catalog);
   catalog.CreateTable(
       nullptr, "y",
       bustub::Schema(std::vector{bustub::Column{"x", TypeId::INTEGER}, bustub::Column{"z", TypeId::INTEGER},
@@ -42,7 +42,7 @@ auto TryBind(const std::string &query) {
       nullptr, "b",
       bustub::Schema(std::vector{bustub::Column{"x", TypeId::INTEGER}, bustub::Column{"y", TypeId::INTEGER}}), false);
 
-  binder.ParseAndBindQuery(query, catalog);
+  binder.ParseAndBindQuery(query);
   return std::move(binder.statements_);
 }
 
@@ -92,8 +92,18 @@ TEST(BinderTest, BindCrossJoin) {
   PrintStatements(statements);
 }
 
+TEST(BinderTest, BindCrossThreeWayJoin) {
+  auto statements = TryBind("select * from a, b, y where a.x = b.y AND a.x = y.x");
+  PrintStatements(statements);
+}
+
 TEST(BinderTest, BindJoin) {
   auto statements = TryBind("select * from a INNER JOIN b ON a.x = b.y");
+  PrintStatements(statements);
+}
+
+TEST(BinderTest, BindThreeWayJoin) {
+  auto statements = TryBind("select * from (a INNER JOIN b ON a.x = b.y) INNER JOIN y ON a.x = y.x");
   PrintStatements(statements);
 }
 
@@ -148,6 +158,12 @@ TEST(BinderTest, BindUnaryOp) {
 
 TEST(BinderTest, BindBinaryOp) {
   auto statements = TryBind("select x+z,z+x,x*z,x/z from y");
+  PrintStatements(statements);
+}
+
+// TODO(chi): subquery is not supported yet
+TEST(BinderTest, DISABLED_BindUncorrelatedSubquery) {
+  auto statements = TryBind("select * from (select * from a) INNER JOIN (select * from b) ON a.x = b.y");
   PrintStatements(statements);
 }
 

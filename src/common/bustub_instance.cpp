@@ -1,10 +1,12 @@
 #include "common/bustub_instance.h"
 #include "binder/binder.h"
 #include "binder/bound_statement.h"
+#include "binder/statement/create_statement.h"
 #include "binder/statement/select_statement.h"
 #include "buffer/buffer_pool_manager_instance.h"
 #include "catalog/schema.h"
 #include "catalog/table_generator.h"
+#include "common/enums/statement_type.h"
 #include "concurrency/lock_manager.h"
 #include "execution/execution_engine.h"
 #include "execution/executor_context.h"
@@ -78,13 +80,25 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
     throw Exception(fmt::format("unsupported internal command: {}", sql));
   }
 
-  bustub::Binder binder;
-  binder.ParseAndBindQuery(sql, *catalog_);
+  bustub::Binder binder(*catalog_);
+  binder.ParseAndBindQuery(sql);
   std::vector<std::string> result = {};
   for (const auto &statement : binder.statements_) {
     // Bind the query.
     std::cerr << "=== BINDER ===" << std::endl;
     std::cerr << statement->ToString() << std::endl;
+
+    switch (statement->type_) {
+      case StatementType::CREATE_STATEMENT: {
+        const auto &create_stmt = dynamic_cast<const CreateStatement &>(*statement);
+        auto txn = transaction_manager_->Begin();
+        catalog_->CreateTable(txn, create_stmt.table_, Schema(create_stmt.columns_));
+        delete txn;
+        continue;
+      }
+      default:
+        break;
+    }
 
     // Plan the query.
     bustub::Planner planner(*catalog_);
