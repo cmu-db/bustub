@@ -68,22 +68,14 @@ class ExtendibleHashTable : public HashTable<K, V> {
    * TODO(P1): Add implementation
    *
    * @brief Find the value associated with the given key.
+   *
+   * Use IndexOf(key) to find the directory index the key hashes to.
+   *
    * @param key The key to be searched.
    * @param[out] value The value associated with the key.
    * @return True if the key is found, false otherwise.
    */
   auto Find(const K &key, V &value) -> bool override;
-
-  /**
-   *
-   * TODO(P1): Add implementation
-   *
-   * @brief Given the key, remove the corresponding key-value pair in the hash table.
-   * Shrink & Combination is not required for this project
-   * @param key The key to be deleted.
-   * @return True if the key exists, false otherwise.
-   */
-  auto Remove(const K &key) -> bool override;
 
   /**
    *
@@ -101,6 +93,17 @@ class ExtendibleHashTable : public HashTable<K, V> {
    * @param value The value to be inserted.
    */
   void Insert(const K &key, const V &value) override;
+
+  /**
+   *
+   * TODO(P1): Add implementation
+   *
+   * @brief Given the key, remove the corresponding key-value pair in the hash table.
+   * Shrink & Combination is not required for this project
+   * @param key The key to be deleted.
+   * @return True if the key exists, false otherwise.
+   */
+  auto Remove(const K &key) -> bool override;
 
   /**
    * Bucket class for each hash table bucket that the directory points to.
