@@ -235,18 +235,30 @@ add_custom_target(check-clang-tidy-p0
         ${BUSTUB_BUILD_SUPPORT_DIR}/run_clang_tidy.py                     # run LLVM's clang-tidy script
         -clang-tidy-binary ${CLANG_TIDY_BIN}                              # using our clang-tidy binary
         -p ${CMAKE_BINARY_DIR}                                            # using cmake's generated compile commands
-        -j 1
         "src/primer/p0_trie.cpp"
         )
 
+set(P1_CPP_FILES
+        "src/container/hash/extendible_hash_table.cpp"
+        "src/buffer/lru_k_replacer.cpp"
+        "src/buffer/buffer_pool_manager_instance.cpp"
+        )
+set(P1_H_FILES
+        "src/include/container/hash/extendible_hash_table.h"
+        "src/include/buffer/lru_k_replacer.h"
+        "src/include/buffer/buffer_pool_manager_instance.h"
+        )
 add_custom_target(check-clang-tidy-p1
         ${BUSTUB_BUILD_SUPPORT_DIR}/run_clang_tidy.py                     # run LLVM's clang-tidy script
         -clang-tidy-binary ${CLANG_TIDY_BIN}                              # using our clang-tidy binary
         -p ${CMAKE_BINARY_DIR}                                            # using cmake's generated compile commands
-        -j 1
-        "src/buffer/lru_k_replacer.cpp"
-        "src/buffer/buffer_pool_manager_instance.cpp"
-        "src/container/hash/extendible_hash_table.cpp"
+        ${P1_CPP_FILES}
+        )
+add_custom_target(submit-p1
+        zip project1-submission.zip
+        ${P1_CPP_FILES}
+        ${P1_H_FILES}
+        WORKING_DIRECTORY ../
         )
 
 
