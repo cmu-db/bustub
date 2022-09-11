@@ -51,5 +51,7 @@ class ValuesExecutor : public AbstractExecutor {
  private:
   /** The values plan node to be executed */
   const ValuesPlanNode *plan_;
+
+  size_t cursor_;
 };
 }  // namespace bustub

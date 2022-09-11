@@ -41,6 +41,8 @@ class ValuesPlanNode : public AbstractPlanNode {
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::Values; }
 
+  auto GetValues() const -> const std::vector<std::vector<const AbstractExpression *>> & { return values_; }
+
  protected:
   auto PlanNodeToString() const -> std::string override { return fmt::format("Values {{ rows={} }}", values_.size()); }
 
