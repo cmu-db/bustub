@@ -31,12 +31,14 @@ enum class PlanType {
   Delete,
   Aggregation,
   Limit,
-  Distinct,
   NestedLoopJoin,
   NestedIndexJoin,
   HashJoin,
   Filter,
   Values,
+  Projection,
+  Sort,
+  TopN,
   MockScan
 };
 

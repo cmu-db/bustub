@@ -1,8 +1,11 @@
+#include "fmt/format.h"
+#include "fmt/ranges.h"
+
 #include "common/util/string_util.h"
 #include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
 #include "execution/plans/aggregation_plan.h"
-#include "fmt/format.h"
+#include "execution/plans/projection_plan.h"
 
 namespace bustub {
 
@@ -23,7 +26,7 @@ auto AbstractPlanNode::ChildrenToString(int indent) const -> std::string {
   return fmt::format("\n{}", fmt::join(children_str, "\n"));
 }
 
-auto AggregationPlanNode::HelperVecExprFmt(const std::vector<const AbstractExpression *> &exprs) const -> std::string {
+static auto HelperVecExprFmt(const std::vector<const AbstractExpression *> &exprs) -> std::string {
   std::vector<std::string> joins;
   joins.reserve(exprs.size());
   for (const auto &expr : exprs) {
@@ -34,7 +37,12 @@ auto AggregationPlanNode::HelperVecExprFmt(const std::vector<const AbstractExpre
 
 auto AggregationPlanNode::PlanNodeToString() const -> std::string {
   auto aggregates = HelperVecExprFmt(aggregates_);
-  return fmt::format("Agg {{ types=[{}], aggregates=[{}] }}", fmt::join(agg_types_, ", "), aggregates);
+  return fmt::format("Agg {{ types={}, aggregates=[{}] }}", agg_types_, aggregates);
+}
+
+auto ProjectionPlanNode::PlanNodeToString() const -> std::string {
+  auto exprs = HelperVecExprFmt(expressions_);
+  return fmt::format("Projection {{ exprs=[{}] }}", exprs);
 }
 
 }  // namespace bustub

@@ -22,6 +22,7 @@
 #include "nodes/primnodes.hpp"
 #include "pg_definitions.hpp"
 #include "postgres_parser.hpp"
+#include "type/value_factory.h"
 
 namespace bustub {
 
@@ -239,17 +240,19 @@ auto Binder::BindExpressionList(duckdb_libpgquery::PGList *list) -> std::vector<
 
 auto Binder::BindConstant(duckdb_libpgquery::PGAConst *node) -> std::unique_ptr<BoundExpression> {
   BUSTUB_ASSERT(node, "nullptr");
-  auto bound_val = Value(TypeId::INTEGER);
   const auto &val = node->val;
   switch (val.type) {
-    case duckdb_libpgquery::T_PGInteger:
+    case duckdb_libpgquery::T_PGInteger: {
       BUSTUB_ASSERT(val.val.ival <= BUSTUB_INT32_MAX, "value out of range");
-      bound_val = Value(TypeId::INTEGER, static_cast<int32_t>(val.val.ival));
-      break;
+      return std::make_unique<BoundConstant>(ValueFactory::GetIntegerValue(static_cast<int32_t>(val.val.ival)));
+    }
+    case duckdb_libpgquery::T_PGString: {
+      return std::make_unique<BoundConstant>(ValueFactory::GetVarcharValue(val.val.str));
+    }
     default:
-      throw bustub::Exception(fmt::format("unsupported pg value: {}", Binder::NodeTagToString(val.type)));
+      break;
   }
-  return std::make_unique<BoundConstant>(std::move(bound_val));
+  throw bustub::Exception(fmt::format("unsupported pg value: {}", Binder::NodeTagToString(val.type)));
 }
 
 auto Binder::BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> std::unique_ptr<BoundExpression> {

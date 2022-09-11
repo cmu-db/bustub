@@ -20,9 +20,10 @@ namespace bustub {
 /**
  * @brief Bind a query using the schema below:
  *
- * * `CREATE TABLE y (x INT, z INT, a INT, b INT, c INT)`
- * * `CREATE TABLE a (x INT, y INT)`
- * * `CREATE TABLE b (x INT, y INT)`
+ * - `CREATE TABLE y (x INT, z INT, a INT, b INT, c INT)`
+ * - `CREATE TABLE a (x INT, y INT)`
+ * - `CREATE TABLE b (x INT, y INT)`
+ * - `CREATE TABLE c (x VARCHAR(100), y VARCHAR(100))
  */
 auto TryBind(const std::string &query) {
   bustub::Catalog catalog(nullptr, nullptr, nullptr);
@@ -41,6 +42,11 @@ auto TryBind(const std::string &query) {
   catalog.CreateTable(
       nullptr, "b",
       bustub::Schema(std::vector{bustub::Column{"x", TypeId::INTEGER}, bustub::Column{"y", TypeId::INTEGER}}), false);
+
+  catalog.CreateTable(
+      nullptr, "c",
+      bustub::Schema(std::vector{bustub::Column{"x", TypeId::VARCHAR, 100}, bustub::Column{"y", TypeId::VARCHAR, 100}}),
+      false);
 
   binder.ParseAndBindQuery(query);
   return std::move(binder.statements_);
@@ -140,6 +146,8 @@ TEST(BinderTest, DISABLED_BindInsert) {
   TryBind("INSERT INTO y VALUES (1,2,3,4,5), (6,7,8,9,10)");
   TryBind("INSERT INTO y SELECT * FROM y WHERE x < 500");
 }
+
+TEST(BinderTest, BindVarchar) { TryBind(R"(INSERT INTO c VALUES ('1', '2'))"); }
 
 TEST(BinderTest, BindAliasInAgg) {
   auto statements = TryBind("select z, max(a) as max_a, min(b), first(c) from y group by z having max(a) > 0");

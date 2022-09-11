@@ -17,6 +17,10 @@ class SelectStatement;
 class AbstractPlanNode;
 class BoundExpression;
 class BoundTableRef;
+class BoundBinaryOp;
+class BoundConstant;
+class BoundColumnRef;
+class BoundUnaryOp;
 
 /**
  * The planner takes a bound statement, and transforms it into the BusTub plan tree.
@@ -45,6 +49,15 @@ class Planner {
   auto PlanTableRef(const BoundTableRef &table_ref) -> std::unique_ptr<AbstractPlanNode>;
 
   auto PlanExpression(const BoundExpression &expr, const std::vector<const AbstractPlanNode *> &children)
+      -> std::tuple<std::string, std::unique_ptr<AbstractExpression>>;
+
+  auto PlanBinaryOp(const BoundBinaryOp &expr, const std::vector<const AbstractPlanNode *> &children)
+      -> std::unique_ptr<AbstractExpression>;
+
+  auto PlanColumnRef(const BoundColumnRef &expr, const std::vector<const AbstractPlanNode *> &children)
+      -> std::tuple<std::string, std::unique_ptr<AbstractExpression>>;
+
+  auto PlanConstant(const BoundConstant &expr, const std::vector<const AbstractPlanNode *> &children)
       -> std::unique_ptr<AbstractExpression>;
 
   /** the root plan node of the plan tree */
