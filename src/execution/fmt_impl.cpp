@@ -37,7 +37,8 @@ static auto HelperVecExprFmt(const std::vector<const AbstractExpression *> &expr
 
 auto AggregationPlanNode::PlanNodeToString() const -> std::string {
   auto aggregates = HelperVecExprFmt(aggregates_);
-  return fmt::format("Agg {{ types={}, aggregates=[{}] }}", agg_types_, aggregates);
+  return fmt::format("Agg {{ types={}, aggregates=[{}], having={}, group_by=[{}] }}", agg_types_, aggregates,
+                     having_ == nullptr ? "" : having_->ToString(), HelperVecExprFmt(group_bys_));
 }
 
 auto ProjectionPlanNode::PlanNodeToString() const -> std::string {

@@ -10,6 +10,7 @@
 #include "binder/tokens.h"
 #include "catalog/catalog.h"
 #include "catalog/column.h"
+#include "execution/plans/aggregation_plan.h"
 
 namespace bustub {
 
@@ -27,6 +28,7 @@ class BoundBaseTableRef;
 class BoundCrossProductRef;
 class BoundJoinRef;
 class BoundExpressionListRef;
+class BoundAggCall;
 
 /**
  * The planner takes a bound statement, and transforms it into the BusTub plan tree.
@@ -73,6 +75,12 @@ class Planner {
 
   auto PlanConstant(const BoundConstant &expr, const std::vector<const AbstractPlanNode *> &children)
       -> std::unique_ptr<AbstractExpression>;
+
+  auto PlanAggregation(const SelectStatement &statement, const AbstractPlanNode *child)
+      -> std::unique_ptr<AbstractPlanNode>;
+
+  auto PlanAggCall(const BoundAggCall &agg_call, const std::vector<const AbstractPlanNode *> &children)
+      -> std::tuple<AggregationType, std::unique_ptr<AbstractExpression>>;
 
   auto PlanInsert(const InsertStatement &statement) -> std::unique_ptr<AbstractPlanNode>;
 
