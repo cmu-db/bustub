@@ -46,10 +46,15 @@
 
 #include "binder/tokens.h"
 #include "catalog/catalog.h"
+#include "catalog/column.h"
+#include "common/macros.h"
 #include "common/util/string_util.h"
 #include "fmt/format.h"
+#include "nodes/parsenodes.hpp"
 #include "pg_definitions.hpp"
 #include "postgres_parser.hpp"
+#include "type/type_id.h"
+#include "type/value.h"
 
 namespace duckdb_libpgquery {
 struct PGList;
@@ -151,6 +156,10 @@ class Binder {
 
   auto ResolveColumn(const BoundTableRef &scope, const std::vector<std::string> &col_name)
       -> std::unique_ptr<BoundExpression>;
+
+  auto BindInsert(duckdb_libpgquery::PGInsertStmt *pg_stmt) -> std::unique_ptr<InsertStatement>;
+
+  auto BindValuesList(duckdb_libpgquery::PGList *list) -> std::unique_ptr<BoundExpressionListRef>;
 
   class ContextGuard {
    public:

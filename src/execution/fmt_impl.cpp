@@ -15,7 +15,7 @@ auto AbstractPlanNode::ChildrenToString(int indent) const -> std::string {
   }
   std::vector<std::string> children_str;
   children_str.reserve(children_.size());
-  std::string indent_str(indent, ' ');
+  auto indent_str = StringUtil::Indent(indent);
   for (const auto &child : children_) {
     auto child_str = child->ToString();
     auto lines = StringUtil::Split(child_str, '\n');

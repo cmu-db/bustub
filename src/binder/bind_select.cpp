@@ -13,6 +13,7 @@
 #include "binder/statement/select_statement.h"
 #include "binder/table_ref/bound_base_table_ref.h"
 #include "binder/table_ref/bound_cross_product_ref.h"
+#include "binder/table_ref/bound_expression_list_ref.h"
 #include "binder/table_ref/bound_join_ref.h"
 #include "binder/tokens.h"
 #include "catalog/catalog.h"
@@ -27,7 +28,43 @@
 
 namespace bustub {
 
+auto Binder::BindValuesList(duckdb_libpgquery::PGList *list) -> std::unique_ptr<BoundExpressionListRef> {
+  std::vector<std::vector<std::unique_ptr<BoundExpression>>> all_values;
+
+  for (auto value_list = list->head; value_list != nullptr; value_list = value_list->next) {
+    auto target = static_cast<duckdb_libpgquery::PGList *>(value_list->data.ptr_value);
+
+    auto values = BindExpressionList(target);
+
+    if (!all_values.empty()) {
+      if (all_values[0].size() != values.size()) {
+        throw bustub::Exception("values must have the same length");
+      }
+    }
+    all_values.push_back(std::move(values));
+  }
+
+  if (all_values.empty()) {
+    throw bustub::Exception("at least one row of values should be provided");
+  }
+
+  return std::make_unique<BoundExpressionListRef>(std::move(all_values));
+}
+
 auto Binder::BindSelect(duckdb_libpgquery::PGSelectStmt *pg_stmt) -> std::unique_ptr<SelectStatement> {
+  // Bind VALUES clause.
+  if (pg_stmt->valuesLists != nullptr) {
+    auto value_list = BindValuesList(pg_stmt->valuesLists);
+    std::vector<std::unique_ptr<BoundExpression>> exprs;
+    size_t expr_length = value_list->values_[0].size();
+    for (size_t i = 0; i < expr_length; i++) {
+      exprs.emplace_back(std::make_unique<BoundColumnRef>("__values", fmt::format("{}", i)));
+    }
+    return std::make_unique<SelectStatement>(
+        std::move(value_list), std::move(exprs), std::make_unique<BoundExpression>(),
+        std::vector<std::unique_ptr<BoundExpression>>{}, std::make_unique<BoundExpression>());
+  }
+
   // Bind FROM clause.
   auto table = BindFrom(pg_stmt->fromClause);
   scope_ = table.get();

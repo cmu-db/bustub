@@ -5,6 +5,7 @@ add_library(
   OBJECT
   binder.cpp
   bind_create.cpp
+  bind_insert.cpp
   bind_select.cpp
   bound_statement.cpp
   fmt_impl.cpp
