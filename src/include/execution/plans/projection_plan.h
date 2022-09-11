@@ -46,6 +46,9 @@ class ProjectionPlanNode : public AbstractPlanNode {
     return GetChildAt(0);
   }
 
+  /** @return Projection expressions */
+  auto GetExpressions() const -> const std::vector<const AbstractExpression *> & { return expressions_; }
+
  protected:
   auto PlanNodeToString() const -> std::string override;
 

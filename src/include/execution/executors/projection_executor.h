@@ -52,5 +52,8 @@ class ProjectionExecutor : public AbstractExecutor {
  private:
   /** The projection plan node to be executed */
   const ProjectionPlanNode *plan_;
+
+  /** The child executor from which tuples are obtained */
+  std::unique_ptr<AbstractExecutor> child_executor_;
 };
 }  // namespace bustub
