@@ -239,4 +239,15 @@ add_custom_target(check-clang-tidy-p0
         "src/primer/p0_trie.cpp"
         )
 
+add_custom_target(check-clang-tidy-p1
+        ${BUSTUB_BUILD_SUPPORT_DIR}/run_clang_tidy.py                     # run LLVM's clang-tidy script
+        -clang-tidy-binary ${CLANG_TIDY_BIN}                              # using our clang-tidy binary
+        -p ${CMAKE_BINARY_DIR}                                            # using cmake's generated compile commands
+        -j 1
+        "src/buffer/lru_k_replacer.cpp"
+        "src/buffer/buffer_pool_manager_instance.cpp"
+        "src/container/hash/extendible_hash_table.cpp"
+        )
+
+
 add_dependencies(check-clang-tidy gtest bustub)                    # needs gtest headers, compile_commands.json
