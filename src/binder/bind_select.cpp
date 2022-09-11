@@ -457,6 +457,7 @@ auto Binder::BindBoolExpr(duckdb_libpgquery::PGBoolExpr *root) -> std::unique_pt
       return std::make_unique<BoundUnaryOp>("not", std::move(exprs[0]));
     }
   }
+  UNREACHABLE("We should have handled all cases!");
 }
 
 auto Binder::BindExpression(duckdb_libpgquery::PGNode *node) -> std::unique_ptr<BoundExpression> {
@@ -477,8 +478,9 @@ auto Binder::BindExpression(duckdb_libpgquery::PGNode *node) -> std::unique_ptr<
     case duckdb_libpgquery::T_PGBoolExpr:
       return BindBoolExpr(reinterpret_cast<duckdb_libpgquery::PGBoolExpr *>(node));
     default:
-      throw bustub::Exception(fmt::format("Expr of type {} not implemented", Binder::NodeTagToString(node->type)));
+      break;
   }
+  throw bustub::Exception(fmt::format("Expr of type {} not implemented", Binder::NodeTagToString(node->type)));
 }
 
 }  // namespace bustub
