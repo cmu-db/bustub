@@ -16,6 +16,7 @@ namespace bustub {
 class BoundStatement;
 class SelectStatement;
 class AbstractPlanNode;
+class InsertStatement;
 class BoundExpression;
 class BoundTableRef;
 class BoundBinaryOp;
@@ -72,6 +73,8 @@ class Planner {
 
   auto PlanConstant(const BoundConstant &expr, const std::vector<const AbstractPlanNode *> &children)
       -> std::unique_ptr<AbstractExpression>;
+
+  auto PlanInsert(const InsertStatement &statement) -> std::unique_ptr<AbstractPlanNode>;
 
   /** the root plan node of the plan tree */
   std::unique_ptr<AbstractPlanNode> plan_;

@@ -2,6 +2,7 @@ add_library(
   bustub_planner
   OBJECT
   plan_expression.cpp
+  plan_insert.cpp
   plan_table_ref.cpp
   planner.cpp)
 

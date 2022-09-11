@@ -5,7 +5,9 @@
 #include "binder/bound_statement.h"
 #include "binder/bound_table_ref.h"
 #include "binder/expressions/bound_agg_call.h"
+#include "binder/statement/insert_statement.h"
 #include "binder/statement/select_statement.h"
+#include "common/enums/statement_type.h"
 #include "common/exception.h"
 #include "common/macros.h"
 #include "common/util/string_util.h"
@@ -23,6 +25,10 @@ void Planner::PlanQuery(const BoundStatement &statement) {
   switch (statement.type_) {
     case StatementType::SELECT_STATEMENT: {
       plan_ = PlanSelect(dynamic_cast<const SelectStatement &>(statement));
+      return;
+    }
+    case StatementType::INSERT_STATEMENT: {
+      plan_ = PlanInsert(dynamic_cast<const InsertStatement &>(statement));
       return;
     }
     default:
