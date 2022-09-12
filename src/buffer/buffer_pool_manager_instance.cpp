@@ -36,17 +36,17 @@ BufferPoolManagerInstance::~BufferPoolManagerInstance() {
   delete replacer_;
 }
 
-auto BufferPoolManagerInstance::FlushPgImp(page_id_t page_id) -> bool { return false; }
-
-void BufferPoolManagerInstance::FlushAllPgsImp() {}
-
 auto BufferPoolManagerInstance::NewPgImp(page_id_t *page_id) -> Page * { return nullptr; }
 
 auto BufferPoolManagerInstance::FetchPgImp(page_id_t page_id) -> Page * { return nullptr; }
 
-auto BufferPoolManagerInstance::DeletePgImp(page_id_t page_id) -> bool { return false; }
-
 auto BufferPoolManagerInstance::UnpinPgImp(page_id_t page_id, bool is_dirty) -> bool { return false; }
+
+auto BufferPoolManagerInstance::FlushPgImp(page_id_t page_id) -> bool { return false; }
+
+void BufferPoolManagerInstance::FlushAllPgsImp() {}
+
+auto BufferPoolManagerInstance::DeletePgImp(page_id_t page_id) -> bool { return false; }
 
 auto BufferPoolManagerInstance::AllocatePage() -> page_id_t { return next_page_id_++; }
 
