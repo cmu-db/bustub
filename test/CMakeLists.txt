@@ -33,6 +33,8 @@ foreach (bustub_test_source ${BUSTUB_TEST_SOURCES})
             --gtest_color=yes
             --gtest_output=xml:${CMAKE_BINARY_DIR}/test/${bustub_test_name}.xml
             --gtest_catch_exceptions=0
+            PROPERTIES
+            TIMEOUT 30
             )
     
     target_link_libraries(${bustub_test_name} bustub gtest gmock_main)
