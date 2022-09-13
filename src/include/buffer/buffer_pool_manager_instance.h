@@ -76,12 +76,12 @@ class BufferPoolManagerInstance : public BufferPoolManager {
    * TODO(P1): Add implementation
    *
    * @brief Fetch the requested page from the buffer pool. Return nullptr if page_id needs to be fetched from the disk
-   * but all other frames are currently pinned.
+   * but all frames are currently in use and not evictable (in another word, pinned).
    *
    * First search for page_id in the buffer pool. If not found, pick a replacement frame from either the free list or
    * the replacer (always find from the free list first), read the page from disk by calling disk_manager_->ReadPage(),
-   * and replace the old page in the frame. Similar to NewPgImp(), you need to write the old dirty page back to disk,
-   * update the metadata of the new page
+   * and replace the old page in the frame. Similar to NewPgImp(), if the old page is dirty, you need to write it back
+   * to disk and update the metadata of the new page
    *
    * In addition, remember to disable eviction and record the access history of the frame like you did for NewPgImp().
    *
@@ -129,9 +129,9 @@ class BufferPoolManagerInstance : public BufferPoolManager {
    * TODO(P1): Add implementation
    *
    * @brief Delete a page from the buffer pool. If page_id is not in the buffer pool, do nothing and return true. If the
-   * pin count of page_id is greater than 0, don't delete and then return false.
+   * page is pinned and cannot be deleted, return false immediately.
    *
-   * After deleting the page from the page table, remove the tracking of the frame from the replacer and add the frame
+   * After deleting the page from the page table, stop tracking the frame in the replacer and add the frame
    * back to the free list. Also, reset the page's memory and metadata. Finally, you should call DeallocatePage() to
    * imitate freeing the page on the disk.
    *
