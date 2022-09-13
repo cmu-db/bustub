@@ -13,6 +13,7 @@
 #pragma once
 
 #include <atomic>
+
 #include "gtest/gtest.h"
 
 namespace bustub {
