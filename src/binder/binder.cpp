@@ -40,7 +40,9 @@
 
 namespace bustub {
 
-void Binder::ParseAndBindQuery(const std::string &query, const Catalog &catalog) {
+Binder::Binder(const Catalog &catalog) : catalog_(catalog), scope_(nullptr) {}
+
+void Binder::ParseAndBindQuery(const std::string &query) {
   duckdb::PostgresParser parser;
   parser.Parse(query);
   if (!parser.success) {
@@ -54,7 +56,7 @@ void Binder::ParseAndBindQuery(const std::string &query, const Catalog &catalog)
     return;
   }
 
-  statements_ = TransformParseTree(catalog, parser.parse_tree);
+  statements_ = TransformParseTree(parser.parse_tree);
 
   if (!statements_.empty()) {
     auto &last_statement = statements_.back();

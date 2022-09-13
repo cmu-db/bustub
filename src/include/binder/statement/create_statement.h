@@ -21,7 +21,7 @@ namespace bustub {
 
 class CreateStatement : public BoundStatement {
  public:
-  explicit CreateStatement(duckdb_libpgquery::PGCreateStmt *pg_stmt);
+  explicit CreateStatement(std::string table, std::vector<Column> columns);
 
   std::string table_;
   std::vector<Column> columns_;
