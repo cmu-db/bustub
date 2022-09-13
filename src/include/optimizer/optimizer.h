@@ -7,9 +7,10 @@
 #include <vector>
 
 #include "catalog/catalog.h"
-#include "execution/plans/abstract_plan.h"
 
 namespace bustub {
+
+class AbstractPlanNode;
 
 /**
  * The optimizer takes an `AbstractPlanNode` and outputs an optimized `AbstractPlanNode`.

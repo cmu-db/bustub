@@ -137,7 +137,7 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> std::unique_ptr<Ab
 
   if (!statement.where_->IsInvalid()) {
     auto schema = plan->OutputSchema();
-    auto expr = PlanExpression(*statement.where_, {&*plan});
+    auto expr = PlanExpression(*statement.where_, {plan.get()});
     plan = std::make_unique<FilterPlanNode>(schema, SaveExpression(std::move(expr)), SavePlanNode(std::move(plan)));
   }
 
@@ -161,7 +161,7 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> std::unique_ptr<Ab
     for (const auto &item : statement.select_list_) {
       const auto &agg_call = dynamic_cast<const BoundAggCall &>(*item);
       BUSTUB_ASSERT(agg_call.args_.size() == 1, "only agg call of one arg is supported for now");
-      auto abstract_expr = SaveExpression(PlanExpression(*agg_call.args_[0], {&*plan}));
+      auto abstract_expr = SaveExpression(PlanExpression(*agg_call.args_[0], {plan.get()}));
       input_exprs.push_back(abstract_expr);
       if (agg_call.func_name_ == "min") {
         agg_types.push_back(AggregationType::MinAggregate);
@@ -273,7 +273,7 @@ auto Planner::PlanTableRef(const BoundTableRef &table_ref) -> std::unique_ptr<Ab
         idx += 1;
       }
       auto nlj_output_schema = SaveSchema(MakeOutputSchema(output_schema));
-      auto join_condition = PlanExpression(*join.condition_, {&*left, &*right});
+      auto join_condition = PlanExpression(*join.condition_, {left.get(), right.get()});
       auto nlj_node = std::make_unique<NestedLoopJoinPlanNode>(
           nlj_output_schema, std::vector{SavePlanNode(std::move(left)), SavePlanNode(std::move(right))},
           SaveExpression(std::move(join_condition)));

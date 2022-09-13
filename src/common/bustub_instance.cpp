@@ -94,7 +94,7 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
 
     // Optimize the query.
     bustub::Optimizer optimizer(*catalog_);
-    auto optimized_plan = optimizer.Optimize(&*planner.plan_);
+    auto optimized_plan = optimizer.Optimize(planner.plan_.get());
     std::cerr << "=== OPTIMIZER ===" << std::endl;
     std::cerr << optimized_plan->ToString() << std::endl;
 
