@@ -25,7 +25,10 @@
 #include <string>
 
 #include "binder/binder.h"
+#include "binder/bound_expression.h"
+#include "binder/bound_table_ref.h"
 #include "binder/statement/insert_statement.h"
+#include "binder/statement/select_statement.h"
 #include "common/exception.h"
 #include "common/util/string_util.h"
 #include "nodes/parsenodes.hpp"

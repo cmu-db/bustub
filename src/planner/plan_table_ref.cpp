@@ -74,7 +74,6 @@ auto Planner::PlanBaseTableRef(const BoundBaseTableRef &table_ref) -> std::uniqu
     if (StringUtil::StartsWith(table->name_, "__mock")) {
       return std::make_unique<MockScanPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), 100);
     }
-  } else {
     throw bustub::Exception(fmt::format("unsupported internal table: {}", table->name_));
   }
   // Otherwise, plan as normal SeqScan.
@@ -120,7 +119,7 @@ auto Planner::PlanJoinRef(const BoundJoinRef &table_ref) -> std::unique_ptr<Abst
     idx += 1;
   }
   auto nlj_output_schema = SaveSchema(MakeOutputSchema(output_schema));
-  auto [_, join_condition] = PlanExpression(*table_ref.condition_, {&*left, &*right});
+  auto [_, join_condition] = PlanExpression(*table_ref.condition_, {left.get(), right.get()});
   auto nlj_node = std::make_unique<NestedLoopJoinPlanNode>(
       nlj_output_schema, std::vector{SavePlanNode(std::move(left)), SavePlanNode(std::move(right))},
       SaveExpression(std::move(join_condition)));

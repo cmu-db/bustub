@@ -37,13 +37,6 @@
 #include <string>
 
 #include "binder/simplified_token.h"
-#include "binder/statement/create_statement.h"
-#include "catalog/column.h"
-#include "common/macros.h"
-#include "nodes/parsenodes.hpp"
-#include "type/type_id.h"
-#include "type/value.h"
-
 #include "binder/tokens.h"
 #include "catalog/catalog.h"
 #include "catalog/column.h"
@@ -72,10 +65,12 @@ struct PGJoinExpr;
 namespace bustub {
 
 class Catalog;
-
 class BoundExpression;
 class BoundTableRef;
 class BoundExpression;
+class BoundExpressionListRef;
+class SelectStatement;
+class CreateStatement;
 
 /**
  * The binder is responsible for transforming the Postgres parse tree to a binder tree
