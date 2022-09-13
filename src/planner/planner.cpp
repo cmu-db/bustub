@@ -160,7 +160,7 @@ auto Planner::PlanTableRef(const BoundTableRef &table_ref) -> std::unique_ptr<Ab
       if (StringUtil::StartsWith(table->name_, "__")) {
         // Plan as MockScanExecutor if it is a mock table.
         if (StringUtil::StartsWith(table->name_, "__mock")) {
-          return std::make_unique<MockScanPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), 100);
+          return std::make_unique<MockScanPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), 100, table->name_);
         }
       } else {
         throw bustub::Exception(fmt::format("unsupported internal table: {}", table->name_));
