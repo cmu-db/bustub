@@ -11,6 +11,7 @@
 #include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
 #include "fmt/format.h"
+#include "optimizer/optimizer.h"
 #include "planner/planner.h"
 #include "recovery/checkpoint_manager.h"
 #include "recovery/log_manager.h"
@@ -91,11 +92,17 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
     std::cerr << "=== PLANNER ===" << std::endl;
     std::cerr << planner.plan_->ToString() << std::endl;
 
+    // Optimize the query.
+    bustub::Optimizer optimizer(*catalog_);
+    auto optimized_plan = optimizer.Optimize(planner.plan_.get());
+    std::cerr << "=== OPTIMIZER ===" << std::endl;
+    std::cerr << optimized_plan->ToString() << std::endl;
+
     // Execute the query.
     auto txn = transaction_manager_->Begin();
     auto exec_ctx = MakeExecutorContext(txn);
     std::vector<Tuple> result_set{};
-    execution_engine_->Execute(planner.plan_.get(), &result_set, txn, exec_ctx.get());
+    execution_engine_->Execute(optimized_plan, &result_set, txn, exec_ctx.get());
 
     // TODO(chi): decide commit or abort the transaction after trasnalction manager is implemented.
     delete txn;
