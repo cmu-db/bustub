@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -75,6 +76,9 @@ class InsertPlanNode : public AbstractPlanNode {
     BUSTUB_ASSERT(GetChildren().size() == 1, "Insert should have at most one child plan.");
     return GetChildAt(0);
   }
+
+ protected:
+  auto PlanNodeToString() const -> std::string override { return fmt::format("Insert {{ table_oid={} }}", table_oid_); }
 
  private:
   /** The raw values embedded in this insert plan (may be empty) */

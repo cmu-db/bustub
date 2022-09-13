@@ -46,7 +46,7 @@ auto Planner::PlanAggregation(const SelectStatement &statement, const AbstractPl
   // Plan group by expressions
   std::vector<const AbstractExpression *> group_by_exprs;
   for (const auto &expr : statement.group_by_) {
-    auto [_, abstract_expr] = PlanExpression(*expr, {&*child});
+    auto [_, abstract_expr] = PlanExpression(*expr, {child});
     group_by_exprs.push_back(SaveExpression(std::move(abstract_expr)));
   }
 
@@ -68,7 +68,7 @@ auto Planner::PlanAggregation(const SelectStatement &statement, const AbstractPl
       throw NotImplementedException("only agg call is supported in select list for now");
     }
     const auto &agg_call = dynamic_cast<const BoundAggCall &>(*item);
-    auto [agg_type, abstract_expression] = PlanAggCall(agg_call, {&*child});
+    auto [agg_type, abstract_expression] = PlanAggCall(agg_call, {child});
     agg_types.push_back(agg_type);
     input_exprs.push_back(SaveExpression(std::move(abstract_expression)));
     output_schema.emplace_back(

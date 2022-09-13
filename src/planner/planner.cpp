@@ -88,9 +88,9 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> std::unique_ptr<Ab
   // Plan normal select
   std::vector<const AbstractExpression *> exprs;
   std::vector<std::pair<std::string, const AbstractExpression *>> output_schema;
-  std::vector<const AbstractPlanNode *> children = {&*plan};
+  std::vector<const AbstractPlanNode *> children = {plan.get()};
   for (const auto &item : statement.select_list_) {
-    auto [name, expr] = PlanExpression(*item, {&*plan});
+    auto [name, expr] = PlanExpression(*item, {plan.get()});
     auto abstract_expr = SaveExpression(std::move(expr));
     exprs.push_back(abstract_expr);
     output_schema.emplace_back(std::make_pair(name, abstract_expr));
