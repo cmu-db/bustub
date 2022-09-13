@@ -93,6 +93,7 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
         const auto &create_stmt = dynamic_cast<const CreateStatement &>(*statement);
         auto txn = transaction_manager_->Begin();
         catalog_->CreateTable(txn, create_stmt.table_, Schema(create_stmt.columns_));
+        // TODO(chi): decide commit or abort the transaction after transaction manager is implemented.
         delete txn;
         continue;
       }
@@ -118,7 +119,7 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
     std::vector<Tuple> result_set{};
     execution_engine_->Execute(optimized_plan, &result_set, txn, exec_ctx.get());
 
-    // TODO(chi): decide commit or abort the transaction after trasnalction manager is implemented.
+    // TODO(chi): decide commit or abort the transaction after transaction manager is implemented.
     delete txn;
 
     // Return the result set as a vector of string.

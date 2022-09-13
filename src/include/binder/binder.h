@@ -44,18 +44,6 @@
 #include "type/type_id.h"
 #include "type/value.h"
 
-#include "binder/binder.h"
-#include "binder/bound_statement.h"
-#include "binder/expressions/bound_agg_call.h"
-#include "binder/expressions/bound_binary_op.h"
-#include "binder/expressions/bound_column_ref.h"
-#include "binder/expressions/bound_constant.h"
-#include "binder/expressions/bound_star.h"
-#include "binder/expressions/bound_unary_op.h"
-#include "binder/statement/select_statement.h"
-#include "binder/table_ref/bound_base_table_ref.h"
-#include "binder/table_ref/bound_cross_product_ref.h"
-#include "binder/table_ref/bound_join_ref.h"
 #include "binder/tokens.h"
 #include "catalog/catalog.h"
 #include "common/util/string_util.h"
@@ -80,13 +68,17 @@ namespace bustub {
 
 class Catalog;
 
+class BoundExpression;
+class BoundTableRef;
+class BoundExpression;
+
 /**
  * The binder is responsible for transforming the Postgres parse tree to a binder tree
  * which can be recognized unambiguously by the BusTub planner.
  */
 class Binder {
  public:
-  explicit Binder(const Catalog &catalog) : catalog_(catalog), scope_(nullptr) {}
+  explicit Binder(const Catalog &catalog);
 
   /** The parsed SQL statements from an invocation to ParseQuery. */
   std::vector<std::unique_ptr<BoundStatement>> statements_;

@@ -112,6 +112,6 @@ auto Binder::BindCreate(duckdb_libpgquery::PGCreateStmt *pg_stmt) -> std::unique
   }
 
   return std::make_unique<CreateStatement>(std::move(table), std::move(columns));
-}  // namespace bustub
+}
 
 }  // namespace bustub
