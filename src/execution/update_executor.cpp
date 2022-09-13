@@ -19,7 +19,7 @@ UpdateExecutor::UpdateExecutor(ExecutorContext *exec_ctx, const UpdatePlanNode *
                                std::unique_ptr<AbstractExecutor> &&child_executor)
     : AbstractExecutor(exec_ctx) {}
 
-void UpdateExecutor::Init() {}
+void UpdateExecutor::Init() { throw NotImplementedException("UpdateExecutor is not implemented"); }
 
 auto UpdateExecutor::Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool { return false; }
 

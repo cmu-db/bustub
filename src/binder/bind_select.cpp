@@ -22,13 +22,14 @@
 #include "nodes/primnodes.hpp"
 #include "pg_definitions.hpp"
 #include "postgres_parser.hpp"
+#include "type/value_factory.h"
 
 namespace bustub {
 
 auto Binder::BindSelect(duckdb_libpgquery::PGSelectStmt *pg_stmt) -> std::unique_ptr<SelectStatement> {
   // Bind FROM clause.
   auto table = BindFrom(pg_stmt->fromClause);
-  scope_ = &*table;
+  scope_ = table.get();
 
   // Bind SELECT list.
   if (pg_stmt->targetList == nullptr) {
@@ -133,7 +134,7 @@ auto Binder::BindJoin(duckdb_libpgquery::PGJoinExpr *root) -> std::unique_ptr<Bo
   auto left_table = BindTableRef(root->larg);
   auto right_table = BindTableRef(root->rarg);
   auto join_ref = std::make_unique<BoundJoinRef>(join_type, std::move(left_table), std::move(right_table), nullptr);
-  scope_ = &*join_ref;
+  scope_ = join_ref.get();
   auto condition = BindExpression(root->quals);
   join_ref->condition_ = std::move(condition);
   return join_ref;
@@ -239,17 +240,19 @@ auto Binder::BindExpressionList(duckdb_libpgquery::PGList *list) -> std::vector<
 
 auto Binder::BindConstant(duckdb_libpgquery::PGAConst *node) -> std::unique_ptr<BoundExpression> {
   BUSTUB_ASSERT(node, "nullptr");
-  auto bound_val = Value(TypeId::INTEGER);
   const auto &val = node->val;
   switch (val.type) {
-    case duckdb_libpgquery::T_PGInteger:
+    case duckdb_libpgquery::T_PGInteger: {
       BUSTUB_ASSERT(val.val.ival <= BUSTUB_INT32_MAX, "value out of range");
-      bound_val = Value(TypeId::INTEGER, static_cast<int32_t>(val.val.ival));
-      break;
+      return std::make_unique<BoundConstant>(ValueFactory::GetIntegerValue(static_cast<int32_t>(val.val.ival)));
+    }
+    case duckdb_libpgquery::T_PGString: {
+      return std::make_unique<BoundConstant>(ValueFactory::GetVarcharValue(val.val.str));
+    }
     default:
-      throw bustub::Exception(fmt::format("unsupported pg value: {}", Binder::NodeTagToString(val.type)));
+      break;
   }
-  return std::make_unique<BoundConstant>(std::move(bound_val));
+  throw bustub::Exception(fmt::format("unsupported pg value: {}", Binder::NodeTagToString(val.type)));
 }
 
 auto Binder::BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> std::unique_ptr<BoundExpression> {

@@ -18,7 +18,7 @@
 #include "execution/executors/abstract_executor.h"
 #include "execution/executors/aggregation_executor.h"
 #include "execution/executors/delete_executor.h"
-#include "execution/executors/distinct_executor.h"
+#include "execution/executors/filter_executor.h"
 #include "execution/executors/hash_join_executor.h"
 #include "execution/executors/index_scan_executor.h"
 #include "execution/executors/insert_executor.h"
@@ -26,9 +26,18 @@
 #include "execution/executors/mock_scan_executor.h"
 #include "execution/executors/nested_index_join_executor.h"
 #include "execution/executors/nested_loop_join_executor.h"
+#include "execution/executors/projection_executor.h"
 #include "execution/executors/seq_scan_executor.h"
+#include "execution/executors/sort_executor.h"
+#include "execution/executors/topn_executor.h"
 #include "execution/executors/update_executor.h"
+#include "execution/executors/values_executor.h"
+#include "execution/plans/filter_plan.h"
 #include "execution/plans/mock_scan_plan.h"
+#include "execution/plans/projection_plan.h"
+#include "execution/plans/sort_plan.h"
+#include "execution/plans/topn_plan.h"
+#include "execution/plans/values_plan.h"
 #include "storage/index/generic_key.h"
 
 namespace bustub {
@@ -75,13 +84,6 @@ auto ExecutorFactory::CreateExecutor(ExecutorContext *exec_ctx, const AbstractPl
       return std::make_unique<LimitExecutor>(exec_ctx, limit_plan, std::move(child_executor));
     }
 
-    // Create a new distinct executor
-    case PlanType::Distinct: {
-      auto distinct_plan = dynamic_cast<const DistinctPlanNode *>(plan);
-      auto child_executor = ExecutorFactory::CreateExecutor(exec_ctx, distinct_plan->GetChildPlan());
-      return std::make_unique<DistinctExecutor>(exec_ctx, distinct_plan, std::move(child_executor));
-    }
-
     // Create a new aggregation executor
     case PlanType::Aggregation: {
       auto agg_plan = dynamic_cast<const AggregationPlanNode *>(plan);
@@ -113,9 +115,44 @@ auto ExecutorFactory::CreateExecutor(ExecutorContext *exec_ctx, const AbstractPl
       return std::make_unique<HashJoinExecutor>(exec_ctx, hash_join_plan, std::move(left), std::move(right));
     }
 
+    // Create a new mock scan executor
     case PlanType::MockScan: {
       const auto *mock_scan_plan = dynamic_cast<const MockScanPlanNode *>(plan);
       return std::make_unique<MockScanExecutor>(exec_ctx, mock_scan_plan);
+    }
+
+    // Create a new projection executor
+    case PlanType::Projection: {
+      const auto *projection_plan = dynamic_cast<const ProjectionPlanNode *>(plan);
+      auto child = ExecutorFactory::CreateExecutor(exec_ctx, projection_plan->GetChildPlan());
+      return std::make_unique<ProjectionExecutor>(exec_ctx, projection_plan, std::move(child));
+    }
+
+      // Create a new filter executor
+    case PlanType::Filter: {
+      const auto *filter_plan = dynamic_cast<const FilterPlanNode *>(plan);
+      auto child = ExecutorFactory::CreateExecutor(exec_ctx, filter_plan->GetChildPlan());
+      return std::make_unique<FilterExecutor>(exec_ctx, filter_plan, std::move(child));
+    }
+
+      // Create a new filter executor
+    case PlanType::Values: {
+      const auto *values_plan = dynamic_cast<const ValuesPlanNode *>(plan);
+      return std::make_unique<ValuesExecutor>(exec_ctx, values_plan);
+    }
+
+      // Create a new sort executor
+    case PlanType::Sort: {
+      const auto *sort_plan = dynamic_cast<const SortPlanNode *>(plan);
+      auto child = ExecutorFactory::CreateExecutor(exec_ctx, sort_plan->GetChildPlan());
+      return std::make_unique<SortExecutor>(exec_ctx, sort_plan, std::move(child));
+    }
+
+      // Create a new topN executor
+    case PlanType::TopN: {
+      const auto *topn_plan = dynamic_cast<const TopNPlanNode *>(plan);
+      auto child = ExecutorFactory::CreateExecutor(exec_ctx, topn_plan->GetChildPlan());
+      return std::make_unique<TopNExecutor>(exec_ctx, topn_plan, std::move(child));
     }
 
     default:

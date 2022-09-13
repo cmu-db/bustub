@@ -2,9 +2,9 @@
 //
 //                         BusTub
 //
-// seq_scan_plan.h
+// filter_plan.h
 //
-// Identification: src/include/execution/plans/seq_scan_plan.h
+// Identification: src/include/execution/plans/filter_plan.h
 //
 // Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
@@ -29,7 +29,7 @@ class FilterPlanNode : public AbstractPlanNode {
  public:
   /**
    * Construct a new FilterPlanNode instance.
-   * @param output The output schema of this sequential scan plan node
+   * @param output The output schema of this filter plan node
    * @param predicate The predicate applied during the scan operation
    * @param child The child plan node
    */
@@ -41,6 +41,12 @@ class FilterPlanNode : public AbstractPlanNode {
 
   /** @return The predicate to test tuples against; tuples should only be returned if they evaluate to true */
   auto GetPredicate() const -> const AbstractExpression * { return predicate_; }
+
+  /** @return The child plan node */
+  auto GetChildPlan() const -> const AbstractPlanNode * {
+    BUSTUB_ASSERT(GetChildren().size() == 1, "Filter should have exactly one child plan.");
+    return GetChildAt(0);
+  }
 
  protected:
   auto PlanNodeToString() const -> std::string override {

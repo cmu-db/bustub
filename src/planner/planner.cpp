@@ -1,8 +1,10 @@
 #include "planner/planner.h"
+#include <memory>
+#include <utility>
+#include "binder/bound_expression.h"
 #include "binder/bound_statement.h"
 #include "binder/expressions/bound_agg_call.h"
 #include "binder/expressions/bound_binary_op.h"
-#include "binder/expressions/bound_column_ref.h"
 #include "binder/statement/select_statement.h"
 #include "binder/table_ref/bound_base_table_ref.h"
 #include "binder/table_ref/bound_cross_product_ref.h"
@@ -13,15 +15,16 @@
 #include "execution/expressions/abstract_expression.h"
 #include "execution/expressions/aggregate_value_expression.h"
 #include "execution/expressions/column_value_expression.h"
-#include "execution/expressions/comparison_expression.h"
 #include "execution/expressions/constant_value_expression.h"
 #include "execution/plans/abstract_plan.h"
 #include "execution/plans/aggregation_plan.h"
 #include "execution/plans/filter_plan.h"
 #include "execution/plans/mock_scan_plan.h"
 #include "execution/plans/nested_loop_join_plan.h"
+#include "execution/plans/projection_plan.h"
 #include "execution/plans/seq_scan_plan.h"
 #include "fmt/format.h"
+#include "type/value_factory.h"
 
 namespace bustub {
 
@@ -34,80 +37,6 @@ void Planner::PlanQuery(const BoundStatement &statement) {
     default:
       throw Exception(fmt::format("the statement {} is not supported in planner yet", statement.type_));
   }
-}
-
-auto Planner::PlanExpression(const BoundExpression &expr, const std::vector<const AbstractPlanNode *> &children)
-    -> std::unique_ptr<AbstractExpression> {
-  switch (expr.type_) {
-    case ExpressionType::AGG_CALL:
-      throw Exception("agg call should be handled by PlanSelect");
-    case ExpressionType::COLUMN_REF: {
-      const auto &column_ref_expr = dynamic_cast<const BoundColumnRef &>(expr);
-      if (children.empty()) {
-        throw Exception("column ref should have at least one child");
-      }
-      if (children.size() == 1) {
-        // Projections, Filters, and other executors evaluating expressions with one single child will
-        // use this branch.
-        const auto &child = children[0];
-        auto schema = child->OutputSchema();
-        uint32_t col_idx = schema->GetColIdx(fmt::format("{}.{}", column_ref_expr.table_, column_ref_expr.col_));
-        auto col_type = schema->GetColumn(col_idx).GetType();
-        return std::make_unique<ColumnValueExpression>(0, col_idx, col_type);
-      }
-      if (children.size() == 2) {
-        /**
-         * Joins will use this branch to plan expressions.
-         *
-         * If an expression is for join condition, e.g.
-         * SELECT * from test_1 inner join test_2 on test_1.colA = test_2.col2
-         * The plan will be like:
-         * ```
-         * NestedLoopJoin condition={ ColumnRef 0.0=ColumnRef 1.1 }
-         *   SeqScan colA, colB
-         *   SeqScan col1, col2
-         * ```
-         * In `ColumnRef n.m`, when executor is using the expression, it picks from its
-         * nth children's mth column to get the data.
-         */
-
-        const auto &left = children[0];
-        const auto &right = children[1];
-        auto left_schema = left->OutputSchema();
-        auto right_schema = right->OutputSchema();
-        auto col_name = fmt::format("{}.{}", column_ref_expr.table_, column_ref_expr.col_);
-        auto col_idx_left = left_schema->TryGetColIdx(col_name);
-        auto col_idx_right = right_schema->TryGetColIdx(col_name);
-        if (col_idx_left && col_idx_right) {
-          throw bustub::Exception(fmt::format("ambiguous column name {}", col_name));
-        }
-        if (col_idx_left) {
-          auto col_type = left_schema->GetColumn(*col_idx_left).GetType();
-          return std::make_unique<ColumnValueExpression>(0, *col_idx_left, col_type);
-        }
-        if (col_idx_right) {
-          auto col_type = right_schema->GetColumn(*col_idx_right).GetType();
-          return std::make_unique<ColumnValueExpression>(1, *col_idx_right, col_type);
-        }
-        throw bustub::Exception(fmt::format("column name {} not found", col_name));
-      }
-      UNREACHABLE("no executor with expression has more than 2 children for now");
-    }
-    case ExpressionType::BINARY_OP: {
-      const auto &binary_op_expr = dynamic_cast<const BoundBinaryOp &>(expr);
-      auto left = PlanExpression(*binary_op_expr.larg_, children);
-      auto right = PlanExpression(*binary_op_expr.rarg_, children);
-      const auto &op_name = binary_op_expr.op_name_;
-      if (op_name == "=") {
-        return std::make_unique<ComparisonExpression>(SaveExpression(std::move(left)), SaveExpression(std::move(right)),
-                                                      ComparisonType::Equal);
-      }
-      throw Exception(fmt::format("binary op {} not supported in planner yet", op_name));
-    }
-    default:
-      break;
-  }
-  throw Exception(fmt::format("expression type {} not supported in planner yet", expr.type_));
 }
 
 auto MakeOutputSchema(const std::vector<std::pair<std::string, const AbstractExpression *>> &exprs)
@@ -137,7 +66,7 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> std::unique_ptr<Ab
 
   if (!statement.where_->IsInvalid()) {
     auto schema = plan->OutputSchema();
-    auto expr = PlanExpression(*statement.where_, {plan.get()});
+    auto [_, expr] = PlanExpression(*statement.where_, {plan.get()});
     plan = std::make_unique<FilterPlanNode>(schema, SaveExpression(std::move(expr)), SavePlanNode(std::move(plan)));
   }
 
@@ -145,6 +74,7 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> std::unique_ptr<Ab
     // plan group-by agg
     throw Exception("cannot plan group-by agg");
   }
+
   size_t agg_call_cnt = 0;
   for (const auto &item : statement.select_list_) {
     if (item->type_ == ExpressionType::AGG_CALL) {
@@ -161,28 +91,24 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> std::unique_ptr<Ab
     for (const auto &item : statement.select_list_) {
       const auto &agg_call = dynamic_cast<const BoundAggCall &>(*item);
       BUSTUB_ASSERT(agg_call.args_.size() == 1, "only agg call of one arg is supported for now");
-      auto abstract_expr = SaveExpression(PlanExpression(*agg_call.args_[0], {plan.get()}));
+      auto [_, expr] = PlanExpression(*agg_call.args_[0], {plan.get()});
+      auto abstract_expr = SaveExpression(std::move(expr));
       input_exprs.push_back(abstract_expr);
       if (agg_call.func_name_ == "min") {
         agg_types.push_back(AggregationType::MinAggregate);
-        // TODO(chi): deduce correct output schema
-        output_schema.emplace_back(std::make_pair(
-            "min", SaveExpression(std::make_unique<AggregateValueExpression>(false, term_idx, TypeId::INTEGER))));
       } else if (agg_call.func_name_ == "max") {
         agg_types.emplace_back(AggregationType::MaxAggregate);
-        output_schema.emplace_back(std::make_pair(
-            "max", SaveExpression(std::make_unique<AggregateValueExpression>(false, term_idx, TypeId::INTEGER))));
       } else if (agg_call.func_name_ == "sum") {
         agg_types.emplace_back(AggregationType::SumAggregate);
-        output_schema.emplace_back(std::make_pair(
-            "sum", SaveExpression(std::make_unique<AggregateValueExpression>(false, term_idx, TypeId::INTEGER))));
       } else if (agg_call.func_name_ == "count") {
         agg_types.emplace_back(AggregationType::CountAggregate);
-        output_schema.emplace_back(std::make_pair(
-            "count", SaveExpression(std::make_unique<AggregateValueExpression>(false, term_idx, TypeId::INTEGER))));
       } else {
         throw Exception(fmt::format("unsupported agg_call {}", agg_call.func_name_));
       }
+
+      output_schema.emplace_back(
+          std::make_pair(fmt::format("agg#{}", term_idx),
+                         SaveExpression(std::make_unique<AggregateValueExpression>(false, term_idx, TypeId::INTEGER))));
       term_idx += 1;
     }
     return std::make_unique<AggregationPlanNode>(
@@ -191,8 +117,17 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> std::unique_ptr<Ab
   }
 
   if (agg_call_cnt == 0) {
-    // just select
-    return plan;
+    std::vector<const AbstractExpression *> exprs;
+    std::vector<std::pair<std::string, const AbstractExpression *>> output_schema;
+    std::vector<const AbstractPlanNode *> children = {plan.get()};
+    for (const auto &item : statement.select_list_) {
+      auto [name, expr] = PlanExpression(*item, {plan.get()});
+      auto abstract_expr = SaveExpression(std::move(expr));
+      exprs.push_back(abstract_expr);
+      output_schema.emplace_back(std::make_pair(name, abstract_expr));
+    }
+    return std::make_unique<ProjectionPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), std::move(exprs),
+                                                SavePlanNode(std::move(plan)));
   }
 
   throw Exception("invalid select list: agg calls appear with other columns");
@@ -253,7 +188,7 @@ auto Planner::PlanTableRef(const BoundTableRef &table_ref) -> std::unique_ptr<Ab
       return std::make_unique<NestedLoopJoinPlanNode>(
           SaveSchema(MakeOutputSchema(output_schema)),
           std::vector{SavePlanNode(std::move(left)), SavePlanNode(std::move(right))},
-          SaveExpression(std::make_unique<ConstantValueExpression>(Value(TypeId::BOOLEAN, static_cast<int8_t>(true)))));
+          SaveExpression(std::make_unique<ConstantValueExpression>(ValueFactory::GetBooleanValue(true))));
     }
     case TableReferenceType::JOIN: {
       const auto &join = dynamic_cast<const BoundJoinRef &>(table_ref);
@@ -273,7 +208,7 @@ auto Planner::PlanTableRef(const BoundTableRef &table_ref) -> std::unique_ptr<Ab
         idx += 1;
       }
       auto nlj_output_schema = SaveSchema(MakeOutputSchema(output_schema));
-      auto join_condition = PlanExpression(*join.condition_, {left.get(), right.get()});
+      auto [_, join_condition] = PlanExpression(*join.condition_, {left.get(), right.get()});
       auto nlj_node = std::make_unique<NestedLoopJoinPlanNode>(
           nlj_output_schema, std::vector{SavePlanNode(std::move(left)), SavePlanNode(std::move(right))},
           SaveExpression(std::move(join_condition)));
