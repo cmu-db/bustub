@@ -19,7 +19,7 @@ HashJoinExecutor::HashJoinExecutor(ExecutorContext *exec_ctx, const HashJoinPlan
                                    std::unique_ptr<AbstractExecutor> &&right_child)
     : AbstractExecutor(exec_ctx) {}
 
-void HashJoinExecutor::Init() {}
+void HashJoinExecutor::Init() { throw NotImplementedException("HashJoinExecutor is not implemented"); }
 
 auto HashJoinExecutor::Next(Tuple *tuple, RID *rid) -> bool { return false; }
 

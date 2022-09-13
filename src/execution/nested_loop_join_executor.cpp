@@ -19,7 +19,7 @@ NestedLoopJoinExecutor::NestedLoopJoinExecutor(ExecutorContext *exec_ctx, const 
                                                std::unique_ptr<AbstractExecutor> &&right_executor)
     : AbstractExecutor(exec_ctx) {}
 
-void NestedLoopJoinExecutor::Init() {}
+void NestedLoopJoinExecutor::Init() { throw NotImplementedException("NestedLoopJoinExecutor is not implemented"); }
 
 auto NestedLoopJoinExecutor::Next(Tuple *tuple, RID *rid) -> bool { return false; }
 

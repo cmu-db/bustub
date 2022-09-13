@@ -147,7 +147,11 @@ TEST(BinderTest, DISABLED_BindInsert) {
   TryBind("INSERT INTO y SELECT * FROM y WHERE x < 500");
 }
 
-TEST(BinderTest, BindVarchar) { TryBind(R"(INSERT INTO c VALUES ('1', '2'))"); }
+TEST(BinderTest, BindVarchar) {
+  TryBind(R"(INSERT INTO c VALUES ('1', '2'))");
+  TryBind(R"(INSERT INTO c VALUES ('', ''))");
+  TryBind(fmt::format(R"(INSERT INTO c VALUES ('1', '{}'))", std::string(1024, 'a')));
+}
 
 TEST(BinderTest, BindAliasInAgg) {
   auto statements = TryBind("select z, max(a) as max_a, min(b), first(c) from y group by z having max(a) > 0");

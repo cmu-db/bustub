@@ -18,7 +18,7 @@ NestIndexJoinExecutor::NestIndexJoinExecutor(ExecutorContext *exec_ctx, const Ne
                                              std::unique_ptr<AbstractExecutor> &&child_executor)
     : AbstractExecutor(exec_ctx) {}
 
-void NestIndexJoinExecutor::Init() {}
+void NestIndexJoinExecutor::Init() { throw NotImplementedException("NestIndexJoinExecutor is not implemented"); }
 
 auto NestIndexJoinExecutor::Next(Tuple *tuple, RID *rid) -> bool { return false; }
 

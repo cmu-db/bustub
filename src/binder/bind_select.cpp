@@ -29,7 +29,7 @@ namespace bustub {
 auto Binder::BindSelect(duckdb_libpgquery::PGSelectStmt *pg_stmt) -> std::unique_ptr<SelectStatement> {
   // Bind FROM clause.
   auto table = BindFrom(pg_stmt->fromClause);
-  scope_ = &*table;
+  scope_ = table.get();
 
   // Bind SELECT list.
   if (pg_stmt->targetList == nullptr) {
@@ -134,7 +134,7 @@ auto Binder::BindJoin(duckdb_libpgquery::PGJoinExpr *root) -> std::unique_ptr<Bo
   auto left_table = BindTableRef(root->larg);
   auto right_table = BindTableRef(root->rarg);
   auto join_ref = std::make_unique<BoundJoinRef>(join_type, std::move(left_table), std::move(right_table), nullptr);
-  scope_ = &*join_ref;
+  scope_ = join_ref.get();
   auto condition = BindExpression(root->quals);
   join_ref->condition_ = std::move(condition);
   return join_ref;

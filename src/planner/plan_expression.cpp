@@ -74,7 +74,7 @@ auto Planner::PlanColumnRef(const BoundColumnRef &expr, const std::vector<const 
     return std::make_tuple(col_name, std::make_unique<ColumnValueExpression>(0, col_idx, col_type));
   }
   if (children.size() == 2) {
-    /**
+    /*
      * Joins will use this branch to plan expressions.
      *
      * If an expression is for join condition, e.g.

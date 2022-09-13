@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "execution/executor_context.h"
@@ -28,9 +29,9 @@ namespace bustub {
 class TopNExecutor : public AbstractExecutor {
  public:
   /**
-   * Construct a new SeqScanExecutor instance.
+   * Construct a new TopNExecutor instance.
    * @param exec_ctx The executor context
-   * @param plan The sequential scan plan to be executed
+   * @param plan The topn plan to be executed
    */
   TopNExecutor(ExecutorContext *exec_ctx, const TopNPlanNode *plan, std::unique_ptr<AbstractExecutor> &&child_executor);
 
@@ -45,7 +46,7 @@ class TopNExecutor : public AbstractExecutor {
    */
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
-  /** @return The output schema for the sequential scan */
+  /** @return The output schema for the topn */
   auto GetOutputSchema() -> const Schema * override { return plan_->OutputSchema(); }
 
  private:

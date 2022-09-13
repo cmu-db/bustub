@@ -28,9 +28,9 @@ namespace bustub {
 class ValuesExecutor : public AbstractExecutor {
  public:
   /**
-   * Construct a new SeqScanExecutor instance.
+   * Construct a new ValuesExecutor instance.
    * @param exec_ctx The executor context
-   * @param plan The sequential scan plan to be executed
+   * @param plan The values plan to be executed
    */
   ValuesExecutor(ExecutorContext *exec_ctx, const ValuesPlanNode *plan);
 
@@ -45,7 +45,7 @@ class ValuesExecutor : public AbstractExecutor {
    */
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
-  /** @return The output schema for the sequential scan */
+  /** @return The output schema for the values */
   auto GetOutputSchema() -> const Schema * override { return plan_->OutputSchema(); }
 
  private:

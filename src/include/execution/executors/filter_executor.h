@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "execution/executor_context.h"
@@ -28,9 +29,9 @@ namespace bustub {
 class FilterExecutor : public AbstractExecutor {
  public:
   /**
-   * Construct a new SeqScanExecutor instance.
+   * Construct a new FilterExecutor instance.
    * @param exec_ctx The executor context
-   * @param plan The sequential scan plan to be executed
+   * @param plan The filter plan to be executed
    */
   FilterExecutor(ExecutorContext *exec_ctx, const FilterPlanNode *plan,
                  std::unique_ptr<AbstractExecutor> &&child_executor);
@@ -46,7 +47,7 @@ class FilterExecutor : public AbstractExecutor {
    */
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
-  /** @return The output schema for the sequential scan */
+  /** @return The output schema for the filter plan */
   auto GetOutputSchema() -> const Schema * override { return plan_->OutputSchema(); }
 
  private:
