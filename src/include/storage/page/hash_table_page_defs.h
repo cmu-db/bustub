@@ -35,7 +35,7 @@
 
 /**
  * BUCKET_ARRAY_SIZE is the number of (key, value) pairs that can be stored in an extendible hash index bucket page.
- * The computation is the same as the above BLOCK_ARRAY_SIZE, but blocks and buckets have difference implementations
+ * The computation is the same as the above BLOCK_ARRAY_SIZE, but blocks and buckets have different implementations
  * of search, insertion, removal, and helper methods.
  */
 #define BUCKET_ARRAY_SIZE (4 * PAGE_SIZE / (4 * sizeof(MappingType) + 1))
