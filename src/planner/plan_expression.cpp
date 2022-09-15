@@ -2,6 +2,7 @@
 #include "binder/bound_expression.h"
 #include "binder/bound_statement.h"
 #include "binder/expressions/bound_agg_call.h"
+#include "binder/expressions/bound_alias.h"
 #include "binder/expressions/bound_binary_op.h"
 #include "binder/expressions/bound_column_ref.h"
 #include "binder/expressions/bound_constant.h"
@@ -133,6 +134,11 @@ auto Planner::PlanExpression(const BoundExpression &expr, const std::vector<cons
     case ExpressionType::CONSTANT: {
       const auto &constant_expr = dynamic_cast<const BoundConstant &>(expr);
       return std::make_tuple(unnamed_column, PlanConstant(constant_expr, children));
+    }
+    case ExpressionType::ALIAS: {
+      const auto &alias_expr = dynamic_cast<const BoundAlias &>(expr);
+      auto [_1, expr] = PlanExpression(*alias_expr.child_, children);
+      return std::make_tuple(alias_expr.alias_, std::move(expr));
     }
     default:
       break;

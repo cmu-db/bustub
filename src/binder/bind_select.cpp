@@ -4,6 +4,7 @@
 #include "binder/bound_expression.h"
 #include "binder/bound_statement.h"
 #include "binder/expressions/bound_agg_call.h"
+#include "binder/expressions/bound_alias.h"
 #include "binder/expressions/bound_binary_op.h"
 #include "binder/expressions/bound_column_ref.h"
 #include "binder/expressions/bound_constant.h"
@@ -292,6 +293,9 @@ auto Binder::BindResTarget(duckdb_libpgquery::PGResTarget *root) -> std::unique_
   auto expr = BindExpression(root->val);
   if (!expr) {
     return nullptr;
+  }
+  if (root->name != nullptr) {
+    return std::make_unique<BoundAlias>(root->name, std::move(expr));
   }
   return expr;
 }
