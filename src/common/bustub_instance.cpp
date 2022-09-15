@@ -1,5 +1,6 @@
 #include "common/bustub_instance.h"
 #include "binder/binder.h"
+#include "binder/bound_expression.h"
 #include "binder/bound_statement.h"
 #include "binder/statement/create_statement.h"
 #include "binder/statement/select_statement.h"

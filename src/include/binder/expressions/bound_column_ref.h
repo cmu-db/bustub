@@ -16,6 +16,8 @@ class BoundColumnRef : public BoundExpression {
 
   auto ToString() const -> std::string override { return fmt::format("{}.{}", table_, col_); }
 
+  auto HasAggregation() const -> bool override { return false; }
+
   /** Name of the table. */
   std::string table_;
 

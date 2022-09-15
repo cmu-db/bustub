@@ -19,6 +19,8 @@ class BoundAggCall : public BoundExpression {
 
   auto ToString() const -> std::string override;
 
+  auto HasAggregation() const -> bool override { return true; }
+
   /** Function name. */
   std::string func_name_;
 

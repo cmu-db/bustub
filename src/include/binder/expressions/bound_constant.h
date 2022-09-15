@@ -19,6 +19,8 @@ class BoundConstant : public BoundExpression {
 
   auto ToString() const -> std::string override { return val_.ToString(); }
 
+  auto HasAggregation() const -> bool override { return false; }
+
   /** The constant being bound. */
   Value val_;
 };

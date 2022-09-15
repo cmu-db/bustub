@@ -17,6 +17,8 @@ class BoundAlias : public BoundExpression {
 
   auto ToString() const -> std::string override { return fmt::format("({} as {})", child_, alias_); }
 
+  auto HasAggregation() const -> bool override { return child_->HasAggregation(); }
+
   /** Alias name. */
   std::string alias_;
 

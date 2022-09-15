@@ -6,10 +6,13 @@
 #include "binder/bound_table_ref.h"
 #include "binder/statement/insert_statement.h"
 #include "binder/statement/select_statement.h"
+#include "binder/tokens.h"
 #include "common/enums/statement_type.h"
 #include "common/exception.h"
 #include "common/macros.h"
 #include "common/util/string_util.h"
+#include "execution/expressions/abstract_expression.h"
+#include "execution/expressions/column_value_expression.h"
 #include "execution/plans/abstract_plan.h"
 #include "execution/plans/filter_plan.h"
 #include "execution/plans/projection_plan.h"
@@ -47,56 +50,11 @@ auto Planner::MakeOutputSchema(const std::vector<std::pair<std::string, const Ab
   return std::make_unique<Schema>(cols);
 }
 
-auto Planner::PlanSelect(const SelectStatement &statement) -> std::unique_ptr<AbstractPlanNode> {
-  std::unique_ptr<AbstractPlanNode> plan = nullptr;
-
-  switch (statement.table_->type_) {
-    case TableReferenceType::EMPTY:
-      throw Exception("select value is not supported in planner yet");
-    default:
-      plan = PlanTableRef(*statement.table_);
-      break;
+void PlannerContext::AddAggregation(std::unique_ptr<BoundExpression> expr) {
+  if (!allow_aggregation_) {
+    throw bustub::Exception("AggCall not allowed in this position");
   }
-
-  if (!statement.where_->IsInvalid()) {
-    auto schema = plan->OutputSchema();
-    auto [_, expr] = PlanExpression(*statement.where_, {plan.get()});
-    plan = std::make_unique<FilterPlanNode>(schema, SaveExpression(std::move(expr)), SavePlanNode(std::move(plan)));
-  }
-
-  bool is_agg = false;
-
-  if (!statement.group_by_.empty()) {
-    is_agg = true;
-  }
-
-  if (!statement.having_->IsInvalid()) {
-    is_agg = true;
-  }
-
-  for (const auto &item : statement.select_list_) {
-    if (item->type_ == ExpressionType::AGG_CALL) {
-      is_agg = true;
-    }
-  }
-
-  if (is_agg) {
-    // Plan aggregation
-    return PlanAggregation(statement, SavePlanNode(std::move(plan)));
-  }
-
-  // Plan normal select
-  std::vector<const AbstractExpression *> exprs;
-  std::vector<std::pair<std::string, const AbstractExpression *>> output_schema;
-  std::vector<const AbstractPlanNode *> children = {plan.get()};
-  for (const auto &item : statement.select_list_) {
-    auto [name, expr] = PlanExpression(*item, {plan.get()});
-    auto abstract_expr = SaveExpression(std::move(expr));
-    exprs.push_back(abstract_expr);
-    output_schema.emplace_back(std::make_pair(name, abstract_expr));
-  }
-  return std::make_unique<ProjectionPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), std::move(exprs),
-                                              SavePlanNode(std::move(plan)));
+  aggregations_.push_back(std::move(expr));
 }
 
 }  // namespace bustub

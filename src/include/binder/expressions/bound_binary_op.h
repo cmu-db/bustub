@@ -23,6 +23,8 @@ class BoundBinaryOp : public BoundExpression {
 
   auto ToString() const -> std::string override { return fmt::format("({}{}{})", larg_, op_name_, rarg_); }
 
+  auto HasAggregation() const -> bool override { return larg_->HasAggregation() || rarg_->HasAggregation(); }
+
   /** Operator name. */
   std::string op_name_;
 

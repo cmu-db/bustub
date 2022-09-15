@@ -1,4 +1,5 @@
 #include <memory>
+#include <tuple>
 #include "binder/bound_expression.h"
 #include "binder/bound_statement.h"
 #include "binder/expressions/bound_agg_call.h"
@@ -118,11 +119,48 @@ auto Planner::PlanConstant(const BoundConstant &expr, const std::vector<const Ab
   return std::make_unique<ConstantValueExpression>(expr.val_);
 }
 
+void Planner::AddAggCallToContext(BoundExpression &expr) {
+  switch (expr.type_) {
+    case ExpressionType::AGG_CALL: {
+      auto &agg_call_expr = dynamic_cast<BoundAggCall &>(expr);
+      auto agg_name = fmt::format("__pseudo_agg#{}", ctx_.aggregations_.size());
+      auto agg_call = BoundAggCall(agg_name, std::vector<std::unique_ptr<BoundExpression>>{});
+      // Replace the agg call in the original bound expression with a pseudo one, add agg call to the context.
+      ctx_.AddAggregation(std::make_unique<BoundAggCall>(std::exchange(agg_call_expr, std::move(agg_call))));
+      return;
+    }
+    case ExpressionType::COLUMN_REF: {
+      return;
+    }
+    case ExpressionType::BINARY_OP: {
+      auto &binary_op_expr = dynamic_cast<BoundBinaryOp &>(expr);
+      AddAggCallToContext(*binary_op_expr.larg_);
+      AddAggCallToContext(*binary_op_expr.rarg_);
+      return;
+    }
+    case ExpressionType::CONSTANT: {
+      return;
+    }
+    case ExpressionType::ALIAS: {
+      auto &alias_expr = dynamic_cast<const BoundAlias &>(expr);
+      AddAggCallToContext(*alias_expr.child_);
+      return;
+    }
+    default:
+      break;
+  }
+  throw Exception(fmt::format("expression type {} not supported in planner yet", expr.type_));
+}
+
 auto Planner::PlanExpression(const BoundExpression &expr, const std::vector<const AbstractPlanNode *> &children)
     -> std::tuple<std::string, std::unique_ptr<AbstractExpression>> {
   switch (expr.type_) {
-    case ExpressionType::AGG_CALL:
-      throw Exception("agg call should be handled by PlanSelect");
+    case ExpressionType::AGG_CALL: {
+      if (ctx_.next_aggregation_ >= ctx_.expr_in_agg_.size()) {
+        throw bustub::Exception("unexpected agg call");
+      }
+      return std::make_tuple(unnamed_column, std::move(ctx_.expr_in_agg_[ctx_.next_aggregation_++]));
+    }
     case ExpressionType::COLUMN_REF: {
       const auto &column_ref_expr = dynamic_cast<const BoundColumnRef &>(expr);
       return PlanColumnRef(column_ref_expr, children);
