@@ -26,6 +26,7 @@
 
 #include "binder/binder.h"
 #include "binder/bound_expression.h"
+#include "binder/bound_order_by.h"
 #include "binder/bound_table_ref.h"
 #include "binder/statement/insert_statement.h"
 #include "binder/statement/select_statement.h"

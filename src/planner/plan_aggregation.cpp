@@ -142,7 +142,7 @@ auto Planner::PlanSelectAgg(const SelectStatement &statement, const AbstractPlan
                                             SavePlanNode(std::move(plan)));
   }
 
-  // Plan normal select
+  // Plan normal select (within aggregation context)
   std::vector<const AbstractExpression *> exprs;
   output_schema.clear();
   std::vector<const AbstractPlanNode *> children = {plan.get()};

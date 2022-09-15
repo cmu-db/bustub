@@ -14,7 +14,10 @@
 
 #include <memory>
 #include <string>
+#include <utility>
+#include <vector>
 
+#include "binder/bound_order_by.h"
 #include "catalog/catalog.h"
 #include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
@@ -31,8 +34,11 @@ class SortPlanNode : public AbstractPlanNode {
    * Construct a new SortPlanNode instance.
    * @param output The output schema of this sort plan node
    * @param child The child plan node
+   * @param order_by The sort expressions and their order by types.
    */
-  SortPlanNode(const Schema *output, const AbstractPlanNode *child) : AbstractPlanNode(output, {child}) {}
+  SortPlanNode(const Schema *output, const AbstractPlanNode *child,
+               std::vector<std::pair<OrderByType, const AbstractExpression *>> order_bys)
+      : AbstractPlanNode(output, {child}), order_bys_(std::move(order_bys)) {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::Sort; }
@@ -43,10 +49,14 @@ class SortPlanNode : public AbstractPlanNode {
     return GetChildAt(0);
   }
 
+  /** @return Get sort by expressions */
+  auto GetOrderBy() -> const std::vector<std::pair<OrderByType, const AbstractExpression *>> & { return order_bys_; }
+
  protected:
-  auto PlanNodeToString() const -> std::string override { return fmt::format("Sort {{ }}"); }
+  auto PlanNodeToString() const -> std::string override;
 
  private:
+  std::vector<std::pair<OrderByType, const AbstractExpression *>> order_bys_;
 };
 
 }  // namespace bustub
