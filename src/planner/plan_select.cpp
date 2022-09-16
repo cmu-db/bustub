@@ -70,6 +70,18 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> std::unique_ptr<Ab
                                                 SavePlanNode(std::move(plan)));
   }
 
+  // Plan ORDER BY
+  if (!statement.sort_.empty()) {
+    std::vector<std::pair<OrderByType, const AbstractExpression *>> order_bys;
+    for (const auto &order_by : statement.sort_) {
+      auto [_, expr] = PlanExpression(*order_by->expr_, {plan.get()});
+      auto abstract_expr = SaveExpression(std::move(expr));
+      order_bys.emplace_back(std::make_pair(order_by->type_, abstract_expr));
+    }
+    auto saved_plan_node = SavePlanNode(std::move(plan));
+    plan = std::make_unique<SortPlanNode>(saved_plan_node->OutputSchema(), saved_plan_node, std::move(order_bys));
+  }
+
   // Plan LIMIT
   if (!statement.limit_count_->IsInvalid() || !statement.limit_offset_->IsInvalid()) {
     std::optional<size_t> offset = std::nullopt;
@@ -107,18 +119,8 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> std::unique_ptr<Ab
       throw NotImplementedException("OFFSET clause is not supported yet.");
     }
 
-    plan = std::make_unique<LimitPlanNode>(plan->OutputSchema(), SavePlanNode(std::move(plan)), *limit);
-  }
-
-  // Plan ORDER BY
-  if (!statement.sort_.empty()) {
-    std::vector<std::pair<OrderByType, const AbstractExpression *>> order_bys;
-    for (const auto &order_by : statement.sort_) {
-      auto [_, expr] = PlanExpression(*order_by->expr_, {plan.get()});
-      auto abstract_expr = SaveExpression(std::move(expr));
-      order_bys.emplace_back(std::make_pair(order_by->type_, abstract_expr));
-    }
-    plan = std::make_unique<SortPlanNode>(plan->OutputSchema(), SavePlanNode(std::move(plan)), std::move(order_bys));
+    auto saved_plan_node = SavePlanNode(std::move(plan));
+    plan = std::make_unique<LimitPlanNode>(saved_plan_node->OutputSchema(), saved_plan_node, *limit);
   }
 
   return plan;
