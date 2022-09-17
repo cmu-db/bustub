@@ -18,6 +18,8 @@ class BoundUnaryOp : public BoundExpression {
 
   auto ToString() const -> std::string override { return fmt::format("({}{})", op_name_, arg_); }
 
+  auto HasAggregation() const -> bool override { return arg_->HasAggregation(); }
+
   /** Operator name. */
   std::string op_name_;
 

@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include "common/macros.h"
 #include "fmt/format.h"
 
 namespace bustub {
@@ -34,6 +35,8 @@ class BoundExpression {
   virtual auto ToString() const -> std::string { return ""; };
 
   auto IsInvalid() const -> bool { return type_ == ExpressionType::INVALID; }
+
+  virtual auto HasAggregation() const -> bool { UNREACHABLE("has aggregation should have been implemented!"); }
 
   /** The type of this expression. */
   ExpressionType type_{ExpressionType::INVALID};

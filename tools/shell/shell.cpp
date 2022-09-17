@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include "binder/binder.h"
 #include "common/bustub_instance.h"
 #include "common/exception.h"
@@ -16,10 +17,15 @@ auto main(int argc, char **argv) -> int {
   auto default_prompt = "bustub> ";
   auto emoji_prompt = "\U0001f6c1> ";  // the bathtub emoji
   bool use_emoji_prompt = false;
+  bool disable_tty = false;
 
   for (int i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--emoji-prompt") == 0) {
       use_emoji_prompt = true;
+      break;
+    }
+    if (strcmp(argv[i], "--disable-tty") == 0) {
+      disable_tty = true;
       break;
     }
   }
@@ -32,18 +38,36 @@ auto main(int argc, char **argv) -> int {
 
   linenoiseHistorySetMaxLen(1024);
 
-  char *query_c_str;
-  while ((query_c_str = linenoise(use_emoji_prompt ? emoji_prompt : default_prompt)) != nullptr) {
-    std::string query(query_c_str);
-    linenoiseHistoryAdd(query_c_str);
-    linenoiseFree(query_c_str);
-    try {
-      auto result = bustub->ExecuteSql(query);
-      for (const auto &line : result) {
-        std::cout << line << std::endl;
+  if (disable_tty) {
+    std::string query;
+    while (true) {
+      std::getline(std::cin, query);
+      if (!std::cin) {
+        break;
       }
-    } catch (bustub::Exception &ex) {
-      std::cerr << ex.what() << std::endl;
+      try {
+        auto result = bustub->ExecuteSql(query);
+        for (const auto &line : result) {
+          std::cout << line << std::endl;
+        }
+      } catch (bustub::Exception &ex) {
+        std::cerr << ex.what() << std::endl;
+      }
+    }
+  } else {
+    char *query_c_str;
+    while ((query_c_str = linenoise(use_emoji_prompt ? emoji_prompt : default_prompt)) != nullptr) {
+      std::string query(query_c_str);
+      linenoiseHistoryAdd(query_c_str);
+      linenoiseFree(query_c_str);
+      try {
+        auto result = bustub->ExecuteSql(query);
+        for (const auto &line : result) {
+          std::cout << line << std::endl;
+        }
+      } catch (bustub::Exception &ex) {
+        std::cerr << ex.what() << std::endl;
+      }
     }
   }
 

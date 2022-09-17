@@ -32,7 +32,7 @@ class SelectNode;
 //===--------------------------------------------------------------------===//
 class AbstractExpression;
 
-class ColumnRefExpression;
+class ColumnValueExpression;
 class ComparisonExpression;
 class ConstantExpression;
 

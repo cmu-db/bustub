@@ -10,6 +10,8 @@
 #include "binder/tokens.h"
 #include "catalog/catalog.h"
 #include "catalog/column.h"
+#include "common/exception.h"
+#include "common/macros.h"
 #include "execution/plans/aggregation_plan.h"
 
 namespace bustub {
@@ -29,6 +31,36 @@ class BoundCrossProductRef;
 class BoundJoinRef;
 class BoundExpressionListRef;
 class BoundAggCall;
+
+/**
+ * The context for the planner. Used for planning aggregation calls.
+ */
+class PlannerContext {
+ public:
+  PlannerContext() = default;
+
+  void AddAggregation(std::unique_ptr<BoundExpression> expr);
+
+  /** Indicates whether aggregation is allowed in this context. */
+  bool allow_aggregation_{false};
+
+  /** Indicates the next agg call to be processed in this context. */
+  size_t next_aggregation_{0};
+
+  /**
+   * In the first phase of aggregation planning, we put all agg calls expressions into this vector.
+   * The expressions in this vector should be used over the output of the original filter / table
+   * scan plan node.
+   */
+  std::vector<std::unique_ptr<BoundExpression>> aggregations_;
+
+  /**
+   * In the second phase of aggregation planning, we plan agg calls from `aggregations_`, and generate
+   * an aggregation plan node. The expressions in thie vector should be used over the output from the
+   * aggregation plan node.
+   */
+  std::vector<std::unique_ptr<AbstractExpression>> expr_in_agg_;
+};
 
 /**
  * The planner takes a bound statement, and transforms it into the BusTub plan tree.
@@ -64,6 +96,8 @@ class Planner {
 
   auto PlanExpressionListRef(const BoundExpressionListRef &table_ref) -> std::unique_ptr<AbstractPlanNode>;
 
+  void AddAggCallToContext(BoundExpression &expr);
+
   auto PlanExpression(const BoundExpression &expr, const std::vector<const AbstractPlanNode *> &children)
       -> std::tuple<std::string, std::unique_ptr<AbstractExpression>>;
 
@@ -76,7 +110,7 @@ class Planner {
   auto PlanConstant(const BoundConstant &expr, const std::vector<const AbstractPlanNode *> &children)
       -> std::unique_ptr<AbstractExpression>;
 
-  auto PlanAggregation(const SelectStatement &statement, const AbstractPlanNode *child)
+  auto PlanSelectAgg(const SelectStatement &statement, const AbstractPlanNode *child)
       -> std::unique_ptr<AbstractPlanNode>;
 
   auto PlanAggCall(const BoundAggCall &agg_call, const std::vector<const AbstractPlanNode *> &children)
@@ -88,6 +122,26 @@ class Planner {
   std::unique_ptr<AbstractPlanNode> plan_;
 
  private:
+  PlannerContext ctx_;
+
+  class ContextGuard {
+   public:
+    explicit ContextGuard(PlannerContext *ctx) : old_ctx_(std::move(*ctx)), ctx_ptr_(ctx) { *ctx = PlannerContext(); }
+    ~ContextGuard() { *ctx_ptr_ = std::move(old_ctx_); }
+
+    DISALLOW_COPY_AND_MOVE(ContextGuard);
+
+   private:
+    PlannerContext old_ctx_;
+    PlannerContext *ctx_ptr_;
+  };
+
+  /** If any function needs to modify the scope, it MUST hold the context guard, so that
+   * the context will be recovered after the function returns. Currently, it's used in
+   * `BindFrom` and `BindJoin`.
+   */
+  auto NewContext() -> ContextGuard { return ContextGuard(&ctx_); }
+
   // The collection of allocated things, owned by the planner.
   // TODO(chi): refactor ALL OF THE ARGS TO UNIQUE_PTR/SHARED_PTR instead of guessing about the ownership.
 
