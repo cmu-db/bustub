@@ -75,8 +75,6 @@ class SelectStatement;
 class CreateStatement;
 class ExplainStatement;
 
-auto IndentAllLines(const std::string &lines, size_t num_indent) -> std::string;
-
 /**
  * The binder is responsible for transforming the Postgres parse tree to a binder tree
  * which can be recognized unambiguously by the BusTub planner.
