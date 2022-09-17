@@ -61,7 +61,7 @@ TEST(TupleTest, DISABLED_TableHeapTest) {
   std::shuffle(rid_v.begin(), rid_v.end(), std::default_random_engine(0));
   for (const auto &rid : rid_v) {
     // std::cout << i++ << std::endl;
-    assert(table->MarkDelete(rid, transaction) == 1);
+    BUSTUB_ENSURE(table->MarkDelete(rid, transaction) == 1, "");
   }
   disk_manager->ShutDown();
   remove("test.db");  // remove db file

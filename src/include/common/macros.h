@@ -19,6 +19,13 @@ namespace bustub {
 
 #define BUSTUB_ASSERT(expr, message) assert((expr) && (message))
 
+#define UNIMPLEMENTED(message) throw std::logic_error(message)
+
+#define BUSTUB_ENSURE(expr, message) \
+  if (!(expr)) {                     \
+    throw std::logic_error(message); \
+  }
+
 #define UNREACHABLE(message) throw std::logic_error(message)
 
 // Macros to disable copying and moving

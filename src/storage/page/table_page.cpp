@@ -76,7 +76,7 @@ auto TablePage::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn, Lock
     BUSTUB_ASSERT(!txn->IsSharedLocked(*rid) && !txn->IsExclusiveLocked(*rid), "A new tuple should not be locked.");
     // Acquire an exclusive lock on the new tuple.
     bool locked = lock_manager->LockExclusive(txn, *rid);
-    BUSTUB_ASSERT(locked, "Locking a new tuple should always work.");
+    BUSTUB_ENSURE(locked, "Locking a new tuple should always work.");
     LogRecord log_record(txn->GetTransactionId(), txn->GetPrevLSN(), LogRecordType::INSERT, *rid, tuple);
     lsn_t lsn = log_manager->AppendLogRecord(&log_record);
     SetLSN(lsn);

@@ -34,7 +34,10 @@ class DiskManager {
    */
   explicit DiskManager(const std::string &db_file);
 
-  ~DiskManager() = default;
+  /** FOR TEST / LEADERBOARD ONLY, used by DiskManagerMemory */
+  DiskManager() = default;
+
+  virtual ~DiskManager() = default;
 
   /**
    * Shut down the disk manager and close all the file resources.
@@ -46,14 +49,14 @@ class DiskManager {
    * @param page_id id of the page
    * @param page_data raw page data
    */
-  void WritePage(page_id_t page_id, const char *page_data);
+  virtual void WritePage(page_id_t page_id, const char *page_data);
 
   /**
    * Read a page from the database file.
    * @param page_id id of the page
    * @param[out] page_data output buffer
    */
-  void ReadPage(page_id_t page_id, char *page_data);
+  virtual void ReadPage(page_id_t page_id, char *page_data);
 
   /**
    * Flush the entire log buffer into disk.
@@ -89,7 +92,7 @@ class DiskManager {
   /** Checks if the non-blocking flush future was set. */
   inline auto HasFlushLogFuture() -> bool { return flush_log_f_ != nullptr; }
 
- private:
+ protected:
   auto GetFileSize(const std::string &file_name) -> int;
   // stream to write log file
   std::fstream log_io_;
