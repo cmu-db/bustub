@@ -21,7 +21,7 @@ namespace bustub {
 
 #define UNIMPLEMENTED(message) throw std::logic_error(message)
 
-#define ENSURE(expr, message)        \
+#define BUSTUB_ENSURE(expr, message) \
   if (!(expr)) {                     \
     throw std::logic_error(message); \
   }
