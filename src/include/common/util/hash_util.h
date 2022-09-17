@@ -96,7 +96,7 @@ class HashUtil {
         return Hash<uint64_t>(&raw);
       }
       default: {
-        BUSTUB_ASSERT(false, "Unsupported type.");
+        UNIMPLEMENTED("Unsupported type.");
       }
     }
   }
