@@ -122,6 +122,6 @@ if __name__ == "__main__":
     exclude_globs = [line.strip() for line in open(args.exclude_globs)]
     for source_dir in args.source_dirs.split(','):
         if len(source_dir) > 0:
-            had_err = check(args, source_dir)
+            had_err = had_err or check(args, source_dir)
 
     sys.exit(1 if had_err else 0)
