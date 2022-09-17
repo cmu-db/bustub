@@ -89,11 +89,14 @@ auto Planner::PlanSelectAgg(const SelectStatement &statement, const AbstractPlan
 
   // Plan group by expressions
   std::vector<const AbstractExpression *> group_by_exprs;
+  size_t group_by_idx = 0;
   for (const auto &expr : statement.group_by_) {
     auto [col_name, abstract_expr] = PlanExpression(*expr, {child});
     auto abstract_expr_ptr = SaveExpression(std::move(abstract_expr));
     group_by_exprs.push_back(abstract_expr_ptr);
-    output_schema.emplace_back(std::make_pair(std::move(col_name), abstract_expr_ptr));
+    auto schema_expr = SaveExpression(
+        std::make_unique<AggregateValueExpression>(true, group_by_idx++, abstract_expr_ptr->GetReturnType()));
+    output_schema.emplace_back(std::make_pair(std::move(col_name), schema_expr));
   }
 
   // Rewrite all agg call inside having.
@@ -111,7 +114,7 @@ auto Planner::PlanSelectAgg(const SelectStatement &statement, const AbstractPlan
   std::vector<AggregationType> agg_types;
   auto agg_begin_idx = group_by_exprs.size();  // agg-calls will be after group-bys in the output of agg.
 
-  int term_idx = 0;
+  size_t term_idx = 0;
   for (const auto &item : ctx_.aggregations_) {
     if (item->type_ != ExpressionType::AGG_CALL) {
       throw NotImplementedException("alias for agg call is not supported for now");
@@ -121,7 +124,9 @@ auto Planner::PlanSelectAgg(const SelectStatement &statement, const AbstractPlan
     auto abstract_expr = SaveExpression(std::move(expr));
     input_exprs.push_back(abstract_expr);
     agg_types.push_back(agg_type);
-    output_schema.emplace_back(std::make_pair(fmt::format("agg#{}", term_idx), abstract_expr));
+    auto schema_expr =
+        SaveExpression(std::make_unique<AggregateValueExpression>(false, term_idx, abstract_expr->GetReturnType()));
+    output_schema.emplace_back(std::make_pair(fmt::format("agg#{}", term_idx), schema_expr));
     // TODO(chi): correctly infer the type of the agg output.
     ctx_.expr_in_agg_.emplace_back(
         std::make_unique<ColumnValueExpression>(0, agg_begin_idx + term_idx, TypeId::INTEGER));
@@ -142,7 +147,7 @@ auto Planner::PlanSelectAgg(const SelectStatement &statement, const AbstractPlan
                                             SavePlanNode(std::move(plan)));
   }
 
-  // Plan normal select
+  // Plan normal select (within aggregation context)
   std::vector<const AbstractExpression *> exprs;
   output_schema.clear();
   std::vector<const AbstractPlanNode *> children = {plan.get()};

@@ -22,15 +22,19 @@
 
 #include "binder/binder.h"
 #include "binder/bound_expression.h"
+#include "binder/bound_order_by.h"
 #include "binder/bound_statement.h"
 #include "binder/statement/create_statement.h"
 #include "binder/statement/delete_statement.h"
+#include "binder/statement/explain_statement.h"
 #include "binder/statement/insert_statement.h"
 #include "binder/statement/select_statement.h"
 #include "binder/table_ref/bound_base_table_ref.h"
 #include "common/exception.h"
 #include "common/logger.h"
 #include "common/util/string_util.h"
+#include "nodes/nodes.hpp"
+#include "nodes/parsenodes.hpp"
 #include "type/decimal_type.h"
 
 namespace bustub {
@@ -61,6 +65,8 @@ auto Binder::TransformStatement(duckdb_libpgquery::PGNode *stmt) -> std::unique_
       return BindInsert(reinterpret_cast<duckdb_libpgquery::PGInsertStmt *>(stmt));
     case duckdb_libpgquery::T_PGSelectStmt:
       return BindSelect(reinterpret_cast<duckdb_libpgquery::PGSelectStmt *>(stmt));
+    case duckdb_libpgquery::T_PGExplainStmt:
+      return BindExplain(reinterpret_cast<duckdb_libpgquery::PGExplainStmt *>(stmt));
     case duckdb_libpgquery::T_PGDeleteStmt:
       return std::make_unique<DeleteStatement>(reinterpret_cast<duckdb_libpgquery::PGDeleteStmt *>(stmt));
     case duckdb_libpgquery::T_PGIndexStmt:

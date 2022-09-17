@@ -3,6 +3,7 @@
 #include "binder/bound_expression.h"
 #include "binder/bound_statement.h"
 #include "binder/statement/create_statement.h"
+#include "binder/statement/explain_statement.h"
 #include "binder/statement/select_statement.h"
 #include "buffer/buffer_pool_manager_instance.h"
 #include "catalog/schema.h"
@@ -85,10 +86,6 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
   binder.ParseAndBindQuery(sql);
   std::vector<std::string> result = {};
   for (const auto &statement : binder.statements_) {
-    // Bind the query.
-    std::cerr << "=== BINDER ===" << std::endl;
-    std::cerr << statement->ToString() << std::endl;
-
     switch (statement->type_) {
       case StatementType::CREATE_STATEMENT: {
         const auto &create_stmt = dynamic_cast<const CreateStatement &>(*statement);
@@ -98,6 +95,26 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
         delete txn;
         continue;
       }
+      case StatementType::EXPLAIN_STATEMENT: {
+        const auto &explain_stmt = dynamic_cast<const ExplainStatement &>(*statement);
+
+        // Print binder result.
+        std::cerr << "=== BINDER ===" << std::endl;
+        std::cerr << statement->ToString() << std::endl;
+
+        // Print planner result.
+        bustub::Planner planner(*catalog_);
+        planner.PlanQuery(*explain_stmt.statement_);
+        std::cerr << "=== PLANNER ===" << std::endl;
+        std::cerr << planner.plan_->ToString() << std::endl;
+
+        // Print optimizer result.
+        bustub::Optimizer optimizer(*catalog_);
+        auto optimized_plan = optimizer.Optimize(planner.plan_.get());
+        std::cerr << "=== OPTIMIZER ===" << std::endl;
+        std::cerr << optimized_plan->ToString() << std::endl;
+        continue;
+      }
       default:
         break;
     }
@@ -105,14 +122,10 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
     // Plan the query.
     bustub::Planner planner(*catalog_);
     planner.PlanQuery(*statement);
-    std::cerr << "=== PLANNER ===" << std::endl;
-    std::cerr << planner.plan_->ToString() << std::endl;
 
     // Optimize the query.
     bustub::Optimizer optimizer(*catalog_);
     auto optimized_plan = optimizer.Optimize(planner.plan_.get());
-    std::cerr << "=== OPTIMIZER ===" << std::endl;
-    std::cerr << optimized_plan->ToString() << std::endl;
 
     // Execute the query.
     auto txn = transaction_manager_->Begin();

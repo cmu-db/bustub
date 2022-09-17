@@ -2,6 +2,7 @@
 #include <memory>
 #include "binder/binder.h"
 #include "binder/bound_expression.h"
+#include "binder/bound_order_by.h"
 #include "binder/bound_statement.h"
 #include "binder/expressions/bound_agg_call.h"
 #include "binder/expressions/bound_alias.h"
@@ -10,6 +11,7 @@
 #include "binder/expressions/bound_constant.h"
 #include "binder/expressions/bound_star.h"
 #include "binder/expressions/bound_unary_op.h"
+#include "binder/statement/explain_statement.h"
 #include "binder/statement/select_statement.h"
 #include "binder/table_ref/bound_base_table_ref.h"
 #include "binder/table_ref/bound_cross_product_ref.h"
@@ -21,6 +23,7 @@
 #include "common/util/string_util.h"
 #include "fmt/format.h"
 #include "nodes/nodes.hpp"
+#include "nodes/parsenodes.hpp"
 #include "nodes/primnodes.hpp"
 #include "pg_definitions.hpp"
 #include "postgres_parser.hpp"
@@ -62,7 +65,9 @@ auto Binder::BindSelect(duckdb_libpgquery::PGSelectStmt *pg_stmt) -> std::unique
     }
     return std::make_unique<SelectStatement>(
         std::move(value_list), std::move(exprs), std::make_unique<BoundExpression>(),
-        std::vector<std::unique_ptr<BoundExpression>>{}, std::make_unique<BoundExpression>());
+        std::vector<std::unique_ptr<BoundExpression>>{}, std::make_unique<BoundExpression>(),
+        std::make_unique<BoundExpression>(), std::make_unique<BoundExpression>(),
+        std::vector<std::unique_ptr<BoundOrderBy>>{});
   }
 
   // Bind FROM clause.
@@ -76,19 +81,40 @@ auto Binder::BindSelect(duckdb_libpgquery::PGSelectStmt *pg_stmt) -> std::unique
 
   auto select_list = BindSelectList(pg_stmt->targetList);
 
+  // Bind WHERE clause.
   auto where = std::make_unique<BoundExpression>();
   if (pg_stmt->whereClause != nullptr) {
     where = BindWhere(pg_stmt->whereClause);
   }
 
+  // Bind GROUP BY clause.
   auto group_by = std::vector<std::unique_ptr<BoundExpression>>{};
   if (pg_stmt->groupClause != nullptr) {
     group_by = BindGroupBy(pg_stmt->groupClause);
   }
 
+  // Bind HAVING clause.
   auto having = std::make_unique<BoundExpression>();
   if (pg_stmt->havingClause != nullptr) {
     having = BindHaving(pg_stmt->havingClause);
+  }
+
+  auto limit_count = std::make_unique<BoundExpression>();
+  // Bind LIMIT clause.
+  if (pg_stmt->limitCount != nullptr) {
+    limit_count = BindLimitCount(pg_stmt->limitCount);
+  }
+
+  // Bind OFFSET clause.
+  auto limit_offset = std::make_unique<BoundExpression>();
+  if (pg_stmt->limitOffset != nullptr) {
+    limit_offset = BindLimitOffset(pg_stmt->limitOffset);
+  }
+
+  // Bind ORDER BY clause.
+  auto sort = std::vector<std::unique_ptr<BoundOrderBy>>{};
+  if (pg_stmt->sortClause != nullptr) {
+    sort = BindSort(pg_stmt->sortClause);
   }
 
   // TODO(chi): If there are any extra args (e.g. group by, having) not supported by the binder,
@@ -97,7 +123,8 @@ auto Binder::BindSelect(duckdb_libpgquery::PGSelectStmt *pg_stmt) -> std::unique
   // in project write-ups / READMEs.
 
   return std::make_unique<SelectStatement>(std::move(table), std::move(select_list), std::move(where),
-                                           std::move(group_by), std::move(having));
+                                           std::move(group_by), std::move(having), std::move(limit_count),
+                                           std::move(limit_offset), std::move(sort));
 }
 
 auto Binder::BindFrom(duckdb_libpgquery::PGList *list) -> std::unique_ptr<BoundTableRef> {
@@ -526,5 +553,70 @@ auto Binder::BindExpression(duckdb_libpgquery::PGNode *node) -> std::unique_ptr<
   }
   throw bustub::Exception(fmt::format("Expr of type {} not implemented", Binder::NodeTagToString(node->type)));
 }
+
+auto Binder::BindLimitCount(duckdb_libpgquery::PGNode *root) -> std::unique_ptr<BoundExpression> {
+  return BindExpression(root);
+}
+
+auto Binder::BindLimitOffset(duckdb_libpgquery::PGNode *root) -> std::unique_ptr<BoundExpression> {
+  return BindExpression(root);
+}
+
+auto Binder::BindExplain(duckdb_libpgquery::PGExplainStmt *stmt) -> std::unique_ptr<ExplainStatement> {
+  return std::make_unique<ExplainStatement>(TransformStatement(stmt->query));
+}
+
+//===----------------------------------------------------------------------===//
+// Copyright 2018-2022 Stichting DuckDB Foundation
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice (including the next paragraph)
+// shall be included in all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//===----------------------------------------------------------------------===//
+
+auto Binder::BindSort(duckdb_libpgquery::PGList *list) -> std::vector<std::unique_ptr<BoundOrderBy>> {
+  auto order_by = std::vector<std::unique_ptr<BoundOrderBy>>{};
+
+  for (auto node = list->head; node != nullptr; node = node->next) {
+    auto temp = reinterpret_cast<duckdb_libpgquery::PGNode *>(node->data.ptr_value);
+    if (temp->type == duckdb_libpgquery::T_PGSortBy) {
+      OrderByType type;
+      auto sort = reinterpret_cast<duckdb_libpgquery::PGSortBy *>(temp);
+      auto target = sort->node;
+      if (sort->sortby_dir == duckdb_libpgquery::PG_SORTBY_DEFAULT) {
+        type = OrderByType::DEFAULT;
+      } else if (sort->sortby_dir == duckdb_libpgquery::PG_SORTBY_ASC) {
+        type = OrderByType::ASC;
+      } else if (sort->sortby_dir == duckdb_libpgquery::PG_SORTBY_DESC) {
+        type = OrderByType::DESC;
+      } else {
+        throw NotImplementedException("unimplemented order by type");
+      }
+      auto order_expression = BindExpression(target);
+      order_by.emplace_back(std::make_unique<BoundOrderBy>(type, std::move(order_expression)));
+    } else {
+      throw NotImplementedException("unsupported order by node");
+    }
+  }
+  return order_by;
+}
+
+//===----------------------------------------------------------------------===//
+// End Copyright 2018-2022 Stichting DuckDB Foundation
+//===----------------------------------------------------------------------===//
 
 }  // namespace bustub

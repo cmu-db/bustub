@@ -44,6 +44,7 @@
 #include "common/util/string_util.h"
 #include "fmt/format.h"
 #include "nodes/parsenodes.hpp"
+#include "nodes/pg_list.hpp"
 #include "pg_definitions.hpp"
 #include "postgres_parser.hpp"
 #include "type/type_id.h"
@@ -69,8 +70,10 @@ class BoundExpression;
 class BoundTableRef;
 class BoundExpression;
 class BoundExpressionListRef;
+class BoundOrderBy;
 class SelectStatement;
 class CreateStatement;
+class ExplainStatement;
 
 /**
  * The binder is responsible for transforming the Postgres parse tree to a binder tree
@@ -108,6 +111,8 @@ class Binder {
 
   // The following parts are undocumented. One `BindXXX` functions simply corresponds to a
   // node type in the Postgres parse tree.
+
+  auto BindExplain(duckdb_libpgquery::PGExplainStmt *stmt) -> std::unique_ptr<ExplainStatement>;
 
   auto BindCreate(duckdb_libpgquery::PGCreateStmt *pg_stmt) -> std::unique_ptr<CreateStatement>;
 
@@ -155,6 +160,12 @@ class Binder {
   auto BindInsert(duckdb_libpgquery::PGInsertStmt *pg_stmt) -> std::unique_ptr<InsertStatement>;
 
   auto BindValuesList(duckdb_libpgquery::PGList *list) -> std::unique_ptr<BoundExpressionListRef>;
+
+  auto BindLimitCount(duckdb_libpgquery::PGNode *root) -> std::unique_ptr<BoundExpression>;
+
+  auto BindLimitOffset(duckdb_libpgquery::PGNode *root) -> std::unique_ptr<BoundExpression>;
+
+  auto BindSort(duckdb_libpgquery::PGList *list) -> std::vector<std::unique_ptr<BoundOrderBy>>;
 
   class ContextGuard {
    public:

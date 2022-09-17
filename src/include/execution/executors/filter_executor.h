@@ -53,5 +53,8 @@ class FilterExecutor : public AbstractExecutor {
  private:
   /** The filter plan node to be executed */
   const FilterPlanNode *plan_;
+
+  /** The child executor from which tuples are obtained */
+  std::unique_ptr<AbstractExecutor> child_executor_;
 };
 }  // namespace bustub

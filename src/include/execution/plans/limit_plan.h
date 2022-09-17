@@ -12,7 +12,10 @@
 
 #pragma once
 
+#include <string>
+
 #include "execution/plans/abstract_plan.h"
+#include "fmt/format.h"
 
 namespace bustub {
 
@@ -40,6 +43,9 @@ class LimitPlanNode : public AbstractPlanNode {
     BUSTUB_ASSERT(GetChildren().size() == 1, "Limit should have at most one child plan.");
     return GetChildAt(0);
   }
+
+ protected:
+  auto PlanNodeToString() const -> std::string override { return fmt::format("Limit {{ limit={} }}", limit_); }
 
  private:
   /** The limit */
