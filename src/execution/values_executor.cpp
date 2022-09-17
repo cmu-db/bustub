@@ -5,7 +5,7 @@ namespace bustub {
 ValuesExecutor::ValuesExecutor(ExecutorContext *exec_ctx, const ValuesPlanNode *plan)
     : AbstractExecutor(exec_ctx), plan_(plan), cursor_(0) {}
 
-void ValuesExecutor::Init() { throw NotImplementedException("ValuesExecutor is not implemented"); }
+void ValuesExecutor::Init() {}
 
 auto ValuesExecutor::Next(Tuple *tuple, RID *rid) -> bool {
   if (cursor_ >= plan_->GetValues().size()) {
