@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "common/util/string_util.h"
+#include "fmt/format.h"
 
 namespace bustub {
 
@@ -205,6 +206,17 @@ auto StringUtil::Replace(std::string source, const std::string &from, const std:
                                // replacing 'x' with 'yx'
   }
   return source;
+}
+
+auto StringUtil::IndentAllLines(const std::string &lines, size_t num_indent) -> std::string {
+  std::vector<std::string> lines_str;
+  auto lines_split = StringUtil::Split(lines, '\n');
+  lines_str.reserve(lines_split.size());
+  auto indent_str = StringUtil::Indent(num_indent);
+  for (auto &line : lines_split) {
+    lines_str.push_back(fmt::format("{}{}", indent_str, line));
+  }
+  return fmt::format("\n{}", fmt::join(lines_str, "\n"));
 }
 
 }  // namespace bustub

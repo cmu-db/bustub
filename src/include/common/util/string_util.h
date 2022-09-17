@@ -111,6 +111,15 @@ class StringUtil {
    * @return a new string with all occurrences of `from` replaced with `to`.
    */
   static auto Replace(std::string source, const std::string &from, const std::string &to) -> std::string;
+
+  /**
+   * Add indention to all lines of the `lines` variable.
+   *
+   * @param lines input string
+   * @param num_indent number of spaces prepended to each line
+   * @return a new string with spaces added to each line
+   */
+  static auto IndentAllLines(const std::string &lines, size_t num_indent) -> std::string;
 };
 
 }  // namespace bustub

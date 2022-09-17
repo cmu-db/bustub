@@ -135,17 +135,11 @@ TEST(BinderTest, FailBindUnknownColumn) {
   EXPECT_THROW(TryBind("select zzzz"), Exception);
 }
 
-// TODO(chi): create / drop table is not supported yet
-TEST(BinderTest, DISABLED_BindCreateDropTable) {
-  TryBind("CREATE TABLE tablex (v1 int)");
-  TryBind("DROP TABLE tablex");
-}
+TEST(BinderTest, BindCreateTable) { TryBind("CREATE TABLE tablex (v1 int)"); }
 
-// TODO(chi): insert is not supported yet
-TEST(BinderTest, DISABLED_BindInsert) {
-  TryBind("INSERT INTO y VALUES (1,2,3,4,5), (6,7,8,9,10)");
-  TryBind("INSERT INTO y SELECT * FROM y WHERE x < 500");
-}
+TEST(BinderTest, BindInsert) { TryBind("INSERT INTO y VALUES (1,2,3,4,5), (6,7,8,9,10)"); }
+
+TEST(BinderTest, BindInsertSelect) { TryBind("INSERT INTO y SELECT * FROM y WHERE x < 500"); }
 
 TEST(BinderTest, BindVarchar) {
   TryBind(R"(INSERT INTO c VALUES ('1', '2'))");

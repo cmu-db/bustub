@@ -22,6 +22,10 @@ class BoundBinaryOp;
 class BoundConstant;
 class BoundColumnRef;
 class BoundUnaryOp;
+class BoundBaseTableRef;
+class BoundCrossProductRef;
+class BoundJoinRef;
+class BoundExpressionListRef;
 
 /**
  * The planner takes a bound statement, and transforms it into the BusTub plan tree.
@@ -48,6 +52,14 @@ class Planner {
    * @return the plan node of this bound table ref.
    */
   auto PlanTableRef(const BoundTableRef &table_ref) -> std::unique_ptr<AbstractPlanNode>;
+
+  auto PlanBaseTableRef(const BoundBaseTableRef &table_ref) -> std::unique_ptr<AbstractPlanNode>;
+
+  auto PlanCrossProductRef(const BoundCrossProductRef &table_ref) -> std::unique_ptr<AbstractPlanNode>;
+
+  auto PlanJoinRef(const BoundJoinRef &table_ref) -> std::unique_ptr<AbstractPlanNode>;
+
+  auto PlanExpressionListRef(const BoundExpressionListRef &table_ref) -> std::unique_ptr<AbstractPlanNode>;
 
   auto PlanExpression(const BoundExpression &expr, const std::vector<const AbstractPlanNode *> &children)
       -> std::tuple<std::string, std::unique_ptr<AbstractExpression>>;
@@ -82,6 +94,9 @@ class Planner {
     allocated_expressions_.emplace_back(std::move(expression));
     return allocated_expressions_.back().get();
   }
+
+  auto MakeOutputSchema(const std::vector<std::pair<std::string, const AbstractExpression *>> &exprs)
+      -> std::unique_ptr<Schema>;
 
   std::vector<std::unique_ptr<Schema>> allocated_output_schemas_;
 

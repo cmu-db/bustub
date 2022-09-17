@@ -2,6 +2,7 @@ add_library(
   bustub_planner
   OBJECT
   plan_expression.cpp
+  plan_table_ref.cpp
   planner.cpp)
 
 set(ALL_OBJECT_FILES

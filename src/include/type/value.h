@@ -13,8 +13,11 @@
 #pragma once
 
 #include <cstring>
+#include <memory>
 #include <string>
 #include <utility>
+
+#include "fmt/format.h"
 
 #include "type/limits.h"
 #include "type/type.h"
@@ -165,3 +168,21 @@ class Value {
   TypeId type_id_;
 };
 }  // namespace bustub
+
+template <typename T>
+struct fmt::formatter<T, std::enable_if_t<std::is_base_of<bustub::Value, T>::value, char>>
+    : fmt::formatter<std::string> {
+  template <typename FormatCtx>
+  auto format(const bustub::Value &x, FormatCtx &ctx) const {
+    return fmt::formatter<std::string>::format(x.ToString(), ctx);
+  }
+};
+
+template <typename T>
+struct fmt::formatter<std::unique_ptr<T>, std::enable_if_t<std::is_base_of<bustub::Value, T>::value, char>>
+    : fmt::formatter<std::string> {
+  template <typename FormatCtx>
+  auto format(const std::unique_ptr<bustub::Value> &x, FormatCtx &ctx) const {
+    return fmt::formatter<std::string>::format(x->ToString(), ctx);
+  }
+};
