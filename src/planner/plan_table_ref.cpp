@@ -1,13 +1,17 @@
 #include <memory>
 #include <utility>
 
+#include "binder/bound_order_by.h"
 #include "binder/bound_statement.h"
 #include "binder/bound_table_ref.h"
+#include "binder/statement/select_statement.h"
 #include "binder/table_ref/bound_base_table_ref.h"
 #include "binder/table_ref/bound_cross_product_ref.h"
 #include "binder/table_ref/bound_expression_list_ref.h"
 #include "binder/table_ref/bound_join_ref.h"
+#include "binder/table_ref/bound_subquery_ref.h"
 #include "catalog/column.h"
+#include "catalog/schema.h"
 #include "common/exception.h"
 #include "common/macros.h"
 #include "common/util/string_util.h"
@@ -15,6 +19,7 @@
 #include "execution/expressions/constant_value_expression.h"
 #include "execution/plans/mock_scan_plan.h"
 #include "execution/plans/nested_loop_join_plan.h"
+#include "execution/plans/projection_plan.h"
 #include "execution/plans/seq_scan_plan.h"
 #include "execution/plans/values_plan.h"
 #include "fmt/core.h"
@@ -42,10 +47,35 @@ auto Planner::PlanTableRef(const BoundTableRef &table_ref) -> std::unique_ptr<Ab
       const auto &expression_list = dynamic_cast<const BoundExpressionListRef &>(table_ref);
       return PlanExpressionListRef(expression_list);
     }
+    case TableReferenceType::SUBQUERY: {
+      const auto &subquery = dynamic_cast<const BoundSubqueryRef &>(table_ref);
+      return PlanSubquery(subquery);
+    }
     default:
       break;
   }
   throw Exception(fmt::format("the table ref type {} is not supported in planner yet", table_ref.type_));
+}
+
+auto Planner::PlanSubquery(const BoundSubqueryRef &table_ref) -> std::unique_ptr<AbstractPlanNode> {
+  auto select_node = PlanSelect(*table_ref.subquery_);
+  std::vector<std::pair<std::string, const AbstractExpression *>> output_schema;
+  std::vector<const AbstractExpression *> exprs;
+  size_t idx = 0;
+
+  // TODO(chi): this projection is solely used for change the column output name. It can be removed by the optimizer.
+
+  for (const auto &col : select_node->OutputSchema()->GetColumns()) {
+    auto expr = std::make_unique<ColumnValueExpression>(0, idx++, col.GetType());
+    auto saved_expr = SaveExpression(std::move(expr));
+    output_schema.emplace_back(std::make_pair(fmt::format("{}.{}", table_ref.alias_, col.GetName()), saved_expr));
+    exprs.push_back(saved_expr);
+  }
+
+  auto saved_child = SavePlanNode(std::move(select_node));
+
+  return std::make_unique<ProjectionPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), std::move(exprs),
+                                              saved_child);
 }
 
 auto Planner::PlanBaseTableRef(const BoundBaseTableRef &table_ref) -> std::unique_ptr<AbstractPlanNode> {
@@ -142,7 +172,7 @@ auto Planner::PlanExpressionListRef(const BoundExpressionListRef &table_ref) -> 
   cols.reserve(first_row.size());
   size_t idx = 0;
   for (const auto &col : first_row) {
-    auto col_name = fmt::format("__values.{}", idx);
+    auto col_name = fmt::format("{}.{}", table_ref.identifier_, idx);
     if (col->GetReturnType() != TypeId::VARCHAR) {
       cols.emplace_back(std::move(col_name), col->GetReturnType(), nullptr);
     } else {

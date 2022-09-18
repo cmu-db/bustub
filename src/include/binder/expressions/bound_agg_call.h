@@ -14,8 +14,11 @@ namespace bustub {
  */
 class BoundAggCall : public BoundExpression {
  public:
-  explicit BoundAggCall(std::string func_name, std::vector<std::unique_ptr<BoundExpression>> args)
-      : BoundExpression(ExpressionType::AGG_CALL), func_name_(std::move(func_name)), args_(move(args)) {}
+  explicit BoundAggCall(std::string func_name, bool is_distinct, std::vector<std::unique_ptr<BoundExpression>> args)
+      : BoundExpression(ExpressionType::AGG_CALL),
+        func_name_(std::move(func_name)),
+        is_distinct_(is_distinct),
+        args_(move(args)) {}
 
   auto ToString() const -> std::string override;
 
@@ -23,6 +26,9 @@ class BoundAggCall : public BoundExpression {
 
   /** Function name. */
   std::string func_name_;
+
+  /** Is distinct aggregation */
+  bool is_distinct_;
 
   /** Arguments of the agg call. */
   std::vector<std::unique_ptr<BoundExpression>> args_;

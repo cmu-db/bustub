@@ -2,6 +2,7 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 #include "binder/bound_expression.h"
 
 namespace bustub {
@@ -11,17 +12,14 @@ namespace bustub {
  */
 class BoundColumnRef : public BoundExpression {
  public:
-  explicit BoundColumnRef(std::string table, std::string col)
-      : BoundExpression(ExpressionType::COLUMN_REF), table_(std::move(table)), col_(std::move(col)) {}
+  explicit BoundColumnRef(std::vector<std::string> col_name)
+      : BoundExpression(ExpressionType::COLUMN_REF), col_name_(std::move(col_name)) {}
 
-  auto ToString() const -> std::string override { return fmt::format("{}.{}", table_, col_); }
+  auto ToString() const -> std::string override { return fmt::format("{}", fmt::join(col_name_, ".")); }
 
   auto HasAggregation() const -> bool override { return false; }
 
-  /** Name of the table. */
-  std::string table_;
-
-  /** The name of the column in the schema. */
-  std::string col_;
+  /** The name of the column. */
+  std::vector<std::string> col_name_;
 };
 }  // namespace bustub

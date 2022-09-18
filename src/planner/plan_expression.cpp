@@ -64,7 +64,7 @@ auto Planner::PlanColumnRef(const BoundColumnRef &expr, const std::vector<const 
     throw Exception("column ref should have at least one child");
   }
 
-  auto col_name = fmt::format("{}.{}", expr.table_, expr.col_);
+  auto col_name = expr.ToString();
 
   if (children.size() == 1) {
     // Projections, Filters, and other executors evaluating expressions with one single child will
@@ -124,7 +124,8 @@ void Planner::AddAggCallToContext(BoundExpression &expr) {
     case ExpressionType::AGG_CALL: {
       auto &agg_call_expr = dynamic_cast<BoundAggCall &>(expr);
       auto agg_name = fmt::format("__pseudo_agg#{}", ctx_.aggregations_.size());
-      auto agg_call = BoundAggCall(agg_name, std::vector<std::unique_ptr<BoundExpression>>{});
+      auto agg_call =
+          BoundAggCall(agg_name, agg_call_expr.is_distinct_, std::vector<std::unique_ptr<BoundExpression>>{});
       // Replace the agg call in the original bound expression with a pseudo one, add agg call to the context.
       ctx_.AddAggregation(std::make_unique<BoundAggCall>(std::exchange(agg_call_expr, std::move(agg_call))));
       return;

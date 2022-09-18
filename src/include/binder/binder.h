@@ -120,6 +120,8 @@ class Binder {
 
   auto BindSelect(duckdb_libpgquery::PGSelectStmt *pg_stmt) -> std::unique_ptr<SelectStatement>;
 
+  auto BindRangeSubselect(duckdb_libpgquery::PGRangeSubselect *root) -> std::unique_ptr<BoundTableRef>;
+
   auto BindSelectList(duckdb_libpgquery::PGList *list) -> std::vector<std::unique_ptr<BoundExpression>>;
 
   auto BindWhere(duckdb_libpgquery::PGNode *root) -> std::unique_ptr<BoundExpression>;
@@ -196,6 +198,9 @@ class Binder {
 
   /** The current scope for resolving column ref, used in binding expressions */
   const BoundTableRef *scope_;
+
+  /** Sometimes we will need to assign a name to some unnamed items. This variable gives them a universal ID. */
+  size_t universal_id_{0};
 };
 
 }  // namespace bustub

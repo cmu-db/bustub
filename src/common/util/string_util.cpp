@@ -208,15 +208,23 @@ auto StringUtil::Replace(std::string source, const std::string &from, const std:
   return source;
 }
 
-auto StringUtil::IndentAllLines(const std::string &lines, size_t num_indent) -> std::string {
+auto StringUtil::IndentAllLines(const std::string &lines, size_t num_indent, bool except_first_line) -> std::string {
   std::vector<std::string> lines_str;
   auto lines_split = StringUtil::Split(lines, '\n');
   lines_str.reserve(lines_split.size());
   auto indent_str = StringUtil::Indent(num_indent);
+  bool is_first_line = true;
   for (auto &line : lines_split) {
+    if (is_first_line) {
+      is_first_line = false;
+      if (except_first_line) {
+        lines_str.push_back(line);
+        continue;
+      }
+    }
     lines_str.push_back(fmt::format("{}{}", indent_str, line));
   }
-  return fmt::format("\n{}", fmt::join(lines_str, "\n"));
+  return fmt::format("{}", fmt::join(lines_str, "\n"));
 }
 
 }  // namespace bustub

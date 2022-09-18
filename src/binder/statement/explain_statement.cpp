@@ -15,7 +15,8 @@ ExplainStatement::ExplainStatement(std::unique_ptr<BoundStatement> statement)
     : BoundStatement(StatementType::EXPLAIN_STATEMENT), statement_(std::move(statement)) {}
 
 auto ExplainStatement::ToString() const -> std::string {
-  return fmt::format("BoundExplain {{\n  statement={},\n}}", StringUtil::IndentAllLines(statement_->ToString(), 2));
+  return fmt::format("BoundExplain {{\n  statement={},\n}}",
+                     StringUtil::IndentAllLines(statement_->ToString(), 2, true));
 }
 
 }  // namespace bustub

@@ -27,7 +27,7 @@ class SelectStatement : public BoundStatement {
                            std::vector<std::unique_ptr<BoundExpression>> group_by,
                            std::unique_ptr<BoundExpression> having, std::unique_ptr<BoundExpression> limit_count,
                            std::unique_ptr<BoundExpression> limit_offset,
-                           std::vector<std::unique_ptr<BoundOrderBy>> sort);
+                           std::vector<std::unique_ptr<BoundOrderBy>> sort, bool is_distinct);
 
   /** Bound FROM clause. */
   std::unique_ptr<BoundTableRef> table_;
@@ -52,6 +52,9 @@ class SelectStatement : public BoundStatement {
 
   /** Bound ORDER BY clause. */
   std::vector<std::unique_ptr<BoundOrderBy>> sort_;
+
+  /** Is SELECT DISTINCT */
+  bool is_distinct_;
 
   auto ToString() const -> std::string override;
 };

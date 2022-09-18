@@ -18,6 +18,7 @@ enum class TableReferenceType : uint8_t {
   JOIN = 3,            /**< Output of join. */
   CROSS_PRODUCT = 4,   /**< Output of cartesian product. */
   EXPRESSION_LIST = 5, /**< Values clause. */
+  SUBQUERY = 6,        /**< Subquery. */
   EMPTY = 8            /**< Placeholder for empty FROM. */
 };
 
@@ -91,6 +92,9 @@ struct fmt::formatter<bustub::TableReferenceType> : formatter<string_view> {
         break;
       case bustub::TableReferenceType::EXPRESSION_LIST:
         name = "ExpressionList";
+        break;
+      case bustub::TableReferenceType::SUBQUERY:
+        name = "Subquery";
         break;
       default:
         name = "Unknown";

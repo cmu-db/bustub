@@ -27,6 +27,7 @@ class BoundConstant;
 class BoundColumnRef;
 class BoundUnaryOp;
 class BoundBaseTableRef;
+class BoundSubqueryRef;
 class BoundCrossProductRef;
 class BoundJoinRef;
 class BoundExpressionListRef;
@@ -87,6 +88,8 @@ class Planner {
    * @return the plan node of this bound table ref.
    */
   auto PlanTableRef(const BoundTableRef &table_ref) -> std::unique_ptr<AbstractPlanNode>;
+
+  auto PlanSubquery(const BoundSubqueryRef &table_ref) -> std::unique_ptr<AbstractPlanNode>;
 
   auto PlanBaseTableRef(const BoundBaseTableRef &table_ref) -> std::unique_ptr<AbstractPlanNode>;
 
