@@ -53,6 +53,9 @@ auto Planner::PlanAggCall(const BoundAggCall &agg_call, const std::vector<Abstra
   throw Exception(fmt::format("unsupported agg_call {}", agg_call.func_name_));
 }
 
+// TODO(chi): clang-tidy on macOS will suggest changing it to const reference. Looks like a bug.
+
+/* NOLINTNEXTLINE */
 auto Planner::PlanSelectAgg(const SelectStatement &statement, AbstractPlanNodeRef child) -> AbstractPlanNodeRef {
   /* Transforming hash agg is complex. Let's see a concrete example here.
    *
@@ -129,8 +132,8 @@ auto Planner::PlanSelectAgg(const SelectStatement &statement, AbstractPlanNodeRe
 
   // Create the aggregation plan node for the first phase (finally!)
   AbstractPlanNodeRef plan = std::make_shared<AggregationPlanNode>(
-      std::make_shared<Schema>(std::move(agg_output_schema)), std::move(child), nullptr, std::move(group_by_exprs),
-      std::move(input_exprs), std::move(agg_types));
+      std::make_shared<Schema>(ProjectionPlanNode::RenameSchema(agg_output_schema, output_col_names)), std::move(child),
+      nullptr, std::move(group_by_exprs), std::move(input_exprs), std::move(agg_types));
 
   // Phase-2: plan filter / projection to match the original select list
 
