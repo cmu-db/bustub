@@ -9,6 +9,7 @@
 #include "catalog/schema.h"
 #include "catalog/table_generator.h"
 #include "common/enums/statement_type.h"
+#include "common/exception.h"
 #include "concurrency/lock_manager.h"
 #include "execution/execution_engine.h"
 #include "execution/executor_context.h"
@@ -40,7 +41,12 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
 
   // We need more frames for GenerateTestTable to work. Therefore, we use 128 instead of the default
   // buffer pool size specified in `config.h`.
-  buffer_pool_manager_ = new BufferPoolManagerInstance(128, disk_manager_, LRUK_REPLACER_K, log_manager_);
+  try {
+    buffer_pool_manager_ = new BufferPoolManagerInstance(128, disk_manager_, LRUK_REPLACER_K, log_manager_);
+  } catch (NotImplementedException &e) {
+    std::cerr << "BufferPoolManager is not implemented, only mock tables are supported." << std::endl;
+    buffer_pool_manager_ = nullptr;
+  }
 
   // Transaction (txn) related.
   lock_manager_ = new LockManager();

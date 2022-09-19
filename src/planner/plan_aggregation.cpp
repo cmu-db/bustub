@@ -28,6 +28,10 @@ auto Planner::PlanAggCall(const BoundAggCall &agg_call, const std::vector<const 
   if (agg_call.args_.size() != 1) {
     throw NotImplementedException("only agg call of one arg is supported for now");
   }
+  if (agg_call.is_distinct_) {
+    throw NotImplementedException("distinct agg is not implemented yet");
+  }
+
   std::unique_ptr<AbstractExpression> expr = nullptr;
   {
     // Create a new context that doesn't allow aggregation calls.

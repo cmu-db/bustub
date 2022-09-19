@@ -1,6 +1,7 @@
 #include <memory>
 #include <optional>
 #include <utility>
+#include <vector>
 
 #include "binder/bound_expression.h"
 #include "binder/bound_order_by.h"
@@ -10,13 +11,16 @@
 #include "binder/statement/insert_statement.h"
 #include "binder/statement/select_statement.h"
 #include "binder/tokens.h"
+#include "catalog/schema.h"
 #include "common/enums/statement_type.h"
 #include "common/exception.h"
 #include "common/macros.h"
 #include "common/util/string_util.h"
 #include "execution/expressions/abstract_expression.h"
+#include "execution/expressions/aggregate_value_expression.h"
 #include "execution/expressions/column_value_expression.h"
 #include "execution/plans/abstract_plan.h"
+#include "execution/plans/aggregation_plan.h"
 #include "execution/plans/filter_plan.h"
 #include "execution/plans/limit_plan.h"
 #include "execution/plans/projection_plan.h"
@@ -68,6 +72,26 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> std::unique_ptr<Ab
     }
     plan = std::make_unique<ProjectionPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), std::move(exprs),
                                                 SavePlanNode(std::move(plan)));
+  }
+
+  // Plan DISTINCT as group agg
+  if (statement.is_distinct_) {
+    auto child = SavePlanNode(std::move(plan));
+    std::vector<const AbstractExpression *> distinct_exprs;
+    std::vector<std::pair<std::string, const AbstractExpression *>> output_schema;
+    size_t col_idx = 0;
+    for (const auto &col : child->OutputSchema()->GetColumns()) {
+      auto expr = std::make_unique<ColumnValueExpression>(0, col_idx, col.GetType());
+      auto abstract_expr = SaveExpression(std::move(expr));
+      distinct_exprs.push_back(abstract_expr);
+      auto schema_expr =
+          SaveExpression(std::make_unique<AggregateValueExpression>(true, col_idx++, abstract_expr->GetReturnType()));
+      output_schema.emplace_back(std::make_pair(col.GetName(), schema_expr));
+    }
+
+    plan = std::make_unique<AggregationPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), child, nullptr,
+                                                 std::move(distinct_exprs), std::vector<const AbstractExpression *>{},
+                                                 std::vector<AggregationType>{});
   }
 
   // Plan ORDER BY
