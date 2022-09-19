@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <utility>
 #include "binder/bound_table_ref.h"
@@ -13,13 +14,31 @@ namespace bustub {
  */
 class BoundBaseTableRef : public BoundTableRef {
  public:
-  explicit BoundBaseTableRef(std::string table, Schema schema)
-      : BoundTableRef(TableReferenceType::BASE_TABLE), table_(std::move(table)), schema_(std::move(schema)) {}
+  explicit BoundBaseTableRef(std::string table, std::optional<std::string> alias, Schema schema)
+      : BoundTableRef(TableReferenceType::BASE_TABLE),
+        table_(std::move(table)),
+        alias_(std::move(alias)),
+        schema_(std::move(schema)) {}
 
-  auto ToString() const -> std::string override { return fmt::format("BoundBaseTableRef {{ table={} }}", table_); }
+  auto ToString() const -> std::string override {
+    if (alias_ == std::nullopt) {
+      return fmt::format("BoundBaseTableRef {{ table={} }}", table_);
+    }
+    return fmt::format("BoundBaseTableRef {{ table={}, alias={} }}", table_, *alias_);
+  }
+
+  auto GetBoundTableName() const -> std::string {
+    if (alias_ != std::nullopt) {
+      return *alias_;
+    }
+    return table_;
+  }
 
   /** The name of the table. */
   std::string table_;
+
+  /** The alias of the table */
+  std::optional<std::string> alias_;
 
   /** The schema of the table. */
   Schema schema_;

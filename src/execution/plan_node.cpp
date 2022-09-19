@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
+#include "binder/table_ref/bound_base_table_ref.h"
 #include "catalog/catalog.h"
 #include "catalog/column.h"
 #include "catalog/schema.h"
@@ -12,10 +13,10 @@
 
 namespace bustub {
 
-auto SeqScanPlanNode::InferScanSchema(const TableInfo &table_info) -> Schema {
+auto SeqScanPlanNode::InferScanSchema(const BoundBaseTableRef &table) -> Schema {
   std::vector<Column> schema;
-  for (const auto &column : table_info.schema_.GetColumns()) {
-    auto col_name = fmt::format("{}.{}", table_info.name_, column.GetName());
+  for (const auto &column : table.schema_.GetColumns()) {
+    auto col_name = fmt::format("{}.{}", table.GetBoundTableName(), column.GetName());
     schema.emplace_back(Column(col_name, column));
   }
   return Schema(schema);
