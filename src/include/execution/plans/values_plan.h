@@ -43,7 +43,7 @@ class ValuesPlanNode : public AbstractPlanNode {
 
   auto GetValues() const -> const std::vector<std::vector<AbstractExpressionRef>> & { return values_; }
 
-  CLONE_WITH_CHILDREN(ValuesPlanNode);
+  BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(ValuesPlanNode);
 
  protected:
   auto PlanNodeToString() const -> std::string override { return fmt::format("Values {{ rows={} }}", values_.size()); }

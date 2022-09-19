@@ -55,7 +55,7 @@ class ProjectionPlanNode : public AbstractPlanNode {
 
   static auto RenameSchema(const Schema &schema, const std::vector<std::string> &col_names) -> Schema;
 
-  CLONE_WITH_CHILDREN(ProjectionPlanNode);
+  BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(ProjectionPlanNode);
 
  protected:
   auto PlanNodeToString() const -> std::string override;

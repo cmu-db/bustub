@@ -77,7 +77,7 @@ class InsertPlanNode : public AbstractPlanNode {
     return GetChildAt(0);
   }
 
-  CLONE_WITH_CHILDREN(InsertPlanNode);
+  BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(InsertPlanNode);
 
  protected:
   auto PlanNodeToString() const -> std::string override { return fmt::format("Insert {{ table_oid={} }}", table_oid_); }
