@@ -47,7 +47,7 @@ class AbstractExecutor {
   virtual auto Next(Tuple *tuple, RID *rid) -> bool = 0;
 
   /** @return The schema of the tuples that this executor produces */
-  virtual auto GetOutputSchema() -> const Schema * = 0;
+  virtual auto GetOutputSchema() const -> const Schema & = 0;
 
   /** @return The executor context in which this executor runs */
   auto GetExecutorContext() -> ExecutorContext * { return exec_ctx_; }

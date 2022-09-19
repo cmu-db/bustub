@@ -36,8 +36,8 @@ class Column {
    * @param type type of the column
    * @param expr expression used to create this column
    */
-  Column(std::string column_name, TypeId type, const AbstractExpression *expr = nullptr)
-      : column_name_(std::move(column_name)), column_type_(type), fixed_length_(TypeSize(type)), expr_{expr} {
+  Column(std::string column_name, TypeId type)
+      : column_name_(std::move(column_name)), column_type_(type), fixed_length_(TypeSize(type)) {
     BUSTUB_ASSERT(type != TypeId::VARCHAR, "Wrong constructor for VARCHAR type.");
   }
 
@@ -48,10 +48,25 @@ class Column {
    * @param length length of the varlen
    * @param expr expression used to create this column
    */
-  Column(std::string column_name, TypeId type, uint32_t length, const AbstractExpression *expr = nullptr)
-      : column_name_(std::move(column_name)), column_type_(type), fixed_length_(TypeSize(type)), expr_{expr} {
+  Column(std::string column_name, TypeId type, uint32_t length)
+      : column_name_(std::move(column_name)),
+        column_type_(type),
+        fixed_length_(TypeSize(type)),
+        variable_length_(length) {
     BUSTUB_ASSERT(type == TypeId::VARCHAR, "Wrong constructor for non-VARCHAR type.");
   }
+
+  /**
+   * Replicate a Column with a different name.
+   * @param column_name name of the column
+   * @param column the original column
+   */
+  Column(std::string column_name, const Column &column)
+      : column_name_(std::move(column_name)),
+        column_type_(column.column_type_),
+        fixed_length_(column.fixed_length_),
+        variable_length_(column.variable_length_),
+        column_offset_(column.column_offset_) {}
 
   /** @return column name */
   auto GetName() const -> std::string { return column_name_; }
@@ -81,9 +96,6 @@ class Column {
 
   /** @return a string representation of this column */
   auto ToString(bool simplified = true) const -> std::string;
-
-  /** @return the expression used to create this column */
-  auto GetExpr() const -> const AbstractExpression * { return expr_; }
 
  private:
   /**
@@ -127,9 +139,6 @@ class Column {
 
   /** Column offset in the tuple. */
   uint32_t column_offset_{0};
-
-  /** Expression used to create this column **/
-  const AbstractExpression *expr_;
 };
 
 }  // namespace bustub

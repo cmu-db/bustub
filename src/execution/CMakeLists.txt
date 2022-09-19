@@ -13,6 +13,7 @@ add_library(
         mock_scan_executor.cpp
         nested_index_join_executor.cpp
         nested_loop_join_executor.cpp
+        plan_node.cpp
         projection_executor.cpp
         seq_scan_executor.cpp
         sort_executor.cpp

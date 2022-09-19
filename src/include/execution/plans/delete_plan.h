@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <utility>
+
 #include "catalog/catalog.h"
 #include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
@@ -31,8 +33,8 @@ class DeletePlanNode : public AbstractPlanNode {
    * @param child The child plan to obtain tuple from
    * @param table_oid The identifier of the table from which tuples are deleted
    */
-  DeletePlanNode(const AbstractPlanNode *child, table_oid_t table_oid)
-      : AbstractPlanNode(nullptr, {child}), table_oid_{table_oid} {}
+  DeletePlanNode(AbstractPlanNodeRef child, table_oid_t table_oid)
+      : AbstractPlanNode(nullptr, {std::move(child)}), table_oid_{table_oid} {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::Delete; }
@@ -41,7 +43,7 @@ class DeletePlanNode : public AbstractPlanNode {
   auto TableOid() const -> table_oid_t { return table_oid_; }
 
   /** @return The child plan providing tuples to be deleted */
-  auto GetChildPlan() const -> const AbstractPlanNode * {
+  auto GetChildPlan() const -> AbstractPlanNodeRef {
     BUSTUB_ASSERT(GetChildren().size() == 1, "delete should have at most one child plan.");
     return GetChildAt(0);
   }

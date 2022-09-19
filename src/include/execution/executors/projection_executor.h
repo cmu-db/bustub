@@ -48,7 +48,7 @@ class ProjectionExecutor : public AbstractExecutor {
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the projection plan */
-  auto GetOutputSchema() -> const Schema * override { return plan_->OutputSchema(); }
+  auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); }
 
  private:
   /** The projection plan node to be executed */

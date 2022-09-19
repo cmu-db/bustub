@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "catalog/catalog.h"
 #include "execution/expressions/abstract_expression.h"
@@ -33,17 +34,17 @@ class FilterPlanNode : public AbstractPlanNode {
    * @param predicate The predicate applied during the scan operation
    * @param child The child plan node
    */
-  FilterPlanNode(const Schema *output, const AbstractExpression *predicate, const AbstractPlanNode *child)
-      : AbstractPlanNode(output, {child}), predicate_{predicate} {}
+  FilterPlanNode(SchemaRef output, AbstractExpressionRef predicate, AbstractPlanNodeRef child)
+      : AbstractPlanNode(std::move(output), {std::move(child)}), predicate_{std::move(predicate)} {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::Filter; }
 
   /** @return The predicate to test tuples against; tuples should only be returned if they evaluate to true */
-  auto GetPredicate() const -> const AbstractExpression * { return predicate_; }
+  auto GetPredicate() const -> const AbstractExpressionRef & { return predicate_; }
 
   /** @return The child plan node */
-  auto GetChildPlan() const -> const AbstractPlanNode * {
+  auto GetChildPlan() const -> AbstractPlanNodeRef {
     BUSTUB_ASSERT(GetChildren().size() == 1, "Filter should have exactly one child plan.");
     return GetChildAt(0);
   }
@@ -55,7 +56,7 @@ class FilterPlanNode : public AbstractPlanNode {
 
  private:
   /** The predicate that all returned tuples must satisfy */
-  const AbstractExpression *predicate_;
+  AbstractExpressionRef predicate_;
 };
 
 }  // namespace bustub

@@ -41,12 +41,13 @@ auto MockScanExecutor::Next(Tuple *tuple, RID *rid) -> bool {
 
 /** @return A dummy tuple according to the output schema */
 auto MockScanExecutor::MakeDummyTuple() const -> Tuple {
+  const auto &schema = GetOutputSchema();
   if (plan_->GetTable() == "__mock_table_1") {
     std::vector<Value> values{};
     values.reserve(2);
     values.push_back(ValueFactory::GetIntegerValue(cursor_));
     values.push_back(ValueFactory::GetIntegerValue(cursor_ * 100));
-    return Tuple{values, GetOutputSchema()};
+    return Tuple{values, &schema};
   }
   if (plan_->GetTable() == "__mock_table_2") {
     std::vector<Value> values{};
@@ -54,7 +55,7 @@ auto MockScanExecutor::MakeDummyTuple() const -> Tuple {
     values.push_back(ValueFactory::GetVarcharValue(fmt::format("{}-\U0001F4A9", cursor_)));  // the poop emoji
     values.push_back(
         ValueFactory::GetVarcharValue(StringUtil::Repeat("\U0001F607", cursor_ % 8)));  // the innocent emoji
-    return Tuple{values, GetOutputSchema()};
+    return Tuple{values, &schema};
   }
   if (plan_->GetTable() == "__mock_table_3") {
     std::vector<Value> values{};
@@ -65,14 +66,14 @@ auto MockScanExecutor::MakeDummyTuple() const -> Tuple {
       values.push_back(ValueFactory::GetNullValueByType(TypeId::INTEGER));
     }
     values.push_back(ValueFactory::GetVarcharValue(fmt::format("{}-\U0001F4A9", cursor_)));  // the poop emoji
-    return Tuple{values, GetOutputSchema()};
+    return Tuple{values, &schema};
   }
   std::vector<Value> values{};
-  values.reserve(GetOutputSchema()->GetColumnCount());
-  for (const auto &column : GetOutputSchema()->GetColumns()) {
+  values.reserve(GetOutputSchema().GetColumnCount());
+  for (const auto &column : GetOutputSchema().GetColumns()) {
     values.push_back(ValueFactory::GetZeroValueByType(column.GetType()));
   }
-  return Tuple{values, GetOutputSchema()};
+  return Tuple{values, &schema};
 }
 
 auto MockScanExecutor::MakeDummyRID() -> RID { return RID{0}; }

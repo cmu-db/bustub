@@ -54,7 +54,7 @@ class InsertExecutor : public AbstractExecutor {
   auto Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the insert */
-  auto GetOutputSchema() -> const Schema * override { return plan_->OutputSchema(); };
+  auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); };
 
  private:
   /** The insert plan node to be executed*/

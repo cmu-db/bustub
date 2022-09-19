@@ -33,7 +33,7 @@ class MockScanPlanNode : public AbstractPlanNode {
    * @param output The output schema of this mock scan plan node
    * @param size The size of the scanned table
    */
-  MockScanPlanNode(const Schema *output, std::size_t size) : AbstractPlanNode(output, {}), size_{size} {}
+  MockScanPlanNode(SchemaRef output, std::size_t size) : AbstractPlanNode(std::move(output), {}), size_{size} {}
 
   /**
    * Construct a new MockScanPlanNode instance.
@@ -41,8 +41,8 @@ class MockScanPlanNode : public AbstractPlanNode {
    * @param size The size of the scanned table
    * @param table The table name of this mock scan node, used to determine the generated content.
    */
-  MockScanPlanNode(const Schema *output, std::size_t size, std::string table)
-      : AbstractPlanNode(output, {}), size_{size}, table_(std::move(table)) {}
+  MockScanPlanNode(SchemaRef output, std::size_t size, std::string table)
+      : AbstractPlanNode(std::move(output), {}), size_{size}, table_(std::move(table)) {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::MockScan; }

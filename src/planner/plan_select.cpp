@@ -17,7 +17,6 @@
 #include "common/macros.h"
 #include "common/util/string_util.h"
 #include "execution/expressions/abstract_expression.h"
-#include "execution/expressions/aggregate_value_expression.h"
 #include "execution/expressions/column_value_expression.h"
 #include "execution/plans/abstract_plan.h"
 #include "execution/plans/aggregation_plan.h"
@@ -31,8 +30,8 @@
 
 namespace bustub {
 
-auto Planner::PlanSelect(const SelectStatement &statement) -> std::unique_ptr<AbstractPlanNode> {
-  std::unique_ptr<AbstractPlanNode> plan = nullptr;
+auto Planner::PlanSelect(const SelectStatement &statement) -> AbstractPlanNodeRef {
+  AbstractPlanNodeRef plan = nullptr;
 
   switch (statement.table_->type_) {
     case TableReferenceType::EMPTY:
@@ -44,8 +43,8 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> std::unique_ptr<Ab
 
   if (!statement.where_->IsInvalid()) {
     auto schema = plan->OutputSchema();
-    auto [_, expr] = PlanExpression(*statement.where_, {plan.get()});
-    plan = std::make_unique<FilterPlanNode>(schema, SaveExpression(std::move(expr)), SavePlanNode(std::move(plan)));
+    auto [_, expr] = PlanExpression(*statement.where_, {plan});
+    plan = std::make_shared<FilterPlanNode>(std::make_shared<Schema>(schema), std::move(expr), std::move(plan));
   }
 
   bool has_agg = false;
@@ -58,52 +57,46 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> std::unique_ptr<Ab
 
   if (!statement.having_->IsInvalid() || !statement.group_by_.empty() || has_agg) {
     // Plan aggregation
-    plan = PlanSelectAgg(statement, SavePlanNode(std::move(plan)));
+    plan = PlanSelectAgg(statement, std::move(plan));
   } else {
     // Plan normal select
-    std::vector<const AbstractExpression *> exprs;
-    std::vector<std::pair<std::string, const AbstractExpression *>> output_schema;
-    std::vector<const AbstractPlanNode *> children = {plan.get()};
+    std::vector<AbstractExpressionRef> exprs;
+    std::vector<std::string> column_names;
+    std::vector<AbstractPlanNodeRef> children = {plan};
     for (const auto &item : statement.select_list_) {
-      auto [name, expr] = PlanExpression(*item, {plan.get()});
-      auto abstract_expr = SaveExpression(std::move(expr));
-      exprs.push_back(abstract_expr);
-      output_schema.emplace_back(std::make_pair(name, abstract_expr));
+      auto [name, expr] = PlanExpression(*item, {plan});
+      exprs.emplace_back(std::move(expr));
+      column_names.emplace_back(std::move(name));
     }
-    plan = std::make_unique<ProjectionPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), std::move(exprs),
-                                                SavePlanNode(std::move(plan)));
+    plan = std::make_shared<ProjectionPlanNode>(std::make_shared<Schema>(ProjectionPlanNode::RenameSchema(
+                                                    ProjectionPlanNode::InferProjectionSchema(exprs), column_names)),
+                                                std::move(exprs), std::move(plan));
   }
 
   // Plan DISTINCT as group agg
   if (statement.is_distinct_) {
-    auto child = SavePlanNode(std::move(plan));
-    std::vector<const AbstractExpression *> distinct_exprs;
-    std::vector<std::pair<std::string, const AbstractExpression *>> output_schema;
+    auto child = std::move(plan);
+
+    std::vector<AbstractExpressionRef> distinct_exprs;
     size_t col_idx = 0;
-    for (const auto &col : child->OutputSchema()->GetColumns()) {
-      auto expr = std::make_unique<ColumnValueExpression>(0, col_idx, col.GetType());
-      auto abstract_expr = SaveExpression(std::move(expr));
-      distinct_exprs.push_back(abstract_expr);
-      auto schema_expr =
-          SaveExpression(std::make_unique<AggregateValueExpression>(true, col_idx++, abstract_expr->GetReturnType()));
-      output_schema.emplace_back(std::make_pair(col.GetName(), schema_expr));
+    for (const auto &col : child->OutputSchema().GetColumns()) {
+      distinct_exprs.emplace_back(std::make_shared<ColumnValueExpression>(0, col_idx++, col.GetType()));
     }
 
-    plan = std::make_unique<AggregationPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), child, nullptr,
-                                                 std::move(distinct_exprs), std::vector<const AbstractExpression *>{},
+    plan = std::make_shared<AggregationPlanNode>(std::make_shared<Schema>(child->OutputSchema()), child, nullptr,
+                                                 std::move(distinct_exprs), std::vector<AbstractExpressionRef>{},
                                                  std::vector<AggregationType>{});
   }
 
   // Plan ORDER BY
   if (!statement.sort_.empty()) {
-    std::vector<std::pair<OrderByType, const AbstractExpression *>> order_bys;
+    std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys;
     for (const auto &order_by : statement.sort_) {
-      auto [_, expr] = PlanExpression(*order_by->expr_, {plan.get()});
-      auto abstract_expr = SaveExpression(std::move(expr));
+      auto [_, expr] = PlanExpression(*order_by->expr_, {plan});
+      auto abstract_expr = std::move(expr);
       order_bys.emplace_back(std::make_pair(order_by->type_, abstract_expr));
     }
-    auto saved_plan_node = SavePlanNode(std::move(plan));
-    plan = std::make_unique<SortPlanNode>(saved_plan_node->OutputSchema(), saved_plan_node, std::move(order_bys));
+    plan = std::make_shared<SortPlanNode>(std::make_shared<Schema>(plan->OutputSchema()), plan, std::move(order_bys));
   }
 
   // Plan LIMIT
@@ -143,8 +136,7 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> std::unique_ptr<Ab
       throw NotImplementedException("OFFSET clause is not supported yet.");
     }
 
-    auto saved_plan_node = SavePlanNode(std::move(plan));
-    plan = std::make_unique<LimitPlanNode>(saved_plan_node->OutputSchema(), saved_plan_node, *limit);
+    plan = std::make_shared<LimitPlanNode>(std::make_shared<Schema>(plan->OutputSchema()), plan, *limit);
   }
 
   return plan;

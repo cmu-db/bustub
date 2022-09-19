@@ -43,9 +43,9 @@ class UpdatePlanNode : public AbstractPlanNode {
    * @param child the child plan to obtain tuple from
    * @param table_oid the identifier of the table that should be updated
    */
-  UpdatePlanNode(const AbstractPlanNode *child, table_oid_t table_oid,
+  UpdatePlanNode(AbstractPlanNodeRef child, table_oid_t table_oid,
                  std::unordered_map<uint32_t, UpdateInfo> update_attrs)
-      : AbstractPlanNode(nullptr, {child}), table_oid_{table_oid}, update_attrs_{std::move(update_attrs)} {}
+      : AbstractPlanNode(nullptr, {std::move(child)}), table_oid_{table_oid}, update_attrs_{std::move(update_attrs)} {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::Update; }
@@ -54,7 +54,7 @@ class UpdatePlanNode : public AbstractPlanNode {
   auto TableOid() const -> table_oid_t { return table_oid_; }
 
   /** @return The child plan providing tuples to be inserted */
-  auto GetChildPlan() const -> const AbstractPlanNode * {
+  auto GetChildPlan() const -> AbstractPlanNodeRef {
     BUSTUB_ASSERT(GetChildren().size() == 1, "UPDATE should have at most one child plan.");
     return GetChildAt(0);
   }

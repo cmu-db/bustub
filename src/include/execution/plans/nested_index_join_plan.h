@@ -17,6 +17,8 @@
 #include <vector>
 
 #include "catalog/catalog.h"
+#include "catalog/schema.h"
+#include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
 #include "storage/table/tuple.h"
 
@@ -29,11 +31,11 @@ namespace bustub {
  */
 class NestedIndexJoinPlanNode : public AbstractPlanNode {
  public:
-  NestedIndexJoinPlanNode(const Schema *output_schema, std::vector<const AbstractPlanNode *> &&children,
-                          const AbstractExpression *predicate, table_oid_t inner_table_oid, std::string index_name,
-                          const Schema *outer_table_schema, const Schema *inner_table_schema)
-      : AbstractPlanNode(output_schema, std::move(children)),
-        predicate_(predicate),
+  NestedIndexJoinPlanNode(SchemaRef output, std::vector<AbstractPlanNodeRef> children, AbstractExpressionRef predicate,
+                          table_oid_t inner_table_oid, std::string index_name, const Schema *outer_table_schema,
+                          const Schema *inner_table_schema)
+      : AbstractPlanNode(std::move(output), std::move(children)),
+        predicate_(std::move(predicate)),
         inner_table_oid_(inner_table_oid),
         index_name_(std::move(index_name)),
         outer_table_schema_(outer_table_schema),
@@ -42,10 +44,10 @@ class NestedIndexJoinPlanNode : public AbstractPlanNode {
   auto GetType() const -> PlanType override { return PlanType::NestedIndexJoin; }
 
   /** @return the predicate to be used in the nested index join */
-  auto Predicate() const -> const AbstractExpression * { return predicate_; }
+  auto Predicate() const -> const AbstractExpressionRef & { return predicate_; }
 
   /** @return the plan node for the outer table of the nested index join */
-  auto GetChildPlan() const -> const AbstractPlanNode * { return GetChildAt(0); }
+  auto GetChildPlan() const -> AbstractPlanNodeRef { return GetChildAt(0); }
 
   /** @return the table oid for the inner table of the nested index join */
   auto GetInnerTableOid() const -> table_oid_t { return inner_table_oid_; }
@@ -54,17 +56,17 @@ class NestedIndexJoinPlanNode : public AbstractPlanNode {
   auto GetIndexName() const -> std::string { return index_name_; }
 
   /** @return Schema with needed columns in from the outer table */
-  auto OuterTableSchema() const -> const Schema * { return outer_table_schema_; }
+  auto OuterTableSchema() const -> const Schema & { return *outer_table_schema_; }
 
   /** @return Schema with needed columns in from the inner table */
-  auto InnerTableSchema() const -> const Schema * { return inner_table_schema_; }
+  auto InnerTableSchema() const -> const Schema & { return *inner_table_schema_; }
 
  private:
   /** The nested index join predicate. */
-  const AbstractExpression *predicate_;
+  AbstractExpressionRef predicate_;
   table_oid_t inner_table_oid_;
   const std::string index_name_;
-  const Schema *outer_table_schema_;
-  const Schema *inner_table_schema_;
+  SchemaRef outer_table_schema_;
+  SchemaRef inner_table_schema_;
 };
 }  // namespace bustub

@@ -8,13 +8,13 @@
 
 namespace bustub {
 
-auto Planner::PlanInsert(const InsertStatement &statement) -> std::unique_ptr<AbstractPlanNode> {
+auto Planner::PlanInsert(const InsertStatement &statement) -> AbstractPlanNodeRef {
   auto select = PlanSelect(*statement.select_);
 
   auto table = catalog_.GetTable(statement.table_);
   BUSTUB_ASSERT(table, "table not found");
 
-  return std::make_unique<InsertPlanNode>(SavePlanNode(std::move(select)), table->oid_);
+  return std::make_shared<InsertPlanNode>(std::move(select), table->oid_);
 }
 
 }  // namespace bustub

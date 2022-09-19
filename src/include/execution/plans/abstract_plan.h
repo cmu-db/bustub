@@ -42,6 +42,9 @@ enum class PlanType {
   MockScan
 };
 
+class AbstractPlanNode;
+using AbstractPlanNodeRef = std::shared_ptr<const AbstractPlanNode>;
+
 /**
  * AbstractPlanNode represents all the possible types of plan nodes in our system.
  * Plan nodes are modeled as trees, so each plan node can have a variable number of children.
@@ -55,29 +58,37 @@ class AbstractPlanNode {
    * @param output_schema the schema for the output of this plan node
    * @param children the children of this plan node
    */
-  AbstractPlanNode(const Schema *output_schema, std::vector<const AbstractPlanNode *> &&children)
-      : output_schema_(output_schema), children_(std::move(children)) {}
+  AbstractPlanNode(SchemaRef output_schema, std::vector<AbstractPlanNodeRef> children)
+      : output_schema_(std::move(output_schema)), children_(std::move(children)) {}
 
   /** Virtual destructor. */
   virtual ~AbstractPlanNode() = default;
 
   /** @return the schema for the output of this plan node */
-  auto OutputSchema() const -> const Schema * { return output_schema_; }
+  auto OutputSchema() const -> const Schema & { return *output_schema_; }
 
   /** @return the child of this plan node at index child_idx */
-  auto GetChildAt(uint32_t child_idx) const -> const AbstractPlanNode * { return children_[child_idx]; }
+  auto GetChildAt(uint32_t child_idx) const -> AbstractPlanNodeRef { return children_[child_idx]; }
 
   /** @return the children of this plan node */
-  auto GetChildren() const -> const std::vector<const AbstractPlanNode *> & { return children_; }
+  auto GetChildren() const -> const std::vector<AbstractPlanNodeRef> & { return children_; }
 
   /** @return the type of this plan node */
   virtual auto GetType() const -> PlanType = 0;
 
   /** @return the string representation of the plan node and its children */
   auto ToString() const -> std::string {
-    return fmt::format("{} | {}{}", PlanNodeToString(), output_schema_ != nullptr ? output_schema_->ToString() : "",
-                       ChildrenToString(2));
+    return fmt::format("{} | {}{}", PlanNodeToString(), output_schema_, ChildrenToString(2));
   }
+
+  /**
+   * The schema for the output of this plan node. In the volcano model, every plan node will spit out tuples,
+   * and this tells you what schema this plan node's tuples will have.
+   */
+  SchemaRef output_schema_;
+
+  /** The children of this plan node. */
+  std::vector<AbstractPlanNodeRef> children_;
 
  protected:
   /** @return the string representation of the plan node itself */
@@ -87,14 +98,8 @@ class AbstractPlanNode {
   auto ChildrenToString(int indent) const -> std::string;
 
  private:
-  /**
-   * The schema for the output of this plan node. In the volcano model, every plan node will spit out tuples,
-   * and this tells you what schema this plan node's tuples will have.
-   */
-  const Schema *output_schema_;
-  /** The children of this plan node. */
-  std::vector<const AbstractPlanNode *> children_;
 };
+
 }  // namespace bustub
 
 template <typename T>
