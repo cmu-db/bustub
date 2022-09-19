@@ -61,8 +61,8 @@ class LRUKReplacer {
    * that are marked as 'evictable' are candidates for eviction.
    *
    * A frame with less than k historical references is given +inf as its backward k-distance.
-   * If multiple frames have inf backward k-distance, then evict frame with earliest timestamp
-   * based on LRU.
+   * If multiple frames have inf backward k-distance, then evict the frame with the earliest
+   * timestamp overall.
    *
    * Successful eviction of a frame should decrement the size of replacer and remove the frame's
    * access history.
