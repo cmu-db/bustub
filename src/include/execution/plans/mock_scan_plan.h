@@ -59,6 +59,8 @@ class MockScanPlanNode : public AbstractPlanNode {
   /** @return The table name of this mock scan node, used to determine the generated content. */
   auto GetTable() const -> const std::string & { return table_; }
 
+  CLONE_WITH_CHILDREN(MockScanPlanNode);
+
  protected:
   auto PlanNodeToString() const -> std::string override { return fmt::format("MockScan {{ size={} }}", size_); }
 

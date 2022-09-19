@@ -59,6 +59,8 @@ class HashJoinPlanNode : public AbstractPlanNode {
     return GetChildAt(1);
   }
 
+  CLONE_WITH_CHILDREN(HashJoinPlanNode);
+
  private:
   /** The expression to compute the left JOIN key */
   AbstractExpressionRef left_key_expression_;

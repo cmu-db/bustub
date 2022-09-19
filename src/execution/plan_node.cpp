@@ -18,7 +18,7 @@ auto SeqScanPlanNode::InferScanSchema(const TableInfo &table_info) -> Schema {
     auto col_name = fmt::format("{}.{}", table_info.name_, column.GetName());
     schema.emplace_back(Column(col_name, column));
   }
-  return Schema(schema);
+  return Schema(std::move(schema));
 }
 
 auto NestedLoopJoinPlanNode::InferJoinSchema(const AbstractPlanNode &left, const AbstractPlanNode &right) -> Schema {
@@ -29,7 +29,7 @@ auto NestedLoopJoinPlanNode::InferJoinSchema(const AbstractPlanNode &left, const
   for (const auto &column : right.OutputSchema().GetColumns()) {
     schema.emplace_back(column);
   }
-  return Schema(schema);
+  return Schema(std::move(schema));
 }
 
 auto ProjectionPlanNode::InferProjectionSchema(const std::vector<AbstractExpressionRef> &expressions) -> Schema {
@@ -43,7 +43,7 @@ auto ProjectionPlanNode::InferProjectionSchema(const std::vector<AbstractExpress
       schema.emplace_back("<unnamed>", type_id, VARCHAR_DEFAULT_LENGTH);
     }
   }
-  return Schema(schema);
+  return Schema(std::move(schema));
 }
 
 auto ProjectionPlanNode::RenameSchema(const Schema &schema, const std::vector<std::string> &col_names) -> Schema {
@@ -55,7 +55,7 @@ auto ProjectionPlanNode::RenameSchema(const Schema &schema, const std::vector<st
   for (const auto &column : schema.GetColumns()) {
     output.emplace_back(Column(col_names[idx++], column));
   }
-  return Schema(output);
+  return Schema(std::move(output));
 }
 
 auto AggregationPlanNode::InferAggSchema(const std::vector<AbstractExpressionRef> &group_bys,
@@ -70,7 +70,7 @@ auto AggregationPlanNode::InferAggSchema(const std::vector<AbstractExpressionRef
     // TODO(chi): correctly infer agg call return type
     output.emplace_back(Column("<unnamed>", TypeId::INTEGER));
   }
-  return Schema(output);
+  return Schema(std::move(output));
 }
 
 }  // namespace bustub

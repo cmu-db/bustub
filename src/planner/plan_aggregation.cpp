@@ -113,6 +113,7 @@ auto Planner::PlanSelectAgg(const SelectStatement &statement, AbstractPlanNodeRe
   // Phase-1: plan an aggregation plan node out of all of the information we have.
   std::vector<AbstractExpressionRef> input_exprs;
   std::vector<AggregationType> agg_types;
+  auto agg_begin_idx = group_by_exprs.size();  // agg-calls will be after group-bys in the output of agg.
 
   size_t term_idx = 0;
   for (const auto &item : ctx_.aggregations_) {
@@ -121,10 +122,12 @@ auto Planner::PlanSelectAgg(const SelectStatement &statement, AbstractPlanNodeRe
     }
     const auto &agg_call = dynamic_cast<const BoundAggCall &>(*item);
     auto [agg_type, expr] = PlanAggCall(agg_call, {child});
-    auto abstract_expr = std::move(expr);
-    input_exprs.push_back(abstract_expr);
+    input_exprs.push_back(std::move(expr));
     agg_types.push_back(agg_type);
     output_col_names.emplace_back(fmt::format("agg#{}", term_idx));
+    ctx_.expr_in_agg_.emplace_back(
+        std::make_unique<ColumnValueExpression>(0, agg_begin_idx + term_idx, TypeId::INTEGER));
+
     term_idx += 1;
   }
 

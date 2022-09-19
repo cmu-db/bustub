@@ -48,6 +48,8 @@ class DeletePlanNode : public AbstractPlanNode {
     return GetChildAt(0);
   }
 
+  CLONE_WITH_CHILDREN(DeletePlanNode);
+
  private:
   /** The identifier of the table from which tuples are deleted */
   table_oid_t table_oid_;

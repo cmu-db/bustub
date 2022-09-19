@@ -62,6 +62,8 @@ class UpdatePlanNode : public AbstractPlanNode {
   /** @return The update attributes */
   auto GetUpdateAttr() const -> const std::unordered_map<uint32_t, UpdateInfo> & { return update_attrs_; }
 
+  CLONE_WITH_CHILDREN(UpdatePlanNode);
+
  private:
   /** The table to be updated. */
   table_oid_t table_oid_;
