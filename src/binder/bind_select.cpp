@@ -283,6 +283,30 @@ auto Binder::GetAllColumns(const BoundTableRef &scope) -> std::vector<std::uniqu
                 std::back_inserter(columns));
       return columns;
     }
+    case TableReferenceType::SUBQUERY: {
+      const auto &subquery_ref = dynamic_cast<const BoundSubqueryRef &>(scope);
+      auto columns = std::vector<std::unique_ptr<BoundExpression>>{};
+      for (const auto &col : subquery_ref.subquery_->select_list_) {
+        switch (col->type_) {
+          case ExpressionType::COLUMN_REF: {
+            const auto &column_ref_expr = dynamic_cast<const BoundColumnRef &>(*col);
+            std::vector<std::string> full_column_name = {subquery_ref.alias_};
+            std::copy(column_ref_expr.col_name_.cbegin(), column_ref_expr.col_name_.cend(),
+                      std::back_inserter(full_column_name));
+            columns.push_back(std::make_unique<BoundColumnRef>(std::move(full_column_name)));
+            continue;
+          }
+          case ExpressionType::ALIAS: {
+            const auto &alias_expr = dynamic_cast<const BoundAlias &>(*col);
+            columns.push_back(std::make_unique<BoundColumnRef>(std::vector{subquery_ref.alias_, alias_expr.alias_}));
+            continue;
+          }
+          default:
+            throw NotImplementedException("must alias each column when select * from subquery");
+        }
+      }
+      return columns;
+    }
     default:
       throw bustub::Exception("select * cannot be used with this TableReferenceType");
   }
