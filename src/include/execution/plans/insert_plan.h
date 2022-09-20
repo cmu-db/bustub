@@ -33,20 +33,12 @@ namespace bustub {
 class InsertPlanNode : public AbstractPlanNode {
  public:
   /**
-   * Creates a new insert plan node for inserting raw values.
-   * @param raw_values the raw values to be inserted
-   * @param table_oid the identifier of the table to be inserted into
-   */
-  InsertPlanNode(std::vector<std::vector<Value>> &&raw_values, table_oid_t table_oid)
-      : AbstractPlanNode(nullptr, {}), raw_values_{std::move(raw_values)}, table_oid_{table_oid} {}
-
-  /**
    * Creates a new insert plan node for inserting values from a child plan.
    * @param child the child plan to obtain values from
    * @param table_oid the identifier of the table that should be inserted into
    */
-  InsertPlanNode(AbstractPlanNodeRef child, table_oid_t table_oid)
-      : AbstractPlanNode(nullptr, {std::move(child)}), table_oid_(table_oid) {}
+  InsertPlanNode(SchemaRef output, AbstractPlanNodeRef child, table_oid_t table_oid)
+      : AbstractPlanNode(std::move(output), {std::move(child)}), table_oid_(table_oid) {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::Insert; }

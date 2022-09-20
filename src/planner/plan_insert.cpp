@@ -3,10 +3,13 @@
 
 #include "binder/bound_expression.h"
 #include "binder/statement/insert_statement.h"
+#include "catalog/column.h"
+#include "catalog/schema.h"
 #include "common/exception.h"
 #include "execution/expressions/column_value_expression.h"
 #include "execution/plans/insert_plan.h"
 #include "planner/planner.h"
+#include "type/type_id.h"
 
 namespace bustub {
 
@@ -23,7 +26,9 @@ auto Planner::PlanInsert(const InsertStatement &statement) -> AbstractPlanNodeRe
     throw bustub::Exception("table schema mismatch");
   }
 
-  return std::make_shared<InsertPlanNode>(std::move(select), table->oid_);
+  auto insert_schema = std::make_shared<Schema>(std::vector{Column("__bustub_internal.insert_rows", TypeId::INTEGER)});
+
+  return std::make_shared<InsertPlanNode>(std::move(insert_schema), std::move(select), table->oid_);
 }
 
 }  // namespace bustub
