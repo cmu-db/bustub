@@ -402,15 +402,7 @@ auto Binder::BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> std::unique_
       for (auto node = fields->head; node != nullptr; node = node->next) {
         column_names.emplace_back(reinterpret_cast<duckdb_libpgquery::PGValue *>(node->data.ptr_value)->val.str);
       }
-      if (column_names.size() == 1) {
-        // Bind `SELECT col`.
-        return ResolveColumn(*scope_, column_names);
-      }
-      if (column_names.size() == 2) {
-        // Bind `SELECT table.col`.
-        return ResolveColumn(*scope_, column_names);
-      }
-      throw bustub::Exception(fmt::format("unsupported ColumnRef: zero or multiple elements found"));
+      return ResolveColumn(*scope_, column_names);
     }
     case duckdb_libpgquery::T_PGAStar: {
       return BindStar(reinterpret_cast<duckdb_libpgquery::PGAStar *>(head_node));
@@ -533,9 +525,6 @@ static auto MatchSuffix(const std::vector<std::string> &suffix, const std::vecto
 static auto ResolveColumnRefFromSelectList(const std::vector<std::vector<std::string>> &subquery_select_list,
                                            const std::vector<std::string> &col_name)
     -> std::unique_ptr<BoundColumnRef> {
-  if (col_name.size() != 1) {
-    return nullptr;
-  }
   std::unique_ptr<BoundColumnRef> column_ref = nullptr;
   for (const auto &column : subquery_select_list) {
     if (MatchSuffix(col_name, column)) {
