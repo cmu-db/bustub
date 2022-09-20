@@ -11,7 +11,6 @@
 #include "common/macros.h"
 #include "common/util/string_util.h"
 #include "execution/expressions/abstract_expression.h"
-#include "execution/expressions/aggregate_value_expression.h"
 #include "execution/expressions/column_value_expression.h"
 #include "execution/plans/abstract_plan.h"
 #include "execution/plans/aggregation_plan.h"
@@ -23,8 +22,8 @@
 
 namespace bustub {
 
-auto Planner::PlanAggCall(const BoundAggCall &agg_call, const std::vector<const AbstractPlanNode *> &children)
-    -> std::tuple<AggregationType, std::unique_ptr<AbstractExpression>> {
+auto Planner::PlanAggCall(const BoundAggCall &agg_call, const std::vector<AbstractPlanNodeRef> &children)
+    -> std::tuple<AggregationType, AbstractExpressionRef> {
   if (agg_call.args_.size() != 1) {
     throw NotImplementedException("only agg call of one arg is supported for now");
   }
@@ -32,7 +31,7 @@ auto Planner::PlanAggCall(const BoundAggCall &agg_call, const std::vector<const 
     throw NotImplementedException("distinct agg is not implemented yet");
   }
 
-  std::unique_ptr<AbstractExpression> expr = nullptr;
+  AbstractExpressionRef expr = nullptr;
   {
     // Create a new context that doesn't allow aggregation calls.
     auto guard = NewContext();
@@ -54,8 +53,10 @@ auto Planner::PlanAggCall(const BoundAggCall &agg_call, const std::vector<const 
   throw Exception(fmt::format("unsupported agg_call {}", agg_call.func_name_));
 }
 
-auto Planner::PlanSelectAgg(const SelectStatement &statement, const AbstractPlanNode *child)
-    -> std::unique_ptr<AbstractPlanNode> {
+// TODO(chi): clang-tidy on macOS will suggest changing it to const reference. Looks like a bug.
+
+/* NOLINTNEXTLINE */
+auto Planner::PlanSelectAgg(const SelectStatement &statement, AbstractPlanNodeRef child) -> AbstractPlanNodeRef {
   /* Transforming hash agg is complex. Let's see a concrete example here.
    *
    * Now that we have,
@@ -89,18 +90,14 @@ auto Planner::PlanSelectAgg(const SelectStatement &statement, const AbstractPlan
   auto guard = NewContext();
   ctx_.allow_aggregation_ = true;
 
-  std::vector<std::pair<std::string, const AbstractExpression *>> output_schema;
-
   // Plan group by expressions
-  std::vector<const AbstractExpression *> group_by_exprs;
-  size_t group_by_idx = 0;
+  std::vector<AbstractExpressionRef> group_by_exprs;
+  std::vector<std::string> output_col_names;
+
   for (const auto &expr : statement.group_by_) {
     auto [col_name, abstract_expr] = PlanExpression(*expr, {child});
-    auto abstract_expr_ptr = SaveExpression(std::move(abstract_expr));
-    group_by_exprs.push_back(abstract_expr_ptr);
-    auto schema_expr = SaveExpression(
-        std::make_unique<AggregateValueExpression>(true, group_by_idx++, abstract_expr_ptr->GetReturnType()));
-    output_schema.emplace_back(std::make_pair(std::move(col_name), schema_expr));
+    group_by_exprs.emplace_back(std::move(abstract_expr));
+    output_col_names.emplace_back(std::move(col_name));
   }
 
   // Rewrite all agg call inside having.
@@ -114,9 +111,8 @@ auto Planner::PlanSelectAgg(const SelectStatement &statement, const AbstractPlan
   }
 
   // Phase-1: plan an aggregation plan node out of all of the information we have.
-  std::vector<const AbstractExpression *> input_exprs;
+  std::vector<AbstractExpressionRef> input_exprs;
   std::vector<AggregationType> agg_types;
-  auto agg_begin_idx = group_by_exprs.size();  // agg-calls will be after group-bys in the output of agg.
 
   size_t term_idx = 0;
   for (const auto &item : ctx_.aggregations_) {
@@ -125,45 +121,43 @@ auto Planner::PlanSelectAgg(const SelectStatement &statement, const AbstractPlan
     }
     const auto &agg_call = dynamic_cast<const BoundAggCall &>(*item);
     auto [agg_type, expr] = PlanAggCall(agg_call, {child});
-    auto abstract_expr = SaveExpression(std::move(expr));
+    auto abstract_expr = std::move(expr);
     input_exprs.push_back(abstract_expr);
     agg_types.push_back(agg_type);
-    auto schema_expr =
-        SaveExpression(std::make_unique<AggregateValueExpression>(false, term_idx, abstract_expr->GetReturnType()));
-    output_schema.emplace_back(std::make_pair(fmt::format("agg#{}", term_idx), schema_expr));
-    // TODO(chi): correctly infer the type of the agg output.
-    ctx_.expr_in_agg_.emplace_back(
-        std::make_unique<ColumnValueExpression>(0, agg_begin_idx + term_idx, TypeId::INTEGER));
+    output_col_names.emplace_back(fmt::format("agg#{}", term_idx));
     term_idx += 1;
   }
 
-  auto agg_output_schema = SaveSchema(MakeOutputSchema(output_schema));
+  auto agg_output_schema = AggregationPlanNode::InferAggSchema(group_by_exprs, input_exprs, agg_types);
+
   // Create the aggregation plan node for the first phase (finally!)
-  std::unique_ptr<AbstractPlanNode> plan = std::make_unique<AggregationPlanNode>(
-      agg_output_schema, child, nullptr, std::move(group_by_exprs), std::move(input_exprs), std::move(agg_types));
+  AbstractPlanNodeRef plan = std::make_shared<AggregationPlanNode>(
+      std::make_shared<Schema>(ProjectionPlanNode::RenameSchema(agg_output_schema, output_col_names)), std::move(child),
+      nullptr, std::move(group_by_exprs), std::move(input_exprs), std::move(agg_types));
 
   // Phase-2: plan filter / projection to match the original select list
 
   // Create filter based on the having clause
   if (!statement.having_->IsInvalid()) {
-    auto [_, expr] = PlanExpression(*statement.having_, {plan.get()});
-    plan = std::make_unique<FilterPlanNode>(agg_output_schema, SaveExpression(std::move(expr)),
-                                            SavePlanNode(std::move(plan)));
+    auto [_, expr] = PlanExpression(*statement.having_, {plan});
+    plan = std::make_shared<FilterPlanNode>(std::make_shared<Schema>(plan->OutputSchema()), std::move(expr),
+                                            std::move(plan));
   }
 
   // Plan normal select (within aggregation context)
-  std::vector<const AbstractExpression *> exprs;
-  output_schema.clear();
-  std::vector<const AbstractPlanNode *> children = {plan.get()};
+  std::vector<AbstractExpressionRef> exprs;
+  std::vector<std::string> final_output_col_names;
+  std::vector<AbstractPlanNodeRef> children = {plan};
   for (const auto &item : statement.select_list_) {
-    auto [name, expr] = PlanExpression(*item, {plan.get()});
-    auto abstract_expr = SaveExpression(std::move(expr));
-    exprs.push_back(abstract_expr);
-    output_schema.emplace_back(std::make_pair(name, abstract_expr));
+    auto [name, expr] = PlanExpression(*item, {plan});
+    exprs.push_back(std::move(expr));
+    final_output_col_names.emplace_back(std::move(name));
   }
 
-  return std::make_unique<ProjectionPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), std::move(exprs),
-                                              SavePlanNode(std::move(plan)));
+  return std::make_shared<ProjectionPlanNode>(
+      std::make_shared<Schema>(
+          ProjectionPlanNode::RenameSchema(ProjectionPlanNode::InferProjectionSchema(exprs), final_output_col_names)),
+      std::move(exprs), std::move(plan));
 }
 
 }  // namespace bustub

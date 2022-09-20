@@ -116,7 +116,7 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
 
         // Print optimizer result.
         bustub::Optimizer optimizer(*catalog_);
-        auto optimized_plan = optimizer.Optimize(planner.plan_.get());
+        auto optimized_plan = optimizer.Optimize(planner.plan_);
         std::cerr << "=== OPTIMIZER ===" << std::endl;
         std::cerr << optimized_plan->ToString() << std::endl;
         continue;
@@ -131,7 +131,7 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
 
     // Optimize the query.
     bustub::Optimizer optimizer(*catalog_);
-    auto optimized_plan = optimizer.Optimize(planner.plan_.get());
+    auto optimized_plan = optimizer.Optimize(planner.plan_);
 
     // Execute the query.
     auto txn = transaction_manager_->Begin();
@@ -145,13 +145,9 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
     // Return the result set as a vector of string.
     auto schema = planner.plan_->OutputSchema();
 
-    if (schema == nullptr) {
-      continue;
-    }
-
     // Generate header for the result set.
     std::string header;
-    for (const auto &column : schema->GetColumns()) {
+    for (const auto &column : schema.GetColumns()) {
       header += column.GetName();
       header += "\t";
     }
@@ -160,8 +156,8 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
     // Transforming result set into strings.
     for (const auto &tuple : result_set) {
       std::string row;
-      for (uint32_t i = 0; i < schema->GetColumnCount(); i++) {
-        row += tuple.GetValue(schema, i).ToString();
+      for (uint32_t i = 0; i < schema.GetColumnCount(); i++) {
+        row += tuple.GetValue(&schema, i).ToString();
         row += "\t";
       }
       result.emplace_back(std::move(row));

@@ -36,18 +36,17 @@ void Planner::PlanQuery(const BoundStatement &statement) {
   }
 }
 
-auto Planner::MakeOutputSchema(const std::vector<std::pair<std::string, const AbstractExpression *>> &exprs)
-    -> std::unique_ptr<Schema> {
+auto Planner::MakeOutputSchema(const std::vector<std::pair<std::string, TypeId>> &exprs) -> SchemaRef {
   std::vector<Column> cols;
   cols.reserve(exprs.size());
-  for (const auto &input : exprs) {
-    if (input.second->GetReturnType() != TypeId::VARCHAR) {
-      cols.emplace_back(input.first, input.second->GetReturnType(), input.second);
+  for (const auto &[col_name, type_id] : exprs) {
+    if (type_id != TypeId::VARCHAR) {
+      cols.emplace_back(col_name, type_id);
     } else {
-      cols.emplace_back(input.first, input.second->GetReturnType(), VARCHAR_DEFAULT_LENGTH, input.second);
+      cols.emplace_back(col_name, type_id, VARCHAR_DEFAULT_LENGTH);
     }
   }
-  return std::make_unique<Schema>(cols);
+  return std::make_shared<Schema>(cols);
 }
 
 void PlannerContext::AddAggregation(std::unique_ptr<BoundExpression> expr) {

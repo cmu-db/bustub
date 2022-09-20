@@ -38,7 +38,7 @@ class SimpleAggregationHashTable {
    * @param agg_exprs the aggregation expressions
    * @param agg_types the types of aggregations
    */
-  SimpleAggregationHashTable(const std::vector<const AbstractExpression *> &agg_exprs,
+  SimpleAggregationHashTable(const std::vector<AbstractExpressionRef> &agg_exprs,
                              const std::vector<AggregationType> &agg_types)
       : agg_exprs_{agg_exprs}, agg_types_{agg_types} {}
 
@@ -144,7 +144,7 @@ class SimpleAggregationHashTable {
   /** The hash table is just a map from aggregate keys to aggregate values */
   std::unordered_map<AggregateKey, AggregateValue> ht_{};
   /** The aggregate expressions that we have */
-  const std::vector<const AbstractExpression *> &agg_exprs_;
+  const std::vector<AbstractExpressionRef> &agg_exprs_;
   /** The types of aggregations that we have */
   const std::vector<AggregationType> &agg_types_;
 };
@@ -176,7 +176,7 @@ class AggregationExecutor : public AbstractExecutor {
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the aggregation */
-  auto GetOutputSchema() -> const Schema * override { return plan_->OutputSchema(); };
+  auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); };
 
   /** Do not use or remove this function, otherwise you will get zero points. */
   auto GetChildExecutor() const -> const AbstractExecutor *;

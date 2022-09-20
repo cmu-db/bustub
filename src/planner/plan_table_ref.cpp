@@ -29,7 +29,7 @@
 
 namespace bustub {
 
-auto Planner::PlanTableRef(const BoundTableRef &table_ref) -> std::unique_ptr<AbstractPlanNode> {
+auto Planner::PlanTableRef(const BoundTableRef &table_ref) -> AbstractPlanNodeRef {
   switch (table_ref.type_) {
     case TableReferenceType::BASE_TABLE: {
       const auto &base_table_ref = dynamic_cast<const BoundBaseTableRef &>(table_ref);
@@ -57,28 +57,28 @@ auto Planner::PlanTableRef(const BoundTableRef &table_ref) -> std::unique_ptr<Ab
   throw Exception(fmt::format("the table ref type {} is not supported in planner yet", table_ref.type_));
 }
 
-auto Planner::PlanSubquery(const BoundSubqueryRef &table_ref) -> std::unique_ptr<AbstractPlanNode> {
+auto Planner::PlanSubquery(const BoundSubqueryRef &table_ref) -> AbstractPlanNodeRef {
   auto select_node = PlanSelect(*table_ref.subquery_);
-  std::vector<std::pair<std::string, const AbstractExpression *>> output_schema;
-  std::vector<const AbstractExpression *> exprs;
+  std::vector<std::string> output_column_names;
+  std::vector<AbstractExpressionRef> exprs;
   size_t idx = 0;
 
   // TODO(chi): this projection is solely used for change the column output name. It can be removed by the optimizer.
-
-  for (const auto &col : select_node->OutputSchema()->GetColumns()) {
-    auto expr = std::make_unique<ColumnValueExpression>(0, idx++, col.GetType());
-    auto saved_expr = SaveExpression(std::move(expr));
-    output_schema.emplace_back(std::make_pair(fmt::format("{}.{}", table_ref.alias_, col.GetName()), saved_expr));
-    exprs.push_back(saved_expr);
+  for (const auto &col : select_node->OutputSchema().GetColumns()) {
+    auto expr = std::make_shared<ColumnValueExpression>(0, idx++, col.GetType());
+    output_column_names.emplace_back(fmt::format("{}.{}", table_ref.alias_, col.GetName()));
+    exprs.push_back(std::move(expr));
   }
 
-  auto saved_child = SavePlanNode(std::move(select_node));
+  auto saved_child = std::move(select_node);
 
-  return std::make_unique<ProjectionPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), std::move(exprs),
-                                              saved_child);
+  return std::make_shared<ProjectionPlanNode>(
+      std::make_shared<Schema>(
+          ProjectionPlanNode::RenameSchema(ProjectionPlanNode::InferProjectionSchema(exprs), output_column_names)),
+      std::move(exprs), saved_child);
 }
 
-auto Planner::PlanBaseTableRef(const BoundBaseTableRef &table_ref) -> std::unique_ptr<AbstractPlanNode> {
+auto Planner::PlanBaseTableRef(const BoundBaseTableRef &table_ref) -> AbstractPlanNodeRef {
   // We always scan ALL columns of the table, and use projection executor to
   // remove some of them, therefore simplifying the planning process.
 
@@ -89,80 +89,45 @@ auto Planner::PlanBaseTableRef(const BoundBaseTableRef &table_ref) -> std::uniqu
 
   auto table = catalog_.GetTable(table_ref.table_);
   BUSTUB_ASSERT(table, "table not found");
-  const auto &schema = table->schema_;
-  std::vector<std::pair<std::string, const AbstractExpression *>> output_schema;
-
-  size_t idx = 0;
-  for (const auto &column : schema.GetColumns()) {
-    output_schema.emplace_back(fmt::format("{}.{}", table_ref.table_, column.GetName()),
-                               SaveExpression(std::make_unique<ColumnValueExpression>(0, idx, column.GetType())));
-    idx += 1;
-  }
 
   if (StringUtil::StartsWith(table->name_, "__")) {
     // Plan as MockScanExecutor if it is a mock table.
     if (StringUtil::StartsWith(table->name_, "__mock")) {
-      return std::make_unique<MockScanPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), 100, table->name_);
+      return std::make_shared<MockScanPlanNode>(std::make_shared<Schema>(SeqScanPlanNode::InferScanSchema(*table)), 100,
+                                                table->name_);
     }
     throw bustub::Exception(fmt::format("unsupported internal table: {}", table->name_));
   }
   // Otherwise, plan as normal SeqScan.
-  return std::make_unique<SeqScanPlanNode>(SaveSchema(MakeOutputSchema(output_schema)), nullptr, table->oid_);
+  return std::make_shared<SeqScanPlanNode>(std::make_shared<Schema>(SeqScanPlanNode::InferScanSchema(*table)), nullptr,
+                                           table->oid_);
 }
 
-auto Planner::PlanCrossProductRef(const BoundCrossProductRef &table_ref) -> std::unique_ptr<AbstractPlanNode> {
+auto Planner::PlanCrossProductRef(const BoundCrossProductRef &table_ref) -> AbstractPlanNodeRef {
   auto left = PlanTableRef(*table_ref.left_);
   auto right = PlanTableRef(*table_ref.right_);
-  std::vector<std::pair<std::string, const AbstractExpression *>> output_schema;
-  size_t idx = 0;
-  for (const auto &column : left->OutputSchema()->GetColumns()) {
-    output_schema.emplace_back(column.GetName(),
-                               SaveExpression(std::make_unique<ColumnValueExpression>(0, idx, column.GetType())));
-    idx += 1;
-  }
-  idx = 0;
-  for (const auto &column : right->OutputSchema()->GetColumns()) {
-    output_schema.emplace_back(column.GetName(),
-                               SaveExpression(std::make_unique<ColumnValueExpression>(1, idx, column.GetType())));
-    idx += 1;
-  }
-  return std::make_unique<NestedLoopJoinPlanNode>(
-      SaveSchema(MakeOutputSchema(output_schema)),
-      std::vector{SavePlanNode(std::move(left)), SavePlanNode(std::move(right))},
-      SaveExpression(std::make_unique<ConstantValueExpression>(ValueFactory::GetBooleanValue(true))));
+  return std::make_shared<NestedLoopJoinPlanNode>(
+      std::make_shared<Schema>(NestedLoopJoinPlanNode::InferJoinSchema(*left, *right)), std::move(left),
+      std::move(right), std::make_shared<ConstantValueExpression>(ValueFactory::GetBooleanValue(true)));
 }
 
-auto Planner::PlanJoinRef(const BoundJoinRef &table_ref) -> std::unique_ptr<AbstractPlanNode> {
+auto Planner::PlanJoinRef(const BoundJoinRef &table_ref) -> AbstractPlanNodeRef {
   auto left = PlanTableRef(*table_ref.left_);
   auto right = PlanTableRef(*table_ref.right_);
-  std::vector<std::pair<std::string, const AbstractExpression *>> output_schema;
-  size_t idx = 0;
-  for (const auto &column : left->OutputSchema()->GetColumns()) {
-    output_schema.emplace_back(column.GetName(),
-                               SaveExpression(std::make_unique<ColumnValueExpression>(0, idx, column.GetType())));
-    idx += 1;
-  }
-  idx = 0;
-  for (const auto &column : right->OutputSchema()->GetColumns()) {
-    output_schema.emplace_back(column.GetName(),
-                               SaveExpression(std::make_unique<ColumnValueExpression>(1, idx, column.GetType())));
-    idx += 1;
-  }
-  auto nlj_output_schema = SaveSchema(MakeOutputSchema(output_schema));
-  auto [_, join_condition] = PlanExpression(*table_ref.condition_, {left.get(), right.get()});
-  auto nlj_node = std::make_unique<NestedLoopJoinPlanNode>(
-      nlj_output_schema, std::vector{SavePlanNode(std::move(left)), SavePlanNode(std::move(right))},
-      SaveExpression(std::move(join_condition)));
+  auto [_, join_condition] = PlanExpression(*table_ref.condition_, {left, right});
+  auto nlj_node = std::make_shared<NestedLoopJoinPlanNode>(
+      std::make_shared<Schema>(NestedLoopJoinPlanNode::InferJoinSchema(*left, *right)), std::move(left),
+      std::move(right), std::move(join_condition));
   return nlj_node;
 }
 
-auto Planner::PlanExpressionListRef(const BoundExpressionListRef &table_ref) -> std::unique_ptr<AbstractPlanNode> {
-  std::vector<std::vector<const AbstractExpression *>> all_exprs;
+auto Planner::PlanExpressionListRef(const BoundExpressionListRef &table_ref) -> AbstractPlanNodeRef {
+  std::vector<std::vector<AbstractExpressionRef>> all_exprs;
   for (const auto &row : table_ref.values_) {
-    std::vector<const AbstractExpression *> row_exprs;
+    std::vector<AbstractExpressionRef> row_exprs;
     for (const auto &col : row) {
       auto [_, expr] = PlanExpression(*col, {});
-      row_exprs.push_back(SaveExpression(std::move(expr)));
+      row_exprs.push_back(std::move(expr));
     }
     all_exprs.emplace_back(std::move(row_exprs));
   }
@@ -174,15 +139,15 @@ auto Planner::PlanExpressionListRef(const BoundExpressionListRef &table_ref) -> 
   for (const auto &col : first_row) {
     auto col_name = fmt::format("{}.{}", table_ref.identifier_, idx);
     if (col->GetReturnType() != TypeId::VARCHAR) {
-      cols.emplace_back(std::move(col_name), col->GetReturnType(), nullptr);
+      cols.emplace_back(Column(col_name, col->GetReturnType()));
     } else {
-      cols.emplace_back(std::move(col_name), col->GetReturnType(), VARCHAR_DEFAULT_LENGTH, nullptr);
+      cols.emplace_back(Column(col_name, col->GetReturnType(), VARCHAR_DEFAULT_LENGTH));
     }
     idx += 1;
   }
-  auto schema = std::make_unique<Schema>(cols);
+  auto schema = std::make_shared<Schema>(cols);
 
-  return std::make_unique<ValuesPlanNode>(SaveSchema(std::move(schema)), std::move(all_exprs));
+  return std::make_shared<ValuesPlanNode>(std::move(schema), std::move(all_exprs));
 }
 
 }  // namespace bustub

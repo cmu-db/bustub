@@ -35,30 +35,28 @@ class NestedLoopJoinPlanNode : public AbstractPlanNode {
    * @param predicate The predicate to join with, the tuples are joined
    * if predicate(tuple) = true or predicate = `nullptr`
    */
-  NestedLoopJoinPlanNode(const Schema *output_schema, std::vector<const AbstractPlanNode *> &&children,
-                         const AbstractExpression *predicate)
-      : AbstractPlanNode(output_schema, std::move(children)), predicate_(predicate) {}
+  NestedLoopJoinPlanNode(SchemaRef output_schema, AbstractPlanNodeRef left, AbstractPlanNodeRef right,
+                         AbstractExpressionRef predicate)
+      : AbstractPlanNode(std::move(output_schema), {std::move(left), std::move(right)}),
+        predicate_(std::move(predicate)) {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::NestedLoopJoin; }
 
   /** @return The predicate to be used in the nested loop join */
-  auto Predicate() const -> const AbstractExpression * { return predicate_; }
+  auto Predicate() const -> const AbstractExpression & { return *predicate_; }
 
   /** @return The left plan node of the nested loop join, by convention it should be the smaller table */
-  auto GetLeftPlan() const -> const AbstractPlanNode * {
-    BUSTUB_ASSERT(GetChildren().size() == 2, "Nested loop joins should have exactly two children plans.");
-    return GetChildAt(0);
-  }
+  auto GetLeftPlan() const -> AbstractPlanNodeRef { return GetChildAt(0); }
 
   /** @return The right plan node of the nested loop join */
-  auto GetRightPlan() const -> const AbstractPlanNode * {
-    BUSTUB_ASSERT(GetChildren().size() == 2, "Nested loop joins should have exactly two children plans.");
-    return GetChildAt(1);
-  }
+  auto GetRightPlan() const -> AbstractPlanNodeRef { return GetChildAt(1); }
 
+  static auto InferJoinSchema(const AbstractPlanNode &left, const AbstractPlanNode &right) -> Schema;
+
+ private:
   /** The join predicate */
-  const AbstractExpression *predicate_;
+  AbstractExpressionRef predicate_;
 
  protected:
   auto PlanNodeToString() const -> std::string override {

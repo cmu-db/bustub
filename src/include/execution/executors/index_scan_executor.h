@@ -35,7 +35,7 @@ class IndexScanExecutor : public AbstractExecutor {
    */
   IndexScanExecutor(ExecutorContext *exec_ctx, const IndexScanPlanNode *plan);
 
-  auto GetOutputSchema() -> const Schema * override { return plan_->OutputSchema(); };
+  auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); }
 
   void Init() override;
 

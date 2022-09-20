@@ -7,10 +7,9 @@
 #include <vector>
 
 #include "catalog/catalog.h"
+#include "execution/plans/abstract_plan.h"
 
 namespace bustub {
-
-class AbstractPlanNode;
 
 /**
  * The optimizer takes an `AbstractPlanNode` and outputs an optimized `AbstractPlanNode`.
@@ -19,7 +18,7 @@ class Optimizer {
  public:
   explicit Optimizer(const Catalog &catalog) : catalog_(catalog) {}
 
-  auto Optimize(AbstractPlanNode *plan) -> AbstractPlanNode *;
+  auto Optimize(AbstractPlanNodeRef plan) -> AbstractPlanNodeRef;
 
  private:
   /** Catalog will be used during the planning process. USERS SHOULD ENSURE IT OUTLIVES

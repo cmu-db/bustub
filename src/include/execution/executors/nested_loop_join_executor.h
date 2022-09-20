@@ -50,7 +50,7 @@ class NestedLoopJoinExecutor : public AbstractExecutor {
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the insert */
-  auto GetOutputSchema() -> const Schema * override { return plan_->OutputSchema(); };
+  auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); };
 
  private:
   /** The NestedLoopJoin plan node to be executed. */

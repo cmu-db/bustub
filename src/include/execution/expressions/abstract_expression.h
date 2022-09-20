@@ -23,6 +23,9 @@
 
 namespace bustub {
 
+class AbstractExpression;
+using AbstractExpressionRef = std::shared_ptr<AbstractExpression>;
+
 /**
  * AbstractExpression is the base class of all the expressions in the system.
  * Expressions are modeled as trees, i.e. every expression may have a variable number of children.
@@ -34,14 +37,14 @@ class AbstractExpression {
    * @param children the children of this abstract expression
    * @param ret_type the return type of this abstract expression when it is evaluated
    */
-  AbstractExpression(std::vector<const AbstractExpression *> &&children, TypeId ret_type)
+  AbstractExpression(std::vector<AbstractExpressionRef> children, TypeId ret_type)
       : children_{std::move(children)}, ret_type_{ret_type} {}
 
   /** Virtual destructor. */
   virtual ~AbstractExpression() = default;
 
   /** @return The value obtained by evaluating the tuple with the given schema */
-  virtual auto Evaluate(const Tuple *tuple, const Schema *schema) const -> Value = 0;
+  virtual auto Evaluate(const Tuple *tuple, const Schema &schema) const -> Value = 0;
 
   /**
    * Returns the value obtained by evaluating a JOIN.
@@ -51,23 +54,14 @@ class AbstractExpression {
    * @param right_schema The right tuple's schema
    * @return The value obtained by evaluating a JOIN on the left and right
    */
-  virtual auto EvaluateJoin(const Tuple *left_tuple, const Schema *left_schema, const Tuple *right_tuple,
-                            const Schema *right_schema) const -> Value = 0;
-
-  /**
-   * Returns the value obtained by evaluating the aggregates.
-   * @param group_bys The group by values
-   * @param aggregates The aggregate values
-   * @return The value obtained by checking the aggregates and group-bys
-   */
-  virtual auto EvaluateAggregate(const std::vector<Value> &group_bys, const std::vector<Value> &aggregates) const
-      -> Value = 0;
+  virtual auto EvaluateJoin(const Tuple *left_tuple, const Schema &left_schema, const Tuple *right_tuple,
+                            const Schema &right_schema) const -> Value = 0;
 
   /** @return the child_idx'th child of this expression */
-  auto GetChildAt(uint32_t child_idx) const -> const AbstractExpression * { return children_[child_idx]; }
+  auto GetChildAt(uint32_t child_idx) const -> const AbstractExpressionRef & { return children_[child_idx]; }
 
   /** @return the children of this expression, ordering may matter */
-  auto GetChildren() const -> const std::vector<const AbstractExpression *> & { return children_; }
+  auto GetChildren() const -> const std::vector<AbstractExpressionRef> & { return children_; }
 
   /** @return the type of this expression if it were to be evaluated */
   virtual auto GetReturnType() const -> TypeId { return ret_type_; }
@@ -77,10 +71,11 @@ class AbstractExpression {
 
  private:
   /** The children of this expression. Note that the order of appearance of children may matter. */
-  std::vector<const AbstractExpression *> children_;
+  std::vector<AbstractExpressionRef> children_;
   /** The return type of this expression. */
   TypeId ret_type_;
 };
+
 }  // namespace bustub
 
 template <typename T>
@@ -96,7 +91,19 @@ template <typename T>
 struct fmt::formatter<std::unique_ptr<T>, std::enable_if_t<std::is_base_of<bustub::AbstractExpression, T>::value, char>>
     : fmt::formatter<std::string> {
   template <typename FormatCtx>
-  auto format(const std::unique_ptr<bustub::AbstractExpression> &x, FormatCtx &ctx) const {
+  auto format(const std::unique_ptr<T> &x, FormatCtx &ctx) const {
+    if (x != nullptr) {
+      return fmt::formatter<std::string>::format(x->ToString(), ctx);
+    }
+    return fmt::formatter<std::string>::format("", ctx);
+  }
+};
+
+template <typename T>
+struct fmt::formatter<std::shared_ptr<T>, std::enable_if_t<std::is_base_of<bustub::AbstractExpression, T>::value, char>>
+    : fmt::formatter<std::string> {
+  template <typename FormatCtx>
+  auto format(const std::shared_ptr<T> &x, FormatCtx &ctx) const {
     if (x != nullptr) {
       return fmt::formatter<std::string>::format(x->ToString(), ctx);
     }

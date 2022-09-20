@@ -41,7 +41,7 @@ class NestIndexJoinExecutor : public AbstractExecutor {
   NestIndexJoinExecutor(ExecutorContext *exec_ctx, const NestedIndexJoinPlanNode *plan,
                         std::unique_ptr<AbstractExecutor> &&child_executor);
 
-  auto GetOutputSchema() -> const Schema * override { return plan_->OutputSchema(); }
+  auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); }
 
   void Init() override;
 

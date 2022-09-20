@@ -53,7 +53,7 @@ class DeleteExecutor : public AbstractExecutor {
   auto Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the delete */
-  auto GetOutputSchema() -> const Schema * override { return plan_->OutputSchema(); };
+  auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); };
 
  private:
   /** The delete plan node to be executed */

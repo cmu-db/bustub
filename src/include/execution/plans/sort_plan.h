@@ -36,27 +36,27 @@ class SortPlanNode : public AbstractPlanNode {
    * @param child The child plan node
    * @param order_by The sort expressions and their order by types.
    */
-  SortPlanNode(const Schema *output, const AbstractPlanNode *child,
-               std::vector<std::pair<OrderByType, const AbstractExpression *>> order_bys)
-      : AbstractPlanNode(output, {child}), order_bys_(std::move(order_bys)) {}
+  SortPlanNode(SchemaRef output, AbstractPlanNodeRef child,
+               std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys)
+      : AbstractPlanNode(std::move(output), {std::move(child)}), order_bys_(std::move(order_bys)) {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::Sort; }
 
   /** @return The child plan node */
-  auto GetChildPlan() const -> const AbstractPlanNode * {
+  auto GetChildPlan() const -> AbstractPlanNodeRef {
     BUSTUB_ASSERT(GetChildren().size() == 1, "Sort should have exactly one child plan.");
     return GetChildAt(0);
   }
 
   /** @return Get sort by expressions */
-  auto GetOrderBy() -> const std::vector<std::pair<OrderByType, const AbstractExpression *>> & { return order_bys_; }
+  auto GetOrderBy() -> const std::vector<std::pair<OrderByType, AbstractExpressionRef>> & { return order_bys_; }
 
  protected:
   auto PlanNodeToString() const -> std::string override;
 
  private:
-  std::vector<std::pair<OrderByType, const AbstractExpression *>> order_bys_;
+  std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys_;
 };
 
 }  // namespace bustub

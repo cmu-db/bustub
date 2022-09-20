@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "catalog/catalog.h"
 #include "execution/expressions/abstract_expression.h"
@@ -32,13 +33,13 @@ class TopNPlanNode : public AbstractPlanNode {
    * @param output The output schema of this topN plan node
    * @param child The child plan node
    */
-  TopNPlanNode(const Schema *output, const AbstractPlanNode *child) : AbstractPlanNode(output, {child}) {}
+  TopNPlanNode(SchemaRef output, AbstractPlanNodeRef child) : AbstractPlanNode(std::move(output), {std::move(child)}) {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::TopN; }
 
   /** @return The child plan node */
-  auto GetChildPlan() const -> const AbstractPlanNode * {
+  auto GetChildPlan() const -> AbstractPlanNodeRef {
     BUSTUB_ASSERT(GetChildren().size() == 1, "TopN should have exactly one child plan.");
     return GetChildAt(0);
   }

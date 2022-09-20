@@ -24,12 +24,12 @@ auto ProjectionExecutor::Next(Tuple *tuple, RID *rid) -> bool {
 
   // Compute expressions
   std::vector<Value> values{};
-  values.reserve(GetOutputSchema()->GetColumnCount());
+  values.reserve(GetOutputSchema().GetColumnCount());
   for (const auto &expr : plan_->GetExpressions()) {
     values.push_back(expr->Evaluate(&child_tuple, child_executor_->GetOutputSchema()));
   }
 
-  *tuple = Tuple{values, GetOutputSchema()};
+  *tuple = Tuple{values, &GetOutputSchema()};
 
   return true;
 }

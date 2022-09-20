@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "catalog/catalog.h"
+#include "catalog/schema.h"
 #include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
 
@@ -35,27 +36,30 @@ class ProjectionPlanNode : public AbstractPlanNode {
    * @param expressions The expression to evaluate
    * @param child The child plan node
    */
-  ProjectionPlanNode(const Schema *output, std::vector<const AbstractExpression *> expressions,
-                     const AbstractPlanNode *child)
-      : AbstractPlanNode(output, {child}), expressions_(std::move(expressions)) {}
+  ProjectionPlanNode(SchemaRef output, std::vector<AbstractExpressionRef> expressions, AbstractPlanNodeRef child)
+      : AbstractPlanNode(std::move(output), {std::move(child)}), expressions_(std::move(expressions)) {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::Projection; }
 
   /** @return The child plan node */
-  auto GetChildPlan() const -> const AbstractPlanNode * {
+  auto GetChildPlan() const -> AbstractPlanNodeRef {
     BUSTUB_ASSERT(GetChildren().size() == 1, "Projection should have exactly one child plan.");
     return GetChildAt(0);
   }
 
   /** @return Projection expressions */
-  auto GetExpressions() const -> const std::vector<const AbstractExpression *> & { return expressions_; }
+  auto GetExpressions() const -> const std::vector<AbstractExpressionRef> & { return expressions_; }
+
+  static auto InferProjectionSchema(const std::vector<AbstractExpressionRef> &expressions) -> Schema;
+
+  static auto RenameSchema(const Schema &schema, const std::vector<std::string> &col_names) -> Schema;
 
  protected:
   auto PlanNodeToString() const -> std::string override;
 
  private:
-  std::vector<const AbstractExpression *> expressions_;
+  std::vector<AbstractExpressionRef> expressions_;
 };
 
 }  // namespace bustub

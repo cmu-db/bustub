@@ -12,7 +12,6 @@
 #include "common/macros.h"
 #include "common/util/string_util.h"
 #include "execution/expressions/abstract_expression.h"
-#include "execution/expressions/aggregate_value_expression.h"
 #include "execution/expressions/column_value_expression.h"
 #include "execution/expressions/comparison_expression.h"
 #include "execution/expressions/constant_value_expression.h"
@@ -24,42 +23,37 @@ namespace bustub {
 
 const char *unnamed_column = "<unnamed>";
 
-auto Planner::PlanBinaryOp(const BoundBinaryOp &expr, const std::vector<const AbstractPlanNode *> &children)
-    -> std::unique_ptr<AbstractExpression> {
+auto Planner::PlanBinaryOp(const BoundBinaryOp &expr, const std::vector<AbstractPlanNodeRef> &children)
+    -> AbstractExpressionRef {
   auto [_1, left] = PlanExpression(*expr.larg_, children);
   auto [_2, right] = PlanExpression(*expr.rarg_, children);
   const auto &op_name = expr.op_name_;
 
   if (op_name == "=" || op_name == "==") {
-    return std::make_unique<ComparisonExpression>(SaveExpression(std::move(left)), SaveExpression(std::move(right)),
-                                                  ComparisonType::Equal);
+    return std::make_shared<ComparisonExpression>(std::move(left), std::move(right), ComparisonType::Equal);
   }
   if (op_name == "!=" || op_name == "<>") {
-    return std::make_unique<ComparisonExpression>(SaveExpression(std::move(left)), SaveExpression(std::move(right)),
-                                                  ComparisonType::NotEqual);
+    return std::make_shared<ComparisonExpression>(std::move(left), std::move(right), ComparisonType::NotEqual);
   }
   if (op_name == "<") {
-    return std::make_unique<ComparisonExpression>(SaveExpression(std::move(left)), SaveExpression(std::move(right)),
-                                                  ComparisonType::LessThan);
+    return std::make_shared<ComparisonExpression>(std::move(left), std::move(right), ComparisonType::LessThan);
   }
   if (op_name == "<=") {
-    return std::make_unique<ComparisonExpression>(SaveExpression(std::move(left)), SaveExpression(std::move(right)),
-                                                  ComparisonType::LessThanOrEqual);
+    return std::make_shared<ComparisonExpression>(std::move(left), std::move(right), ComparisonType::LessThanOrEqual);
   }
   if (op_name == ">") {
-    return std::make_unique<ComparisonExpression>(SaveExpression(std::move(left)), SaveExpression(std::move(right)),
-                                                  ComparisonType::GreaterThan);
+    return std::make_shared<ComparisonExpression>(std::move(left), std::move(right), ComparisonType::GreaterThan);
   }
   if (op_name == ">=") {
-    return std::make_unique<ComparisonExpression>(SaveExpression(std::move(left)), SaveExpression(std::move(right)),
+    return std::make_shared<ComparisonExpression>(std::move(left), std::move(right),
                                                   ComparisonType::GreaterThanOrEqual);
   }
 
   throw Exception(fmt::format("binary op {} not supported in planner yet", op_name));
 }
 
-auto Planner::PlanColumnRef(const BoundColumnRef &expr, const std::vector<const AbstractPlanNode *> &children)
-    -> std::tuple<std::string, std::unique_ptr<AbstractExpression>> {
+auto Planner::PlanColumnRef(const BoundColumnRef &expr, const std::vector<AbstractPlanNodeRef> &children)
+    -> std::tuple<std::string, AbstractExpressionRef> {
   if (children.empty()) {
     throw Exception("column ref should have at least one child");
   }
@@ -71,9 +65,9 @@ auto Planner::PlanColumnRef(const BoundColumnRef &expr, const std::vector<const 
     // use this branch.
     const auto &child = children[0];
     auto schema = child->OutputSchema();
-    uint32_t col_idx = schema->GetColIdx(col_name);
-    auto col_type = schema->GetColumn(col_idx).GetType();
-    return std::make_tuple(col_name, std::make_unique<ColumnValueExpression>(0, col_idx, col_type));
+    uint32_t col_idx = schema.GetColIdx(col_name);
+    auto col_type = schema.GetColumn(col_idx).GetType();
+    return std::make_tuple(col_name, std::make_shared<ColumnValueExpression>(0, col_idx, col_type));
   }
   if (children.size() == 2) {
     /*
@@ -96,27 +90,27 @@ auto Planner::PlanColumnRef(const BoundColumnRef &expr, const std::vector<const 
     auto left_schema = left->OutputSchema();
     auto right_schema = right->OutputSchema();
 
-    auto col_idx_left = left_schema->TryGetColIdx(col_name);
-    auto col_idx_right = right_schema->TryGetColIdx(col_name);
+    auto col_idx_left = left_schema.TryGetColIdx(col_name);
+    auto col_idx_right = right_schema.TryGetColIdx(col_name);
     if (col_idx_left && col_idx_right) {
       throw bustub::Exception(fmt::format("ambiguous column name {}", col_name));
     }
     if (col_idx_left) {
-      auto col_type = left_schema->GetColumn(*col_idx_left).GetType();
-      return std::make_tuple(col_name, std::make_unique<ColumnValueExpression>(0, *col_idx_left, col_type));
+      auto col_type = left_schema.GetColumn(*col_idx_left).GetType();
+      return std::make_tuple(col_name, std::make_shared<ColumnValueExpression>(0, *col_idx_left, col_type));
     }
     if (col_idx_right) {
-      auto col_type = right_schema->GetColumn(*col_idx_right).GetType();
-      return std::make_tuple(col_name, std::make_unique<ColumnValueExpression>(1, *col_idx_right, col_type));
+      auto col_type = right_schema.GetColumn(*col_idx_right).GetType();
+      return std::make_tuple(col_name, std::make_shared<ColumnValueExpression>(1, *col_idx_right, col_type));
     }
     throw bustub::Exception(fmt::format("column name {} not found", col_name));
   }
   UNREACHABLE("no executor with expression has more than 2 children for now");
 }
 
-auto Planner::PlanConstant(const BoundConstant &expr, const std::vector<const AbstractPlanNode *> &children)
-    -> std::unique_ptr<AbstractExpression> {
-  return std::make_unique<ConstantValueExpression>(expr.val_);
+auto Planner::PlanConstant(const BoundConstant &expr, const std::vector<AbstractPlanNodeRef> &children)
+    -> AbstractExpressionRef {
+  return std::make_shared<ConstantValueExpression>(expr.val_);
 }
 
 void Planner::AddAggCallToContext(BoundExpression &expr) {
@@ -153,8 +147,8 @@ void Planner::AddAggCallToContext(BoundExpression &expr) {
   throw Exception(fmt::format("expression type {} not supported in planner yet", expr.type_));
 }
 
-auto Planner::PlanExpression(const BoundExpression &expr, const std::vector<const AbstractPlanNode *> &children)
-    -> std::tuple<std::string, std::unique_ptr<AbstractExpression>> {
+auto Planner::PlanExpression(const BoundExpression &expr, const std::vector<AbstractPlanNodeRef> &children)
+    -> std::tuple<std::string, AbstractExpressionRef> {
   switch (expr.type_) {
     case ExpressionType::AGG_CALL: {
       if (ctx_.next_aggregation_ >= ctx_.expr_in_agg_.size()) {
