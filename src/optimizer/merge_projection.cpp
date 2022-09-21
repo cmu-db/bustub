@@ -45,7 +45,7 @@ auto Optimizer::OptimizeMergeProjection(const AbstractPlanNodeRef &plan) -> Abst
         if (is_identical) {
           auto plan = child_plan->CloneWithChildren(child_plan->GetChildren());
           plan->output_schema_ = std::make_shared<Schema>(projection_schema);
-          return std::move(plan);
+          return plan;
         }
       }
     }
