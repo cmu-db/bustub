@@ -3,8 +3,8 @@
 
 namespace bustub {
 
-auto Optimizer::Optimize(AbstractPlanNodeRef plan) -> AbstractPlanNodeRef {
-  return OptimizeMergeProjection(std::move(plan));
+auto Optimizer::Optimize(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {
+  return OptimizeMergeProjection(plan);
 }
 
 }  // namespace bustub

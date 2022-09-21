@@ -18,7 +18,7 @@ class Optimizer {
  public:
   explicit Optimizer(const Catalog &catalog) : catalog_(catalog) {}
 
-  auto Optimize(AbstractPlanNodeRef plan) -> AbstractPlanNodeRef;
+  auto Optimize(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef;
 
  private:
   /**
