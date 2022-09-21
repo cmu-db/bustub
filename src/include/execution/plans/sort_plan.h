@@ -52,6 +52,8 @@ class SortPlanNode : public AbstractPlanNode {
   /** @return Get sort by expressions */
   auto GetOrderBy() -> const std::vector<std::pair<OrderByType, AbstractExpressionRef>> & { return order_bys_; }
 
+  CLONE_WITH_CHILDREN(SortPlanNode);
+
  protected:
   auto PlanNodeToString() const -> std::string override;
 

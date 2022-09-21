@@ -49,6 +49,8 @@ class FilterPlanNode : public AbstractPlanNode {
     return GetChildAt(0);
   }
 
+  CLONE_WITH_CHILDREN(FilterPlanNode);
+
  protected:
   auto PlanNodeToString() const -> std::string override {
     return fmt::format("Filter {{ predicate={} }}", *predicate_);

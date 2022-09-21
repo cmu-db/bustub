@@ -45,6 +45,8 @@ class LimitPlanNode : public AbstractPlanNode {
     return GetChildAt(0);
   }
 
+  CLONE_WITH_CHILDREN(LimitPlanNode);
+
  protected:
   auto PlanNodeToString() const -> std::string override { return fmt::format("Limit {{ limit={} }}", limit_); }
 

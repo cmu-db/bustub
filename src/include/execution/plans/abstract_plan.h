@@ -22,6 +22,14 @@
 
 namespace bustub {
 
+#define CLONE_WITH_CHILDREN(cname)                                                                           \
+  auto CloneWithChildren(std::vector<AbstractPlanNodeRef> children) const->std::unique_ptr<AbstractPlanNode> \
+      override {                                                                                             \
+    auto plan_node = cname(*this);                                                                           \
+    plan_node.children_ = children;                                                                          \
+    return std::make_unique<cname>(std::move(plan_node));                                                    \
+  }
+
 /** PlanType represents the types of plans that we have in our system. */
 enum class PlanType {
   SeqScan,
@@ -80,6 +88,10 @@ class AbstractPlanNode {
   auto ToString() const -> std::string {
     return fmt::format("{} | {}{}", PlanNodeToString(), output_schema_, ChildrenToString(2));
   }
+
+  /** @return the cloned plan node with new children */
+  virtual auto CloneWithChildren(std::vector<AbstractPlanNodeRef> children) const
+      -> std::unique_ptr<AbstractPlanNode> = 0;
 
   /**
    * The schema for the output of this plan node. In the volcano model, every plan node will spit out tuples,

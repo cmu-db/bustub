@@ -49,6 +49,8 @@ class SeqScanPlanNode : public AbstractPlanNode {
 
   static auto InferScanSchema(const TableInfo &table_info) -> Schema;
 
+  CLONE_WITH_CHILDREN(SeqScanPlanNode);
+
  protected:
   auto PlanNodeToString() const -> std::string override {
     return fmt::format("SeqScan {{ table_oid={} }}", table_oid_);

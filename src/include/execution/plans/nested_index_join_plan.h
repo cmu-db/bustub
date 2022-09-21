@@ -61,6 +61,8 @@ class NestedIndexJoinPlanNode : public AbstractPlanNode {
   /** @return Schema with needed columns in from the inner table */
   auto InnerTableSchema() const -> const Schema & { return *inner_table_schema_; }
 
+  CLONE_WITH_CHILDREN(NestedIndexJoinPlanNode);
+
  private:
   /** The nested index join predicate. */
   AbstractExpressionRef predicate_;

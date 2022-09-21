@@ -18,9 +18,16 @@ class Optimizer {
  public:
   explicit Optimizer(const Catalog &catalog) : catalog_(catalog) {}
 
-  auto Optimize(AbstractPlanNodeRef plan) -> AbstractPlanNodeRef;
+  auto Optimize(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef;
 
  private:
+  /**
+   * @brief merge projections that do identical project.
+   * Identical projection might be produced when there's `SELECT *`, aggregation, or when we need to rename the columns
+   * in the planner. We merge these projections so as to make execution faster.
+   */
+  auto OptimizeMergeProjection(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef;
+
   /** Catalog will be used during the planning process. USERS SHOULD ENSURE IT OUTLIVES
    * OPTIMIZER, otherwise it's a dangling reference.
    */

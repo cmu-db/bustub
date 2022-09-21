@@ -2,5 +2,9 @@
 #include "execution/plans/abstract_plan.h"
 
 namespace bustub {
-auto Optimizer::Optimize(AbstractPlanNodeRef plan) -> AbstractPlanNodeRef { return plan; }
+
+auto Optimizer::Optimize(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {
+  return OptimizeMergeProjection(plan);
+}
+
 }  // namespace bustub

@@ -54,6 +54,8 @@ class NestedLoopJoinPlanNode : public AbstractPlanNode {
 
   static auto InferJoinSchema(const AbstractPlanNode &left, const AbstractPlanNode &right) -> Schema;
 
+  CLONE_WITH_CHILDREN(NestedLoopJoinPlanNode);
+
  private:
   /** The join predicate */
   AbstractExpressionRef predicate_;

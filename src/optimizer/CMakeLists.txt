@@ -1,6 +1,7 @@
 add_library(
     bustub_optimizer
     OBJECT
+    merge_projection.cpp
     optimizer.cpp)
 
 set(ALL_OBJECT_FILES
