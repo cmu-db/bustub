@@ -25,7 +25,7 @@ auto Optimizer::RewriteExpressionForJoin(const AbstractExpressionRef &expr, size
       column_value_expr != nullptr) {
     BUSTUB_ENSURE(column_value_expr->GetTupleIdx() == 0, "tuple_idx cannot be value other than 0 before this stage.")
     auto col_idx = column_value_expr->GetColIdx();
-    if (col_idx >= 0 && col_idx < left_column_cnt) {
+    if (col_idx < left_column_cnt) {
       return std::make_shared<ColumnValueExpression>(0, col_idx, column_value_expr->GetReturnType());
     }
     if (col_idx >= left_column_cnt && col_idx < left_column_cnt + right_column_cnt) {
