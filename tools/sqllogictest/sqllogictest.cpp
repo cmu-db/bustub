@@ -7,7 +7,7 @@
 #include "common/exception.h"
 #include "parser.h"
 
-auto main(int argc, char **argv) -> int {
+auto main(int argc, char **argv) -> int {  // NOLINT
   if (argc != 2) {
     std::cerr << "Invalid number of args";
     return 1;
