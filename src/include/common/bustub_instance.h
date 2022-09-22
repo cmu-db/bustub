@@ -41,8 +41,6 @@ class BustubInstance {
  public:
   explicit BustubInstance(const std::string &db_file_name);
 
-  explicit BustubInstance(size_t pages);
-
   ~BustubInstance();
 
   /**

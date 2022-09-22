@@ -29,40 +29,6 @@ auto BustubInstance::MakeExecutorContext(Transaction *txn) -> std::unique_ptr<Ex
   return std::make_unique<ExecutorContext>(txn, catalog_, buffer_pool_manager_, transaction_manager_, lock_manager_);
 }
 
-BustubInstance::BustubInstance(size_t pages) {
-  // TODO(chi): revisit this when designing the recovery project.
-
-  enable_logging = false;
-
-  // Storage related.
-  disk_manager_ = new DiskManagerMemory(pages);
-
-  // Log related.
-  log_manager_ = new LogManager(disk_manager_);
-
-  // We need more frames for GenerateTestTable to work. Therefore, we use 128 instead of the default
-  // buffer pool size specified in `config.h`.
-  try {
-    buffer_pool_manager_ = new BufferPoolManagerInstance(128, disk_manager_, LRUK_REPLACER_K, log_manager_);
-  } catch (NotImplementedException &e) {
-    std::cerr << "BufferPoolManager is not implemented, only mock tables are supported." << std::endl;
-    buffer_pool_manager_ = nullptr;
-  }
-
-  // Transaction (txn) related.
-  lock_manager_ = new LockManager();
-  transaction_manager_ = new TransactionManager(lock_manager_, log_manager_);
-
-  // Checkpoint related.
-  checkpoint_manager_ = new CheckpointManager(transaction_manager_, log_manager_, buffer_pool_manager_);
-
-  // Catalog.
-  catalog_ = new Catalog(buffer_pool_manager_, nullptr, nullptr);
-
-  // Execution engine.
-  execution_engine_ = new ExecutionEngine(buffer_pool_manager_, transaction_manager_, catalog_);
-}
-
 BustubInstance::BustubInstance(const std::string &db_file_name) {
   // TODO(chi): revisit this when designing the recovery project.
 
