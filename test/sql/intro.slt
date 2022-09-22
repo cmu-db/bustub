@@ -1,0 +1,11 @@
+statement ok
+select * from __mock_table_1;
+
+statement ok
+select * from __mock_table_2;
+
+statement ok
+select * from __mock_table_3;
+
+statement ok
+select colA, colB from __mock_table_1 where colA > 10;
