@@ -4,7 +4,10 @@
 namespace bustub {
 
 auto Optimizer::Optimize(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {
-  return OptimizeMergeProjection(plan);
+  auto p1 = OptimizeMergeProjection(plan);
+  auto p2 = OptimizeMergeFilterNLJ(p1);
+  auto p3 = OptimizeNLJAsHashJoin(p2);
+  return p3;
 }
 
 }  // namespace bustub

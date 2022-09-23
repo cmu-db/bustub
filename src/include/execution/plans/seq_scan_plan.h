@@ -49,7 +49,7 @@ class SeqScanPlanNode : public AbstractPlanNode {
 
   static auto InferScanSchema(const TableInfo &table_info) -> Schema;
 
-  CLONE_WITH_CHILDREN(SeqScanPlanNode);
+  BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(SeqScanPlanNode);
 
  protected:
   auto PlanNodeToString() const -> std::string override {

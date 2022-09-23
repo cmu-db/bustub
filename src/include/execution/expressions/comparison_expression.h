@@ -54,6 +54,10 @@ class ComparisonExpression : public AbstractExpression {
     return fmt::format("{}{}{}", *GetChildAt(0), comp_type_, *GetChildAt(1));
   }
 
+  BUSTUB_EXPR_CLONE_WITH_CHILDREN(ComparisonExpression);
+
+  ComparisonType comp_type_;
+
  private:
   auto PerformComparison(const Value &lhs, const Value &rhs) const -> CmpBool {
     switch (comp_type_) {
@@ -73,8 +77,6 @@ class ComparisonExpression : public AbstractExpression {
         BUSTUB_ASSERT(false, "Unsupported comparison type.");
     }
   }
-
-  ComparisonType comp_type_;
 };
 }  // namespace bustub
 

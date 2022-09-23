@@ -22,7 +22,7 @@
 
 namespace bustub {
 
-#define CLONE_WITH_CHILDREN(cname)                                                                           \
+#define BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(cname)                                                          \
   auto CloneWithChildren(std::vector<AbstractPlanNodeRef> children) const->std::unique_ptr<AbstractPlanNode> \
       override {                                                                                             \
     auto plan_node = cname(*this);                                                                           \
