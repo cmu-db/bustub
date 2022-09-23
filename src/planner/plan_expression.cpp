@@ -65,6 +65,16 @@ auto Planner::PlanColumnRef(const BoundColumnRef &expr, const std::vector<Abstra
     // use this branch.
     const auto &child = children[0];
     auto schema = child->OutputSchema();
+    // Before we can call `schema.GetColIdx`,  we need to ensure there's no duplicated column.
+    bool found = false;
+    for (const auto &col : schema.GetColumns()) {
+      if (col_name == col.GetName()) {
+        if (found) {
+          throw bustub::Exception("duplicated column found in schema");
+        }
+        found = true;
+      }
+    }
     uint32_t col_idx = schema.GetColIdx(col_name);
     auto col_type = schema.GetColumn(col_idx).GetType();
     return std::make_tuple(col_name, std::make_shared<ColumnValueExpression>(0, col_idx, col_type));

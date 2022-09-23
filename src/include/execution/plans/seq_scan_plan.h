@@ -16,6 +16,7 @@
 #include <string>
 #include <utility>
 
+#include "binder/table_ref/bound_base_table_ref.h"
 #include "catalog/catalog.h"
 #include "catalog/schema.h"
 #include "execution/expressions/abstract_expression.h"
@@ -47,7 +48,7 @@ class SeqScanPlanNode : public AbstractPlanNode {
   /** @return The identifier of the table that should be scanned */
   auto GetTableOid() const -> table_oid_t { return table_oid_; }
 
-  static auto InferScanSchema(const TableInfo &table_info) -> Schema;
+  static auto InferScanSchema(const BoundBaseTableRef &table_ref) -> Schema;
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(SeqScanPlanNode);
 

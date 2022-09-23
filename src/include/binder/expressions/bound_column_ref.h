@@ -1,8 +1,12 @@
 #pragma once
 
+#include <algorithm>
+#include <iterator>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
+
 #include "binder/bound_expression.h"
 
 namespace bustub {
@@ -14,6 +18,15 @@ class BoundColumnRef : public BoundExpression {
  public:
   explicit BoundColumnRef(std::vector<std::string> col_name)
       : BoundExpression(ExpressionType::COLUMN_REF), col_name_(std::move(col_name)) {}
+
+  static auto Prepend(std::unique_ptr<BoundColumnRef> self, std::string prefix) -> std::unique_ptr<BoundColumnRef> {
+    if (self == nullptr) {
+      return nullptr;
+    }
+    std::vector<std::string> col_name{std::move(prefix)};
+    std::copy(self->col_name_.cbegin(), self->col_name_.cend(), std::back_inserter(col_name));
+    return std::make_unique<BoundColumnRef>(std::move(col_name));
+  }
 
   auto ToString() const -> std::string override { return fmt::format("{}", fmt::join(col_name_, ".")); }
 

@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iterator>
 #include <memory>
+#include <optional>
 #include <vector>
 #include "binder/binder.h"
 #include "binder/bound_expression.h"
@@ -65,9 +66,33 @@ auto Binder::BindRangeSubselect(duckdb_libpgquery::PGRangeSubselect *root) -> st
   if (root->lateral) {
     throw NotImplementedException("LATERAL in subquery is not supported");
   }
-  auto table_ref =
-      std::make_unique<BoundSubqueryRef>(std::move(subquery), fmt::format("__subquery#{}", universal_id_++));
-  return table_ref;
+
+  std::vector<std::vector<std::string>> select_list_name;
+
+  for (const auto &col : subquery->select_list_) {
+    switch (col->type_) {
+      case ExpressionType::COLUMN_REF: {
+        const auto &column_ref_expr = dynamic_cast<const BoundColumnRef &>(*col);
+        select_list_name.push_back(column_ref_expr.col_name_);
+        continue;
+      }
+      case ExpressionType::ALIAS: {
+        const auto &alias_expr = dynamic_cast<const BoundAlias &>(*col);
+        select_list_name.push_back(std::vector{alias_expr.alias_});
+        continue;
+      }
+      default:
+        select_list_name.push_back(std::vector{fmt::format("__item#{}", universal_id_++)});
+        continue;
+    }
+  }
+
+  if (root->alias != nullptr) {
+    return std::make_unique<BoundSubqueryRef>(std::move(subquery), std::move(select_list_name),
+                                              std::string(root->alias->aliasname));
+  }
+  return std::make_unique<BoundSubqueryRef>(std::move(subquery), std::move(select_list_name),
+                                            fmt::format("__subquery#{}", universal_id_++));
 }
 
 auto Binder::BindSelect(duckdb_libpgquery::PGSelectStmt *pg_stmt) -> std::unique_ptr<SelectStatement> {
@@ -242,7 +267,11 @@ auto Binder::BindTableRef(duckdb_libpgquery::PGNode *node) -> std::unique_ptr<Bo
       if (table_info == nullptr) {
         throw bustub::Exception(fmt::format("invalid table {}", table_ref->relname));
       }
-      return std::make_unique<BoundBaseTableRef>(table_ref->relname, table_info->schema_);
+      if (table_ref->alias != nullptr) {
+        return std::make_unique<BoundBaseTableRef>(table_ref->relname, std::make_optional(table_ref->alias->aliasname),
+                                                   table_info->schema_);
+      }
+      return std::make_unique<BoundBaseTableRef>(table_ref->relname, std::nullopt, table_info->schema_);
     }
     case duckdb_libpgquery::T_PGJoinExpr: {
       return BindJoin(reinterpret_cast<duckdb_libpgquery::PGJoinExpr *>(node));
@@ -259,11 +288,11 @@ auto Binder::GetAllColumns(const BoundTableRef &scope) -> std::vector<std::uniqu
   switch (scope.type_) {
     case TableReferenceType::BASE_TABLE: {
       const auto &base_table_ref = dynamic_cast<const BoundBaseTableRef &>(scope);
-      const auto &table_name = base_table_ref.table_;
+      auto bound_table_name = base_table_ref.GetBoundTableName();
       const auto &schema = base_table_ref.schema_;
       auto columns = std::vector<std::unique_ptr<BoundExpression>>{};
       for (const auto &column : schema.GetColumns()) {
-        columns.push_back(std::make_unique<BoundColumnRef>(std::vector{table_name, column.GetName()}));
+        columns.push_back(std::make_unique<BoundColumnRef>(std::vector{bound_table_name, column.GetName()}));
       }
       return columns;
     }
@@ -281,6 +310,14 @@ auto Binder::GetAllColumns(const BoundTableRef &scope) -> std::vector<std::uniqu
       auto append_columns = GetAllColumns(*join_ref.right_);
       std::copy(std::make_move_iterator(append_columns.begin()), std::make_move_iterator(append_columns.end()),
                 std::back_inserter(columns));
+      return columns;
+    }
+    case TableReferenceType::SUBQUERY: {
+      const auto &subquery_ref = dynamic_cast<const BoundSubqueryRef &>(scope);
+      auto columns = std::vector<std::unique_ptr<BoundExpression>>{};
+      for (const auto &col_name : subquery_ref.select_list_name_) {
+        columns.emplace_back(BoundColumnRef::Prepend(std::make_unique<BoundColumnRef>(col_name), subquery_ref.alias_));
+      }
       return columns;
     }
     default:
@@ -365,15 +402,7 @@ auto Binder::BindColumnRef(duckdb_libpgquery::PGColumnRef *node) -> std::unique_
       for (auto node = fields->head; node != nullptr; node = node->next) {
         column_names.emplace_back(reinterpret_cast<duckdb_libpgquery::PGValue *>(node->data.ptr_value)->val.str);
       }
-      if (column_names.size() == 1) {
-        // Bind `SELECT col`.
-        return ResolveColumn(*scope_, column_names);
-      }
-      if (column_names.size() == 2) {
-        // Bind `SELECT table.col`.
-        return ResolveColumn(*scope_, column_names);
-      }
-      throw bustub::Exception(fmt::format("unsupported ColumnRef: zero or multiple elements found"));
+      return ResolveColumn(*scope_, column_names);
     }
     case duckdb_libpgquery::T_PGAStar: {
       return BindStar(reinterpret_cast<duckdb_libpgquery::PGAStar *>(head_node));
@@ -428,19 +457,57 @@ auto Binder::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_pt
   throw bustub::Exception(fmt::format("unsupported func call {}", function_name));
 }
 
-static auto MatchTableColumn(const std::vector<std::string> &col_name, const std::string &table_name,
-                             const Column &column) -> std::unique_ptr<BoundColumnRef> {
-  auto table_col_name = column.GetName();
-  if (col_name.size() == 1) {
-    if (StringUtil::Lower(table_col_name) == col_name[0]) {
-      return std::make_unique<BoundColumnRef>(std::vector<std::string>{table_name, table_col_name});
-    }
-  } else if (col_name.size() == 2) {
-    if (StringUtil::Lower(table_name) == col_name[0] && StringUtil::Lower(table_col_name) == col_name[1]) {
-      return std::make_unique<BoundColumnRef>(std::vector<std::string>{table_name, table_col_name});
+/**
+ * @brief Get `BoundColumnRef` from the schema.
+ */
+static auto ResolveColumnRefFromSchema(const Schema &schema, const std::vector<std::string> &col_name)
+    -> std::unique_ptr<BoundColumnRef> {
+  if (col_name.size() != 1) {
+    return nullptr;
+  }
+  std::unique_ptr<BoundColumnRef> column_ref = nullptr;
+  for (const auto &column : schema.GetColumns()) {
+    if (StringUtil::Lower(column.GetName()) == col_name[0]) {
+      if (column_ref != nullptr) {
+        throw Exception(fmt::format("{} is ambiguous in schema", fmt::join(col_name, ".")));
+      }
+      column_ref = std::make_unique<BoundColumnRef>(std::vector{column.GetName()});
     }
   }
-  return nullptr;
+  return column_ref;
+}
+
+/**
+ * @brief Get `BoundColumnRef` from the table. Returns something like `alias.column` or `table_name.column`.
+ */
+static auto ResolveColumnRefFromBaseTableRef(const BoundBaseTableRef &table_ref,
+                                             const std::vector<std::string> &col_name)
+    -> std::unique_ptr<BoundColumnRef> {
+  auto bound_table_name = table_ref.GetBoundTableName();
+  // Firstly, try directly resolve the column name through schema
+  std::unique_ptr<BoundColumnRef> direct_resolved_expr =
+      BoundColumnRef::Prepend(ResolveColumnRefFromSchema(table_ref.schema_, col_name), bound_table_name);
+
+  std::unique_ptr<BoundColumnRef> strip_resolved_expr = nullptr;
+
+  // Then, try strip the prefix and match again
+  if (col_name.size() > 1) {
+    // Strip alias and resolve again
+    if (col_name[0] == bound_table_name) {
+      auto strip_column_name = col_name;
+      strip_column_name.erase(strip_column_name.begin());
+      strip_resolved_expr =
+          BoundColumnRef::Prepend(ResolveColumnRefFromSchema(table_ref.schema_, strip_column_name), *table_ref.alias_);
+    }
+  }
+
+  if (strip_resolved_expr != nullptr && direct_resolved_expr != nullptr) {
+    throw bustub::Exception(fmt::format("{} is ambiguous in table {}", fmt::join(col_name, "."), table_ref.table_));
+  }
+  if (strip_resolved_expr != nullptr) {
+    return strip_resolved_expr;
+  }
+  return direct_resolved_expr;
 }
 
 static auto MatchSuffix(const std::vector<std::string> &suffix, const std::vector<std::string> &full_name) -> bool {
@@ -455,21 +522,55 @@ static auto MatchSuffix(const std::vector<std::string> &suffix, const std::vecto
   return std::equal(suffix.rbegin(), suffix.rend(), lowercase_full_name.rbegin());
 }
 
+static auto ResolveColumnRefFromSelectList(const std::vector<std::vector<std::string>> &subquery_select_list,
+                                           const std::vector<std::string> &col_name)
+    -> std::unique_ptr<BoundColumnRef> {
+  std::unique_ptr<BoundColumnRef> column_ref = nullptr;
+  for (const auto &column : subquery_select_list) {
+    if (MatchSuffix(col_name, column)) {
+      if (column_ref != nullptr) {
+        throw Exception(fmt::format("{} is ambiguous in subquery select list", fmt::join(col_name, ".")));
+      }
+      column_ref = std::make_unique<BoundColumnRef>(column);
+    }
+  }
+  return column_ref;
+}
+
+static auto ResolveColumnRefFromSubqueryRef(const BoundSubqueryRef &subquery_ref,
+                                            const std::vector<std::string> &col_name) {
+  // Firstly, try directly resolve the column name through schema
+  std::unique_ptr<BoundColumnRef> direct_resolved_expr = BoundColumnRef::Prepend(
+      ResolveColumnRefFromSelectList(subquery_ref.select_list_name_, col_name), subquery_ref.alias_);
+
+  std::unique_ptr<BoundColumnRef> strip_resolved_expr = nullptr;
+
+  // Then, try strip the prefix and match again
+  if (col_name.size() > 1) {
+    if (col_name[0] == subquery_ref.alias_) {
+      auto strip_column_name = col_name;
+      strip_column_name.erase(strip_column_name.begin());
+      strip_resolved_expr = BoundColumnRef::Prepend(
+          ResolveColumnRefFromSelectList(subquery_ref.select_list_name_, strip_column_name), subquery_ref.alias_);
+    }
+  }
+
+  if (strip_resolved_expr != nullptr && direct_resolved_expr != nullptr) {
+    throw bustub::Exception(
+        fmt::format("{} is ambiguous in subquery {}", fmt::join(col_name, "."), subquery_ref.alias_));
+  }
+  if (strip_resolved_expr != nullptr) {
+    return strip_resolved_expr;
+  }
+  return direct_resolved_expr;
+}
+
 static auto ResolveColumnInternal(const BoundTableRef &table_ref, const std::vector<std::string> &col_name)
     -> std::unique_ptr<BoundExpression> {
   switch (table_ref.type_) {
     case TableReferenceType::BASE_TABLE: {
       const auto &base_table_ref = dynamic_cast<const BoundBaseTableRef &>(table_ref);
-      // TODO(chi): handle case-insensitive table / column names
-      const auto &table_name = base_table_ref.table_;
-      auto expr = std::make_unique<BoundExpression>();
-      for (const auto &column : base_table_ref.schema_.GetColumns()) {
-        auto expr = MatchTableColumn(col_name, table_name, column);
-        if (expr != nullptr) {
-          return expr;
-        }
-      }
-      return nullptr;
+      return ResolveColumnRefFromBaseTableRef(base_table_ref, col_name);
     }
     case TableReferenceType::CROSS_PRODUCT: {
       const auto &cross_product_ref = dynamic_cast<const BoundCrossProductRef &>(table_ref);
@@ -497,37 +598,7 @@ static auto ResolveColumnInternal(const BoundTableRef &table_ref, const std::vec
     }
     case TableReferenceType::SUBQUERY: {
       const auto &subquery_ref = dynamic_cast<const BoundSubqueryRef &>(table_ref);
-
-      // Match column name with a column within subquery.
-      // TODO(chi): throw a warning when ambiguous.
-      for (const auto &col : subquery_ref.subquery_->select_list_) {
-        switch (col->type_) {
-          case ExpressionType::COLUMN_REF: {
-            const auto &column_ref_expr = dynamic_cast<const BoundColumnRef &>(*col);
-
-            // `full_col_name` will be `subquery.x.y.z`.
-            auto full_col_name = std::vector(column_ref_expr.col_name_);
-            full_col_name.insert(full_col_name.begin(), subquery_ref.alias_);
-
-            if (MatchSuffix(col_name, full_col_name)) {
-              return std::make_unique<BoundColumnRef>(std::move(full_col_name));
-            }
-            continue;
-          }
-          case ExpressionType::ALIAS: {
-            const auto &alias_expr = dynamic_cast<const BoundAlias &>(*col);
-            if (MatchSuffix(col_name, {subquery_ref.alias_, alias_expr.alias_})) {
-              // Return BoundColumnRef as `<subquery_alias>.<expr_alias>`.
-              return std::make_unique<BoundColumnRef>(std::vector<std::string>{subquery_ref.alias_, alias_expr.alias_});
-            }
-            continue;
-          }
-          default:
-            // Do not match unnamed columns
-            continue;
-        }
-      }
-      return nullptr;
+      return ResolveColumnRefFromSubqueryRef(subquery_ref, col_name);
     }
     default:
       throw bustub::Exception("unsupported TableReferenceType");
