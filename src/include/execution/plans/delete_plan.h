@@ -33,8 +33,8 @@ class DeletePlanNode : public AbstractPlanNode {
    * @param child The child plan to obtain tuple from
    * @param table_oid The identifier of the table from which tuples are deleted
    */
-  DeletePlanNode(AbstractPlanNodeRef child, table_oid_t table_oid)
-      : AbstractPlanNode(nullptr, {std::move(child)}), table_oid_{table_oid} {}
+  DeletePlanNode(SchemaRef output, AbstractPlanNodeRef child, table_oid_t table_oid)
+      : AbstractPlanNode(std::move(output), {std::move(child)}), table_oid_{table_oid} {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::Delete; }

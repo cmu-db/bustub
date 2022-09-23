@@ -496,8 +496,8 @@ static auto ResolveColumnRefFromBaseTableRef(const BoundBaseTableRef &table_ref,
     if (col_name[0] == bound_table_name) {
       auto strip_column_name = col_name;
       strip_column_name.erase(strip_column_name.begin());
-      strip_resolved_expr =
-          BoundColumnRef::Prepend(ResolveColumnRefFromSchema(table_ref.schema_, strip_column_name), *table_ref.alias_);
+      auto x = ResolveColumnRefFromSchema(table_ref.schema_, strip_column_name);
+      strip_resolved_expr = BoundColumnRef::Prepend(std::move(x), bound_table_name);
     }
   }
 
