@@ -271,7 +271,7 @@ set(P2_FILES
         "src/include/storage/page/b_plus_tree_leaf_page.h"
         "src/storage/page/b_plus_tree_leaf_page.cpp"
         "src/include/storage/index/index_iterator.h"
-        "src/index/storage/index_iterator.cpp"
+        "src/storage/index/index_iterator.cpp"
         "src/include/storage/index/b_plus_tree.h"
         "src/storage/index/b_plus_tree.cpp"
         ${P1_FILES}
