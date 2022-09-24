@@ -54,13 +54,15 @@ class NestedLoopJoinPlanNode : public AbstractPlanNode {
 
   static auto InferJoinSchema(const AbstractPlanNode &left, const AbstractPlanNode &right) -> Schema;
 
+  BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(NestedLoopJoinPlanNode);
+
  private:
   /** The join predicate */
   AbstractExpressionRef predicate_;
 
  protected:
   auto PlanNodeToString() const -> std::string override {
-    return fmt::format("NestedLoopJoin {{ predicate={} }}", *predicate_);
+    return fmt::format("NestedLoopJoin {{ predicate={} }}", predicate_);
   }
 };
 

@@ -21,6 +21,14 @@
 #include "fmt/format.h"
 #include "storage/table/tuple.h"
 
+#define BUSTUB_EXPR_CLONE_WITH_CHILDREN(cname)                                                                   \
+  auto CloneWithChildren(std::vector<AbstractExpressionRef> children) const->std::unique_ptr<AbstractExpression> \
+      override {                                                                                                 \
+    auto expr = cname(*this);                                                                                    \
+    expr.children_ = children;                                                                                   \
+    return std::make_unique<cname>(std::move(expr));                                                             \
+  }
+
 namespace bustub {
 
 class AbstractExpression;
@@ -69,9 +77,14 @@ class AbstractExpression {
   /** @return the string representation of the plan node and its children */
   virtual auto ToString() const -> std::string { return "<unknown>"; }
 
- private:
+  /** @return a new expression with new children */
+  virtual auto CloneWithChildren(std::vector<AbstractExpressionRef> children) const
+      -> std::unique_ptr<AbstractExpression> = 0;
+
   /** The children of this expression. Note that the order of appearance of children may matter. */
   std::vector<AbstractExpressionRef> children_;
+
+ private:
   /** The return type of this expression. */
   TypeId ret_type_;
 };

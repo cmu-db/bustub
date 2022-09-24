@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "catalog/column.h"
+#include "common/exception.h"
 #include "type/type.h"
 
 namespace bustub {

@@ -93,14 +93,14 @@ auto Planner::PlanBaseTableRef(const BoundBaseTableRef &table_ref) -> AbstractPl
   if (StringUtil::StartsWith(table->name_, "__")) {
     // Plan as MockScanExecutor if it is a mock table.
     if (StringUtil::StartsWith(table->name_, "__mock")) {
-      return std::make_shared<MockScanPlanNode>(std::make_shared<Schema>(SeqScanPlanNode::InferScanSchema(*table)), 100,
-                                                table->name_);
+      return std::make_shared<MockScanPlanNode>(std::make_shared<Schema>(SeqScanPlanNode::InferScanSchema(table_ref)),
+                                                100, table->name_);
     }
     throw bustub::Exception(fmt::format("unsupported internal table: {}", table->name_));
   }
   // Otherwise, plan as normal SeqScan.
-  return std::make_shared<SeqScanPlanNode>(std::make_shared<Schema>(SeqScanPlanNode::InferScanSchema(*table)), nullptr,
-                                           table->oid_);
+  return std::make_shared<SeqScanPlanNode>(std::make_shared<Schema>(SeqScanPlanNode::InferScanSchema(table_ref)),
+                                           nullptr, table->oid_);
 }
 
 auto Planner::PlanCrossProductRef(const BoundCrossProductRef &table_ref) -> AbstractPlanNodeRef {
