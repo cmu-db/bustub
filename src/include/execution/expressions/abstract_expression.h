@@ -95,7 +95,7 @@ template <typename T>
 struct fmt::formatter<T, std::enable_if_t<std::is_base_of<bustub::AbstractExpression, T>::value, char>>
     : fmt::formatter<std::string> {
   template <typename FormatCtx>
-  auto format(const bustub::AbstractExpression &x, FormatCtx &ctx) const {
+  auto format(const T &x, FormatCtx &ctx) const {
     return fmt::formatter<std::string>::format(x.ToString(), ctx);
   }
 };

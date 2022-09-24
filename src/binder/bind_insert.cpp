@@ -1,25 +1,3 @@
-//===----------------------------------------------------------------------===//
-// Copyright 2018-2022 Stichting DuckDB Foundation
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-
-// The above copyright notice and this permission notice (including the next paragraph)
-// shall be included in all copies or substantial portions of the Software.
-
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//===----------------------------------------------------------------------===//
-
 #include <iterator>
 #include <memory>
 #include <string>
@@ -28,11 +6,14 @@
 #include "binder/bound_expression.h"
 #include "binder/bound_order_by.h"
 #include "binder/bound_table_ref.h"
+#include "binder/expressions/bound_constant.h"
+#include "binder/statement/delete_statement.h"
 #include "binder/statement/insert_statement.h"
 #include "binder/statement/select_statement.h"
 #include "common/exception.h"
 #include "common/util/string_util.h"
 #include "nodes/parsenodes.hpp"
+#include "type/value_factory.h"
 
 namespace bustub {
 
@@ -51,6 +32,20 @@ auto Binder::BindInsert(duckdb_libpgquery::PGInsertStmt *pg_stmt) -> std::unique
   auto select_statement = BindSelect(reinterpret_cast<duckdb_libpgquery::PGSelectStmt *>(pg_stmt->selectStmt));
 
   return std::make_unique<InsertStatement>(table_name, std::move(select_statement));
+}
+
+auto Binder::BindDelete(duckdb_libpgquery::PGDeleteStmt *stmt) -> std::unique_ptr<DeleteStatement> {
+  auto table = BindRangeVar(stmt->relation);
+  auto ctx_guard = NewContext();
+  scope_ = table.get();
+  std::unique_ptr<BoundExpression> expr = nullptr;
+  if (stmt->whereClause != nullptr) {
+    expr = BindExpression(stmt->whereClause);
+  } else {
+    expr = std::make_unique<BoundConstant>(ValueFactory::GetBooleanValue(true));
+  }
+
+  return std::make_unique<DeleteStatement>(std::move(table), std::move(expr));
 }
 
 }  // namespace bustub

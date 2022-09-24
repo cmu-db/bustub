@@ -20,6 +20,7 @@
 // THE SOFTWARE.
 //===----------------------------------------------------------------------===//
 
+#include <memory>
 #include "binder/binder.h"
 #include "binder/bound_expression.h"
 #include "binder/bound_order_by.h"
@@ -27,6 +28,7 @@
 #include "binder/statement/create_statement.h"
 #include "binder/statement/delete_statement.h"
 #include "binder/statement/explain_statement.h"
+#include "binder/statement/index_statement.h"
 #include "binder/statement/insert_statement.h"
 #include "binder/statement/select_statement.h"
 #include "binder/table_ref/bound_base_table_ref.h"
@@ -68,8 +70,9 @@ auto Binder::TransformStatement(duckdb_libpgquery::PGNode *stmt) -> std::unique_
     case duckdb_libpgquery::T_PGExplainStmt:
       return BindExplain(reinterpret_cast<duckdb_libpgquery::PGExplainStmt *>(stmt));
     case duckdb_libpgquery::T_PGDeleteStmt:
-      return std::make_unique<DeleteStatement>(reinterpret_cast<duckdb_libpgquery::PGDeleteStmt *>(stmt));
+      return BindDelete(reinterpret_cast<duckdb_libpgquery::PGDeleteStmt *>(stmt));
     case duckdb_libpgquery::T_PGIndexStmt:
+      return BindIndex(reinterpret_cast<duckdb_libpgquery::PGIndexStmt *>(stmt));
     case duckdb_libpgquery::T_PGUpdateStmt:
     default:
       throw NotImplementedException(NodeTagToString(stmt->type));

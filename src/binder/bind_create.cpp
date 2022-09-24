@@ -33,6 +33,7 @@
 #include "binder/expressions/bound_star.h"
 #include "binder/expressions/bound_unary_op.h"
 #include "binder/statement/create_statement.h"
+#include "binder/statement/index_statement.h"
 #include "binder/statement/select_statement.h"
 #include "binder/table_ref/bound_base_table_ref.h"
 #include "binder/table_ref/bound_cross_product_ref.h"
@@ -112,6 +113,23 @@ auto Binder::BindCreate(duckdb_libpgquery::PGCreateStmt *pg_stmt) -> std::unique
   }
 
   return std::make_unique<CreateStatement>(std::move(table), std::move(columns));
+}
+
+auto Binder::BindIndex(duckdb_libpgquery::PGIndexStmt *stmt) -> std::unique_ptr<IndexStatement> {
+  std::vector<std::unique_ptr<BoundColumnRef>> cols;
+  auto table = BindBaseTableRef(stmt->relation->relname, std::nullopt);
+
+  for (auto cell = stmt->indexParams->head; cell != nullptr; cell = cell->next) {
+    auto index_element = reinterpret_cast<duckdb_libpgquery::PGIndexElem *>(cell->data.ptr_value);
+    if (index_element->name != nullptr) {
+      auto column_ref = ResolveColumn(*table, std::vector{std::string(index_element->name)});
+      cols.emplace_back(std::make_unique<BoundColumnRef>(dynamic_cast<const BoundColumnRef &>(*column_ref)));
+    } else {
+      throw NotImplementedException("create index by expr is not supported yet");
+    }
+  }
+
+  return std::make_unique<IndexStatement>(stmt->idxname, std::move(table), std::move(cols));
 }
 
 }  // namespace bustub
