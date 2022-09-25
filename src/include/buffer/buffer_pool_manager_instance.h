@@ -110,7 +110,7 @@ class BufferPoolManagerInstance : public BufferPoolManager {
    *
    * @brief Flush the target page to disk.
    *
-   * Use the DiskManager::WritePage() method to flush a page to disk.
+   * Use the DiskManager::WritePage() method to flush a page to disk, REGARDLESS of the dirty flag.
    * Unset the dirty flag of the page after flushing.
    *
    * @param page_id id of page to be flushed, cannot be INVALID_PAGE_ID
