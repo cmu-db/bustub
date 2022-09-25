@@ -46,7 +46,7 @@ TEST(BPlusTreeTests, DISABLED_InsertTest1) {
   tree.Insert(index_key, rid, transaction);
 
   auto root_page_id = tree.GetRootPageId();
-  auto root_page = reinterpret_cast<BPlusTreePage *>(bpm->FetchPage(root_page_id));
+  auto root_page = reinterpret_cast<BPlusTreePage *>(bpm->FetchPage(root_page_id)->GetData());
   ASSERT_NE(root_page, nullptr);
   ASSERT_TRUE(root_page->IsLeafPage());
 

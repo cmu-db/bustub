@@ -90,6 +90,12 @@ auto BPLUSTREE_TYPE::Begin(const KeyType &key) -> INDEXITERATOR_TYPE { return IN
 INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::End() -> INDEXITERATOR_TYPE { return INDEXITERATOR_TYPE(); }
 
+/**
+ * @return Page id of the root of this tree
+ */
+INDEX_TEMPLATE_ARGUMENTS
+auto BPLUSTREE_TYPE::GetRootPageId() -> page_id_t { return 0; }
+
 /*****************************************************************************
  * UTILITIES AND DEBUG
  *****************************************************************************/

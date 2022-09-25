@@ -54,6 +54,9 @@ class BPlusTree {
   // return the value associated with a given key
   auto GetValue(const KeyType &key, std::vector<ValueType> *result, Transaction *transaction = nullptr) -> bool;
 
+  // return the page id of the root node
+  auto GetRootPageId() -> page_id_t;
+
   // index iterator
   auto Begin() -> INDEXITERATOR_TYPE;
   auto Begin(const KeyType &key) -> INDEXITERATOR_TYPE;
