@@ -7,7 +7,8 @@ auto Optimizer::Optimize(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef
   auto p1 = OptimizeMergeProjection(plan);
   auto p2 = OptimizeMergeFilterNLJ(p1);
   auto p3 = OptimizeNLJAsHashJoin(p2);
-  return p3;
+  auto p4 = OptimizeOrderByAsIndexScan(p3);
+  return p4;
 }
 
 }  // namespace bustub

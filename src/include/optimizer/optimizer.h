@@ -58,10 +58,15 @@ class Optimizer {
   /** @brief check if the predicate is true::boolean */
   auto IsPredicateTrue(const AbstractExpression &expr) -> bool;
 
+  /**
+   * @brief optimize order by as index scan if there's an index on a table
+   */
+  auto OptimizeOrderByAsIndexScan(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef;
+
   /** Catalog will be used during the planning process. USERS SHOULD ENSURE IT OUTLIVES
    * OPTIMIZER, otherwise it's a dangling reference.
    */
-  [[maybe_unused]] const Catalog &catalog_;
+  const Catalog &catalog_;
 };
 
 }  // namespace bustub

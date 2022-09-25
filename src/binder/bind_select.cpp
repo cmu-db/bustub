@@ -25,6 +25,7 @@
 #include "binder/tokens.h"
 #include "catalog/catalog.h"
 #include "common/exception.h"
+#include "common/macros.h"
 #include "common/util/string_util.h"
 #include "fmt/core.h"
 #include "fmt/format.h"
@@ -265,7 +266,8 @@ auto Binder::BindBaseTableRef(std::string table_name, std::optional<std::string>
   if (table_info == nullptr) {
     throw bustub::Exception(fmt::format("invalid table {}", table_name));
   }
-  return std::make_unique<BoundBaseTableRef>(std::move(table_name), std::move(alias), table_info->schema_);
+  return std::make_unique<BoundBaseTableRef>(std::move(table_name), table_info->oid_, std::move(alias),
+                                             table_info->schema_);
 }
 
 auto Binder::BindRangeVar(duckdb_libpgquery::PGRangeVar *table_ref) -> std::unique_ptr<BoundBaseTableRef> {
@@ -384,7 +386,7 @@ auto Binder::BindConstant(duckdb_libpgquery::PGAConst *node) -> std::unique_ptr<
   const auto &val = node->val;
   switch (val.type) {
     case duckdb_libpgquery::T_PGInteger: {
-      BUSTUB_ASSERT(val.val.ival <= BUSTUB_INT32_MAX, "value out of range");
+      BUSTUB_ENSURE(val.val.ival <= BUSTUB_INT32_MAX, "value out of range");
       return std::make_unique<BoundConstant>(ValueFactory::GetIntegerValue(static_cast<int32_t>(val.val.ival)));
     }
     case duckdb_libpgquery::T_PGString: {

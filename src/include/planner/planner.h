@@ -18,6 +18,7 @@ namespace bustub {
 
 class BoundStatement;
 class SelectStatement;
+class DeleteStatement;
 class AbstractPlanNode;
 class InsertStatement;
 class BoundExpression;
@@ -119,6 +120,8 @@ class Planner {
       -> std::tuple<AggregationType, AbstractExpressionRef>;
 
   auto PlanInsert(const InsertStatement &statement) -> AbstractPlanNodeRef;
+
+  auto PlanDelete(const DeleteStatement &statement) -> AbstractPlanNodeRef;
 
   /** the root plan node of the plan tree */
   AbstractPlanNodeRef plan_;

@@ -22,16 +22,15 @@ auto Binder::BindInsert(duckdb_libpgquery::PGInsertStmt *pg_stmt) -> std::unique
     throw NotImplementedException("insert only supports all columns, don't specify columns");
   }
 
-  auto table_name = std::string(pg_stmt->relation->relname);
+  auto table = BindRangeVar(pg_stmt->relation);
 
-  auto table_info = catalog_.GetTable(table_name);
-  if (table_info == nullptr || StringUtil::StartsWith(table_name, "__")) {
-    throw bustub::Exception(fmt::format("invalid table for insert: {}", table_name));
+  if (StringUtil::StartsWith(table->table_, "__")) {
+    throw bustub::Exception(fmt::format("invalid table for insert: {}", table->table_));
   }
 
   auto select_statement = BindSelect(reinterpret_cast<duckdb_libpgquery::PGSelectStmt *>(pg_stmt->selectStmt));
 
-  return std::make_unique<InsertStatement>(table_name, std::move(select_statement));
+  return std::make_unique<InsertStatement>(std::move(table), std::move(select_statement));
 }
 
 auto Binder::BindDelete(duckdb_libpgquery::PGDeleteStmt *stmt) -> std::unique_ptr<DeleteStatement> {

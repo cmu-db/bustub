@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <string>
 #include <utility>
 
 #include "catalog/catalog.h"
@@ -49,6 +50,9 @@ class DeletePlanNode : public AbstractPlanNode {
   }
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(DeletePlanNode);
+
+ protected:
+  auto PlanNodeToString() const -> std::string override { return fmt::format("Delete {{ table_oid={} }}", table_oid_); }
 
  private:
   /** The identifier of the table from which tuples are deleted */

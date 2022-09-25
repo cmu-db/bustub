@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <string>
 #include <utility>
 
 #include "catalog/catalog.h"
@@ -31,22 +32,22 @@ class IndexScanPlanNode : public AbstractPlanNode {
    * nullptr
    * @param table_oid the identifier of table to be scanned
    */
-  IndexScanPlanNode(SchemaRef output, AbstractExpressionRef predicate, index_oid_t index_oid)
-      : AbstractPlanNode(std::move(output), {}), predicate_{std::move(predicate)}, index_oid_(index_oid) {}
+  IndexScanPlanNode(SchemaRef output, index_oid_t index_oid)
+      : AbstractPlanNode(std::move(output), {}), index_oid_(index_oid) {}
 
   auto GetType() const -> PlanType override { return PlanType::IndexScan; }
-
-  /** @return the predicate to test tuples against; tuples should only be returned if they evaluate to true */
-  auto GetPredicate() const -> AbstractExpressionRef { return predicate_; }
 
   /** @return the identifier of the table that should be scanned */
   auto GetIndexOid() const -> index_oid_t { return index_oid_; }
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(IndexScanPlanNode);
 
+ protected:
+  auto PlanNodeToString() const -> std::string override {
+    return fmt::format("IndexScan {{ index_oid={} }}", index_oid_);
+  }
+
  private:
-  /** The predicate that all returned tuples must satisfy. */
-  AbstractExpressionRef predicate_;
   /** The table whose tuples should be scanned. */
   index_oid_t index_oid_;
 };
