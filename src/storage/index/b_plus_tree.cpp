@@ -49,53 +49,6 @@ INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::Insert(const KeyType &key, const ValueType &value, Transaction *transaction) -> bool {
   return false;
 }
-/*
- * Insert constant key & value pair into an empty tree
- * User needs to first ask for new page from buffer pool manager(NOTICE: throw
- * an "out of memory" exception if returned value is nullptr), then update b+
- * tree's root page id and insert entry directly into leaf page.
- */
-INDEX_TEMPLATE_ARGUMENTS
-void BPLUSTREE_TYPE::StartNewTree(const KeyType &key, const ValueType &value) {}
-
-/*
- * Insert constant key & value pair into leaf page
- * User needs to first find the right leaf page as insertion target, then look
- * through leaf page to see whether insert key exist or not. If exist, return
- * immdiately, otherwise insert entry. Remember to deal with split if necessary.
- * @return: since we only support unique key, if user try to insert duplicate
- * keys return false, otherwise return true.
- */
-INDEX_TEMPLATE_ARGUMENTS
-auto BPLUSTREE_TYPE::InsertIntoLeaf(const KeyType &key, const ValueType &value, Transaction *transaction) -> bool {
-  return false;
-}
-
-/*
- * Split input page and return newly created page.
- * Using template N to represent either internal page or leaf page.
- * User needs to first ask for new page from buffer pool manager(NOTICE: throw
- * an "out of memory" exception if returned value is nullptr), then move half
- * of key & value pairs from input page to newly created page
- */
-INDEX_TEMPLATE_ARGUMENTS
-template <typename N>
-auto BPLUSTREE_TYPE::Split(N *node) -> N * {
-  return nullptr;
-}
-
-/*
- * Insert key & value pair into internal page after split
- * @param   old_node      input page from split() method
- * @param   key
- * @param   new_node      returned page from split() method
- * User needs to first find the parent page of old_node, parent node must be
- * adjusted to take info of new_node into account. Remember to deal with split
- * recursively if necessary.
- */
-INDEX_TEMPLATE_ARGUMENTS
-void BPLUSTREE_TYPE::InsertIntoParent(BPlusTreePage *old_node, const KeyType &key, BPlusTreePage *new_node,
-                                      Transaction *transaction) {}
 
 /*****************************************************************************
  * REMOVE
@@ -109,64 +62,6 @@ void BPLUSTREE_TYPE::InsertIntoParent(BPlusTreePage *old_node, const KeyType &ke
  */
 INDEX_TEMPLATE_ARGUMENTS
 void BPLUSTREE_TYPE::Remove(const KeyType &key, Transaction *transaction) {}
-
-/*
- * User needs to first find the sibling of input page. If sibling's size + input
- * page's size > page's max size, then redistribute. Otherwise, merge.
- * Using template N to represent either internal page or leaf page.
- * @return: true means target leaf page should be deleted, false means no
- * deletion happens
- */
-INDEX_TEMPLATE_ARGUMENTS
-template <typename N>
-auto BPLUSTREE_TYPE::CoalesceOrRedistribute(N *node, Transaction *transaction) -> bool {
-  return false;
-}
-
-/*
- * Move all the key & value pairs from one page to its sibling page, and notify
- * buffer pool manager to delete this page. Parent page must be adjusted to
- * take info of deletion into account. Remember to deal with coalesce or
- * redistribute recursively if necessary.
- * Using template N to represent either internal page or leaf page.
- * @param   neighbor_node      sibling page of input "node"
- * @param   node               input from method coalesceOrRedistribute()
- * @param   parent             parent page of input "node"
- * @return  true means parent node should be deleted, false means no deletion
- * happend
- */
-INDEX_TEMPLATE_ARGUMENTS
-template <typename N>
-auto BPLUSTREE_TYPE::Coalesce(N **neighbor_node, N **node,
-                              BPlusTreeInternalPage<KeyType, page_id_t, KeyComparator> **parent, int index,
-                              Transaction *transaction) -> bool {
-  return false;
-}
-
-/*
- * Redistribute key & value pairs from one page to its sibling page. If index ==
- * 0, move sibling page's first key & value pair into end of input "node",
- * otherwise move sibling page's last key & value pair into head of input
- * "node".
- * Using template N to represent either internal page or leaf page.
- * @param   neighbor_node      sibling page of input "node"
- * @param   node               input from method coalesceOrRedistribute()
- */
-INDEX_TEMPLATE_ARGUMENTS
-template <typename N>
-void BPLUSTREE_TYPE::Redistribute(N *neighbor_node, N *node, int index) {}
-/*
- * Update root page if necessary
- * NOTE: size of root page can be less than min size and this method is only
- * called within coalesceOrRedistribute() method
- * case 1: when you delete the last element in root page, but root page still
- * has one last child
- * case 2: when you delete the last element in whole b+ tree
- * @return : true means root page should be deleted, false means no deletion
- * happend
- */
-INDEX_TEMPLATE_ARGUMENTS
-auto BPLUSTREE_TYPE::AdjustRoot(BPlusTreePage *old_root_node) -> bool { return false; }
 
 /*****************************************************************************
  * INDEX ITERATOR
@@ -195,18 +90,15 @@ auto BPLUSTREE_TYPE::Begin(const KeyType &key) -> INDEXITERATOR_TYPE { return IN
 INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::End() -> INDEXITERATOR_TYPE { return INDEXITERATOR_TYPE(); }
 
+/**
+ * @return Page id of the root of this tree
+ */
+INDEX_TEMPLATE_ARGUMENTS
+auto BPLUSTREE_TYPE::GetRootPageId() -> page_id_t { return 0; }
+
 /*****************************************************************************
  * UTILITIES AND DEBUG
  *****************************************************************************/
-/*
- * Find leaf page containing particular key, if leftMost flag == true, find
- * the left most leaf page
- */
-INDEX_TEMPLATE_ARGUMENTS
-auto BPLUSTREE_TYPE::FindLeafPage(const KeyType &key, bool leftMost) -> Page * {
-  throw Exception(ExceptionType::NOT_IMPLEMENTED, "Implement this for test");
-}
-
 /*
  * Update/Insert root page id in header page(where page_id = 0, header_page is
  * defined under include/page/header_page.h)
