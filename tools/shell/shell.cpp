@@ -6,13 +6,9 @@
 #include "common/util/string_util.h"
 #include "linenoise/linenoise.h"
 
+// NOLINTNEXTLINE
 auto main(int argc, char **argv) -> int {
   auto bustub = std::make_unique<bustub::BustubInstance>("test.db");
-
-  std::cout << "Note: This shell will be able to run `create table` only after you have completed the buffer pool "
-               "manager. It will be able to execute SQL queries after you have implemented necessary query executors."
-            << std::endl
-            << std::endl;
 
   auto default_prompt = "bustub> ";
   auto emoji_prompt = "\U0001f6c1> ";  // the bathtub emoji
@@ -30,9 +26,11 @@ auto main(int argc, char **argv) -> int {
     }
   }
 
-  // Generate test tables
-  // TODO(chi): remove after we finished bind / execute create table and insert.
   bustub->GenerateMockTable();
+
+  if (bustub->buffer_pool_manager_ != nullptr) {
+    bustub->GenerateTestTable();
+  }
 
   std::cout << "Welcome to the BusTub shell! Type \\help to learn more." << std::endl << std::endl;
 

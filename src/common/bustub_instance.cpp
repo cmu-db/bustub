@@ -11,11 +11,13 @@
 #include "catalog/table_generator.h"
 #include "common/enums/statement_type.h"
 #include "common/exception.h"
+#include "common/util/string_util.h"
 #include "concurrency/lock_manager.h"
 #include "execution/execution_engine.h"
 #include "execution/executor_context.h"
 #include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
+#include "fmt/core.h"
 #include "fmt/format.h"
 #include "optimizer/optimizer.h"
 #include "planner/planner.h"
@@ -76,16 +78,43 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
       }
       return {result};
     }
+    if (StringUtil::StartsWith(sql, "\\d ")) {
+      auto table_name = std::string(sql.cbegin() + 3, sql.cend());
+      auto table_info = catalog_->GetTable(table_name);
+      if (table_info == nullptr) {
+        return {"table not found"};
+      }
+      std::vector<std::string> info;
+      info.emplace_back(fmt::format("name={} oid={}", table_info->name_, table_info->oid_));
+      for (const auto &column : table_info->schema_.GetColumns()) {
+        info.emplace_back(fmt::format("  {}", column.ToString()));
+      }
+      auto index_info = catalog_->GetTableIndexes(table_name);
+      for (const auto *index : index_info) {
+        info.emplace_back(fmt::format("index_name={} oid={}", index->name_, index->index_oid_));
+        for (const auto &column : index->key_schema_.GetColumns()) {
+          info.emplace_back(fmt::format("  {}", column.ToString()));
+        }
+      }
+      return info;
+    }
     if (sql == "\\help") {
       return {"Welcome to the BusTub shell!\n",
               "",
               "\\dt: show all tables",
+              "\\d <table>: show info about a table",
               "\\help: show this message again",
               "",
               "BusTub shell currently only supports a small set of Postgres queries.",
               "We'll set up a doc describing the current status later.",
               "It will silently ignore some parts of the query, so it's normal that",
-              "you'll get a wrong result when executing unsupported SQL queries."};
+              "you'll get a wrong result when executing unsupported SQL queries.",
+              "",
+              "This shell will be able to run `create table` only after you have ",
+              "completed the buffer pool manager. It will be able to execute SQL ",
+              "queries after you have implemented necessary query executors.",
+              "",
+              "Use `explain` to see the execution plan of your query."};
     }
     throw Exception(fmt::format("unsupported internal command: {}", sql));
   }
