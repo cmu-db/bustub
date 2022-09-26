@@ -2,11 +2,13 @@
 
 #include <memory>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "catalog/catalog.h"
+#include "concurrency/transaction.h"
 #include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
 
@@ -44,9 +46,14 @@ class Optimizer {
   auto OptimizeNLJAsHashJoin(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef;
 
   /**
+   * @brief optimize nested loop join into index join.
+   */
+  auto OptimizeNLJAsIndexJoin(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef;
+
+  /**
    * @brief rewrite expression to be used in nested loop joins. e.g., if we have `SELECT * FROM a, b WHERE a.x = b.y`,
-   * we will have `#0.x = #0.y` in the filter plan node. We will need to figure out where does `0.x` and `0.y` belong in
-   * NLJ (left table or right table?), and rewrite it as `#0.x = #1.y`.
+   * we will have `#0.x = #0.y` in the filter plan node. We will need to figure out where does `0.x` and `0.y` belong
+   * in NLJ (left table or right table?), and rewrite it as `#0.x = #1.y`.
    *
    * @param expr the filter expression
    * @param left_column_cnt number of columns in the left size of the NLJ
@@ -62,6 +69,10 @@ class Optimizer {
    * @brief optimize order by as index scan if there's an index on a table
    */
   auto OptimizeOrderByAsIndexScan(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef;
+
+  /** @brief check if the index can be matched */
+  auto MatchIndex(const std::string &table_name, uint32_t index_key_idx)
+      -> std::optional<std::tuple<index_oid_t, std::string>>;
 
   /** Catalog will be used during the planning process. USERS SHOULD ENSURE IT OUTLIVES
    * OPTIMIZER, otherwise it's a dangling reference.
