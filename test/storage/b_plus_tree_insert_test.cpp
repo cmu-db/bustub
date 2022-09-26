@@ -37,11 +37,12 @@ TEST(BPlusTreeTests, DISABLED_InsertTest1) {
   // create and fetch header_page
   page_id_t page_id;
   auto header_page = bpm->NewPage(&page_id);
+  ASSERT_EQ(page_id, HEADER_PAGE_ID);
   (void)header_page;
 
   int64_t key = 42;
   int64_t value = key & 0xFFFFFFFF;
-  rid.Set(static_cast<int32_t>(key >> 32), value);
+  rid.Set(static_cast<int32_t>(key), value);
   index_key.SetFromInteger(key);
   tree.Insert(index_key, rid, transaction);
 
@@ -138,6 +139,7 @@ TEST(BPlusTreeTests, DISABLED_InsertTest3) {
   // create and fetch header_page
   page_id_t page_id;
   auto header_page = bpm->NewPage(&page_id);
+  ASSERT_EQ(page_id, HEADER_PAGE_ID);
   (void)header_page;
 
   std::vector<int64_t> keys = {5, 4, 3, 2, 1};
