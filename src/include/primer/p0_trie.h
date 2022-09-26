@@ -272,7 +272,7 @@ class Trie {
    * key. If key is empty or not found, return false.
    *
    * You should:
-   * 1) Find the terminal node for the given key.
+   * 1) Find the terminal node for the given key, toggle the is_end_ flag to false.
    * 2) If this terminal node does not have any children, remove it from its
    * parent's children_ map.
    * 3) Recursively remove nodes that have no children and is not terminal node
