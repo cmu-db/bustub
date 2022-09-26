@@ -63,11 +63,13 @@ auto Planner::PlanSubquery(const BoundSubqueryRef &table_ref) -> AbstractPlanNod
   std::vector<AbstractExpressionRef> exprs;
   size_t idx = 0;
 
-  // TODO(chi): this projection is solely used for change the column output name. It can be removed by the optimizer.
+  // This projection will be removed by eliminate projection rule. It's solely used for renaming columns.
   for (const auto &col : select_node->OutputSchema().GetColumns()) {
-    auto expr = std::make_shared<ColumnValueExpression>(0, idx++, col.GetType());
-    output_column_names.emplace_back(fmt::format("{}.{}", table_ref.alias_, col.GetName()));
+    auto expr = std::make_shared<ColumnValueExpression>(0, idx, col.GetType());
+    output_column_names.emplace_back(
+        fmt::format("{}.{}", table_ref.alias_, fmt::join(table_ref.select_list_name_[idx], ".")));
     exprs.push_back(std::move(expr));
+    idx++;
   }
 
   auto saved_child = std::move(select_node);

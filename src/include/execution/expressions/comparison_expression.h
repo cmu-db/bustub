@@ -49,7 +49,7 @@ class ComparisonExpression : public AbstractExpression {
     return ValueFactory::GetBooleanValue(PerformComparison(lhs, rhs));
   }
 
-  /** @return the string representation of the plan node and its children */
+  /** @return the string representation of the expression node and its children */
   auto ToString() const -> std::string override {
     return fmt::format("{}{}{}", *GetChildAt(0), comp_type_, *GetChildAt(1));
   }

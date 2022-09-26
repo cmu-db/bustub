@@ -153,6 +153,11 @@ class Planner {
    * CODE PATH OF `PlanQuery`, otherwise it's a dangling reference.
    */
   const Catalog &catalog_;
+
+  /** An id for all unnamed things */
+  size_t universal_id_{0};
 };
+
+static constexpr const char *const UNNAMED_COLUMN = "<unnamed>";
 
 }  // namespace bustub

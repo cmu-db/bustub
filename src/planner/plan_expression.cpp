@@ -12,16 +12,16 @@
 #include "common/macros.h"
 #include "common/util/string_util.h"
 #include "execution/expressions/abstract_expression.h"
+#include "execution/expressions/arithmetic_expression.h"
 #include "execution/expressions/column_value_expression.h"
 #include "execution/expressions/comparison_expression.h"
 #include "execution/expressions/constant_value_expression.h"
+#include "execution/expressions/logic_expression.h"
 #include "execution/plans/abstract_plan.h"
 #include "fmt/format.h"
 #include "planner/planner.h"
 
 namespace bustub {
-
-const char *unnamed_column = "<unnamed>";
 
 auto Planner::PlanBinaryOp(const BoundBinaryOp &expr, const std::vector<AbstractPlanNodeRef> &children)
     -> AbstractExpressionRef {
@@ -47,6 +47,18 @@ auto Planner::PlanBinaryOp(const BoundBinaryOp &expr, const std::vector<Abstract
   if (op_name == ">=") {
     return std::make_shared<ComparisonExpression>(std::move(left), std::move(right),
                                                   ComparisonType::GreaterThanOrEqual);
+  }
+  if (op_name == "+") {
+    return std::make_shared<ArithmeticExpression>(std::move(left), std::move(right), ArithmeticType::Plus);
+  }
+  if (op_name == "-") {
+    return std::make_shared<ArithmeticExpression>(std::move(left), std::move(right), ArithmeticType::Minus);
+  }
+  if (op_name == "and") {
+    return std::make_shared<LogicExpression>(std::move(left), std::move(right), LogicType::And);
+  }
+  if (op_name == "or") {
+    return std::make_shared<LogicExpression>(std::move(left), std::move(right), LogicType::Or);
   }
 
   throw Exception(fmt::format("binary op {} not supported in planner yet", op_name));
@@ -164,7 +176,7 @@ auto Planner::PlanExpression(const BoundExpression &expr, const std::vector<Abst
       if (ctx_.next_aggregation_ >= ctx_.expr_in_agg_.size()) {
         throw bustub::Exception("unexpected agg call");
       }
-      return std::make_tuple(unnamed_column, std::move(ctx_.expr_in_agg_[ctx_.next_aggregation_++]));
+      return std::make_tuple(UNNAMED_COLUMN, std::move(ctx_.expr_in_agg_[ctx_.next_aggregation_++]));
     }
     case ExpressionType::COLUMN_REF: {
       const auto &column_ref_expr = dynamic_cast<const BoundColumnRef &>(expr);
@@ -172,11 +184,11 @@ auto Planner::PlanExpression(const BoundExpression &expr, const std::vector<Abst
     }
     case ExpressionType::BINARY_OP: {
       const auto &binary_op_expr = dynamic_cast<const BoundBinaryOp &>(expr);
-      return std::make_tuple(unnamed_column, PlanBinaryOp(binary_op_expr, children));
+      return std::make_tuple(UNNAMED_COLUMN, PlanBinaryOp(binary_op_expr, children));
     }
     case ExpressionType::CONSTANT: {
       const auto &constant_expr = dynamic_cast<const BoundConstant &>(expr);
-      return std::make_tuple(unnamed_column, PlanConstant(constant_expr, children));
+      return std::make_tuple(UNNAMED_COLUMN, PlanConstant(constant_expr, children));
     }
     case ExpressionType::ALIAS: {
       const auto &alias_expr = dynamic_cast<const BoundAlias &>(expr);
