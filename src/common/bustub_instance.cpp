@@ -168,7 +168,7 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
 
         // Print binder result.
         std::cout << "=== BINDER ===" << std::endl;
-        std::cout << statement->ToString() << std::endl;
+        std::cout << explain_stmt.statement_->ToString() << std::endl;
 
         // Print planner result.
         bustub::Planner planner(*catalog_);
