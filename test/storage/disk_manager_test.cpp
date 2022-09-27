@@ -35,8 +35,8 @@ class DiskManagerTest : public ::testing::Test {
 
 // NOLINTNEXTLINE
 TEST_F(DiskManagerTest, ReadWritePageTest) {
-  char buf[PAGE_SIZE] = {0};
-  char data[PAGE_SIZE] = {0};
+  char buf[BUSTUB_PAGE_SIZE] = {0};
+  char data[BUSTUB_PAGE_SIZE] = {0};
   std::string db_file("test.db");
   auto dm = DiskManager(db_file);
   std::strncpy(data, "A test string.", sizeof(data));

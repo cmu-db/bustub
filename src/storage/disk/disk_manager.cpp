@@ -79,11 +79,11 @@ void DiskManager::ShutDown() {
  */
 void DiskManager::WritePage(page_id_t page_id, const char *page_data) {
   std::scoped_lock scoped_db_io_latch(db_io_latch_);
-  size_t offset = static_cast<size_t>(page_id) * PAGE_SIZE;
+  size_t offset = static_cast<size_t>(page_id) * BUSTUB_PAGE_SIZE;
   // set write cursor to offset
   num_writes_ += 1;
   db_io_.seekp(offset);
-  db_io_.write(page_data, PAGE_SIZE);
+  db_io_.write(page_data, BUSTUB_PAGE_SIZE);
   // check for I/O error
   if (db_io_.bad()) {
     LOG_DEBUG("I/O error while writing");
@@ -98,7 +98,7 @@ void DiskManager::WritePage(page_id_t page_id, const char *page_data) {
  */
 void DiskManager::ReadPage(page_id_t page_id, char *page_data) {
   std::scoped_lock scoped_db_io_latch(db_io_latch_);
-  int offset = page_id * PAGE_SIZE;
+  int offset = page_id * BUSTUB_PAGE_SIZE;
   // check if read beyond file length
   if (offset > GetFileSize(file_name_)) {
     LOG_DEBUG("I/O error reading past end of file");
@@ -106,18 +106,18 @@ void DiskManager::ReadPage(page_id_t page_id, char *page_data) {
   } else {
     // set read cursor to offset
     db_io_.seekp(offset);
-    db_io_.read(page_data, PAGE_SIZE);
+    db_io_.read(page_data, BUSTUB_PAGE_SIZE);
     if (db_io_.bad()) {
       LOG_DEBUG("I/O error while reading");
       return;
     }
-    // if file ends before reading PAGE_SIZE
+    // if file ends before reading BUSTUB_PAGE_SIZE
     int read_count = db_io_.gcount();
-    if (read_count < PAGE_SIZE) {
+    if (read_count < BUSTUB_PAGE_SIZE) {
       LOG_DEBUG("Read less than a page");
       db_io_.clear();
       // std::cerr << "Read less than a page" << std::endl;
-      memset(page_data + read_count, 0, PAGE_SIZE - read_count);
+      memset(page_data + read_count, 0, BUSTUB_PAGE_SIZE - read_count);
     }
   }
 }

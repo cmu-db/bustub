@@ -43,7 +43,7 @@ auto Binder::TransformParseTree(duckdb_libpgquery::PGList *tree) -> std::vector<
   std::vector<std::unique_ptr<BoundStatement>> statements;
   for (auto entry = tree->head; entry != nullptr; entry = entry->next) {
     auto stmt = TransformStatement(static_cast<duckdb_libpgquery::PGNode *>(entry->data.ptr_value));
-    statements.push_back(move(stmt));
+    statements.push_back(std::move(stmt));
   }
   return statements;
 }
