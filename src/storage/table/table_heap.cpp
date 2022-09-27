@@ -32,13 +32,13 @@ TableHeap::TableHeap(BufferPoolManager *buffer_pool_manager, LockManager *lock_m
   BUSTUB_ASSERT(first_page != nullptr,
                 "Couldn't create a page for the table heap. Have you completed the buffer pool manager project?");
   first_page->WLatch();
-  first_page->Init(first_page_id_, PAGE_SIZE, INVALID_LSN, log_manager_, txn);
+  first_page->Init(first_page_id_, BUSTUB_PAGE_SIZE, INVALID_LSN, log_manager_, txn);
   first_page->WUnlatch();
   buffer_pool_manager_->UnpinPage(first_page_id_, true);
 }
 
 auto TableHeap::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn) -> bool {
-  if (tuple.size_ + 32 > PAGE_SIZE) {  // larger than one page size
+  if (tuple.size_ + 32 > BUSTUB_PAGE_SIZE) {  // larger than one page size
     txn->SetState(TransactionState::ABORTED);
     return false;
   }
@@ -76,7 +76,7 @@ auto TableHeap::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn) -> b
       // Otherwise we were able to create a new page. We initialize it now.
       new_page->WLatch();
       cur_page->SetNextPageId(next_page_id);
-      new_page->Init(next_page_id, PAGE_SIZE, cur_page->GetTablePageId(), log_manager_, txn);
+      new_page->Init(next_page_id, BUSTUB_PAGE_SIZE, cur_page->GetTablePageId(), log_manager_, txn);
       cur_page->WUnlatch();
       buffer_pool_manager_->UnpinPage(cur_page->GetTablePageId(), true);
       cur_page = new_page;

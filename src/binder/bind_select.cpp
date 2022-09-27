@@ -452,7 +452,7 @@ auto Binder::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_pt
     }
 
     // Bind function as agg call.
-    return std::make_unique<BoundAggCall>(function_name, root->agg_distinct, move(children));
+    return std::make_unique<BoundAggCall>(function_name, root->agg_distinct, std::move(children));
   }
   throw bustub::Exception(fmt::format("unsupported func call {}", function_name));
 }
