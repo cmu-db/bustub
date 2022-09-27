@@ -2,11 +2,11 @@
 //
 //                         BusTub
 //
-// b_plus_tree_print_test.cpp
+// b_plus_tree_printer.cpp
 //
-// Identification: test/storage/b_plus_tree_print_test.cpp
+// Identification: tools/b_plus_tree_printer/b_plus_tree_printer.cpp
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2022, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -15,11 +15,20 @@
 
 #include "buffer/buffer_pool_manager_instance.h"
 #include "common/logger.h"
-#include "gtest/gtest.h"
 #include "storage/index/b_plus_tree.h"
 #include "test_util.h"  // NOLINT
 
-namespace bustub {
+using bustub::BPlusTree;
+using bustub::BufferPoolManager;
+using bustub::BufferPoolManagerInstance;
+using bustub::DiskManager;
+using bustub::Exception;
+using bustub::GenericComparator;
+using bustub::GenericKey;
+using bustub::RID;
+using bustub::Transaction;
+using bustub::page_id_t;
+using bustub::ParseCreateStatement;
 
 auto UsageMessage() -> std::string {
   std::string message =
@@ -33,12 +42,12 @@ auto UsageMessage() -> std::string {
       "\tq -- Quit. (Or use Ctl-D.)\n"
       "\t? -- Print this help message.\n\n"
       "Please Enter Leaf node max size and Internal node max size:\n"
-      "Example: 5 5\n>";
+      "Example: 5 5\n"
+      "> ";
   return message;
 }
 
-// Remove 'DISABLED_' when you are ready
-TEST(BptTreeTest, DISABLED_UnitTest) {
+auto main(int argc, char **argv) -> int {
   int64_t key = 0;
   GenericKey<8> index_key;
   RID rid;
@@ -47,6 +56,7 @@ TEST(BptTreeTest, DISABLED_UnitTest) {
   bool quit = false;
   int leaf_max_size;
   int internal_max_size;
+  std::unique_ptr<bustub::Schema> key_schema;
 
   std::cout << UsageMessage();
   std::cin >> leaf_max_size;
@@ -54,7 +64,12 @@ TEST(BptTreeTest, DISABLED_UnitTest) {
 
   // create KeyComparator and index schema
   std::string create_stmt = "a bigint";
-  auto key_schema = ParseCreateStatement(create_stmt);
+  try {
+    key_schema = ParseCreateStatement(create_stmt);
+  } catch (Exception &ex) {
+    std::cerr << "Failed to parse create statement: " << ex.what() << std::endl;
+  }
+
   GenericComparator<8> comparator(key_schema.get());
 
   auto *disk_manager = new DiskManager("test.db");
@@ -114,5 +129,6 @@ TEST(BptTreeTest, DISABLED_UnitTest) {
   delete disk_manager;
   remove("test.db");
   remove("test.log");
+
+  return 0;
 }
-}  // namespace bustub
