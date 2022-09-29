@@ -277,14 +277,14 @@ TEST_F(RecoveryTest, DISABLED_CheckpointTest) {
   // compare each page in the buffer pool to that page's
   // data on disk. ensure they match after the checkpoint
   bool all_pages_match = true;
-  auto *disk_data = new char[PAGE_SIZE];
+  auto *disk_data = new char[BUSTUB_PAGE_SIZE];
   for (size_t i = 0; i < pool_size; i++) {
     Page *page = &pages[i];
     page_id_t page_id = page->GetPageId();
 
     if (page_id != INVALID_PAGE_ID) {
       bustub_instance->disk_manager_->ReadPage(page_id, disk_data);
-      if (std::memcmp(disk_data, page->GetData(), PAGE_SIZE) != 0) {
+      if (std::memcmp(disk_data, page->GetData(), BUSTUB_PAGE_SIZE) != 0) {
         all_pages_match = false;
         break;
       }
