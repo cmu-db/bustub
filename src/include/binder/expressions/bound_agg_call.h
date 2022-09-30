@@ -18,7 +18,7 @@ class BoundAggCall : public BoundExpression {
       : BoundExpression(ExpressionType::AGG_CALL),
         func_name_(std::move(func_name)),
         is_distinct_(is_distinct),
-        args_(move(args)) {}
+        args_(std::move(args)) {}
 
   auto ToString() const -> std::string override;
 

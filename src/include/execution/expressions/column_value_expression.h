@@ -51,6 +51,8 @@ class ColumnValueExpression : public AbstractExpression {
   /** @return the string representation of the plan node and its children */
   auto ToString() const -> std::string override { return fmt::format("#{}.{}", tuple_idx_, col_idx_); }
 
+  BUSTUB_EXPR_CLONE_WITH_CHILDREN(ColumnValueExpression);
+
  private:
   /** Tuple index 0 = left side of join, tuple index 1 = right side of join */
   uint32_t tuple_idx_;

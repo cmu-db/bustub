@@ -85,7 +85,7 @@ class AggregationPlanNode : public AbstractPlanNode {
                              const std::vector<AbstractExpressionRef> &aggregates,
                              const std::vector<AggregationType> &agg_types) -> Schema;
 
-  CLONE_WITH_CHILDREN(AggregationPlanNode);
+  BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(AggregationPlanNode);
 
  private:
   /** A HAVING clause expression (may be `nullptr`) */

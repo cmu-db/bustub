@@ -37,7 +37,8 @@ class ConstantValueExpression : public AbstractExpression {
   /** @return the string representation of the plan node and its children */
   auto ToString() const -> std::string override { return val_.ToString(); }
 
- private:
+  BUSTUB_EXPR_CLONE_WITH_CHILDREN(ConstantValueExpression);
+
   Value val_;
 };
 }  // namespace bustub

@@ -42,7 +42,7 @@ class IndexScanPlanNode : public AbstractPlanNode {
   /** @return the identifier of the table that should be scanned */
   auto GetIndexOid() const -> index_oid_t { return index_oid_; }
 
-  CLONE_WITH_CHILDREN(IndexScanPlanNode);
+  BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(IndexScanPlanNode);
 
  private:
   /** The predicate that all returned tuples must satisfy. */
