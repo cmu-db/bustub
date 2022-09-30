@@ -21,6 +21,7 @@
 #include "recovery/checkpoint_manager.h"
 #include "recovery/log_manager.h"
 #include "storage/disk/disk_manager.h"
+#include "storage/disk/disk_manager_memory.h"
 
 namespace bustub {
 
