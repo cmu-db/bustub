@@ -29,6 +29,7 @@ enum class StatementType : uint8_t {
   DELETE_STATEMENT,   // delete statement type
   EXPLAIN_STATEMENT,  // explain statement type
   DROP_STATEMENT,     // drop statement type
+  INDEX_STATEMENT,    // index statement type
 };
 
 }  // namespace bustub
@@ -62,6 +63,9 @@ struct fmt::formatter<bustub::StatementType> : formatter<string_view> {
         break;
       case bustub::StatementType::DROP_STATEMENT:
         name = "Drop";
+        break;
+      case bustub::StatementType::INDEX_STATEMENT:
+        name = "Index";
         break;
     }
     return formatter<string_view>::format(name, ctx);

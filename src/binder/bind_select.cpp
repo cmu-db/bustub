@@ -259,19 +259,26 @@ auto Binder::BindJoin(duckdb_libpgquery::PGJoinExpr *root) -> std::unique_ptr<Bo
   return join_ref;
 }
 
+auto Binder::BindBaseTableRef(std::string table_name, std::optional<std::string> alias)
+    -> std::unique_ptr<BoundBaseTableRef> {
+  auto table_info = catalog_.GetTable(table_name);
+  if (table_info == nullptr) {
+    throw bustub::Exception(fmt::format("invalid table {}", table_name));
+  }
+  return std::make_unique<BoundBaseTableRef>(std::move(table_name), std::move(alias), table_info->schema_);
+}
+
+auto Binder::BindRangeVar(duckdb_libpgquery::PGRangeVar *table_ref) -> std::unique_ptr<BoundBaseTableRef> {
+  if (table_ref->alias != nullptr) {
+    return BindBaseTableRef(table_ref->relname, std::make_optional(table_ref->alias->aliasname));
+  }
+  return BindBaseTableRef(table_ref->relname, std::nullopt);
+}
+
 auto Binder::BindTableRef(duckdb_libpgquery::PGNode *node) -> std::unique_ptr<BoundTableRef> {
   switch (node->type) {
     case duckdb_libpgquery::T_PGRangeVar: {
-      auto *table_ref = reinterpret_cast<duckdb_libpgquery::PGRangeVar *>(node);
-      auto table_info = catalog_.GetTable(table_ref->relname);
-      if (table_info == nullptr) {
-        throw bustub::Exception(fmt::format("invalid table {}", table_ref->relname));
-      }
-      if (table_ref->alias != nullptr) {
-        return std::make_unique<BoundBaseTableRef>(table_ref->relname, std::make_optional(table_ref->alias->aliasname),
-                                                   table_info->schema_);
-      }
-      return std::make_unique<BoundBaseTableRef>(table_ref->relname, std::nullopt, table_info->schema_);
+      return BindRangeVar(reinterpret_cast<duckdb_libpgquery::PGRangeVar *>(node));
     }
     case duckdb_libpgquery::T_PGJoinExpr: {
       return BindJoin(reinterpret_cast<duckdb_libpgquery::PGJoinExpr *>(node));
@@ -526,12 +533,12 @@ static auto ResolveColumnRefFromSelectList(const std::vector<std::vector<std::st
                                            const std::vector<std::string> &col_name)
     -> std::unique_ptr<BoundColumnRef> {
   std::unique_ptr<BoundColumnRef> column_ref = nullptr;
-  for (const auto &column : subquery_select_list) {
-    if (MatchSuffix(col_name, column)) {
+  for (const auto &column_full_name : subquery_select_list) {
+    if (MatchSuffix(col_name, column_full_name)) {
       if (column_ref != nullptr) {
         throw Exception(fmt::format("{} is ambiguous in subquery select list", fmt::join(col_name, ".")));
       }
-      column_ref = std::make_unique<BoundColumnRef>(column);
+      column_ref = std::make_unique<BoundColumnRef>(column_full_name);
     }
   }
   return column_ref;

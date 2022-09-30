@@ -1,7 +1,7 @@
 //===----------------------------------------------------------------------===//
 //                         BusTub
 //
-// binder/delete_statement.h
+// binder/index_statement.h
 //
 //===----------------------------------------------------------------------===//
 
@@ -9,25 +9,32 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
-#include "binder/bound_expression.h"
 #include "binder/bound_statement.h"
+#include "binder/expressions/bound_column_ref.h"
 #include "binder/table_ref/bound_base_table_ref.h"
 #include "catalog/column.h"
 
 namespace duckdb_libpgquery {
-struct PGDeleteStmt;
+struct PGIndexStmt;
 }  // namespace duckdb_libpgquery
 
 namespace bustub {
 
-class DeleteStatement : public BoundStatement {
+class IndexStatement : public BoundStatement {
  public:
-  explicit DeleteStatement(std::unique_ptr<BoundBaseTableRef> table, std::unique_ptr<BoundExpression> expr);
+  explicit IndexStatement(std::string index_name, std::unique_ptr<BoundBaseTableRef> table,
+                          std::vector<std::unique_ptr<BoundColumnRef>> cols);
 
+  /** Name of the index */
+  std::string index_name_;
+
+  /** Create on which table */
   std::unique_ptr<BoundBaseTableRef> table_;
 
-  std::unique_ptr<BoundExpression> expr_;
+  /** Name of the columns */
+  std::vector<std::unique_ptr<BoundColumnRef>> cols_;
 
   auto ToString() const -> std::string override;
 };

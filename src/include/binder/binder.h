@@ -68,12 +68,15 @@ namespace bustub {
 class Catalog;
 class BoundExpression;
 class BoundTableRef;
+class BoundBaseTableRef;
 class BoundExpression;
 class BoundExpressionListRef;
 class BoundOrderBy;
 class SelectStatement;
 class CreateStatement;
 class ExplainStatement;
+class IndexStatement;
+class DeleteStatement;
 
 /**
  * The binder is responsible for transforming the Postgres parse tree to a binder tree
@@ -150,6 +153,10 @@ class Binder {
 
   auto BindFrom(duckdb_libpgquery::PGList *list) -> std::unique_ptr<BoundTableRef>;
 
+  auto BindBaseTableRef(std::string table_name, std::optional<std::string> alias) -> std::unique_ptr<BoundBaseTableRef>;
+
+  auto BindRangeVar(duckdb_libpgquery::PGRangeVar *table_ref) -> std::unique_ptr<BoundBaseTableRef>;
+
   auto BindTableRef(duckdb_libpgquery::PGNode *node) -> std::unique_ptr<BoundTableRef>;
 
   auto BindJoin(duckdb_libpgquery::PGJoinExpr *root) -> std::unique_ptr<BoundTableRef>;
@@ -168,6 +175,10 @@ class Binder {
   auto BindLimitOffset(duckdb_libpgquery::PGNode *root) -> std::unique_ptr<BoundExpression>;
 
   auto BindSort(duckdb_libpgquery::PGList *list) -> std::vector<std::unique_ptr<BoundOrderBy>>;
+
+  auto BindIndex(duckdb_libpgquery::PGIndexStmt *stmt) -> std::unique_ptr<IndexStatement>;
+
+  auto BindDelete(duckdb_libpgquery::PGDeleteStmt *stmt) -> std::unique_ptr<DeleteStatement>;
 
   class ContextGuard {
    public:
