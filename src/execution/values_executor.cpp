@@ -3,7 +3,7 @@
 namespace bustub {
 
 ValuesExecutor::ValuesExecutor(ExecutorContext *exec_ctx, const ValuesPlanNode *plan)
-    : AbstractExecutor(exec_ctx), plan_(plan), dummy_schema_(Schema({})), cursor_(0) {}
+    : AbstractExecutor(exec_ctx), plan_(plan), dummy_schema_(Schema({})) {}
 
 void ValuesExecutor::Init() { cursor_ = 0; }
 

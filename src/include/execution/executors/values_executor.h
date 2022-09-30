@@ -54,6 +54,6 @@ class ValuesExecutor : public AbstractExecutor {
 
   const Schema dummy_schema_;
 
-  size_t cursor_;
+  size_t cursor_{0};
 };
 }  // namespace bustub
