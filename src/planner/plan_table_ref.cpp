@@ -102,7 +102,7 @@ auto Planner::PlanBaseTableRef(const BoundBaseTableRef &table_ref) -> AbstractPl
   }
   // Otherwise, plan as normal SeqScan.
   return std::make_shared<SeqScanPlanNode>(std::make_shared<Schema>(SeqScanPlanNode::InferScanSchema(table_ref)),
-                                           nullptr, table->oid_);
+                                           table->oid_, table->name_);
 }
 
 auto Planner::PlanCrossProductRef(const BoundCrossProductRef &table_ref) -> AbstractPlanNodeRef {

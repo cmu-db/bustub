@@ -35,6 +35,7 @@
 #include "nodes/primnodes.hpp"
 #include "pg_definitions.hpp"
 #include "postgres_parser.hpp"
+#include "type/type_id.h"
 #include "type/value_factory.h"
 
 namespace bustub {
@@ -391,6 +392,10 @@ auto Binder::BindConstant(duckdb_libpgquery::PGAConst *node) -> std::unique_ptr<
     }
     case duckdb_libpgquery::T_PGString: {
       return std::make_unique<BoundConstant>(ValueFactory::GetVarcharValue(val.val.str));
+    }
+    case duckdb_libpgquery::T_PGNull: {
+      // TODO(chi): cast integer null to other types
+      return std::make_unique<BoundConstant>(ValueFactory::GetNullValueByType(TypeId::INTEGER));
     }
     default:
       break;
