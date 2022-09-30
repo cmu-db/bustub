@@ -34,13 +34,13 @@ class Schema {
    */
   explicit Schema(const std::vector<Column> &columns);
 
-  static auto CopySchema(const Schema *from, const std::vector<uint32_t> &attrs) -> Schema * {
+  static auto CopySchema(const Schema *from, const std::vector<uint32_t> &attrs) -> Schema {
     std::vector<Column> cols;
     cols.reserve(attrs.size());
     for (const auto i : attrs) {
       cols.emplace_back(from->columns_[i]);
     }
-    return new Schema{cols};
+    return Schema{cols};
   }
 
   /** @return all the columns in the schema */

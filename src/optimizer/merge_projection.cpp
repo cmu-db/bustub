@@ -14,12 +14,14 @@ auto Optimizer::OptimizeMergeProjection(const AbstractPlanNodeRef &plan) -> Abst
   for (const auto &child : plan->GetChildren()) {
     children.emplace_back(OptimizeMergeProjection(child));
   }
-  if (plan->GetType() == PlanType::Projection) {
-    const auto &projection_plan = dynamic_cast<const ProjectionPlanNode &>(*plan);
+  auto optimized_plan = plan->CloneWithChildren(std::move(children));
+
+  if (optimized_plan->GetType() == PlanType::Projection) {
+    const auto &projection_plan = dynamic_cast<const ProjectionPlanNode &>(*optimized_plan);
     // Has exactly one child
-    BUSTUB_ENSURE(children.size() == 1, "Projection with multiple children?? That's weird!");
+    BUSTUB_ENSURE(plan->children_.size() == 1, "Projection with multiple children?? That's weird!");
     // If the schema is the same (except column name)
-    const auto &child_plan = children[0];
+    const auto &child_plan = plan->children_[0];
     const auto &child_schema = child_plan->OutputSchema();
     const auto &projection_schema = projection_plan.OutputSchema();
     const auto &child_columns = child_schema.GetColumns();
@@ -49,7 +51,7 @@ auto Optimizer::OptimizeMergeProjection(const AbstractPlanNodeRef &plan) -> Abst
       }
     }
   }
-  return plan->CloneWithChildren(std::move(children));
+  return optimized_plan;
 }
 
 }  // namespace bustub

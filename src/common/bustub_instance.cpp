@@ -4,6 +4,7 @@
 #include "binder/bound_statement.h"
 #include "binder/statement/create_statement.h"
 #include "binder/statement/explain_statement.h"
+#include "binder/statement/index_statement.h"
 #include "binder/statement/select_statement.h"
 #include "buffer/buffer_pool_manager_instance.h"
 #include "catalog/schema.h"
@@ -57,7 +58,7 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
   checkpoint_manager_ = new CheckpointManager(transaction_manager_, log_manager_, buffer_pool_manager_);
 
   // Catalog.
-  catalog_ = new Catalog(buffer_pool_manager_, nullptr, nullptr);
+  catalog_ = new Catalog(buffer_pool_manager_, lock_manager_, log_manager_);
 
   // Execution engine.
   execution_engine_ = new ExecutionEngine(buffer_pool_manager_, transaction_manager_, catalog_);
@@ -97,29 +98,60 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
       case StatementType::CREATE_STATEMENT: {
         const auto &create_stmt = dynamic_cast<const CreateStatement &>(*statement);
         auto txn = transaction_manager_->Begin();
-        catalog_->CreateTable(txn, create_stmt.table_, Schema(create_stmt.columns_));
+        auto info = catalog_->CreateTable(txn, create_stmt.table_, Schema(create_stmt.columns_));
         transaction_manager_->Commit(txn);
         delete txn;
+        if (info == nullptr) {
+          throw bustub::Exception("Failed to create table");
+        }
+        std::cout << "Table created with id = " << info->oid_ << std::endl;
+        continue;
+      }
+      case StatementType::INDEX_STATEMENT: {
+        const auto &index_stmt = dynamic_cast<const IndexStatement &>(*statement);
+        auto txn = transaction_manager_->Begin();
+
+        std::vector<uint32_t> col_ids;
+        for (const auto &col : index_stmt.cols_) {
+          auto idx = index_stmt.table_->schema_.GetColIdx(col->col_name_.back());
+          col_ids.push_back(idx);
+          if (index_stmt.table_->schema_.GetColumn(idx).GetType() != TypeId::INTEGER) {
+            throw NotImplementedException("only support creating index on integer column");
+          }
+        }
+        if (col_ids.size() != 1) {
+          throw NotImplementedException("only support creating index with exactly one column");
+        }
+        auto key_schema = Schema::CopySchema(&index_stmt.table_->schema_, col_ids);
+        auto info = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
+            txn, index_stmt.index_name_, index_stmt.table_->table_, index_stmt.table_->schema_, key_schema, col_ids,
+            INTEGER_SIZE, IntegerHashFunctionType{});
+        transaction_manager_->Commit(txn);
+        delete txn;
+        if (info == nullptr) {
+          throw bustub::Exception("Failed to create index");
+        }
+        std::cout << "Index created with id = " << info->index_oid_ << std::endl;
         continue;
       }
       case StatementType::EXPLAIN_STATEMENT: {
         const auto &explain_stmt = dynamic_cast<const ExplainStatement &>(*statement);
 
         // Print binder result.
-        std::cerr << "=== BINDER ===" << std::endl;
-        std::cerr << statement->ToString() << std::endl;
+        std::cout << "=== BINDER ===" << std::endl;
+        std::cout << statement->ToString() << std::endl;
 
         // Print planner result.
         bustub::Planner planner(*catalog_);
         planner.PlanQuery(*explain_stmt.statement_);
-        std::cerr << "=== PLANNER ===" << std::endl;
-        std::cerr << planner.plan_->ToString() << std::endl;
+        std::cout << "=== PLANNER ===" << std::endl;
+        std::cout << planner.plan_->ToString() << std::endl;
 
         // Print optimizer result.
         bustub::Optimizer optimizer(*catalog_);
         auto optimized_plan = optimizer.Optimize(planner.plan_);
-        std::cerr << "=== OPTIMIZER ===" << std::endl;
-        std::cerr << optimized_plan->ToString() << std::endl;
+        std::cout << "=== OPTIMIZER ===" << std::endl;
+        std::cout << optimized_plan->ToString() << std::endl;
         continue;
       }
       default:

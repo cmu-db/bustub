@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 
+#include "container/hash/hash_function.h"
 #include "storage/index/b_plus_tree.h"
 #include "storage/index/index.h"
 
@@ -46,5 +47,16 @@ class BPlusTreeIndex : public Index {
   // container
   BPlusTree<KeyType, ValueType, KeyComparator> container_;
 };
+
+/** We only support index table with one integer key for now in BusTub. Hardcode everything here. */
+
+constexpr static const auto INTEGER_SIZE = 4;
+using IntegerKeyType = GenericKey<INTEGER_SIZE>;
+using IntegerValueType = RID;
+using IntegerComparatorType = GenericComparator<INTEGER_SIZE>;
+using BPlusTreeIndexForOneIntegerColumn = BPlusTreeIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>;
+using BPlusTreeIndexIteratorForOneIntegerColumn =
+    IndexIterator<IntegerKeyType, IntegerValueType, IntegerComparatorType>;
+using IntegerHashFunctionType = HashFunction<IntegerKeyType>;
 
 }  // namespace bustub

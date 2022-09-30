@@ -22,10 +22,12 @@ auto Optimizer::OptimizeNLJAsHashJoin(const AbstractPlanNodeRef &plan) -> Abstra
   for (const auto &child : plan->GetChildren()) {
     children.emplace_back(OptimizeNLJAsHashJoin(child));
   }
-  if (plan->GetType() == PlanType::NestedLoopJoin) {
-    const auto &nlj_plan = dynamic_cast<const NestedLoopJoinPlanNode &>(*plan);
+  auto optimized_plan = plan->CloneWithChildren(std::move(children));
+
+  if (optimized_plan->GetType() == PlanType::NestedLoopJoin) {
+    const auto &nlj_plan = dynamic_cast<const NestedLoopJoinPlanNode &>(*optimized_plan);
     // Has exactly two children
-    BUSTUB_ENSURE(children.size() == 2, "NLJ should have exactly 2 children.");
+    BUSTUB_ENSURE(nlj_plan.children_.size() == 2, "NLJ should have exactly 2 children.");
     // Check if expr is equal condition where one is for the left table, and one is for the right table.
     if (const auto *expr = dynamic_cast<const ComparisonExpression *>(&nlj_plan.Predicate()); expr != nullptr) {
       if (expr->comp_type_ == ComparisonType::Equal) {
@@ -55,7 +57,8 @@ auto Optimizer::OptimizeNLJAsHashJoin(const AbstractPlanNodeRef &plan) -> Abstra
       }
     }
   }
-  return plan;
+
+  return optimized_plan;
 }
 
 }  // namespace bustub

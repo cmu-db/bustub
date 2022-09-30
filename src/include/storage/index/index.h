@@ -47,10 +47,10 @@ class IndexMetadata {
   IndexMetadata(std::string index_name, std::string table_name, const Schema *tuple_schema,
                 std::vector<uint32_t> key_attrs)
       : name_(std::move(index_name)), table_name_(std::move(table_name)), key_attrs_(std::move(key_attrs)) {
-    key_schema_ = Schema::CopySchema(tuple_schema, key_attrs_);
+    key_schema_ = std::make_shared<Schema>(Schema::CopySchema(tuple_schema, key_attrs_));
   }
 
-  ~IndexMetadata() { delete key_schema_; }
+  ~IndexMetadata() = default;
 
   /** @return The name of the index */
   inline auto GetName() const -> const std::string & { return name_; }
@@ -59,7 +59,7 @@ class IndexMetadata {
   inline auto GetTableName() -> const std::string & { return table_name_; }
 
   /** @return A schema object pointer that represents the indexed key */
-  inline auto GetKeySchema() const -> Schema * { return key_schema_; }
+  inline auto GetKeySchema() const -> Schema * { return key_schema_.get(); }
 
   /**
    * @return The number of columns inside index key (not in tuple key)
@@ -93,7 +93,7 @@ class IndexMetadata {
   /** The mapping relation between key schema and tuple schema */
   const std::vector<uint32_t> key_attrs_;
   /** The schema of the indexed key */
-  Schema *key_schema_;
+  std::shared_ptr<Schema> key_schema_;
 };
 
 /////////////////////////////////////////////////////////////////////

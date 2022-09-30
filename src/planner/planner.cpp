@@ -4,6 +4,7 @@
 #include "binder/bound_expression.h"
 #include "binder/bound_statement.h"
 #include "binder/bound_table_ref.h"
+#include "binder/statement/delete_statement.h"
 #include "binder/statement/insert_statement.h"
 #include "binder/statement/select_statement.h"
 #include "binder/tokens.h"
@@ -29,6 +30,10 @@ void Planner::PlanQuery(const BoundStatement &statement) {
     }
     case StatementType::INSERT_STATEMENT: {
       plan_ = PlanInsert(dynamic_cast<const InsertStatement &>(statement));
+      return;
+    }
+    case StatementType::DELETE_STATEMENT: {
+      plan_ = PlanDelete(dynamic_cast<const DeleteStatement &>(statement));
       return;
     }
     default:

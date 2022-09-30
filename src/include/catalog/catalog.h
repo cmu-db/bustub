@@ -21,6 +21,7 @@
 #include "buffer/buffer_pool_manager.h"
 #include "catalog/schema.h"
 #include "container/hash/hash_function.h"
+#include "storage/index/b_plus_tree_index.h"
 #include "storage/index/extendible_hash_table_index.h"
 #include "storage/index/index.h"
 #include "storage/table/table_heap.h"
@@ -176,7 +177,7 @@ class Catalog {
    * @param table_oid The OID of the table to query
    * @return A (non-owning) pointer to the metadata for the table
    */
-  auto GetTable(table_oid_t table_oid) -> TableInfo * {
+  auto GetTable(table_oid_t table_oid) const -> TableInfo * {
     auto meta = tables_.find(table_oid);
     if (meta == tables_.end()) {
       return NULL_TABLE_INFO;
@@ -223,8 +224,9 @@ class Catalog {
     // TODO(Kyle): We should update the API for CreateIndex
     // to allow specification of the index type itself, not
     // just the key, value, and comparator types
-    auto index = std::make_unique<ExtendibleHashTableIndex<KeyType, ValueType, KeyComparator>>(std::move(meta), bpm_,
-                                                                                               hash_function);
+
+    // TODO(chi): support both hash index and btree index
+    auto index = std::make_unique<BPlusTreeIndex<KeyType, ValueType, KeyComparator>>(std::move(meta), bpm_);
 
     // Populate the index with all tuples in table heap
     auto *table_meta = GetTable(table_name);
@@ -311,7 +313,7 @@ class Catalog {
    * @return A vector of IndexInfo* for each index on the given table, empty vector
    * in the event that the table exists but no indexes have been created for it
    */
-  auto GetTableIndexes(const std::string &table_name) -> std::vector<IndexInfo *> {
+  auto GetTableIndexes(const std::string &table_name) const -> std::vector<IndexInfo *> {
     // Ensure the table exists
     if (table_names_.find(table_name) == table_names_.end()) {
       return std::vector<IndexInfo *>{};

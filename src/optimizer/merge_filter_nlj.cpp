@@ -48,11 +48,13 @@ auto Optimizer::OptimizeMergeFilterNLJ(const AbstractPlanNodeRef &plan) -> Abstr
   for (const auto &child : plan->GetChildren()) {
     children.emplace_back(OptimizeMergeFilterNLJ(child));
   }
-  if (plan->GetType() == PlanType::Filter) {
-    const auto &filter_plan = dynamic_cast<const FilterPlanNode &>(*plan);
+  auto optimized_plan = plan->CloneWithChildren(std::move(children));
+
+  if (optimized_plan->GetType() == PlanType::Filter) {
+    const auto &filter_plan = dynamic_cast<const FilterPlanNode &>(*optimized_plan);
     // Has exactly one child
-    BUSTUB_ENSURE(children.size() == 1, "Filter with multiple children?? Impossible!");
-    const auto &child_plan = children[0];
+    BUSTUB_ENSURE(optimized_plan->children_.size() == 1, "Filter with multiple children?? Impossible!");
+    const auto &child_plan = optimized_plan->children_[0];
     if (child_plan->GetType() == PlanType::NestedLoopJoin) {
       const auto &nlj_plan = dynamic_cast<const NestedLoopJoinPlanNode &>(*child_plan);
       // Has exactly two children
@@ -68,7 +70,7 @@ auto Optimizer::OptimizeMergeFilterNLJ(const AbstractPlanNodeRef &plan) -> Abstr
       }
     }
   }
-  return plan;
+  return optimized_plan;
 }
 
 }  // namespace bustub
