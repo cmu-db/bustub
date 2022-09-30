@@ -68,8 +68,9 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
 
 auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::string> {
   if (!sql.empty() && sql[0] == '\\') {
+    auto internal_sql = StringUtil::Strip(sql, '\n');
     // Internal meta-commands, like in `psql`.
-    if (sql == "\\dt") {
+    if (internal_sql == "\\dt") {
       std::string result;
       auto table_names = catalog_->GetTableNames();
       for (const auto &name : table_names) {
@@ -78,8 +79,8 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
       }
       return {result};
     }
-    if (StringUtil::StartsWith(sql, "\\d ")) {
-      auto table_name = std::string(sql.cbegin() + 3, sql.cend());
+    if (StringUtil::StartsWith(internal_sql, "\\d ")) {
+      auto table_name = std::string(internal_sql.cbegin() + 3, internal_sql.cend());
       auto table_info = catalog_->GetTable(table_name);
       if (table_info == nullptr) {
         return {"table not found"};
@@ -133,7 +134,7 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
         if (info == nullptr) {
           throw bustub::Exception("Failed to create table");
         }
-        std::cout << "Table created with id = " << info->oid_ << std::endl;
+        result.emplace_back(fmt::format("Table created with id = {}", info->oid_));
         continue;
       }
       case StatementType::INDEX_STATEMENT: {
@@ -160,27 +161,37 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
         if (info == nullptr) {
           throw bustub::Exception("Failed to create index");
         }
-        std::cout << "Index created with id = " << info->index_oid_ << std::endl;
+        result.emplace_back(fmt::format("Index created with id = {}", info->index_oid_));
         continue;
       }
       case StatementType::EXPLAIN_STATEMENT: {
         const auto &explain_stmt = dynamic_cast<const ExplainStatement &>(*statement);
 
         // Print binder result.
-        std::cout << "=== BINDER ===" << std::endl;
-        std::cout << explain_stmt.statement_->ToString() << std::endl;
+        if ((explain_stmt.options_ & ExplainOptions::BINDER) != 0) {
+          result.emplace_back("=== BINDER ===");
+          result.emplace_back(explain_stmt.statement_->ToString());
+        }
 
-        // Print planner result.
         bustub::Planner planner(*catalog_);
         planner.PlanQuery(*explain_stmt.statement_);
-        std::cout << "=== PLANNER ===" << std::endl;
-        std::cout << planner.plan_->ToString() << std::endl;
+
+        bool show_schema = (explain_stmt.options_ & ExplainOptions::SCHEMA) != 0;
+
+        // Print planner result.
+        if ((explain_stmt.options_ & ExplainOptions::PLANNER) != 0) {
+          result.emplace_back("=== PLANNER ===");
+          result.emplace_back(planner.plan_->ToString(show_schema));
+        }
 
         // Print optimizer result.
         bustub::Optimizer optimizer(*catalog_);
         auto optimized_plan = optimizer.Optimize(planner.plan_);
-        std::cout << "=== OPTIMIZER ===" << std::endl;
-        std::cout << optimized_plan->ToString() << std::endl;
+
+        if ((explain_stmt.options_ & ExplainOptions::OPTIMIZER) != 0) {
+          result.emplace_back("=== OPTIMIZER ===");
+          result.emplace_back(optimized_plan->ToString(show_schema));
+        }
         continue;
       }
       default:

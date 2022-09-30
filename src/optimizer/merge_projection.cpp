@@ -19,9 +19,9 @@ auto Optimizer::OptimizeMergeProjection(const AbstractPlanNodeRef &plan) -> Abst
   if (optimized_plan->GetType() == PlanType::Projection) {
     const auto &projection_plan = dynamic_cast<const ProjectionPlanNode &>(*optimized_plan);
     // Has exactly one child
-    BUSTUB_ENSURE(plan->children_.size() == 1, "Projection with multiple children?? That's weird!");
+    BUSTUB_ENSURE(optimized_plan->children_.size() == 1, "Projection with multiple children?? That's weird!");
     // If the schema is the same (except column name)
-    const auto &child_plan = plan->children_[0];
+    const auto &child_plan = optimized_plan->children_[0];
     const auto &child_schema = child_plan->OutputSchema();
     const auto &projection_schema = projection_plan.OutputSchema();
     const auto &child_columns = child_schema.GetColumns();

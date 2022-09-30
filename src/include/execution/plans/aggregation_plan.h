@@ -45,11 +45,9 @@ class AggregationPlanNode : public AbstractPlanNode {
    * @param aggregates The expressions that we are aggregating
    * @param agg_types The types that we are aggregating
    */
-  AggregationPlanNode(SchemaRef output_schema, AbstractPlanNodeRef child, AbstractExpressionRef having,
-                      std::vector<AbstractExpressionRef> group_bys, std::vector<AbstractExpressionRef> aggregates,
-                      std::vector<AggregationType> agg_types)
+  AggregationPlanNode(SchemaRef output_schema, AbstractPlanNodeRef child, std::vector<AbstractExpressionRef> group_bys,
+                      std::vector<AbstractExpressionRef> aggregates, std::vector<AggregationType> agg_types)
       : AbstractPlanNode(std::move(output_schema), {std::move(child)}),
-        having_(std::move(having)),
         group_bys_(std::move(group_bys)),
         aggregates_(std::move(aggregates)),
         agg_types_(std::move(agg_types)) {}
@@ -62,9 +60,6 @@ class AggregationPlanNode : public AbstractPlanNode {
     BUSTUB_ASSERT(GetChildren().size() == 1, "Aggregation expected to only have one child.");
     return GetChildAt(0);
   }
-
-  /** @return The having clause */
-  auto GetHaving() const -> const AbstractExpressionRef & { return having_; }
 
   /** @return The idx'th group by expression */
   auto GetGroupByAt(uint32_t idx) const -> const AbstractExpressionRef & { return group_bys_[idx]; }
@@ -88,8 +83,6 @@ class AggregationPlanNode : public AbstractPlanNode {
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(AggregationPlanNode);
 
  private:
-  /** A HAVING clause expression (may be `nullptr`) */
-  AbstractExpressionRef having_;
   /** The GROUP BY expressions */
   std::vector<AbstractExpressionRef> group_bys_;
   /** The aggregation expressions */

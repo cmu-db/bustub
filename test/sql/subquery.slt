@@ -1,0 +1,17 @@
+statement ok
+select * from (select * from (select 1, 2, 3));
+
+statement ok
+\dt
+
+statement ok
+\d __mock_table_1
+
+statement ok
+explain (p,o) select * from (
+    select distinct * from (
+        select colA, max(colB) from (
+            select * from __mock_table_1
+        ) group by colA having min(colB) > 10
+    )
+), (select 1, 2, 3);

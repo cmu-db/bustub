@@ -1,0 +1,44 @@
+statement ok
+create table t1(v1 int, v2 int, v3 varchar(128));
+
+statement ok
+create table t2(v4 int, v5 int, v6 varchar(128));
+
+statement ok
+insert into t1 values (1, 2, 'a'), (3, 4, 'b'), (5, 6, 'c');
+
+statement ok
+insert into t2 values (1, 2, 'aa'), (3, 4, 'bb');
+
+statement ok
+create index t2v5 on t2(v5);
+
+statement ok
+insert into t2 values (5, 6, 'cc');
+
+statement ok
+explain select * from t1 inner join t2 on v2 = v5;
+
+statement ok
+select * from t1 inner join t2 on v2 = v5;
+
+statement ok
+create table t3(v7 int);
+
+statement ok
+insert into t3 values (1), (2);
+
+statement ok
+create index t3v7 on t3(v7)
+
+statement ok
+explain select * from t3 inner join (t1 inner join t2 on v2 = v5) on v1 = v7;
+
+statement ok
+select * from t3 inner join (t1 inner join t2 on v2 = v5) on v1 = v7;
+
+statement ok
+explain select * from (t1 inner join t2 on v2 = v5) inner join t3 on v1 = v7;
+
+statement ok
+select * from (t1 inner join t2 on v2 = v5) inner join t3 on v1 = v7;

@@ -35,37 +35,53 @@ auto main(int argc, char **argv) -> int {
   std::cout << "Welcome to the BusTub shell! Type \\help to learn more." << std::endl << std::endl;
 
   linenoiseHistorySetMaxLen(1024);
+  linenoiseSetMultiLine(1);
 
-  if (disable_tty) {
+  auto prompt = use_emoji_prompt ? emoji_prompt : default_prompt;
+
+  while (true) {
     std::string query;
+    bool first_line = true;
     while (true) {
-      std::getline(std::cin, query);
-      if (!std::cin) {
-        break;
-      }
-      try {
-        auto result = bustub->ExecuteSql(query);
-        for (const auto &line : result) {
-          std::cout << line << std::endl;
+      auto line_prompt = first_line ? prompt : "... ";
+      if (!disable_tty) {
+        char *query_c_str = linenoise(line_prompt);
+        if (query_c_str == nullptr) {
+          return 0;
         }
-      } catch (bustub::Exception &ex) {
-        std::cerr << ex.what() << std::endl;
+        query += query_c_str;
+        if (bustub::StringUtil::EndsWith(query, ";") || bustub::StringUtil::StartsWith(query, "\\")) {
+          break;
+        }
+        query += " ";
+        linenoiseFree(query_c_str);
+      } else {
+        std::string query_line;
+        std::cout << line_prompt;
+        std::getline(std::cin, query_line);
+        if (!std::cin) {
+          return 0;
+        }
+        query += query_line;
+        if (bustub::StringUtil::EndsWith(query, ";") || bustub::StringUtil::StartsWith(query, "\\")) {
+          break;
+        }
+        query += "\n";
       }
+      first_line = false;
     }
-  } else {
-    char *query_c_str;
-    while ((query_c_str = linenoise(use_emoji_prompt ? emoji_prompt : default_prompt)) != nullptr) {
-      std::string query(query_c_str);
-      linenoiseHistoryAdd(query_c_str);
-      linenoiseFree(query_c_str);
-      try {
-        auto result = bustub->ExecuteSql(query);
-        for (const auto &line : result) {
-          std::cout << line << std::endl;
-        }
-      } catch (bustub::Exception &ex) {
-        std::cerr << ex.what() << std::endl;
+
+    if (!disable_tty) {
+      linenoiseHistoryAdd(query.c_str());
+    }
+
+    try {
+      auto result = bustub->ExecuteSql(query);
+      for (const auto &line : result) {
+        std::cout << line << std::endl;
       }
+    } catch (bustub::Exception &ex) {
+      std::cerr << ex.what() << std::endl;
     }
   }
 
