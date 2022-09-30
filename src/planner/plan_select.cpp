@@ -24,9 +24,11 @@
 #include "execution/plans/limit_plan.h"
 #include "execution/plans/projection_plan.h"
 #include "execution/plans/sort_plan.h"
+#include "execution/plans/values_plan.h"
 #include "fmt/format.h"
 #include "planner/planner.h"
 #include "type/type_id.h"
+#include "type/value_factory.h"
 
 namespace bustub {
 
@@ -35,7 +37,10 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> AbstractPlanNodeRe
 
   switch (statement.table_->type_) {
     case TableReferenceType::EMPTY:
-      throw Exception("select value is not supported in planner yet");
+      plan = std::make_shared<ValuesPlanNode>(
+          std::make_shared<Schema>(std::vector<Column>{}),
+          std::vector<std::vector<AbstractExpressionRef>>{std::vector<AbstractExpressionRef>{}});
+      break;
     default:
       plan = PlanTableRef(*statement.table_);
       break;
@@ -65,6 +70,9 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> AbstractPlanNodeRe
     std::vector<AbstractPlanNodeRef> children = {plan};
     for (const auto &item : statement.select_list_) {
       auto [name, expr] = PlanExpression(*item, {plan});
+      if (name == UNNAMED_COLUMN) {
+        name = fmt::format("__unnamed#{}", universal_id_++);
+      }
       exprs.emplace_back(std::move(expr));
       column_names.emplace_back(std::move(name));
     }
