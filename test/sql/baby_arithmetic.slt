@@ -1,0 +1,29 @@
+statement ok
+select 1 + 2;
+
+statement ok
+select 1 + 2 + 3;
+
+statement ok
+select 1 - 2 + 5 - 10;
+
+statement ok
+select 1 + 2 + 3 + null;
+
+statement ok
+select 1 > 2 and 2 > 3;
+
+statement ok
+select null > 2 and 2 > 3;
+
+statement ok
+select null < 2 and 2 < 3;
+
+statement ok
+select null > 2 or 2 > 3;
+
+statement ok
+select null < 2 or 2 < 3;
+
+statement ok
+select colA + colB, colA, colB, colA - colB from __mock_table_1;

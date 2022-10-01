@@ -1,0 +1,70 @@
+<html>
+
+<head>
+    <title>BusTub Shell</title>
+    <!-- jQuery -->
+    <script src="https://unpkg.com/jquery@3.x.x/dist/jquery.min.js"></script>
+    <!-- jQuery Terminal -->
+    <script src="https://unpkg.com/jquery.terminal@2.x.x/js/jquery.terminal.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/jquery.terminal@2.x.x/css/jquery.terminal.min.css" />
+    <!-- prismjs  -->
+    <link rel="stylesheet" href="https://unpkg.com/prismjs@1.x.x/themes/prism.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/terminal-prism@0.3.x/css/prism.css" />
+    <script src="https://unpkg.com/prismjs@1.x.x/prism.js"></script>
+    <script src="https://unpkg.com/prismjs@1.x.x/components/prism-sql.min.js"></script>
+    <script src="https://unpkg.com/jquery.terminal@2.x.x/js/prism.js"></script>
+    <!-- CJK characters -->
+    <script src="https://cdn.jsdelivr.net/gh/jcubic/static/js/wcwidth.js"></script>
+</head>
+
+<body>
+</body>
+
+<style>
+    .terminal {
+        --color: black;
+        --background: white;
+        --link-color: darkblue;
+        --size: 1.2;
+    }
+</style>
+
+<script src="./bustub-wasm-shell.js"></script>
+
+<script type="text/javascript">
+    Module['onRuntimeInitialized'] = function () {
+        const executeQuery = Module.cwrap('BustubExecuteQuery', 'number', ['string', 'number', 'number'])
+        const test = Module.cwrap('Test', 'number', [])
+        window.executeQuery = (x) => {
+            let output = new Array(65536).join(" ");
+            let ptrOutput = Module.allocateUTF8(output);
+            console.log(executeQuery(x, ptrOutput, 65536));
+            output = Module.UTF8ToString(ptrOutput);
+            Module._free(ptrOutput);
+            return output
+        }
+    }
+    $(document).ready(() => {
+        $.terminal.syntax('sql')
+        $.terminal.prism_formatters = {
+            prompt: false,
+            echo: false,
+            animation: false,
+            command: true
+        }
+        let line = ""
+        var term = $('body').terminal(function (command) {
+            line += command
+            if (line.endsWith(';') || line.startsWith("\\")) {
+                const result = executeQuery(line)
+                this.echo(result)
+                line = ""
+            }
+        }, {
+            greetings: "Welcome to the BusTub \u{1F6C1} shell!\nType \\help to learn about the usage.\n",
+            prompt: () => line.length == 0 ? "[[b;;]bustub> ]" : "[[b;;]...> ]"
+        })
+    })
+</script>
+
+</html>

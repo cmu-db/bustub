@@ -728,7 +728,27 @@ auto Binder::BindLimitOffset(duckdb_libpgquery::PGNode *root) -> std::unique_ptr
 }
 
 auto Binder::BindExplain(duckdb_libpgquery::PGExplainStmt *stmt) -> std::unique_ptr<ExplainStatement> {
-  return std::make_unique<ExplainStatement>(TransformStatement(stmt->query));
+  uint8_t explain_options =
+      ExplainOptions::PLANNER | ExplainOptions::OPTIMIZER | ExplainOptions::BINDER | ExplainOptions::SCHEMA;
+  if (stmt->options != nullptr) {
+    explain_options = ExplainOptions::INVALID;
+    for (auto node = stmt->options->head; node != nullptr; node = node->next) {
+      auto temp = reinterpret_cast<duckdb_libpgquery::PGDefElem *>(node->data.ptr_value);
+      if (strcmp(temp->defname, "planner") == 0 || strcmp(temp->defname, "p") == 0) {
+        explain_options |= ExplainOptions::PLANNER;
+      }
+      if (strcmp(temp->defname, "binder") == 0 || strcmp(temp->defname, "b") == 0) {
+        explain_options |= ExplainOptions::BINDER;
+      }
+      if (strcmp(temp->defname, "optimizer") == 0 || strcmp(temp->defname, "o") == 0) {
+        explain_options |= ExplainOptions::OPTIMIZER;
+      }
+      if (strcmp(temp->defname, "schema") == 0 || strcmp(temp->defname, "s") == 0) {
+        explain_options |= ExplainOptions::SCHEMA;
+      }
+    }
+  }
+  return std::make_unique<ExplainStatement>(TransformStatement(stmt->query), explain_options);
 }
 
 //===----------------------------------------------------------------------===//
