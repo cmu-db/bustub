@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <thread>
 
@@ -36,10 +37,10 @@ auto main(int argc, char **argv) -> int {  // NOLINT
       case bustub::RecordType::STATEMENT: {
         const auto &statement = dynamic_cast<const bustub::StatementRecord &>(*record);
         try {
-          auto result = bustub->ExecuteSql(statement.sql_);
-          for (const auto &line : result) {
-            std::cout << line << std::endl;
-          }
+          std::stringstream result;
+          auto writer = bustub::SimpleStreamWriter(result);
+          bustub->ExecuteSql(statement.sql_, writer);
+          std::cout << result.str();
           if (statement.is_error_) {
             std::cerr << "statement should error" << std::endl;
             return 1;
