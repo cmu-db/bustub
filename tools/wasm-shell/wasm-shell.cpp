@@ -9,6 +9,7 @@
 #include "common/exception.h"
 #include "common/util/string_util.h"
 #include "linenoise/linenoise.h"
+#include "utf8proc/utf8proc.h"
 
 static std::unique_ptr<bustub::BustubInstance> instance = nullptr;
 
@@ -27,14 +28,11 @@ auto BustubExecuteQuery(const char *input, char *output, uint16_t len) -> int {
   std::cout << input_string << std::endl;
   std::string output_string;
   try {
-    auto result = instance->ExecuteSql(input_string);
-    for (const auto &line : result) {
-      output_string += line;
-      output_string += "\n";
-    }
+    auto writer = bustub::HtmlWriter();
+    instance->ExecuteSql(input_string, writer);
+    output_string = writer.ss_.str();
   } catch (bustub::Exception &ex) {
-    output_string += ex.what();
-    output_string += "\n";
+    output_string = ex.what();
   }
   std::cout << output_string << std::endl;
   strncpy(output, output_string.c_str(), len);

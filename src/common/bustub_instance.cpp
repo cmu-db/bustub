@@ -1,4 +1,6 @@
-#include "common/bustub_instance.h"
+#include <string>
+#include <tuple>
+
 #include "binder/binder.h"
 #include "binder/bound_expression.h"
 #include "binder/bound_statement.h"
@@ -9,6 +11,7 @@
 #include "buffer/buffer_pool_manager_instance.h"
 #include "catalog/schema.h"
 #include "catalog/table_generator.h"
+#include "common/bustub_instance.h"
 #include "common/enums/statement_type.h"
 #include "common/exception.h"
 #include "common/util/string_util.h"
@@ -25,6 +28,7 @@
 #include "recovery/log_manager.h"
 #include "storage/disk/disk_manager.h"
 #include "storage/disk/disk_manager_memory.h"
+#include "type/value_factory.h"
 
 namespace bustub {
 
@@ -66,63 +70,94 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
   execution_engine_ = new ExecutionEngine(buffer_pool_manager_, transaction_manager_, catalog_);
 }
 
-auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::string> {
-  if (!sql.empty() && sql[0] == '\\') {
-    auto internal_sql = StringUtil::Strip(sql, '\n');
-    // Internal meta-commands, like in `psql`.
-    if (internal_sql == "\\dt") {
-      std::string result;
-      auto table_names = catalog_->GetTableNames();
-      for (const auto &name : table_names) {
-        result += name;
-        result += "\n";
-      }
-      return {result};
+void BustubInstance::CmdDisplayTables(ResultWriter &writer) {
+  auto table_names = catalog_->GetTableNames();
+  writer.BeginTable(false);
+  writer.BeginHeader();
+  writer.WriteHeaderCell("oid");
+  writer.WriteHeaderCell("name");
+  writer.WriteHeaderCell("cols");
+  writer.EndHeader();
+  for (const auto &name : table_names) {
+    writer.BeginRow();
+    const auto *table_info = catalog_->GetTable(name);
+    writer.WriteCell(fmt::format("{}", table_info->oid_));
+    writer.WriteCell(table_info->name_);
+    writer.WriteCell(table_info->schema_.ToString());
+    writer.EndRow();
+  }
+  writer.EndTable();
+}
+
+void BustubInstance::CmdDisplayIndices(ResultWriter &writer) {
+  auto table_names = catalog_->GetTableNames();
+  writer.BeginTable(false);
+  writer.BeginHeader();
+  writer.WriteHeaderCell("table_name");
+  writer.WriteHeaderCell("index_oid");
+  writer.WriteHeaderCell("index_name");
+  writer.WriteHeaderCell("index_cols");
+  writer.EndHeader();
+  for (const auto &table_name : table_names) {
+    for (const auto *index_info : catalog_->GetTableIndexes(table_name)) {
+      writer.BeginRow();
+      writer.WriteCell(table_name);
+      writer.WriteCell(fmt::format("{}", index_info->index_oid_));
+      writer.WriteCell(index_info->name_);
+      writer.WriteCell(index_info->key_schema_.ToString());
+      writer.EndRow();
     }
-    if (StringUtil::StartsWith(internal_sql, "\\d ")) {
-      auto table_name = std::string(internal_sql.cbegin() + 3, internal_sql.cend());
-      auto table_info = catalog_->GetTable(table_name);
-      if (table_info == nullptr) {
-        return {"table not found"};
-      }
-      std::vector<std::string> info;
-      info.emplace_back(fmt::format("name={} oid={}", table_info->name_, table_info->oid_));
-      for (const auto &column : table_info->schema_.GetColumns()) {
-        info.emplace_back(fmt::format("  {}", column.ToString()));
-      }
-      auto index_info = catalog_->GetTableIndexes(table_name);
-      for (const auto *index : index_info) {
-        info.emplace_back(fmt::format("index_name={} oid={}", index->name_, index->index_oid_));
-        for (const auto &column : index->key_schema_.GetColumns()) {
-          info.emplace_back(fmt::format("  {}", column.ToString()));
-        }
-      }
-      return info;
+  }
+  writer.EndTable();
+}
+
+void BustubInstance::WriteOneCell(const std::string &cell, ResultWriter &writer) {
+  writer.BeginTable(true);
+  writer.BeginRow();
+  writer.WriteCell(cell);
+  writer.EndRow();
+  writer.EndTable();
+}
+
+void BustubInstance::CmdDisplayHelp(ResultWriter &writer) {
+  std::string help = R"(Welcome to the BusTub shell!
+
+\\dt: show all tables
+\\di: show all indices
+\\help: show this message again
+
+BusTub shell currently only supports a small set of Postgres queries. We'll set
+up a doc describing the current status later. It will silently ignore some parts
+of the query, so it's normal that you'll get a wrong result when executing
+unsupported SQL queries. This shell will be able to run `create table` only
+after you have completed the buffer pool manager. It will be able to execute SQL
+queries after you have implemented necessary query executors. Use `explain` to
+see the execution plan of your query.
+)";
+  WriteOneCell(help, writer);
+}
+
+void BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) {
+  if (!sql.empty() && sql[0] == '\\') {
+    // Internal meta-commands, like in `psql`.
+    if (sql == "\\dt") {
+      CmdDisplayTables(writer);
+      return;
+    }
+    if (sql == "\\di") {
+      CmdDisplayIndices(writer);
+      return;
     }
     if (sql == "\\help") {
-      return {"Welcome to the BusTub shell!\n",
-              "",
-              "\\dt: show all tables",
-              "\\d <table>: show info about a table",
-              "\\help: show this message again",
-              "",
-              "BusTub shell currently only supports a small set of Postgres queries.",
-              "We'll set up a doc describing the current status later.",
-              "It will silently ignore some parts of the query, so it's normal that",
-              "you'll get a wrong result when executing unsupported SQL queries.",
-              "",
-              "This shell will be able to run `create table` only after you have ",
-              "completed the buffer pool manager. It will be able to execute SQL ",
-              "queries after you have implemented necessary query executors.",
-              "",
-              "Use `explain` to see the execution plan of your query."};
+      CmdDisplayHelp(writer);
+      return;
     }
     throw Exception(fmt::format("unsupported internal command: {}", sql));
   }
 
   bustub::Binder binder(*catalog_);
   binder.ParseAndBindQuery(sql);
-  std::vector<std::string> result = {};
+
   for (const auto &statement : binder.statements_) {
     switch (statement->type_) {
       case StatementType::CREATE_STATEMENT: {
@@ -134,7 +169,7 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
         if (info == nullptr) {
           throw bustub::Exception("Failed to create table");
         }
-        result.emplace_back(fmt::format("Table created with id = {}", info->oid_));
+        WriteOneCell(fmt::format("Table created with id = {}", info->oid_), writer);
         continue;
       }
       case StatementType::INDEX_STATEMENT: {
@@ -161,16 +196,19 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
         if (info == nullptr) {
           throw bustub::Exception("Failed to create index");
         }
-        result.emplace_back(fmt::format("Index created with id = {}", info->index_oid_));
+        WriteOneCell(fmt::format("Index created with id = {}", info->index_oid_), writer);
         continue;
       }
       case StatementType::EXPLAIN_STATEMENT: {
         const auto &explain_stmt = dynamic_cast<const ExplainStatement &>(*statement);
+        std::string output;
 
         // Print binder result.
         if ((explain_stmt.options_ & ExplainOptions::BINDER) != 0) {
-          result.emplace_back("=== BINDER ===");
-          result.emplace_back(explain_stmt.statement_->ToString());
+          output += "=== BINDER ===";
+          output += "\n";
+          output += explain_stmt.statement_->ToString();
+          output += "\n";
         }
 
         bustub::Planner planner(*catalog_);
@@ -180,8 +218,10 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
 
         // Print planner result.
         if ((explain_stmt.options_ & ExplainOptions::PLANNER) != 0) {
-          result.emplace_back("=== PLANNER ===");
-          result.emplace_back(planner.plan_->ToString(show_schema));
+          output += "=== PLANNER ===";
+          output += "\n";
+          output += planner.plan_->ToString(show_schema);
+          output += "\n";
         }
 
         // Print optimizer result.
@@ -189,9 +229,14 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
         auto optimized_plan = optimizer.Optimize(planner.plan_);
 
         if ((explain_stmt.options_ & ExplainOptions::OPTIMIZER) != 0) {
-          result.emplace_back("=== OPTIMIZER ===");
-          result.emplace_back(optimized_plan->ToString(show_schema));
+          output += "=== OPTIMIZER ===";
+          output += "\n";
+          output += optimized_plan->ToString(show_schema);
+          output += "\n";
         }
+
+        WriteOneCell(output, writer);
+
         continue;
       }
       default:
@@ -219,24 +264,23 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
     auto schema = planner.plan_->OutputSchema();
 
     // Generate header for the result set.
-    std::string header;
+    writer.BeginTable(false);
+    writer.BeginHeader();
     for (const auto &column : schema.GetColumns()) {
-      header += column.GetName();
-      header += "\t";
+      writer.WriteHeaderCell(column.GetName());
     }
-    result.emplace_back(std::move(header));
+    writer.EndHeader();
 
     // Transforming result set into strings.
     for (const auto &tuple : result_set) {
-      std::string row;
+      writer.BeginRow();
       for (uint32_t i = 0; i < schema.GetColumnCount(); i++) {
-        row += tuple.GetValue(&schema, i).ToString();
-        row += "\t";
+        writer.WriteCell(tuple.GetValue(&schema, i).ToString());
       }
-      result.emplace_back(std::move(row));
+      writer.EndRow();
     }
+    writer.EndTable();
   }
-  return result;
 }
 
 /**
