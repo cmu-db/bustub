@@ -212,6 +212,8 @@ class Binder {
 
   /** Sometimes we will need to assign a name to some unnamed items. This variable gives them a universal ID. */
   size_t universal_id_{0};
+
+  duckdb::PostgresParser parser_;
 };
 
 }  // namespace bustub

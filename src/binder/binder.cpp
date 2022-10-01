@@ -43,20 +43,19 @@ namespace bustub {
 Binder::Binder(const Catalog &catalog) : catalog_(catalog), scope_(nullptr) {}
 
 void Binder::ParseAndSave(const std::string &query) {
-  duckdb::PostgresParser parser;
-  parser.Parse(query);
-  if (!parser.success) {
+  parser_.Parse(query);
+  if (!parser_.success) {
     LOG_INFO("Query failed to parse!");
-    throw Exception(fmt::format("Query failed to parse: {}", parser.error_message));
+    throw Exception(fmt::format("Query failed to parse: {}", parser_.error_message));
     return;
   }
 
-  if (parser.parse_tree == nullptr) {
+  if (parser_.parse_tree == nullptr) {
     LOG_INFO("parser received empty statement");
     return;
   }
 
-  SaveParseTree(parser.parse_tree);
+  SaveParseTree(parser_.parse_tree);
 }
 
 auto Binder::IsKeyword(const std::string &text) -> bool { return duckdb::PostgresParser::IsKeyword(text); }
