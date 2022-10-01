@@ -1,0 +1,67 @@
+main_task:
+
+  matrix:
+    - name: freebsd_12_1
+      freebsd_instance:
+        image_family: freebsd-12-1
+
+    - name: freebsd_13_0
+      freebsd_instance:
+        image_family: freebsd-13-0
+
+  install_script:
+    - uname -a
+    - pkg install -y cmake
+
+  script:
+    - CMAKE_C_FLAGS="-Werror"
+    - CMAKE_CXX_FLAGS="-Werror"
+
+    - ls
+    - cc --version
+    - c++ --version
+
+    # Basic c build
+    - cd lib 
+    - cc -Wall -Wextra -Werror --std=gnu89 fort.c -c -o fort.o 
+    - rm fort.o 
+    - cd .. 
+
+    # Basic c++ build
+    - cd lib 
+    - cp fort.c fort.cpp
+    - c++ -Wall -Wextra -Werror fort.cpp -c -o fort.o 
+    - rm fort.o 
+    - rm fort.cpp 
+    - cd .. 
+
+    # Perform out-of-source build(CMake backend generation, build, and test)
+    # Test build without optimizations and with asan
+    - mkdir -p build
+    - cd build
+    - cmake .. -DFORT_BUILD_TYPE=asan -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=11 -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS}" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}"
+    - cmake --build . --target all 
+    - ls
+    - ctest -VV
+    - cd ..
+    - rm -r build/* 
+
+    # Test build without optimizations and with ubsan
+    - mkdir -p build
+    - cd build
+    - cmake .. -DFORT_BUILD_TYPE=ubsan -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=11 -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS}" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}"
+    - cmake --build . --target all 
+    - ls
+    - ctest -VV
+    - cd ..
+    - rm -r build/* 
+
+    # Test without WCHAR and UTF-8 support
+    - mkdir -p build
+    - cd build
+    - cmake .. -DFORT_ENABLE_WCHAR=OFF -DFORT_ENABLE_UTF8=OFF -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=11 -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS}" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}"
+    - cmake --build . --target all 
+    - ls
+    - ctest -VV
+    - cd ..
+    - rm -r build/*
