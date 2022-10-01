@@ -1,0 +1,46 @@
+cmake_minimum_required(VERSION 3.6)
+project(argparse_samples)
+
+if(MSVC)
+  # Force to always compile with W4
+  if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+    string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+  endif()
+elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+  # Update if necessary
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic -Wsign-conversion -Wshadow -Wconversion")
+endif()
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+# Disable deprecation for windows
+if (WIN32)
+	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+endif()
+
+function(add_sample NAME)
+  ADD_EXECUTABLE(ARGPARSE_SAMPLE_${NAME} ${NAME}.cpp)
+  INCLUDE_DIRECTORIES("../include" ".")
+  TARGET_LINK_LIBRARIES(ARGPARSE_SAMPLE_${NAME} PRIVATE argparse::argparse)
+  set_target_properties(ARGPARSE_SAMPLE_${NAME} PROPERTIES OUTPUT_NAME ${NAME})
+endfunction()
+
+add_sample(positional_argument)
+add_sample(optional_flag_argument)
+add_sample(required_optional_argument)
+add_sample(is_used)
+add_sample(joining_repeated_optional_arguments)
+add_sample(repeating_argument_to_increase_value)
+add_sample(negative_numbers)
+add_sample(description_epilog_metavar)
+add_sample(list_of_arguments)
+add_sample(compound_arguments)
+add_sample(gathering_remaining_arguments)
+add_sample(subcommands)
+add_sample(parse_known_args)
+add_sample(custom_prefix_characters)
+add_sample(custom_assignment_characters)

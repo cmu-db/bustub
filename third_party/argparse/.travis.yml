@@ -1,0 +1,39 @@
+matrix:
+  include:
+    - os: linux
+      dist: bionic
+      language: cpp
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+      env: CXX=g++-8 CC=gcc-8
+    - os: osx
+      osx_image: xcode10.2
+      language: cpp
+      compiler: clang
+    - os: windows
+      language: bash
+      env: CXX=cl.exe
+install:
+  - |
+    if [[ $TRAVIS_OS_NAME == 'windows' ]]; then
+      choco install ninja cmake
+    elif [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+      export PATH=~/Library/Python/3.7/bin:$PATH
+      pip3 install --user ninja cmake
+    else
+      pipenv global 3.6
+      pip install --user ninja cmake
+    fi
+script:
+  - |
+    if [[ $TRAVIS_OS_NAME == 'windows' ]]; then
+      tools/build.bat
+    else
+      sh tools/build.sh
+    fi
+  - ./build/test/tests
