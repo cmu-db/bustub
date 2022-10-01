@@ -728,7 +728,7 @@ auto Binder::BindLimitOffset(duckdb_libpgquery::PGNode *root) -> std::unique_ptr
 }
 
 auto Binder::BindExplain(duckdb_libpgquery::PGExplainStmt *stmt) -> std::unique_ptr<ExplainStatement> {
-  return std::make_unique<ExplainStatement>(TransformStatement(stmt->query));
+  return std::make_unique<ExplainStatement>(BindStatement(stmt->query));
 }
 
 //===----------------------------------------------------------------------===//

@@ -120,9 +120,10 @@ auto BustubInstance::ExecuteSql(const std::string &sql) -> std::vector<std::stri
   }
 
   bustub::Binder binder(*catalog_);
-  binder.ParseAndBindQuery(sql);
+  binder.ParseAndSave(sql);
   std::vector<std::string> result = {};
-  for (const auto &statement : binder.statements_) {
+  for (auto *stmt : binder.statement_nodes_) {
+    auto statement = binder.BindStatement(stmt);
     switch (statement->type_) {
       case StatementType::CREATE_STATEMENT: {
         const auto &create_stmt = dynamic_cast<const CreateStatement &>(*statement);
