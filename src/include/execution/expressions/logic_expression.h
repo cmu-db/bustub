@@ -59,7 +59,7 @@ class LogicExpression : public AbstractExpression {
 
   /** @return the string representation of the expression node and its children */
   auto ToString() const -> std::string override {
-    return fmt::format("{}{}{}", *GetChildAt(0), logic_type_, *GetChildAt(1));
+    return fmt::format("({}{}{})", *GetChildAt(0), logic_type_, *GetChildAt(1));
   }
 
   BUSTUB_EXPR_CLONE_WITH_CHILDREN(LogicExpression);
@@ -111,10 +111,10 @@ struct fmt::formatter<bustub::LogicType> : formatter<string_view> {
     string_view name;
     switch (c) {
       case bustub::LogicType::And:
-        name = "&&";
+        name = "and";
         break;
       case bustub::LogicType::Or:
-        name = "||";
+        name = "or";
         break;
       default:
         name = "Unknown";
