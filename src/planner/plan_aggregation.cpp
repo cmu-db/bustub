@@ -136,7 +136,7 @@ auto Planner::PlanSelectAgg(const SelectStatement &statement, AbstractPlanNodeRe
   // Create the aggregation plan node for the first phase (finally!)
   AbstractPlanNodeRef plan = std::make_shared<AggregationPlanNode>(
       std::make_shared<Schema>(ProjectionPlanNode::RenameSchema(agg_output_schema, output_col_names)), std::move(child),
-      nullptr, std::move(group_by_exprs), std::move(input_exprs), std::move(agg_types));
+      std::move(group_by_exprs), std::move(input_exprs), std::move(agg_types));
 
   // Phase-2: plan filter / projection to match the original select list
 

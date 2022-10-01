@@ -1,0 +1,14 @@
+statement ok
+create table t2(v4 int, v5 int, v6 varchar(128));
+
+statement ok
+insert into t2 values (1, 2, 'aa'), (3, 4, 'bb');
+
+statement ok
+create index t2v5 on t2(v5);
+
+statement ok
+explain select * from t2 order by v5;
+
+statement ok
+select * from t2 order by v5;

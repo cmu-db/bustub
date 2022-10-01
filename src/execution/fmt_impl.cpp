@@ -11,7 +11,7 @@
 
 namespace bustub {
 
-auto AbstractPlanNode::ChildrenToString(int indent) const -> std::string {
+auto AbstractPlanNode::ChildrenToString(int indent, bool with_schema) const -> std::string {
   if (children_.empty()) {
     return "";
   }
@@ -19,7 +19,7 @@ auto AbstractPlanNode::ChildrenToString(int indent) const -> std::string {
   children_str.reserve(children_.size());
   auto indent_str = StringUtil::Indent(indent);
   for (const auto &child : children_) {
-    auto child_str = child->ToString();
+    auto child_str = child->ToString(with_schema);
     auto lines = StringUtil::Split(child_str, '\n');
     for (auto &line : lines) {
       children_str.push_back(fmt::format("{}{}", indent_str, line));
@@ -29,8 +29,7 @@ auto AbstractPlanNode::ChildrenToString(int indent) const -> std::string {
 }
 
 auto AggregationPlanNode::PlanNodeToString() const -> std::string {
-  return fmt::format("Agg {{ types={}, aggregates=[{}], having={}, group_by=[{}] }}", agg_types_, aggregates_, having_,
-                     group_bys_);
+  return fmt::format("Agg {{ types={}, aggregates=[{}], group_by={} }}", agg_types_, aggregates_, group_bys_);
 }
 
 auto ProjectionPlanNode::PlanNodeToString() const -> std::string {
