@@ -96,7 +96,7 @@ Debug mode:
 
 ```
 $ cmake -DCMAKE_BUILD_TYPE=Debug ..
-$ make -j
+$ make -j`nproc`
 ```
 This enables [AddressSanitizer](https://github.com/google/sanitizers) by default.
 
@@ -105,7 +105,7 @@ If you want to use other sanitizers,
 
 ```
 $ cmake -DCMAKE_BUILD_TYPE=Debug -DBUSTUB_SANITIZER=thread ..
-$ make -j
+$ make -j`nproc`
 ```
 
 ### Windows (Not Guaranteed to Work)
