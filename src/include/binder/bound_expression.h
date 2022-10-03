@@ -98,9 +98,6 @@ struct fmt::formatter<bustub::ExpressionType> : formatter<string_view> {
       case bustub::ExpressionType::ALIAS:
         name = "Alias";
         break;
-      default:
-        name = "Unknown";
-        break;
     }
     return formatter<string_view>::format(name, ctx);
   }
