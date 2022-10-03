@@ -51,7 +51,7 @@ auto TryBind(const std::string &query) {
 
   binder.ParseAndSave(query);
   std::vector<std::unique_ptr<BoundStatement>> statements;
-  for ( auto *stmt : binder.statement_nodes_) {
+  for (auto *stmt : binder.statement_nodes_) {
     auto statement = binder.BindStatement(stmt);
     statements.emplace_back(std::move(statement));
   }
