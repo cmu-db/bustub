@@ -4,6 +4,7 @@
 #include "binder/bound_expression.h"
 #include "binder/statement/delete_statement.h"
 #include "binder/statement/insert_statement.h"
+#include "binder/statement/select_statement.h"
 #include "catalog/column.h"
 #include "catalog/schema.h"
 #include "common/exception.h"

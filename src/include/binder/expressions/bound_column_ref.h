@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "binder/bound_expression.h"
+#include "common/macros.h"
 
 namespace bustub {
 

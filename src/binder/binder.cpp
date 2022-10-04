@@ -40,7 +40,7 @@
 
 namespace bustub {
 
-Binder::Binder(const Catalog &catalog) : catalog_(catalog), scope_(nullptr) {}
+Binder::Binder(const Catalog &catalog) : catalog_(catalog) {}
 
 void Binder::ParseAndBindQuery(const std::string &query) {
   duckdb::PostgresParser parser;

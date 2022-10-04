@@ -19,6 +19,7 @@ enum class TableReferenceType : uint8_t {
   CROSS_PRODUCT = 4,   /**< Output of cartesian product. */
   EXPRESSION_LIST = 5, /**< Values clause. */
   SUBQUERY = 6,        /**< Subquery. */
+  CTE = 7,             /**< CTE. */
   EMPTY = 8            /**< Placeholder for empty FROM. */
 };
 
@@ -55,7 +56,7 @@ template <typename T>
 struct fmt::formatter<T, std::enable_if_t<std::is_base_of<bustub::BoundTableRef, T>::value, char>>
     : fmt::formatter<std::string> {
   template <typename FormatCtx>
-  auto format(const bustub::BoundTableRef &x, FormatCtx &ctx) const {
+  auto format(const T &x, FormatCtx &ctx) const {
     return fmt::formatter<std::string>::format(x.ToString(), ctx);
   }
 };
@@ -64,7 +65,7 @@ template <typename T>
 struct fmt::formatter<std::unique_ptr<T>, std::enable_if_t<std::is_base_of<bustub::BoundTableRef, T>::value, char>>
     : fmt::formatter<std::string> {
   template <typename FormatCtx>
-  auto format(const std::unique_ptr<bustub::BoundTableRef> &x, FormatCtx &ctx) const {
+  auto format(const std::unique_ptr<T> &x, FormatCtx &ctx) const {
     return fmt::formatter<std::string>::format(x->ToString(), ctx);
   }
 };
@@ -95,6 +96,9 @@ struct fmt::formatter<bustub::TableReferenceType> : formatter<string_view> {
         break;
       case bustub::TableReferenceType::SUBQUERY:
         name = "Subquery";
+        break;
+      case bustub::TableReferenceType::CTE:
+        name = "CTE";
         break;
       default:
         name = "Unknown";
