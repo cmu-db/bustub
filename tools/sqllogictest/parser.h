@@ -72,7 +72,7 @@ class StatementRecord : public Record {
       : Record{RecordType::STATEMENT, std::move(loc)}, is_error_(is_error), sql_(std::move(sql)){};
 
   auto ToString() const -> std::string override {
-    return fmt::format("Statement {{ is_error={}, sql={} }}", is_error_, sql_);
+    return fmt::format("Statement {{\nis_error={},\nsql={}\n}}", is_error_, sql_);
   }
 
   bool is_error_;

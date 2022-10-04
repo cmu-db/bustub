@@ -1,29 +1,47 @@
-statement ok
+query
 select 1 + 2;
+----
+3
 
-statement ok
+query
 select 1 + 2 + 3;
+----
+6
 
-statement ok
+query
 select 1 - 2 + 5 - 10;
+----
+-6
 
-statement ok
+query
 select 1 + 2 + 3 + null;
+----
+integer_null
 
-statement ok
+query
 select 1 > 2 and 2 > 3;
+----
+false
 
-statement ok
+query
 select null > 2 and 2 > 3;
+----
+false
 
-statement ok
+query
 select null < 2 and 2 < 3;
+----
+boolean_null
 
-statement ok
+query
 select null > 2 or 2 > 3;
+----
+boolean_null
 
-statement ok
+query
 select null < 2 or 2 < 3;
+----
+true
 
 statement ok
 select colA + colB, colA, colB, colA - colB from __mock_table_1;
