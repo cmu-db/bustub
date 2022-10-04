@@ -8,6 +8,7 @@
 #include "planner/planner.h"
 
 namespace bustub {
+// NOLINTNEXTLINE - weird error on clang-tidy.
 auto Planner::GetAggCallFromFactory(const std::string &func_name, std::vector<AbstractExpressionRef> args)
     -> std::tuple<AggregationType, std::vector<AbstractExpressionRef>> {
   if (args.empty()) {
