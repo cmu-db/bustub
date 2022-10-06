@@ -671,19 +671,26 @@ auto Binder::BindAExpr(duckdb_libpgquery::PGAExpr *root) -> std::unique_ptr<Boun
 auto Binder::BindBoolExpr(duckdb_libpgquery::PGBoolExpr *root) -> std::unique_ptr<BoundExpression> {
   BUSTUB_ASSERT(root, "nullptr");
   switch (root->boolop) {
-    case duckdb_libpgquery::PG_AND_EXPR: {
-      auto exprs = BindExpressionList(root->args);
-      if (exprs.size() != 2) {
-        throw bustub::Exception("AND should have 2 args");
-      }
-      return std::make_unique<BoundBinaryOp>("and", std::move(exprs[0]), std::move(exprs[1]));
-    }
+    case duckdb_libpgquery::PG_AND_EXPR:
     case duckdb_libpgquery::PG_OR_EXPR: {
-      auto exprs = BindExpressionList(root->args);
-      if (exprs.size() != 2) {
-        throw bustub::Exception("OR should have 2 args");
+      std::string op_name;
+      if (root->boolop == duckdb_libpgquery::PG_AND_EXPR) {
+        op_name = "and";
+      } else if (root->boolop == duckdb_libpgquery::PG_OR_EXPR) {
+        op_name = "or";
+      } else {
+        UNREACHABLE("invalid op");
       }
-      return std::make_unique<BoundBinaryOp>("or", std::move(exprs[0]), std::move(exprs[1]));
+
+      auto exprs = BindExpressionList(root->args);
+      if (exprs.size() <= 1) {
+        throw bustub::Exception("AND should have at least 1 arg");
+      }
+      auto expr = std::make_unique<BoundBinaryOp>("and", std::move(exprs[0]), std::move(exprs[1]));
+      for (size_t i = 2; i < exprs.size(); i++) {
+        expr = std::make_unique<BoundBinaryOp>("and", std::move(expr), std::move(exprs[i]));
+      }
+      return expr;
     }
     case duckdb_libpgquery::PG_NOT_EXPR: {
       auto exprs = BindExpressionList(root->args);
@@ -748,7 +755,7 @@ auto Binder::BindExplain(duckdb_libpgquery::PGExplainStmt *stmt) -> std::unique_
       }
     }
   }
-  return std::make_unique<ExplainStatement>(TransformStatement(stmt->query), explain_options);
+  return std::make_unique<ExplainStatement>(BindStatement(stmt->query), explain_options);
 }
 
 //===----------------------------------------------------------------------===//

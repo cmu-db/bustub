@@ -4,10 +4,29 @@
 #include "common/bustub_instance.h"
 #include "common/exception.h"
 #include "common/util/string_util.h"
+#include "libfort/lib/fort.hpp"
 #include "linenoise/linenoise.h"
+#include "utf8proc/utf8proc.h"
+
+auto GetWidthOfUtf8(const void *beg, const void *end, size_t *width) -> int {
+  size_t computed_width = 0;
+  utf8proc_ssize_t n;
+  utf8proc_ssize_t size = static_cast<const char *>(end) - static_cast<const char *>(beg);
+  auto pstring = static_cast<utf8proc_uint8_t const *>(beg);
+  utf8proc_int32_t data;
+  while ((n = utf8proc_iterate(pstring, size, &data)) > 0) {
+    computed_width += utf8proc_charwidth(data);
+    pstring += n;
+    size -= n;
+  }
+  *width = computed_width;
+  return 0;
+}
 
 // NOLINTNEXTLINE
 auto main(int argc, char **argv) -> int {
+  ft_set_u8strwid_func(&GetWidthOfUtf8);
+
   auto bustub = std::make_unique<bustub::BustubInstance>("test.db");
 
   auto default_prompt = "bustub> ";
@@ -76,9 +95,10 @@ auto main(int argc, char **argv) -> int {
     }
 
     try {
-      auto result = bustub->ExecuteSql(query);
-      for (const auto &line : result) {
-        std::cout << line << std::endl;
+      auto writer = bustub::FortTableWriter();
+      bustub->ExecuteSql(query, writer);
+      for (const auto &table : writer.tables_) {
+        std::cout << table;
       }
     } catch (bustub::Exception &ex) {
       std::cerr << ex.what() << std::endl;

@@ -46,3 +46,21 @@
 # branch: master
 # commit hash: 97d2850af13c339369093b78abe5265845d78220
 # commit hash date: Mar 12 2020
+
+# libfort
+# url: https://github.com/seleznevae/libfort
+# branch: master
+# commit hash: 41237162a9bd34a30a88069ee4e230584ae8d674
+# commit hash date: Jun 23 2021
+
+# argparse
+# url: https://github.com/p-ranav/argparse
+# tag: v2.9
+# commit hash: 997da9255618311d1fcb0135ce86022729d1f1cb
+# commit hash date: Sep 21 2022
+
+# utf8proc
+# url: https://github.com/JuliaStrings/utf8proc
+# tag: v2.7.0
+# commit hash: 8ca6144c85c165987cb1c5d8395c7314e13d4cd7
+# commit hash date: Dec 16 2021

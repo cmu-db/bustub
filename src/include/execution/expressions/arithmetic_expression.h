@@ -67,7 +67,7 @@ class ArithmeticExpression : public AbstractExpression {
 
   /** @return the string representation of the expression node and its children */
   auto ToString() const -> std::string override {
-    return fmt::format("{}{}{}", *GetChildAt(0), compute_type_, *GetChildAt(1));
+    return fmt::format("({}{}{})", *GetChildAt(0), compute_type_, *GetChildAt(1));
   }
 
   BUSTUB_EXPR_CLONE_WITH_CHILDREN(ArithmeticExpression);
