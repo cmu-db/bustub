@@ -1,0 +1,313 @@
+language: C
+matrix:
+  include:
+    - name: "Basic linux gcc"
+      os: linux
+      sudo: false
+      compiler: gcc
+      before_script:
+        - pip install --user cpp-coveralls
+        - pip install --user cmakelint
+      env:
+        - BASIC_LINUX_GCC=yes
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['cppcheck', 'doxygen', 'graphviz', 'python-sphinx']
+      deploy:
+        provider: pages
+        skip_cleanup: true
+        local_dir: $TRAVIS_BUILD_DIR/docs/html
+        github_token: $GITHUB_API_KEY
+        on:
+          branch: master
+      after_success:
+        - coveralls --build-root build --include src --include tests  --gcov-options '\-lp'
+
+    - name: "Basic linux clang"
+      os: linux
+      sudo: required # to prevent fail of executables build with clang and sanitizers
+      compiler: clang
+      env:
+        - CC=clang
+        - BASIC_LINUX_CLANG=yes
+      addons:
+        apt:
+          sources: ['llvm-toolchain-trusty-4.0']
+          packages: ['clang-tidy-4.0']
+      
+    # Linux / GCC
+    - name: "Linux gcc-4.9"
+      os: linux
+      sudo: false
+      compiler: gcc
+      env:
+        - FORT_C_COMPILER=gcc-4.9
+        - FORT_CXX_COMPILER=g++-4.9
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-4.9']
+
+    - name: "Linux gcc-5"
+      os: linux
+      sudo: false
+      compiler: gcc
+      env:
+        - FORT_C_COMPILER=gcc-5
+        - FORT_CXX_COMPILER=g++-5
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-5']
+
+    - name: "Linux gcc-6"
+      os: linux
+      sudo: false
+      compiler: gcc
+      env:
+        - FORT_C_COMPILER=gcc-6
+        - FORT_CXX_COMPILER=g++-6
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-6']
+
+    - name: "Linux gcc-7"
+      os: linux
+      sudo: required
+      compiler: gcc
+      env:
+        - FORT_C_COMPILER=gcc-7
+        - FORT_CXX_COMPILER=g++-7
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-7']
+
+    - name: "Linux gcc-8"
+      os: linux
+      sudo: required
+      compiler: gcc
+      env:
+        - FORT_C_COMPILER=gcc-8
+        - FORT_CXX_COMPILER=g++-8
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-8']
+
+    - name: "Linux gcc-9"
+      os: linux
+      sudo: required
+      compiler: gcc
+      env:
+        - FORT_C_COMPILER=gcc-9
+        - FORT_CXX_COMPILER=g++-9
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-9']
+
+
+    # OSX / Clang
+    - name: "OSX xcode7.3"
+      os: osx
+      osx_image: xcode7.3
+      env: CC=clang
+
+    - name: "OSX xcode8.3"
+      os: osx
+      osx_image: xcode8.3
+      env: CC=clang
+
+    - name: "OSX xcode9.3"
+      os: osx
+      osx_image: xcode9.3
+      env: CC=clang
+      
+
+
+
+
+script:
+  - CMAKE_C_FLAGS="-Werror"
+  - CMAKE_CXX_FLAGS="-Werror"
+
+  # Check library file was generated
+  - python amalgamate.py -o dummy.c
+  - wc dummy.c
+  - wc lib/fort.c
+  - diff dummy.c lib/fort.c
+  - rm dummy.c
+
+  # make sure CC is correctly set
+  - if [[ "${FORT_C_COMPILER}" != "" ]];
+    then
+    export CC=${FORT_C_COMPILER}; 
+    export CXX=${FORT_CXX_COMPILER}; 
+    fi
+
+  # check CMakeLists.txt
+  - |
+    if [ "${BASIC_LINUX_GCC}" = "yes" ]; then
+      cmakelint CMakeLists.txt
+    fi
+
+  # basic build with old c standard (use gnu89 instead of c89 because some functions are not defines in c89)
+  - cd lib 
+  - ${CC} -Wall -Wextra -Werror --std=gnu89 fort.c -c -o fort.o 
+  - rm fort.o 
+  - cd .. 
+
+  # basic build c++ compiler
+  - |
+    if [ "${BASIC_LINUX_GCC}" = "yes" ]; then
+      cd lib
+      g++ -Wall -Wextra -Werror fort.c -c -o fort.o 
+      rm fort.o 
+      cd .. 
+    fi
+ 
+
+  ## cppcheck run
+  #- |
+  #  if [ "${BASIC_LINUX_GCC}" = "yes" ]; then
+  #    cppcheck --std=posix --enable=warning,style,performance,portability,information,missingInclude --error-exitcode=1 lib
+  #    cppcheck --std=c89 --enable=warning,style,performance,portability,information,missingInclude --error-exitcode=1 lib
+  #    cppcheck --std=c99 --enable=warning,style,performance,portability,information,missingInclude --error-exitcode=1 lib
+  #    cppcheck --std=c++11 --enable=warning,style,performance,portability,information,missingInclude --error-exitcode=1 lib
+  #  fi
+
+  # clang-tidy run
+  - |
+    if [ "${BASIC_LINUX_CLANG}" = "yes" ]; then
+      # don't know how force warnings of clang-tidy to be errors
+      cp .clang-tidy lib
+      clang-tidy lib/fort.c 
+      echo "Clang-tidy exit code is $?"
+    fi
+    
+
+  # doxygen run 
+  - |
+    if [ "${BASIC_LINUX_GCC}" = "yes" ]; then
+      cd docs  
+      make doxygen html
+      cd ..
+    fi
+
+  # Print all environment variables to aid in CI development
+  - printenv
+  # Print version and available CMake generators to aid in CI development
+  - cmake --version
+
+  # Perform out-of-source build(CMake backend generation, build, and test)
+  # Test build without optimizations and with asan
+  - mkdir -p build
+  - cd build
+  - cmake .. -DFORT_BUILD_TYPE=asan -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=11 -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS}" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}"
+  - cmake --build . --target all 
+  - ls
+  - ctest -VV
+
+  # Test without WCHAR and UTF-8 support
+  - cd ..
+  - rm -r build/*
+  - mkdir -p build
+  - cd build
+  - cmake .. -DFORT_ENABLE_WCHAR=OFF -DFORT_ENABLE_UTF8=OFF -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=11 -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS}" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}"
+  - cmake --build . --target all 
+  - ls
+  - ctest -VV
+
+  # Test build without optimizations and with ubsan
+  - |
+    if [ "${CC}" = 'gcc-7' ]; then
+      cd .. ;
+      rm -r build/* ;
+      cd build ;
+      cmake .. -DFORT_BUILD_TYPE=ubsan -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=11 -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS}" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" ; 
+      cmake --build . --target all ;
+      ls ;
+      ctest -VV;
+    fi
+
+  # Astyle Format
+  # - |
+  #   if [ "${CC}" = 'gcc' ]; then
+  #     ls
+  #     cd ..  ;
+  #     rm -r build/* ;
+  #     cd build ;
+  #     cmake .. -DFORT_ENABLE_ASTYLE=ON ;
+  #     make ;
+  #     make format ;
+  #     cd .. ;
+  #     if [[ -n $(git diff) ]]; then
+  #         echo "You must run make format before submitting a pull request" ;
+  #         echo "" ;
+  #         git diff ;
+  #         exit -1 ;
+  #     fi
+  #     cd build ;
+  #     rm -rf external
+  #   fi
+
+
+  # Clang static analyzer (doesn't work - can't find scan-build)
+  # - |
+  #   if [ "${CC}" = 'clang' ]; then
+  #     cd ..  ;
+  #     pwd ;
+  #     ls ;
+  #     rm -rf build/* ;
+  #     cd build ;
+  #     cmake .. ;
+  #     scan-build make ;
+  #   fi
+
+  # Test package installation
+  - cd ..
+  - rm -r build/*
+  - cmake -H. -Bbuild -DFORT_ENABLE_TESTING=OFF -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=11 -DCMAKE_INSTALL_PREFIX=`pwd`/install
+  - cmake --build build --target all
+  - cmake --build build -- install
+  - ls `pwd`/install
+  - cd tests/package_tests
+  - cmake -H. -B_build -DCMAKE_PREFIX_PATH=../../install -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=11 -DCMAKE_INSTALL_PREFIX=./_install_foo
+  - cmake --build _build -- -j3
+  - ./_build/foo-app
+  - cmake --build _build -- install
+  - rm -rf _build
+  - rm -rf _install_foo
+  - cd ../../build
+
+  # Test cmake integration via `add_subdirectory`
+  - cd ..
+  - rm -r build/*
+  - ln -s `pwd` tests/add_subdirectory_tests/libfort
+  - cd tests/add_subdirectory_tests/
+  - cmake -H. -B_build -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=11 -DCMAKE_INSTALL_PREFIX=./_install_foo
+  - cmake --build _build -- -j3
+  - ./_build/foo-app
+  - cmake --build _build -- install
+  - rm -rf _build
+  - rm -rf _install_foo
+  - cd ../../build
+
+  # Build for coveralls (should be the last)
+  - |
+    if [ "${CC}" = 'gcc' ]; then
+      cd ..  ;
+      rm -r build/* ;
+      cd build ;
+      cmake .. -DFORT_BUILD_TYPE=coveralls -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=11 -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS}" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" ;
+      cmake --build . --target all ;
+      ls ;
+      ./tests/libfort_test_dev ;
+    fi
+  - cd ..
+
+
+

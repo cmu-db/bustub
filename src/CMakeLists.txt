@@ -37,7 +37,9 @@ set(BUSTUB_LIBS
 set(BUSTUB_THIRDPARTY_LIBS
         bustub_murmur3
         duckdb_pg_query
-        fmt)
+        fmt
+        libfort::fort
+        )
 
 target_link_libraries(
         bustub

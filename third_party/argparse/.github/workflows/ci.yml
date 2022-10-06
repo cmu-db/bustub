@@ -1,0 +1,87 @@
+
+name: CI
+
+on: pull_request
+
+jobs:
+
+  test:
+
+    name: ${{ matrix.toolchain }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+
+      matrix:
+
+        toolchain:
+          - macos-latest-clang
+          - macos-12-clang
+          - ubuntu-latest-clang
+          - ubuntu-latest-gcc
+          - windows-2019-msvc
+          - windows-latest-msvc
+          - windows-latest-clang
+
+        include:
+          - toolchain: macos-latest-clang
+            os: macos-latest
+            c_compiler: clang
+            cxx_compiler: clang++
+
+          - toolchain: macos-12-clang
+            os: macos-latest
+            c_compiler: clang
+            cxx_compiler: clang++
+
+          - toolchain: ubuntu-latest-clang
+            os: ubuntu-latest
+            c_compiler: clang
+            cxx_compiler: clang++
+
+          - toolchain: ubuntu-latest-gcc
+            os: ubuntu-latest
+            c_compiler: cc
+            cxx_compiler: g++
+
+          - toolchain: windows-2019-msvc
+            os: windows-2019
+            c_compiler: msvc
+            cxx_compiler: msvc
+
+          - toolchain: windows-latest-msvc
+            os: windows-latest
+            c_compiler: msvc
+            cxx_compiler: msvc
+
+          - toolchain: windows-latest-clang
+            os: windows-latest
+            c_compiler: clang-cl
+            cxx_compiler: clang-cl
+            cmake_opts: -T ClangCL
+
+    steps:
+
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Configure
+      working-directory: test
+      run: cmake -S . -B build ${{ matrix.cmake_opts }}
+      env:
+        CC: ${{ matrix.c_compiler }}
+        CXX: ${{ matrix.cxx_compiler }}
+
+    - name: Build for ${{ matrix.os }} with ${{ matrix.compiler }}
+      working-directory: test
+      run: cmake --build build
+
+    - name: Test
+      if: ${{ ! startsWith(matrix.os, 'windows') }}
+      working-directory: test/build
+      run: ./tests
+
+    - name: Test (Windows)
+      if: ${{ startsWith(matrix.os, 'windows') }}
+      working-directory: test/build
+      run: ./Debug/tests.exe
