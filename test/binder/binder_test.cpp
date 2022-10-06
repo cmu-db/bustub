@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "binder/binder.h"
+#include <memory>
 #include "binder/bound_statement.h"
 #include "catalog/catalog.h"
 #include "gtest/gtest.h"
@@ -48,8 +49,13 @@ auto TryBind(const std::string &query) {
       bustub::Schema(std::vector{bustub::Column{"x", TypeId::VARCHAR, 100}, bustub::Column{"y", TypeId::VARCHAR, 100}}),
       false);
 
-  binder.ParseAndBindQuery(query);
-  return std::move(binder.statements_);
+  binder.ParseAndSave(query);
+  std::vector<std::unique_ptr<BoundStatement>> statements;
+  for (auto *stmt : binder.statement_nodes_) {
+    auto statement = binder.BindStatement(stmt);
+    statements.emplace_back(std::move(statement));
+  }
+  return statements;
 }
 
 void PrintStatements(const std::vector<std::unique_ptr<BoundStatement>> &statements) {

@@ -87,13 +87,10 @@ class Binder {
  public:
   explicit Binder(const Catalog &catalog);
 
-  /** The parsed SQL statements from an invocation to ParseQuery. */
-  std::vector<std::unique_ptr<BoundStatement>> statements_;
-
   /** Attempts to parse a query into a series of SQL statements. The parsed statements
-   * will be stored in the `statements_` variable.
+   * will be stored in the `statements_nodes_` variable.
    */
-  void ParseAndBindQuery(const std::string &query);
+  void ParseAndSave(const std::string &query);
 
   /** Return true if the given text matches a keyword of the parser. */
   static auto IsKeyword(const std::string &text) -> bool;
@@ -105,10 +102,10 @@ class Binder {
   static auto Tokenize(const std::string &query) -> std::vector<SimplifiedToken>;
 
   /** Transform a Postgres parse tree into a std::vector of SQL Statements. */
-  auto TransformParseTree(duckdb_libpgquery::PGList *tree) -> std::vector<std::unique_ptr<BoundStatement>>;
+  void SaveParseTree(duckdb_libpgquery::PGList *tree);
 
   /** Transform a Postgres statement into a single SQL statement. */
-  auto TransformStatement(duckdb_libpgquery::PGNode *stmt) -> std::unique_ptr<BoundStatement>;
+  auto BindStatement(duckdb_libpgquery::PGNode *stmt) -> std::unique_ptr<BoundStatement>;
 
   /** Get the std::string representation of a Postgres node tag. */
   static auto NodeTagToString(duckdb_libpgquery::PGNodeTag type) -> std::string;
@@ -219,6 +216,9 @@ class Binder {
    */
   auto NewContext() -> ContextGuard { return ContextGuard(&scope_, &cte_scope_); }
 
+  /** Store all statement parse node */
+  std::vector<duckdb_libpgquery::PGNode *> statement_nodes_;
+
  private:
   /** Catalog will be used during the binding process. USERS SHOULD ENSURE IT OUTLIVES THE BINDER,
    * otherwise it's a dangling reference.
@@ -233,6 +233,8 @@ class Binder {
 
   /** Sometimes we will need to assign a name to some unnamed items. This variable gives them a universal ID. */
   size_t universal_id_{0};
+
+  duckdb::PostgresParser parser_;
 };
 
 }  // namespace bustub

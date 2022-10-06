@@ -47,6 +47,7 @@ class SimpleAggregationHashTable {
     std::vector<Value> values{};
     for (const auto &agg_type : agg_types_) {
       switch (agg_type) {
+        case AggregationType::CountStarAggregate:
         case AggregationType::CountAggregate:
         case AggregationType::SumAggregate:
           // Count/Sum starts at zero.
@@ -73,21 +74,11 @@ class SimpleAggregationHashTable {
   void CombineAggregateValues(AggregateValue *result, const AggregateValue &input) {
     for (uint32_t i = 0; i < agg_exprs_.size(); i++) {
       switch (agg_types_[i]) {
+        case AggregationType::CountStarAggregate:
         case AggregationType::CountAggregate:
-          // Count increases by one.
-          result->aggregates_[i] = result->aggregates_[i].Add(ValueFactory::GetIntegerValue(1));
-          break;
         case AggregationType::SumAggregate:
-          // Sum increases by addition.
-          result->aggregates_[i] = result->aggregates_[i].Add(input.aggregates_[i]);
-          break;
         case AggregationType::MinAggregate:
-          // Min is just the min.
-          result->aggregates_[i] = result->aggregates_[i].Min(input.aggregates_[i]);
-          break;
         case AggregationType::MaxAggregate:
-          // Max is just the max.
-          result->aggregates_[i] = result->aggregates_[i].Max(input.aggregates_[i]);
           break;
       }
     }

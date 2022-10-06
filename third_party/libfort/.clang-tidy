@@ -1,0 +1,42 @@
+---
+# Configure clang-tidy for this project.
+
+# Disabled:
+#  -google-readability-namespace-comments the BIGTABLE_CLIENT_NS is a macro, and
+#   clang-tidy fails to match it against the initial value.
+Checks: >-
+  bugprone-*,
+  #google-readability-*,
+  misc-*,
+  modernize-*,
+  #readability-identifier-naming,
+  #readability-*,
+  performance-*,
+  -google-readability-namespace-comments,
+  -readability-named-parameter
+
+# Enable most warnings as errors.
+WarningsAsErrors: >-
+  bugprone-*,
+  clang-*,
+  google-*,
+  misc-*,
+  modernize-*,
+  #readability-identifier-naming,
+  #readability-*,
+  performance-*
+
+#CheckOptions:
+#  - { key: readability-identifier-naming.NamespaceCase,          value: lower_case }
+#  - { key: readability-identifier-naming.ClassCase,              value: lower_case }
+#  - { key: readability-identifier-naming.StructCase,             value: lower_case }
+#  - { key: readability-identifier-naming.TemplateParameterCase,  value: lower_case }
+#  - { key: readability-identifier-naming.FunctionCase,           value: lower_case }
+#  - { key: readability-identifier-naming.VariableCase,           value: lower_case }
+#  - { key: readability-identifier-naming.PrivateMemberSuffix,    value: _          }
+#  - { key: readability-identifier-naming.ProtectedMemberSuffix,  value: _          }
+#  - { key: readability-identifier-naming.MacroDefinitionCase,    value: UPPER_CASE }
+#  - { key: readability-identifier-naming.EnumConstantCase,       value: UPPER_CASE }
+#  - { key: readability-identifier-naming.ConstexprVariableCase,  value: UPPER_CASE }
+#  - { key: readability-identifier-naming.GlobalConstantCase,     value: UPPER_CASE }
+#  - { key: readability-identifier-naming.MemberConstantCase,     value: UPPER_CASE }

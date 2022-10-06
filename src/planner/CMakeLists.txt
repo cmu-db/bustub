@@ -1,6 +1,7 @@
 add_library(
   bustub_planner
   OBJECT
+  expression_factory.cpp
   plan_aggregation.cpp
   plan_expression.cpp
   plan_insert.cpp

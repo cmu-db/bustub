@@ -1,0 +1,84 @@
+---
+# NOTE: there were some problems when we just used `alpine` image so we pinned the exaxt
+# version. Consider returning to just `alpine` image when it will be fixed.
+
+kind: pipeline
+name: test-on-amd64
+
+platform:
+  arch: amd64
+
+steps:
+  - name: test
+    image: alpine:3.12.3
+    commands:
+      - apk add gcc g++ cmake make binutils-gold
+      - ls
+      - uname -a
+      - mkdir -p build
+      - cd build
+      - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=11 -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror"
+      - cmake --build . --target all
+      - ls
+      - ctest -VV
+
+  - name: test-tcc-compiler
+    image: alpine:3.12.3
+    commands:
+      - apk add gcc g++ cmake make binutils-gold
+      # tcc available only in in edge alpine repo
+      - echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+      - apk add tcc
+      - ls
+      - uname -a
+      - mkdir -p build
+      - cd build
+      # Tests with wchar don't pass
+      - cmake .. -DCMAKE_C_COMPILER=/usr/bin/tcc -DFORT_ENABLE_WCHAR=OFF
+      - cmake --build . --target libfort_test_dev
+      - ./tests/libfort_test_dev
+      - cmake --build . --target libfort_test
+      - ./tests/libfort_test
+
+
+---
+kind: pipeline
+name: test-on-arm
+
+platform:
+  arch: arm
+
+steps:
+  - name: test
+    image: alpine:3.12.3
+    commands:
+      - apk add gcc g++ cmake make binutils-gold
+      - ls
+      - uname -a
+      - mkdir -p build
+      - cd build
+      - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=11 -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror"
+      - cmake --build . --target all
+      - ls
+      - ctest -VV
+
+---
+kind: pipeline
+name: test-on-arm64
+
+platform:
+  arch: arm64
+
+steps:
+  - name: test
+    image: alpine:3.12.3
+    commands:
+      - apk add gcc g++ cmake make binutils-gold
+      - ls
+      - uname -a
+      - mkdir -p build
+      - cd build
+      - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=11 -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror"
+      - cmake --build . --target all
+      - ls
+      - ctest -VV
