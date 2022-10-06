@@ -56,17 +56,28 @@ class ResultWriter {
 
 class SimpleStreamWriter : public ResultWriter {
  public:
-  explicit SimpleStreamWriter(std::ostream &stream) : stream_(stream) {}
+  explicit SimpleStreamWriter(std::ostream &stream, bool disable_header = false)
+      : disable_header_(disable_header), stream_(stream) {}
   static auto BoldOn(std::ostream &os) -> std::ostream & { return os << "\e[1m"; }
   static auto BoldOff(std::ostream &os) -> std::ostream & { return os << "\e[0m"; }
-  void WriteCell(const std::string &cell) override { stream_ << BoldOn << cell << BoldOff << "\t"; }
-  void WriteHeaderCell(const std::string &cell) override { stream_ << cell << "\t"; }
+  void WriteCell(const std::string &cell) override { stream_ << cell << "\t"; }
+  void WriteHeaderCell(const std::string &cell) override {
+    if (!disable_header_) {
+      stream_ << BoldOn << cell << BoldOff << "\t";
+    }
+  }
   void BeginHeader() override {}
-  void EndHeader() override { stream_ << std::endl; }
+  void EndHeader() override {
+    if (!disable_header_) {
+      stream_ << std::endl;
+    }
+  }
   void BeginRow() override {}
   void EndRow() override { stream_ << std::endl; }
   void BeginTable(bool simplified_output) override {}
   void EndTable() override {}
+
+  bool disable_header_;
   std::ostream &stream_;
 };
 

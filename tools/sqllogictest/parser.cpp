@@ -96,6 +96,7 @@ auto ParseInner(const std::string &filename, const std::string &script) -> std::
         sql += "\n";
         line_iter++;
       }
+      StringUtil::RTrim(&sql);
       records.emplace_back(std::make_unique<StatementRecord>(loc, error, std::move(sql)));
       if (line_iter == lines.cend()) {
         break;
@@ -147,13 +148,16 @@ auto ParseInner(const std::string &filename, const std::string &script) -> std::
         if (line.empty()) {
           break;
         }
-        expected_result += line;
+        auto line_copied = line;
+        StringUtil::RTrim(&line_copied);
+        expected_result += line_copied;
         expected_result += "\n";
         line_iter++;
       }
       if (line_iter == lines.cend()) {
         throw bustub::Exception("unexpected end");
       }
+      StringUtil::RTrim(&sql);
       records.emplace_back(std::make_unique<QueryRecord>(loc, sort_mode, std::move(sql), std::move(expected_result)));
     }
     line_iter++;
