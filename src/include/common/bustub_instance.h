@@ -57,7 +57,7 @@ class ResultWriter {
 class SimpleStreamWriter : public ResultWriter {
  public:
   explicit SimpleStreamWriter(std::ostream &stream, bool disable_header = false)
-      : stream_(stream), disable_header_(disable_header) {}
+      : disable_header_(disable_header), stream_(stream) {}
   static auto BoldOn(std::ostream &os) -> std::ostream & { return os << "\e[1m"; }
   static auto BoldOff(std::ostream &os) -> std::ostream & { return os << "\e[0m"; }
   void WriteCell(const std::string &cell) override { stream_ << cell << "\t"; }
