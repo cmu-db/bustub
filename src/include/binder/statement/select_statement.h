@@ -9,8 +9,8 @@
 
 #include <memory>
 #include <string>
-#include <utility>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "binder/bound_expression.h"
