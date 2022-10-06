@@ -12,6 +12,7 @@
 #include "common/util/string_util.h"
 #include "execution/expressions/abstract_expression.h"
 #include "execution/expressions/column_value_expression.h"
+#include "execution/expressions/constant_value_expression.h"
 #include "execution/plans/abstract_plan.h"
 #include "execution/plans/aggregation_plan.h"
 #include "execution/plans/filter_plan.h"
@@ -19,38 +20,28 @@
 #include "fmt/format.h"
 #include "planner/planner.h"
 #include "type/type_id.h"
+#include "type/value_factory.h"
 
 namespace bustub {
 
 auto Planner::PlanAggCall(const BoundAggCall &agg_call, const std::vector<AbstractPlanNodeRef> &children)
-    -> std::tuple<AggregationType, AbstractExpressionRef> {
-  if (agg_call.args_.size() != 1) {
-    throw NotImplementedException("only agg call of one arg is supported for now");
-  }
+    -> std::tuple<AggregationType, std::vector<AbstractExpressionRef>> {
   if (agg_call.is_distinct_) {
     throw NotImplementedException("distinct agg is not implemented yet");
   }
 
-  AbstractExpressionRef expr = nullptr;
+  std::vector<AbstractExpressionRef> exprs;
+
   {
     // Create a new context that doesn't allow aggregation calls.
     auto guard = NewContext();
-    auto [_, ret] = PlanExpression(*agg_call.args_[0], children);
-    expr = std::move(ret);
+    for (const auto &arg : agg_call.args_) {
+      auto [_, ret] = PlanExpression(*arg, children);
+      exprs.emplace_back(std::move(ret));
+    }
   }
-  if (agg_call.func_name_ == "min") {
-    return {AggregationType::MinAggregate, std::move(expr)};
-  }
-  if (agg_call.func_name_ == "max") {
-    return {AggregationType::MaxAggregate, std::move(expr)};
-  }
-  if (agg_call.func_name_ == "sum") {
-    return {AggregationType::SumAggregate, std::move(expr)};
-  }
-  if (agg_call.func_name_ == "count") {
-    return {AggregationType::CountAggregate, std::move(expr)};
-  }
-  throw Exception(fmt::format("unsupported agg_call {}", agg_call.func_name_));
+
+  return GetAggCallFromFactory(agg_call.func_name_, std::move(exprs));
 }
 
 // TODO(chi): clang-tidy on macOS will suggest changing it to const reference. Looks like a bug.
@@ -121,8 +112,17 @@ auto Planner::PlanSelectAgg(const SelectStatement &statement, AbstractPlanNodeRe
       throw NotImplementedException("alias for agg call is not supported for now");
     }
     const auto &agg_call = dynamic_cast<const BoundAggCall &>(*item);
-    auto [agg_type, expr] = PlanAggCall(agg_call, {child});
-    input_exprs.push_back(std::move(expr));
+    auto [agg_type, exprs] = PlanAggCall(agg_call, {child});
+    if (exprs.size() > 1) {
+      throw bustub::NotImplementedException("only agg call of zero/one arg is supported");
+    }
+    if (exprs.empty()) {
+      // Rewrite count(*) into count(1)
+      input_exprs.emplace_back(std::make_shared<ConstantValueExpression>(ValueFactory::GetIntegerValue(1)));
+    } else {
+      input_exprs.emplace_back(std::move(exprs[0]));
+    }
+
     agg_types.push_back(agg_type);
     output_col_names.emplace_back(fmt::format("agg#{}", term_idx));
     ctx_.expr_in_agg_.emplace_back(

@@ -26,7 +26,7 @@
 namespace bustub {
 
 /** AggregationType enumerates all the possible aggregation functions in our system */
-enum class AggregationType { CountAggregate, SumAggregate, MinAggregate, MaxAggregate };
+enum class AggregationType { CountStarAggregate, CountAggregate, SumAggregate, MinAggregate, MaxAggregate };
 
 /**
  * AggregationPlanNode represents the various SQL aggregation functions.
@@ -147,6 +147,9 @@ struct fmt::formatter<bustub::AggregationType> : formatter<std::string> {
     using bustub::AggregationType;
     std::string name = "unknown";
     switch (c) {
+      case AggregationType::CountStarAggregate:
+        name = "count_star";
+        break;
       case AggregationType::CountAggregate:
         name = "count";
         break;
