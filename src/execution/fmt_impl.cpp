@@ -29,7 +29,7 @@ auto AbstractPlanNode::ChildrenToString(int indent, bool with_schema) const -> s
 }
 
 auto AggregationPlanNode::PlanNodeToString() const -> std::string {
-  return fmt::format("Agg {{ types={}, aggregates=[{}], group_by={} }}", agg_types_, aggregates_, group_bys_);
+  return fmt::format("Agg {{ types={}, aggregates={}, group_by={} }}", agg_types_, aggregates_, group_bys_);
 }
 
 auto ProjectionPlanNode::PlanNodeToString() const -> std::string {

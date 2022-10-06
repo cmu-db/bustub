@@ -7,6 +7,7 @@
 #include "binder/statement/select_statement.h"
 #include "binder/table_ref/bound_base_table_ref.h"
 #include "binder/table_ref/bound_cross_product_ref.h"
+#include "binder/table_ref/bound_cte_ref.h"
 #include "binder/table_ref/bound_expression_list_ref.h"
 #include "binder/table_ref/bound_join_ref.h"
 #include "binder/table_ref/bound_subquery_ref.h"
@@ -24,6 +25,7 @@
 #include "execution/plans/values_plan.h"
 #include "fmt/core.h"
 #include "fmt/format.h"
+#include "fmt/ranges.h"
 #include "planner/planner.h"
 #include "type/value_factory.h"
 
@@ -49,7 +51,11 @@ auto Planner::PlanTableRef(const BoundTableRef &table_ref) -> AbstractPlanNodeRe
     }
     case TableReferenceType::SUBQUERY: {
       const auto &subquery = dynamic_cast<const BoundSubqueryRef &>(table_ref);
-      return PlanSubquery(subquery);
+      return PlanSubquery(subquery, subquery.alias_);
+    }
+    case TableReferenceType::CTE: {
+      const auto &cte = dynamic_cast<const BoundCTERef &>(table_ref);
+      return PlanCTERef(cte);
     }
     default:
       break;
@@ -57,7 +63,7 @@ auto Planner::PlanTableRef(const BoundTableRef &table_ref) -> AbstractPlanNodeRe
   throw Exception(fmt::format("the table ref type {} is not supported in planner yet", table_ref.type_));
 }
 
-auto Planner::PlanSubquery(const BoundSubqueryRef &table_ref) -> AbstractPlanNodeRef {
+auto Planner::PlanSubquery(const BoundSubqueryRef &table_ref, const std::string &alias) -> AbstractPlanNodeRef {
   auto select_node = PlanSelect(*table_ref.subquery_);
   std::vector<std::string> output_column_names;
   std::vector<AbstractExpressionRef> exprs;
@@ -66,8 +72,7 @@ auto Planner::PlanSubquery(const BoundSubqueryRef &table_ref) -> AbstractPlanNod
   // This projection will be removed by eliminate projection rule. It's solely used for renaming columns.
   for (const auto &col : select_node->OutputSchema().GetColumns()) {
     auto expr = std::make_shared<ColumnValueExpression>(0, idx, col.GetType());
-    output_column_names.emplace_back(
-        fmt::format("{}.{}", table_ref.alias_, fmt::join(table_ref.select_list_name_[idx], ".")));
+    output_column_names.emplace_back(fmt::format("{}.{}", alias, fmt::join(table_ref.select_list_name_[idx], ".")));
     exprs.push_back(std::move(expr));
     idx++;
   }
@@ -111,6 +116,15 @@ auto Planner::PlanCrossProductRef(const BoundCrossProductRef &table_ref) -> Abst
   return std::make_shared<NestedLoopJoinPlanNode>(
       std::make_shared<Schema>(NestedLoopJoinPlanNode::InferJoinSchema(*left, *right)), std::move(left),
       std::move(right), std::make_shared<ConstantValueExpression>(ValueFactory::GetBooleanValue(true)));
+}
+
+auto Planner::PlanCTERef(const BoundCTERef &table_ref) -> AbstractPlanNodeRef {
+  for (const auto &cte : *ctx_.cte_list_) {
+    if (cte->alias_ == table_ref.cte_name_) {
+      return PlanSubquery(*cte, table_ref.alias_);
+    }
+  }
+  UNREACHABLE("CTE not found");
 }
 
 auto Planner::PlanJoinRef(const BoundJoinRef &table_ref) -> AbstractPlanNodeRef {

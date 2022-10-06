@@ -1,4 +1,5 @@
 #include "binder/bound_expression.h"
+#include "binder/statement/select_statement.h"
 #include "execution/expressions/abstract_expression.h"
 #include "execution/expressions/arithmetic_expression.h"
 #include "execution/expressions/column_value_expression.h"

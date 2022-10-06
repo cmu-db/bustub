@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 
+#include "binder/table_ref/bound_subquery_ref.h"
 #include "binder/tokens.h"
 #include "catalog/catalog.h"
 #include "catalog/column.h"
@@ -33,6 +34,7 @@ class BoundCrossProductRef;
 class BoundJoinRef;
 class BoundExpressionListRef;
 class BoundAggCall;
+class BoundCTERef;
 
 /**
  * The context for the planner. Used for planning aggregation calls.
@@ -62,6 +64,11 @@ class PlannerContext {
    * aggregation plan node.
    */
   std::vector<AbstractExpressionRef> expr_in_agg_;
+
+  /**
+   * CTE in scope.
+   */
+  const CTEList *cte_list_{nullptr};
 };
 
 /**
@@ -90,13 +97,15 @@ class Planner {
    */
   auto PlanTableRef(const BoundTableRef &table_ref) -> AbstractPlanNodeRef;
 
-  auto PlanSubquery(const BoundSubqueryRef &table_ref) -> AbstractPlanNodeRef;
+  auto PlanSubquery(const BoundSubqueryRef &table_ref, const std::string &alias) -> AbstractPlanNodeRef;
 
   auto PlanBaseTableRef(const BoundBaseTableRef &table_ref) -> AbstractPlanNodeRef;
 
   auto PlanCrossProductRef(const BoundCrossProductRef &table_ref) -> AbstractPlanNodeRef;
 
   auto PlanJoinRef(const BoundJoinRef &table_ref) -> AbstractPlanNodeRef;
+
+  auto PlanCTERef(const BoundCTERef &table_ref) -> AbstractPlanNodeRef;
 
   auto PlanExpressionListRef(const BoundExpressionListRef &table_ref) -> AbstractPlanNodeRef;
 
@@ -137,7 +146,10 @@ class Planner {
 
   class ContextGuard {
    public:
-    explicit ContextGuard(PlannerContext *ctx) : old_ctx_(std::move(*ctx)), ctx_ptr_(ctx) { *ctx = PlannerContext(); }
+    explicit ContextGuard(PlannerContext *ctx) : old_ctx_(std::move(*ctx)), ctx_ptr_(ctx) {
+      *ctx = PlannerContext();
+      ctx->cte_list_ = old_ctx_.cte_list_;
+    }
     ~ContextGuard() { *ctx_ptr_ = std::move(old_ctx_); }
 
     DISALLOW_COPY_AND_MOVE(ContextGuard);

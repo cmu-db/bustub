@@ -8,6 +8,7 @@
 #include "binder/expressions/bound_column_ref.h"
 #include "binder/expressions/bound_constant.h"
 #include "binder/expressions/bound_unary_op.h"
+#include "binder/statement/select_statement.h"
 #include "common/exception.h"
 #include "common/macros.h"
 #include "common/util/string_util.h"

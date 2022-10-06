@@ -1,5 +1,6 @@
 #include <iterator>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "binder/binder.h"
@@ -22,7 +23,7 @@ auto Binder::BindInsert(duckdb_libpgquery::PGInsertStmt *pg_stmt) -> std::unique
     throw NotImplementedException("insert only supports all columns, don't specify columns");
   }
 
-  auto table = BindRangeVar(pg_stmt->relation);
+  auto table = BindBaseTableRef(pg_stmt->relation->relname, std::nullopt);
 
   if (StringUtil::StartsWith(table->table_, "__")) {
     throw bustub::Exception(fmt::format("invalid table for insert: {}", table->table_));
@@ -34,7 +35,7 @@ auto Binder::BindInsert(duckdb_libpgquery::PGInsertStmt *pg_stmt) -> std::unique
 }
 
 auto Binder::BindDelete(duckdb_libpgquery::PGDeleteStmt *stmt) -> std::unique_ptr<DeleteStatement> {
-  auto table = BindRangeVar(stmt->relation);
+  auto table = BindBaseTableRef(stmt->relation->relname, std::nullopt);
   auto ctx_guard = NewContext();
   scope_ = table.get();
   std::unique_ptr<BoundExpression> expr = nullptr;

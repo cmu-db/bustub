@@ -1,6 +1,7 @@
 #include "binder/bound_order_by.h"
 #include "binder/expressions/bound_agg_call.h"
 #include "binder/statement/select_statement.h"
+#include "binder/table_ref/bound_cte_ref.h"
 #include "binder/table_ref/bound_expression_list_ref.h"
 #include "binder/table_ref/bound_subquery_ref.h"
 #include "common/util/string_util.h"
@@ -18,6 +19,10 @@ auto BoundAggCall::ToString() const -> std::string {
 
 auto BoundExpressionListRef::ToString() const -> std::string {
   return fmt::format("BoundExpressionListRef {{ identifier={}, values={} }}", identifier_, values_);
+}
+
+auto BoundCTERef::ToString() const -> std::string {
+  return fmt::format("BoundCTERef {{ alias={}, cte={} }}", alias_, cte_name_);
 }
 
 auto BoundSubqueryRef::ToString() const -> std::string {

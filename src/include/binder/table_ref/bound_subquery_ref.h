@@ -36,4 +36,7 @@ class BoundSubqueryRef : public BoundTableRef {
   /** Alias. */
   std::string alias_;
 };
+
+using CTEList = std::vector<std::unique_ptr<BoundSubqueryRef>>;
+
 }  // namespace bustub
