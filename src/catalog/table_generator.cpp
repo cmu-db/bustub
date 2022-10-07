@@ -100,13 +100,13 @@ void TableGenerator::GenerateTestTables() {
        10,
        {{"col1", TypeId::INTEGER, false, Dist::Serial, 0, 10}, {"col2", TypeId::INTEGER, false, Dist::Serial, 10, 20}}},
 
-      // // Table 1
-      // {"test_1",
-      //  TEST1_SIZE,
-      //  {{"colA", TypeId::INTEGER, false, Dist::Serial, 0, 0},
-      //   {"colB", TypeId::INTEGER, false, Dist::Uniform, 0, 9},
-      //   {"colC", TypeId::INTEGER, false, Dist::Uniform, 0, 9999},
-      //   {"colD", TypeId::INTEGER, false, Dist::Uniform, 0, 99999}}},
+      // Table 1
+      {"test_1",
+       TEST1_SIZE,
+       {{"colA", TypeId::INTEGER, false, Dist::Serial, 0, 0},
+        {"colB", TypeId::INTEGER, false, Dist::Uniform, 0, 9},
+        {"colC", TypeId::INTEGER, false, Dist::Uniform, 0, 9999},
+        {"colD", TypeId::INTEGER, false, Dist::Uniform, 0, 99999}}},
 
       // // Table 2
       // {"test_2",
