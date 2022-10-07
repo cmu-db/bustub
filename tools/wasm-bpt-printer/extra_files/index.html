@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>BusTub Shell</title>
+    <title>BusTub B+Tree Printer</title>
     <!-- jQuery -->
     <script src="https://unpkg.com/jquery@3.x.x/dist/jquery.min.js"></script>
     <!-- jQuery Terminal -->
@@ -22,6 +22,8 @@
     <!-- GraphViz -->
     <script src="https://unpkg.com/viz.js@2.x.x/viz.js"></script>
     <script src="https://unpkg.com/viz.js@2.x.x/full.render.js"></script>
+    <!-- Pan Zoom -->
+    <script src="https://unpkg.com/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
 </head>
 
 <body>
@@ -58,6 +60,13 @@
         font-size: calc(var(--size, 1)*(12px/var(--pixel-density, 1)));
         white-space: pre;
     }
+
+    .svg-wrapper {
+        width: 50%;
+        overflow-x: hidden;
+        background-color: white;
+        border: 1px solid grey;
+    }
 </style>
 
 <script src="./bustub-wasm-bpt-printer.js"></script>
@@ -86,8 +95,17 @@
         "i <k>  -- Insert <k> (int64_t) as both key and value).\n" +
         "d <k>  -- Delete key <k> and its associated value.\n"
 
+
+    function preventScroll(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        return false;
+    }
+
     $(document).ready(() => {
         var initialized = false
+        var svgid = 0
         var term = $('body').terminal(function (line) {
             if (line == "\\clear") {
                 this.clear()
@@ -102,8 +120,15 @@
                     const [retCode, result] = executeQuery(line)
                     if (retCode == 0) {
                         viz.renderSVGElement(result).then((svgXml) => {
-                            console.log(svgXml)
-                            this.echo(svgXml, { raw: true })
+                            id = `bustub-svg-${svgid}`
+                            svgXml.id = id
+                            svgid += 1
+                            const div = document.createElement("div")
+                            div.className = "svg-wrapper"
+                            div.appendChild(svgXml)
+                            this.echo(div, { raw: true })
+                            svgPanZoom(`#${id}`)
+                            document.querySelector(`#${id}`).addEventListener('wheel', preventScroll, { passive: false });
                         })
                     }
                     if (retCode == 1) {
@@ -123,7 +148,7 @@ BusTub is a relational database management system built at Carnegie Mellon Unive
 ${helpMessage}
 This is BusTub reference solution running in your browser. Solution Version: ${BUSTUB_PRIVATE_VERSION_VAR}, BusTub Version: ${BUSTUB_PUBLIC_VERSION_VAR}.
 `,
-            prompt: () => initialized ? "[[b;;]printer> ]" : "internal_max_size and leaf_max_size? > "
+            prompt: () => initialized ? "[[b;;]printer> ]" : "leaf_max_size and internal_max_size? > "
         })
     })
 </script>
