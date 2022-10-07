@@ -57,4 +57,3 @@ select * from t1;
 # Index Scan
 select * from t1 order by v1;
 ----
-

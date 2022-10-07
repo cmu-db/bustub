@@ -65,7 +65,12 @@ auto AggregationPlanNode::InferAggSchema(const std::vector<AbstractExpressionRef
   std::vector<Column> output;
   output.reserve(group_bys.size() + aggregates.size());
   for (const auto &column : group_bys) {
-    output.emplace_back(Column("<unnamed>", column->GetReturnType()));
+    // TODO(chi): correctly process VARCHAR column
+    if (column->GetReturnType() == TypeId::VARCHAR) {
+      output.emplace_back(Column("<unnamed>", column->GetReturnType(), 128));
+    } else {
+      output.emplace_back(Column("<unnamed>", column->GetReturnType()));
+    }
   }
   for (size_t idx = 0; idx < aggregates.size(); idx++) {
     // TODO(chi): correctly infer agg call return type

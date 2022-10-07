@@ -90,4 +90,3 @@ delete from t1;
 query
 select * from t1;
 ----
-

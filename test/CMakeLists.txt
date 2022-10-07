@@ -46,7 +46,7 @@ foreach(bustub_test_source ${BUSTUB_TEST_SOURCES})
                 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
                 COMMAND ${bustub_test_name}
         )
-endforeach(bustub_test_source ${BUSTUB_TEST_SOURCES})
+endforeach()
 
 set(BUSTUB_SLT_SOURCES
         "${PROJECT_SOURCE_DIR}/test/sql/p3.01-seqscan.slt"
@@ -55,7 +55,12 @@ set(BUSTUB_SLT_SOURCES
         "${PROJECT_SOURCE_DIR}/test/sql/p3.04-index-scan.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.05-empty-table.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.06-simple-agg.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.07-group-agg-1.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.08-group-agg-2.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.09-simple-join.slt"
 )
+
+add_custom_target(test-p3 ${CMAKE_CTEST_COMMAND} -R SQLLogicTest)
 
 # #########################################
 # "make XYZ_test"
@@ -63,11 +68,14 @@ set(BUSTUB_SLT_SOURCES
 foreach(bustub_test_source ${BUSTUB_SLT_SOURCES})
         # Create a human readable name.
         get_filename_component(bustub_test_filename ${bustub_test_source} NAME)
-        string(REPLACE ".slt" "" bustub_test_name "SQLLogicTest.${bustub_test_filename}")
-
-        # Add the test target separately and as part of "make check-tests".
+        string(REPLACE ".slt" "" bustub_filename_wo_suffix "${bustub_test_filename}")
+        string(REPLACE ".slt" "" bustub_test_name "SQLLogicTest.${bustub_filename_wo_suffix}")
         add_test(NAME ${bustub_test_name} COMMAND "${CMAKE_BINARY_DIR}/bin/bustub-sqllogictest" ${bustub_test_source} --verbose -d)
-endforeach(bustub_test_source ${BUSTUB_TEST_SOURCES})
+        add_custom_target(${bustub_filename_wo_suffix}_test COMMAND ${CMAKE_CTEST_COMMAND} -R ${bustub_test_name} --verbose)
+        add_dependencies(${bustub_filename_wo_suffix}_test sqllogictest)
+endforeach()
+
+add_dependencies(test-p3 sqllogictest)
 
 # Must build sqllogictest before checking tests
 add_dependencies(build-tests sqllogictest)

@@ -148,4 +148,3 @@ select * from t1 order by v2;
 ----
 7 -10
 6 0
-
