@@ -1,0 +1,30 @@
+# Create a table
+statement ok
+create table t1(v1 int);
+
+# Simple aggregation over the table
+query
+select count(*) from t1;
+----
+0
+
+query
+select min(v1) from t1;
+----
+integer_null
+
+query
+select max(v1) from t1;
+----
+integer_null
+
+query
+select count(v1) from t1;
+----
+integer_null
+
+query
+select sum(v1) from t1;
+----
+integer_null
+

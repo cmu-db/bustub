@@ -47,7 +47,14 @@ foreach(bustub_test_source ${BUSTUB_TEST_SOURCES})
         )
 endforeach(bustub_test_source ${BUSTUB_TEST_SOURCES})
 
-file(GLOB_RECURSE BUSTUB_SLT_SOURCES "${PROJECT_SOURCE_DIR}/test/project3-sql/*.slt")
+set(BUSTUB_SLT_SOURCES
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.01-seqscan.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.02-insert.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.03-delete.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.04-index-scan.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.05-empty-table.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.06-simple-agg.slt"
+)
 
 # #########################################
 # "make XYZ_test"
