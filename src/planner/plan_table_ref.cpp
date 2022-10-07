@@ -101,7 +101,7 @@ auto Planner::PlanBaseTableRef(const BoundBaseTableRef &table_ref) -> AbstractPl
     // Plan as MockScanExecutor if it is a mock table.
     if (StringUtil::StartsWith(table->name_, "__mock")) {
       return std::make_shared<MockScanPlanNode>(std::make_shared<Schema>(SeqScanPlanNode::InferScanSchema(table_ref)),
-                                                100, table->name_);
+                                                table->name_);
     }
     throw bustub::Exception(fmt::format("unsupported internal table: {}", table->name_));
   }

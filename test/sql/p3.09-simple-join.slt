@@ -1,0 +1,15 @@
+# Show office hours on lecture days
+# "rowsort" means that the order of result doesn't matter.
+
+query rowsort
+select * from
+    __mock_table_tas_2022 inner join __mock_table_schedule_2022
+    on office_hour = day_of_week
+    where has_lecture = 1;
+----
+amstqq Tuesday Tuesday 1 
+thepinetree Tuesday Tuesday 1 
+yliang412 Tuesday Tuesday 1 
+kush789 Thursday Thursday 1 
+
+# The real test begins...

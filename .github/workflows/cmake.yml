@@ -105,10 +105,10 @@ jobs:
       - name: Check Tests (Ubuntu)
         if: runner.os == 'Linux'
         working-directory: ${{github.workspace}}/build
-        run: make check-tests
+        run: make build-tests && make check-public-ci-tests
 
       - name: Check Tests (OSX)
         if: runner.os == 'macOS'
         working-directory: ${{github.workspace}}/build
         # Disable container overflow checks on OSX
-        run: ASAN_OPTIONS=detect_container_overflow=0 make check-tests
+        run: make build-tests && make check-public-ci-tests

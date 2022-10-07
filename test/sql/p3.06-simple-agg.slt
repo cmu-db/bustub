@@ -1,0 +1,79 @@
+# How many TAs are there in 2022 Fall?
+query
+select count(*) from __mock_table_tas_2022;
+----
+11
+
+# The real test process begins...
+
+# Create a table
+statement ok
+create table t1(v1 int);
+
+# Simple aggregation over the table
+query
+insert into t1 values (-99999), (99999), (0), (1), (2), (3);
+----
+6
+
+query
+select count(*), min(v1), max(v1), count(v1), sum(v1) from t1;
+----
+6 -99999 99999 6 6
+
+query
+insert into t1 values (null);
+----
+1
+
+query
+select count(*), min(v1), max(v1), count(v1), sum(v1) from t1;
+----
+7 -99999 99999 6 6
+
+# Create yet another table
+statement ok
+create table t2(v1 int, v2 int);
+
+# Insert something
+query
+insert into t2 values (1, 100), (2, 200), (3, 300), (4, 400), (5, 500);
+----
+5
+
+# Do some ridiculous query
+query
+select count(*), min(v1+v2-3), max(2+v2-v1), count(v1+v2+v2), sum(v1-v2+v2), sum(1), max(233), min(1), count(2) from t2;
+----
+5 98 497 5 15 5 233 1 5
+
+# Simple aggregation over an empty table
+query
+delete from t1;
+----
+7
+
+query
+select count(*) from t1;
+----
+0
+
+query
+select min(v1) from t1;
+----
+integer_null
+
+query
+select max(v1) from t1;
+----
+integer_null
+
+query
+select count(v1) from t1;
+----
+integer_null
+
+query
+select sum(v1) from t1;
+----
+integer_null

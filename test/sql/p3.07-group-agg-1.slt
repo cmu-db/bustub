@@ -1,0 +1,104 @@
+# How many TAs are there for OH on each weekday?
+# "rowsort" means that the order of result doesn't matter.
+
+query rowsort
+select office_hour, count(*) from __mock_table_tas_2022 group by office_hour;
+----
+Monday 2
+Tuesday 3
+Wednesday 3
+Thursday 1
+Friday 1
+Randomly 1
+
+# The real test process begins...
+
+# Create a table
+statement ok
+-- v1: (cursor + 2) % 10
+-- v2: cursor
+-- v3: (cursor + 50) % 100
+-- v4: cursor / 100
+-- v5: 233
+-- v6: some magic string
+create table t1(v1 int, v2 int, v3 int, v4 int, v5 int, v6 varchar(128));
+
+query
+insert into t1 select * from __mock_agg_input_small;
+----
+1000
+
+query rowsort
+select v5, min(v1), sum(v2), count(*) from t1 group by v5;
+----
+233 0 499500 1000
+
+query rowsort
+select v4, min(v1) + sum(v2) + max(v3), count(*) from t1 group by v4;
+----
+9 95049 100 
+7 75049 100 
+8 85049 100 
+6 65049 100 
+5 55049 100 
+3 35049 100 
+4 45049 100 
+2 25049 100 
+1 15049 100 
+0 5049 100 
+
+query rowsort
+select v6, sum(v1+v2), min(v3+v4), count(*) from t1 group by v6;
+----
+💩💩💩💩💩💩💩💩 63500 2 125
+💩💩💩💩💩💩💩 63250 1 125
+💩💩💩💩💩💩 63250 3 125
+💩💩💩 62750 0 125
+💩💩💩💩💩 63000 2 125
+💩💩💩💩 63000 1 125
+💩💩 62750 4 125
+💩 62500 3 125
+
+query rowsort
+select v4, v5, v4+v5, sum(v1+v2), min(v3+v4), count(*) from t1 group by v4, v5;
+----
+9 233 242 95400 9 100 
+8 233 241 85400 8 100 
+6 233 239 65400 6 100 
+5 233 238 55400 5 100 
+4 233 237 45400 4 100 
+3 233 236 35400 3 100 
+7 233 240 75400 7 100 
+2 233 235 25400 2 100 
+1 233 234 15400 1 100 
+0 233 233 5400 0 100
+
+query rowsort
+select v4, v5, v4+v5+count(*), sum(v1+v2), min(v3+v4), count(*) from t1 group by v4, v5;
+----
+9 233 342 95400 9 100 
+8 233 341 85400 8 100 
+6 233 339 65400 6 100 
+5 233 338 55400 5 100 
+4 233 337 45400 4 100 
+3 233 336 35400 3 100 
+7 233 340 75400 7 100 
+2 233 335 25400 2 100 
+1 233 334 15400 1 100 
+0 233 333 5400 0 100 
+
+query rowsort
+select v4, v5, v4+v5+count(*), sum(v1+v2), min(v3+v4), count(*) from t1
+    group by v4, v5
+    having v4 > 5 and sum(v2) < 80000;
+----
+6 233 339 65400 6 100 
+7 233 340 75400 7 100
+
+query rowsort
+select v4+v5+count(*), sum(v1+v2), min(v3+v4), count(*) from t1
+    group by v4, v5
+    having v4 > 5 and sum(v2) < 80000;
+----
+339 65400 6 100 
+340 75400 7 100

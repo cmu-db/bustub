@@ -1,0 +1,59 @@
+# Create a table
+statement ok
+create table t1(v1 int);
+
+# Scan
+query
+select * from t1;
+----
+
+
+# Delete
+query
+delete from t1;
+----
+0
+
+# Index
+statement ok
+create index t1v1 on t1(v1);
+
+# Index Scan
+query
+select * from t1 order by v1;
+----
+
+
+# Insert
+query
+insert into t1 values (1);
+----
+1
+
+# Scan
+query
+select * from t1;
+----
+1
+
+# Index Scan
+query
+select * from t1 order by v1;
+----
+1
+
+
+# delete
+query
+delete from t1;
+----
+1
+
+# Scan
+query
+select * from t1;
+----
+
+# Index Scan
+select * from t1 order by v1;
+----

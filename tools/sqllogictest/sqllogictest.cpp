@@ -75,6 +75,12 @@ auto main(int argc, char **argv) -> int {  // NOLINT
   bool diff = program.get<bool>("diff");
   std::string filename = program.get<std::string>("file");
   std::ifstream t(filename);
+
+  if (!t) {
+    std::cerr << "Failed to open " << filename << std::endl;
+    return 1;
+  }
+
   std::string script((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
   t.close();
 
@@ -83,28 +89,38 @@ auto main(int argc, char **argv) -> int {  // NOLINT
   auto bustub = std::make_unique<bustub::BustubInstance>("test.db");
   bustub->GenerateMockTable();
 
+  if (bustub->buffer_pool_manager_ != nullptr) {
+    bustub->GenerateTestTable();
+  }
+
   for (const auto &record : result) {
     fmt::print("{}\n", record->loc_);
-    if (verbose) {
-      fmt::print("{}\n", record->ToString());
-    }
     switch (record->type_) {
       case bustub::RecordType::HALT: {
+        if (verbose) {
+          fmt::print("{}\n", record->ToString());
+        }
         return 0;
       }
       case bustub::RecordType::SLEEP: {
+        if (verbose) {
+          fmt::print("{}\n", record->ToString());
+        }
         const auto &sleep = dynamic_cast<const bustub::SleepRecord &>(*record);
         std::this_thread::sleep_for(std::chrono::seconds(sleep.seconds_));
         continue;
       }
       case bustub::RecordType::STATEMENT: {
         const auto &statement = dynamic_cast<const bustub::StatementRecord &>(*record);
+        if (verbose) {
+          fmt::print("{}\n", statement.sql_);
+        }
         try {
           std::stringstream result;
           auto writer = bustub::SimpleStreamWriter(result);
           bustub->ExecuteSql(statement.sql_, writer);
           if (verbose) {
-            fmt::print("{}\n", result.str());
+            fmt::print("----\n{}\n", result.str());
           }
           if (statement.is_error_) {
             fmt::print("statement should error\n");
@@ -123,12 +139,18 @@ auto main(int argc, char **argv) -> int {  // NOLINT
       }
       case bustub::RecordType::QUERY: {
         const auto &query = dynamic_cast<const bustub::QueryRecord &>(*record);
+        if (verbose) {
+          fmt::print("{}\n", query.sql_);
+        }
         try {
           std::stringstream result;
-          auto writer = bustub::SimpleStreamWriter(result, true);
+          auto writer = bustub::SimpleStreamWriter(result, true, " ");
           bustub->ExecuteSql(query.sql_, writer);
           if (verbose) {
-            fmt::print("{}\n", result.str());
+            fmt::print("--- YOUR RESULT ---\n{}\n", result.str());
+          }
+          if (verbose) {
+            fmt::print("--- EXPECTED RESULT ---\n{}\n", query.expected_result_);
           }
           if (!ResultCompare(result.str(), query.expected_result_, query.sort_mode_, diff)) {
             if (diff) {

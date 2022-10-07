@@ -58,8 +58,7 @@ auto ExecutorFactory::CreateExecutor(ExecutorContext *exec_ctx, const AbstractPl
     // Create a new insert executor
     case PlanType::Insert: {
       auto insert_plan = dynamic_cast<const InsertPlanNode *>(plan.get());
-      auto child_executor =
-          insert_plan->IsRawInsert() ? nullptr : ExecutorFactory::CreateExecutor(exec_ctx, insert_plan->GetChildPlan());
+      auto child_executor = ExecutorFactory::CreateExecutor(exec_ctx, insert_plan->GetChildPlan());
       return std::make_unique<InsertExecutor>(exec_ctx, insert_plan, std::move(child_executor));
     }
 

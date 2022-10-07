@@ -1,0 +1,79 @@
+query
+-- v1: (cursor + 2) % 10
+-- v2: cursor
+-- v3: (cursor + 50) % 100
+-- v4: cursor / 1000
+-- v5: 233
+-- v6: some magic string
+select count(*) from __mock_agg_input_big;
+----
+10000
+
+query rowsort
+select v5, min(v1), sum(v2), count(*) from __mock_agg_input_big group by v5;
+----
+233 0 49995000 10000
+
+query rowsort
+select sum(v1), min(v2), count(*) from __mock_agg_input_big group by v5 + v4;
+----
+4500 9000 1000 
+4500 8000 1000 
+4500 7000 1000 
+4500 6000 1000 
+4500 5000 1000 
+4500 4000 1000 
+4500 3000 1000 
+4500 2000 1000 
+4500 1000 1000 
+4500 0 1000 
+
+query rowsort
+select distinct v5 from __mock_agg_input_big;
+----
+233
+
+query rowsort
+select distinct v4, v5 from __mock_agg_input_big;
+----
+9 233 
+8 233 
+6 233 
+5 233 
+4 233 
+3 233 
+7 233 
+2 233 
+1 233 
+0 233
+
+query rowsort
+select distinct * from (
+    select cnt, sum(sum_v1), sum(sum_v2), sum(v4) from (
+        select v4 as v4, sum(v1) as sum_v1, sum(v2) as sum_v2, count(*) as cnt from __mock_agg_input_big group by v4
+    ) where v4 > 5 group by cnt
+);
+----
+1000 18000 31998000 30
+
+query rowsort
+select v6, count(v6) + count(*) from (
+    select distinct v6 from __mock_agg_input_big
+) group by v6
+----
+💩 2 
+💩💩💩💩💩💩💩💩💩💩💩 2 
+💩💩💩💩💩 2 
+💩💩💩💩💩💩💩💩💩💩💩💩💩 2 
+💩💩💩 2 
+💩💩 2 
+💩💩💩💩💩💩💩💩💩 2 
+💩💩💩💩 2 
+💩💩💩💩💩💩 2 
+💩💩💩💩💩💩💩💩💩💩💩💩 2 
+💩💩💩💩💩💩💩💩 2 
+💩💩💩💩💩💩💩💩💩💩💩💩💩💩 2 
+💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩 2 
+💩💩💩💩💩💩💩 2 
+💩💩💩💩💩💩💩💩💩💩 2 
+💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩 2

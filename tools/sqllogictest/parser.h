@@ -88,7 +88,8 @@ class QueryRecord : public Record {
         expected_result_(std::move(expected_result)){};
 
   auto ToString() const -> std::string override {
-    return fmt::format("Query {{ sort_mode={}, sql={}, expected_result={} }}", sort_mode_, sql_, expected_result_);
+    return fmt::format("Query {{\n  sort_mode={},\n  sql={},\n  expected_result=\n{}}}", sort_mode_, sql_,
+                       expected_result_);
   }
 
   SortMode sort_mode_;

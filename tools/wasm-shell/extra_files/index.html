@@ -70,10 +70,10 @@
             const bufferSize = 64 * 1024
             let output = "\0".repeat(bufferSize)
             let ptrOutput = Module.allocateUTF8(output)
-            console.log(executeQuery(x, ptrOutput, bufferSize))
+            const retCode = executeQuery(x, ptrOutput, bufferSize)
             output = Module.UTF8ToString(ptrOutput)
             Module._free(ptrOutput)
-            return output
+            return [retCode, output]
         }
     }
     $(document).ready(() => {
@@ -91,8 +91,12 @@
                 if (line == "\\clear") {
                     this.clear()
                 } else {
-                    const result = executeQuery(line)
+                    const [retCode, result] = executeQuery(line)
                     this.echo(result, { raw: true })
+                    if (retCode == 1) {
+                        this.echo("Table truncated due to output limit.")
+                    }
+                    this.echo()
                 }
                 line = ""
             }
