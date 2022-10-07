@@ -1,0 +1,156 @@
+<html>
+
+<head>
+    <title>BusTub B+Tree Printer</title>
+    <!-- jQuery -->
+    <script src="https://unpkg.com/jquery@3.x.x/dist/jquery.min.js"></script>
+    <!-- jQuery Terminal -->
+    <script src="https://unpkg.com/jquery.terminal@2.x.x/js/jquery.terminal.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/jquery.terminal@2.x.x/css/jquery.terminal.min.css" />
+    <!-- prismjs  -->
+    <link rel="stylesheet" href="https://unpkg.com/prismjs@1.x.x/themes/prism.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/terminal-prism@0.3.x/css/prism.css" />
+    <script src="https://unpkg.com/prismjs@1.x.x/prism.js"></script>
+    <script src="https://unpkg.com/prismjs@1.x.x/components/prism-sql.min.js"></script>
+    <script src="https://unpkg.com/jquery.terminal@2.x.x/js/prism.js"></script>
+    <!-- CJK characters -->
+    <script src="https://cdn.jsdelivr.net/gh/jcubic/static/js/wcwidth.js"></script>
+    <!-- Roboto Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <!-- GraphViz -->
+    <script src="https://unpkg.com/viz.js@2.x.x/viz.js"></script>
+    <script src="https://unpkg.com/viz.js@2.x.x/full.render.js"></script>
+    <!-- Pan Zoom -->
+    <script src="https://unpkg.com/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+</head>
+
+<body>
+</body>
+
+<style>
+    .terminal {
+        --color: black;
+        --background: white;
+        --link-color: darkblue;
+        --size: 1.2;
+        --font: "Source Code Pro", monospace;
+    }
+
+    .terminal::after {
+        content: "";
+        background-image: url("bustub.svg");
+        opacity: 0.02;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        position: absolute;
+        z-index: -1;
+        transform: rotate(-30deg);
+    }
+
+    table,
+    tr,
+    td,
+    tbody,
+    thead,
+    div {
+        font-size: calc(var(--size, 1)*(12px/var(--pixel-density, 1)));
+        white-space: pre;
+    }
+
+    .svg-wrapper {
+        width: 50%;
+        overflow-x: hidden;
+        background-color: white;
+        border: 1px solid grey;
+    }
+</style>
+
+<script src="./bustub-wasm-bpt-printer.js"></script>
+
+<script type="text/javascript">
+    const BUSTUB_PUBLIC_VERSION_VAR = "${BUSTUB_PUBLIC_VERSION}"
+    const BUSTUB_PRIVATE_VERSION_VAR = "${BUSTUB_PRIVATE_VERSION}"
+    const viz = new Viz()
+
+    Module['onRuntimeInitialized'] = function () {
+        const initialize = Module.cwrap('BustubInit', 'number', ['number', 'number'])
+        const executeQuery = Module.cwrap('BustubApplyCommand', 'number', ['string', 'number', 'number'])
+        window.executeQuery = (x) => {
+            const bufferSize = 64 * 1024
+            let output = "\0".repeat(bufferSize)
+            let ptrOutput = Module.allocateUTF8(output)
+            const retCode = executeQuery(x, ptrOutput, bufferSize)
+            output = Module.UTF8ToString(ptrOutput)
+            Module._free(ptrOutput)
+            return [retCode, output]
+        }
+        window.initialize = initialize
+    }
+
+    const helpMessage =
+        "i <k>  -- Insert <k> (int64_t) as both key and value).\n" +
+        "d <k>  -- Delete key <k> and its associated value.\n"
+
+
+    function preventScroll(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        return false;
+    }
+
+    $(document).ready(() => {
+        var initialized = false
+        var svgid = 0
+        var term = $('body').terminal(function (line) {
+            if (line == "\\clear") {
+                this.clear()
+            } else if (line == "?") {
+                this.echo(helpMessage)
+            } else {
+                if (!initialized) {
+                    const [x, y] = line.split(" ")
+                    initialize(parseInt(x), parseInt(y))
+                    initialized = true
+                } else {
+                    const [retCode, result] = executeQuery(line)
+                    if (retCode == 0) {
+                        viz.renderSVGElement(result).then((svgXml) => {
+                            id = `bustub-svg-${svgid}`
+                            svgXml.id = id
+                            svgid += 1
+                            const div = document.createElement("div")
+                            div.className = "svg-wrapper"
+                            div.appendChild(svgXml)
+                            this.echo(div, { raw: true })
+                            svgPanZoom(`#${id}`)
+                            document.querySelector(`#${id}`).addEventListener('wheel', preventScroll, { passive: false });
+                        })
+                    }
+                    if (retCode == 1) {
+                        this.echo("something went wrong.")
+                    }
+                    if (retCode == 2) {
+                        this.echo("output truncated due to output limit.")
+                    }
+                }
+            }
+        }, {
+            greetings:
+                `Welcome to the BusTub B+ Tree Printer shell! \u{1F68C}\u{1F6C1}
+
+BusTub is a relational database management system built at Carnegie Mellon University for the Introduction to Database Systems (15-445/645) course. This system was developed for educational purposes and should not be used in production environments. [[!;;;;https://github.com/cmu-db/bustub]BusTub on GitHub] [[!;;;;https://15445.courses.cs.cmu.edu/]Course Website] [[!;;;;https://github.com/cmu-db/bustub/issues/new]Report Bugs]
+
+${helpMessage}
+This is BusTub reference solution running in your browser. Solution Version: ${BUSTUB_PRIVATE_VERSION_VAR}, BusTub Version: ${BUSTUB_PUBLIC_VERSION_VAR}.
+`,
+            prompt: () => initialized ? "[[b;;]printer> ]" : "leaf_max_size and internal_max_size? > "
+        })
+    })
+</script>
+
+</html>
