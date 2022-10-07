@@ -25,10 +25,10 @@ using bustub::DiskManager;
 using bustub::Exception;
 using bustub::GenericComparator;
 using bustub::GenericKey;
-using bustub::RID;
-using bustub::Transaction;
 using bustub::page_id_t;
 using bustub::ParseCreateStatement;
+using bustub::RID;
+using bustub::Transaction;
 
 auto UsageMessage() -> std::string {
   std::string message =
@@ -84,6 +84,9 @@ auto main(int argc, char **argv) -> int {
   while (!quit) {
     std::cout << "> ";
     std::cin >> instruction;
+    if (!std::cin) {
+      break;
+    }
     switch (instruction) {
       case 'c':
         std::cin >> filename;

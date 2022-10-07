@@ -166,6 +166,7 @@ void BPLUSTREE_TYPE::Draw(BufferPoolManager *bpm, const std::string &outf) {
   out << "digraph G {" << std::endl;
   ToGraph(reinterpret_cast<BPlusTreePage *>(bpm->FetchPage(root_page_id_)->GetData()), bpm, out);
   out << "}" << std::endl;
+  out.flush();
   out.close();
 }
 
