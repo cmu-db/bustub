@@ -41,6 +41,9 @@ auto BustubExecuteQuery(const char *input, char *output, uint16_t len) -> int {
   }
   std::cout << output_string << std::endl;
   strncpy(output, output_string.c_str(), len);
+  if (output_string.length() >= len) {
+    return 1;
+  }
   return 0;
 }
 }
