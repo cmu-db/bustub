@@ -33,28 +33,11 @@ class MockScanPlanNode : public AbstractPlanNode {
    * @param output The output schema of this mock scan plan node
    * @param size The size of the scanned table
    */
-  MockScanPlanNode(SchemaRef output, std::size_t size) : AbstractPlanNode(std::move(output), {}), size_{size} {}
-
-  /**
-   * Construct a new MockScanPlanNode instance.
-   * @param output The output schema of this mock scan plan node
-   * @param size The size of the scanned table
-   * @param table The table name of this mock scan node, used to determine the generated content.
-   */
-  MockScanPlanNode(SchemaRef output, std::size_t size, std::string table)
-      : AbstractPlanNode(std::move(output), {}), size_{size}, table_(std::move(table)) {}
+  MockScanPlanNode(SchemaRef output, std::string table)
+      : AbstractPlanNode(std::move(output), {}), table_(std::move(table)) {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::MockScan; }
-
-  /** @return The size of this "mock" scan */
-  auto GetSize() const -> std::size_t { return size_; }
-
-  /** @return The total number of times the executor for this plan is polled */
-  auto PollCount() const -> std::size_t { return poll_count_; }
-
-  /** Increment the poll count for this mock scan */
-  void IncrementPollCount() const { poll_count_++; }
 
   /** @return The table name of this mock scan node, used to determine the generated content. */
   auto GetTable() const -> const std::string & { return table_; }
@@ -62,13 +45,9 @@ class MockScanPlanNode : public AbstractPlanNode {
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(MockScanPlanNode);
 
  protected:
-  auto PlanNodeToString() const -> std::string override { return fmt::format("MockScan {{ size={} }}", size_); }
+  auto PlanNodeToString() const -> std::string override { return fmt::format("MockScan {{ table={} }}", table_); }
 
  private:
-  /** The size of the scanned table */
-  const std::size_t size_;
-  /** The total number of times the executor for this plan is polled */
-  mutable std::size_t poll_count_{0};
   /** The table name of this mock scan executor */
   std::string table_;
 };

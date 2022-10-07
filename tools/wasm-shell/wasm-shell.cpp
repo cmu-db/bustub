@@ -22,6 +22,11 @@ auto BustubExecuteQuery(const char *input, char *output, uint16_t len) -> int {
     std::cout << "Initialize BusTub..." << std::endl;
     auto bustub = std::make_unique<bustub::BustubInstance>("test.db");
     bustub->GenerateMockTable();
+
+    if (bustub->buffer_pool_manager_ != nullptr) {
+      bustub->GenerateTestTable();
+    }
+
     instance = std::move(bustub);
   }
   std::string input_string(input);

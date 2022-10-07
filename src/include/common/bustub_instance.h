@@ -56,14 +56,14 @@ class ResultWriter {
 
 class SimpleStreamWriter : public ResultWriter {
  public:
-  explicit SimpleStreamWriter(std::ostream &stream, bool disable_header = false)
-      : disable_header_(disable_header), stream_(stream) {}
+  explicit SimpleStreamWriter(std::ostream &stream, bool disable_header = false, const char *separator = "\t")
+      : disable_header_(disable_header), stream_(stream), separator_(separator) {}
   static auto BoldOn(std::ostream &os) -> std::ostream & { return os << "\e[1m"; }
   static auto BoldOff(std::ostream &os) -> std::ostream & { return os << "\e[0m"; }
-  void WriteCell(const std::string &cell) override { stream_ << cell << "\t"; }
+  void WriteCell(const std::string &cell) override { stream_ << cell << separator_; }
   void WriteHeaderCell(const std::string &cell) override {
     if (!disable_header_) {
-      stream_ << BoldOn << cell << BoldOff << "\t";
+      stream_ << BoldOn << cell << BoldOff << separator_;
     }
   }
   void BeginHeader() override {}
@@ -79,6 +79,7 @@ class SimpleStreamWriter : public ResultWriter {
 
   bool disable_header_;
   std::ostream &stream_;
+  std::string separator_;
 };
 
 class HtmlWriter : public ResultWriter {

@@ -36,17 +36,15 @@ auto Tokenize(const std::string &str, char delimiter = ' ') -> std::vector<std::
 auto ParseInner(const std::string &filename, const std::string &script) -> std::vector<std::unique_ptr<Record>> {
   auto lines = StringUtil::Split(script, '\n');
   std::vector<std::unique_ptr<Record>> records;
-  size_t line_cnt = 0;
   auto line_iter = lines.cbegin();
   while (line_iter != lines.cend()) {
     const auto &line = *line_iter;
-    line_cnt += 1;
 
     if (line.empty() || StringUtil::StartsWith(line, "#")) {
       line_iter++;
       continue;
     }
-    auto loc = Location{filename, line_cnt, nullptr};
+    auto loc = Location{filename, static_cast<size_t>(line_iter - lines.cbegin()) + 1, nullptr};
     auto tokens = Tokenize(line);
     if (tokens.empty()) {
       line_iter++;

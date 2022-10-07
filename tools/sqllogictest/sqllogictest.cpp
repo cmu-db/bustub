@@ -75,6 +75,12 @@ auto main(int argc, char **argv) -> int {  // NOLINT
   bool diff = program.get<bool>("diff");
   std::string filename = program.get<std::string>("file");
   std::ifstream t(filename);
+
+  if (!t) {
+    std::cerr << "Failed to open " << filename << std::endl;
+    return 1;
+  }
+
   std::string script((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
   t.close();
 
@@ -82,6 +88,10 @@ auto main(int argc, char **argv) -> int {  // NOLINT
 
   auto bustub = std::make_unique<bustub::BustubInstance>("test.db");
   bustub->GenerateMockTable();
+
+  if (bustub->buffer_pool_manager_ != nullptr) {
+    bustub->GenerateTestTable();
+  }
 
   for (const auto &record : result) {
     fmt::print("{}\n", record->loc_);
@@ -125,7 +135,7 @@ auto main(int argc, char **argv) -> int {  // NOLINT
         const auto &query = dynamic_cast<const bustub::QueryRecord &>(*record);
         try {
           std::stringstream result;
-          auto writer = bustub::SimpleStreamWriter(result, true);
+          auto writer = bustub::SimpleStreamWriter(result, true, " ");
           bustub->ExecuteSql(query.sql_, writer);
           if (verbose) {
             fmt::print("{}\n", result.str());

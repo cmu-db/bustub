@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <functional>
+#include <string>
 #include <vector>
 
 #include "execution/executor_context.h"
@@ -20,6 +22,9 @@
 #include "storage/table/tuple.h"
 
 namespace bustub {
+
+extern const char *mock_table_list[];
+auto GetMockTableSchemaOf(const std::string &table) -> Schema;
 
 /**
  * The MockScanExecutor executor executes a sequential table scan for tests.
@@ -62,8 +67,15 @@ class MockScanExecutor : public AbstractExecutor {
 
   /** The plan node for the scan */
   const MockScanPlanNode *plan_;
+
   /** The cursor for the current mock scan */
   std::size_t cursor_{0};
+
+  /** The table function */
+  std::function<Tuple(std::size_t)> func_;
+
+  /** The size of the mock table */
+  std::size_t size_;
 };
 
 }  // namespace bustub
