@@ -70,8 +70,6 @@ auto BustubInit(int leaf_max_size, int internal_max_size) -> int {
 }
 
 auto BustubApplyCommand(const char *input, char *output, uint16_t len) -> int {
-  std::cout << "Apply!" << std::endl;
-
   GenericKey<8> index_key;
   int64_t key = 0;
   RID rid;
@@ -85,7 +83,6 @@ auto BustubApplyCommand(const char *input, char *output, uint16_t len) -> int {
 
   switch (instruction) {
     case 'd':
-      std::cout << "delete " << key << std::endl;
       ss >> key;
       if (!ss) {
         return 1;
@@ -98,7 +95,6 @@ auto BustubApplyCommand(const char *input, char *output, uint16_t len) -> int {
       if (!ss) {
         return 1;
       }
-      std::cout << "insert " << key << std::endl;
       rid.Set(static_cast<int32_t>(key >> 32), static_cast<int>(key & 0xFFFFFFFF));
       index_key.SetFromInteger(key);
       tree->Insert(index_key, rid, transaction);
