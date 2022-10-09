@@ -35,7 +35,7 @@ foreach(bustub_test_source ${BUSTUB_TEST_SOURCES})
                 --gtest_catch_exceptions=0
                 DISCOVERY_TIMEOUT 120
                 PROPERTIES
-                TIMEOUT 30
+                TIMEOUT 60
         )
 
         target_link_libraries(${bustub_test_name} bustub gtest gmock_main)
