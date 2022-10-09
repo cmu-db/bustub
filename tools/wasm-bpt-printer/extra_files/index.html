@@ -40,7 +40,7 @@
 
     .terminal::after {
         content: "";
-        background-image: url("bustub.svg");
+        background-image: url("/bpt-printer/bustub.svg");
         opacity: 0.02;
         top: -50%;
         left: -50%;
@@ -62,14 +62,14 @@
     }
 
     .svg-wrapper {
-        width: 50%;
+        width: 80%;
         overflow-x: hidden;
         background-color: white;
         border: 1px solid grey;
     }
 </style>
 
-<script src="./bustub-wasm-bpt-printer.js"></script>
+<script src="/bpt-printer/bustub-wasm-bpt-printer.js"></script>
 
 <script type="text/javascript">
     const BUSTUB_PUBLIC_VERSION_VAR = "${BUSTUB_PUBLIC_VERSION}"
@@ -114,8 +114,12 @@
             } else {
                 if (!initialized) {
                     const [x, y] = line.split(" ")
-                    initialize(parseInt(x), parseInt(y))
-                    initialized = true
+                    const [px, py] = [parseInt(x), parseInt(y)]
+                    if (px >= 2 && py >= 3) {
+                        initialize(px, py)
+                        this.echo(`leaf_max_size=${px}, internal_max_size=${py}`)
+                        initialized = true
+                    }
                 } else {
                     const [retCode, result] = executeQuery(line)
                     if (retCode == 0) {
@@ -128,7 +132,9 @@
                             div.appendChild(svgXml)
                             this.echo(div, { raw: true })
                             svgPanZoom(`#${id}`)
+                            $(`#${id}`).width("100%")
                             document.querySelector(`#${id}`).addEventListener('wheel', preventScroll, { passive: false });
+                            this.echo("")
                         })
                     }
                     if (retCode == 1) {
@@ -148,9 +154,19 @@ BusTub is a relational database management system built at Carnegie Mellon Unive
 ${helpMessage}
 This is BusTub reference solution running in your browser. Solution Version: ${BUSTUB_PRIVATE_VERSION_VAR}, BusTub Version: ${BUSTUB_PUBLIC_VERSION_VAR}.
 `,
-            prompt: () => initialized ? "[[b;;]printer> ]" : "leaf_max_size and internal_max_size? > "
+            prompt: () => initialized ? "[[b;;]printer> ]" : "leaf_max_size and internal_max_size? (e.g., 3 3) "
         })
     })
+</script>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-52525161-8"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-52525161-8');
 </script>
 
 </html>

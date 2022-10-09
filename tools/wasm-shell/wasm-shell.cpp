@@ -15,20 +15,20 @@ static std::unique_ptr<bustub::BustubInstance> instance = nullptr;
 
 extern "C" {
 
-auto Test() -> int { return 42; }
+auto BustubInit() -> int {
+  std::cout << "Initialize BusTub..." << std::endl;
+  auto bustub = std::make_unique<bustub::BustubInstance>("test.db");
+  bustub->GenerateMockTable();
+
+  if (bustub->buffer_pool_manager_ != nullptr) {
+    bustub->GenerateTestTable();
+  }
+
+  instance = std::move(bustub);
+  return 0;
+}
 
 auto BustubExecuteQuery(const char *input, char *output, uint16_t len) -> int {
-  if (instance == nullptr) {
-    std::cout << "Initialize BusTub..." << std::endl;
-    auto bustub = std::make_unique<bustub::BustubInstance>("test.db");
-    bustub->GenerateMockTable();
-
-    if (bustub->buffer_pool_manager_ != nullptr) {
-      bustub->GenerateTestTable();
-    }
-
-    instance = std::move(bustub);
-  }
   std::string input_string(input);
   std::cout << input_string << std::endl;
   std::string output_string;

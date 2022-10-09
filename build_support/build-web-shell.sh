@@ -12,21 +12,29 @@ mkdir -p cmake-build-wasm
 cd cmake-build-wasm
 emcmake cmake .. -DCMAKE_BUILD_TYPE=MinSizeRel
 
+rm -rf deploy
+mkdir -p deploy
+cp ../.gitignore deploy
+cp ../LICENSE deploy
+cp ../tools/wasm-shell/extra_files/vercel.json deploy
+
 make -j$(nproc) wasm-shell
-mkdir -p wasm-shell
-cp bin/bustub-wasm-shell.js wasm-shell
-cp bin/bustub-wasm-shell.wasm wasm-shell
-cp -a ../tools/wasm-shell/extra_files/* wasm-shell/
-sed -i '' "s|\${BUSTUB_PRIVATE_VERSION}|${BUSTUB_PRIVATE_VERSION}|" wasm-shell/index.html
-sed -i '' "s|\${BUSTUB_PUBLIC_VERSION}|${BUSTUB_PUBLIC_VERSION}|" wasm-shell/index.html
+mkdir -p deploy/shell
+cp bin/bustub-wasm-shell.js deploy/shell
+cp bin/bustub-wasm-shell.wasm deploy/shell
+cp -a ../tools/wasm-shell/extra_files/index.html deploy/shell
+cp ../logo/bustub.svg deploy/shell
+sed -i '' "s|\${BUSTUB_PRIVATE_VERSION}|${BUSTUB_PRIVATE_VERSION}|" deploy/shell/index.html
+sed -i '' "s|\${BUSTUB_PUBLIC_VERSION}|${BUSTUB_PUBLIC_VERSION}|" deploy/shell/index.html
 
 make -j$(nproc) wasm-bpt-printer
-mkdir -p wasm-bpt-printer
-cp bin/bustub-wasm-bpt-printer.js wasm-bpt-printer
-cp bin/bustub-wasm-bpt-printer.wasm wasm-bpt-printer
-cp -a ../tools/wasm-bpt-printer/extra_files/* wasm-bpt-printer/
-sed -i '' "s|\${BUSTUB_PRIVATE_VERSION}|${BUSTUB_PRIVATE_VERSION}|" wasm-bpt-printer/index.html
-sed -i '' "s|\${BUSTUB_PUBLIC_VERSION}|${BUSTUB_PUBLIC_VERSION}|" wasm-bpt-printer/index.html
+mkdir -p deploy/bpt-printer
+cp bin/bustub-wasm-bpt-printer.js deploy/bpt-printer
+cp bin/bustub-wasm-bpt-printer.wasm deploy/bpt-printer
+cp -a ../tools/wasm-bpt-printer/extra_files/index.html deploy/bpt-printer
+cp ../logo/bustub.svg deploy/bpt-printer
+sed -i '' "s|\${BUSTUB_PRIVATE_VERSION}|${BUSTUB_PRIVATE_VERSION}|" deploy/bpt-printer/index.html
+sed -i '' "s|\${BUSTUB_PUBLIC_VERSION}|${BUSTUB_PUBLIC_VERSION}|" deploy/bpt-printer/index.html
 
-ls -alh wasm-shell/
-ls -alh wasm-bpt-printer/
+ls -alh deploy/shell
+ls -alh deploy/bpt-printer

@@ -35,7 +35,7 @@
 
     .terminal::after {
         content: "";
-        background-image: url("bustub.svg");
+        background-image: url("/shell/bustub.svg");
         opacity: 0.02;
         top: -50%;
         left: -50%;
@@ -57,7 +57,7 @@
     }
 </style>
 
-<script src="./bustub-wasm-shell.js"></script>
+<script src="/shell/bustub-wasm-shell.js"></script>
 
 <script type="text/javascript">
     const BUSTUB_PUBLIC_VERSION_VAR = "${BUSTUB_PUBLIC_VERSION}"
@@ -65,7 +65,7 @@
 
     Module['onRuntimeInitialized'] = function () {
         const executeQuery = Module.cwrap('BustubExecuteQuery', 'number', ['string', 'number', 'number'])
-        const test = Module.cwrap('Test', 'number', [])
+        const initialize = Module.cwrap('BustubInit', 'number', [])
         window.executeQuery = (x) => {
             const bufferSize = 64 * 1024
             let output = "\0".repeat(bufferSize)
@@ -75,7 +75,9 @@
             Module._free(ptrOutput)
             return [retCode, output]
         }
+        initialize()
     }
+
     $(document).ready(() => {
         $.terminal.syntax('sql')
         $.terminal.prism_formatters = {
@@ -113,6 +115,16 @@ This is BusTub reference solution running in your browser. Solution Version: ${B
             prompt: () => line.length == 0 ? "[[b;;]bustub> ]" : "[[b;;]... ]"
         })
     })
+</script>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-52525161-8"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-52525161-8');
 </script>
 
 </html>
