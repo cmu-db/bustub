@@ -40,7 +40,7 @@
 
     .terminal::after {
         content: "";
-        background-image: url("/bpt-printer/bustub.svg");
+        background-image: url("bustub.svg");
         opacity: 0.02;
         top: -50%;
         left: -50%;
@@ -69,11 +69,12 @@
     }
 </style>
 
-<script src="/bpt-printer/bustub-wasm-bpt-printer.js"></script>
+<script src="bustub-wasm-bpt-printer.js"></script>
 
 <script type="text/javascript">
     const BUSTUB_PUBLIC_VERSION_VAR = "${BUSTUB_PUBLIC_VERSION}"
     const BUSTUB_PRIVATE_VERSION_VAR = "${BUSTUB_PRIVATE_VERSION}"
+    const BUSTUB_BUILD_TIME_VAR = "${BUSTUB_BUILD_TIME}"
     const viz = new Viz()
 
     Module['onRuntimeInitialized'] = function () {
@@ -152,7 +153,7 @@
 BusTub is a relational database management system built at Carnegie Mellon University for the Introduction to Database Systems (15-445/645) course. This system was developed for educational purposes and should not be used in production environments. [[!;;;;https://github.com/cmu-db/bustub]BusTub on GitHub] [[!;;;;https://15445.courses.cs.cmu.edu/]Course Website] [[!;;;;https://github.com/cmu-db/bustub/issues/new]Report Bugs]
 
 ${helpMessage}
-This is BusTub reference solution running in your browser. Solution Version: ${BUSTUB_PRIVATE_VERSION_VAR}, BusTub Version: ${BUSTUB_PUBLIC_VERSION_VAR}.
+This is BusTub reference solution running in your browser. Solution Version: ${BUSTUB_PRIVATE_VERSION_VAR}, BusTub Version: ${BUSTUB_PUBLIC_VERSION_VAR}, built at ${BUSTUB_BUILD_TIME_VAR}.
 `,
             prompt: () => initialized ? "[[b;;]printer> ]" : "leaf_max_size and internal_max_size? (e.g., 3 3) "
         })
