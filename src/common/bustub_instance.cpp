@@ -1,3 +1,4 @@
+#include <optional>
 #include <string>
 #include <tuple>
 
@@ -8,6 +9,7 @@
 #include "binder/statement/explain_statement.h"
 #include "binder/statement/index_statement.h"
 #include "binder/statement/select_statement.h"
+#include "binder/statement/set_show_statement.h"
 #include "buffer/buffer_pool_manager_instance.h"
 #include "catalog/schema.h"
 #include "catalog/table_generator.h"
@@ -201,6 +203,17 @@ void BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) {
         WriteOneCell(fmt::format("Index created with id = {}", info->index_oid_), writer);
         continue;
       }
+      case StatementType::VARIABLE_SHOW_STATEMENT: {
+        const auto &show_stmt = dynamic_cast<const VariableShowStatement &>(*statement);
+        auto content = GetSessionVariable(show_stmt.variable_);
+        WriteOneCell(fmt::format("{}={}", show_stmt.variable_, content), writer);
+        continue;
+      }
+      case StatementType::VARIABLE_SET_STATEMENT: {
+        const auto &set_stmt = dynamic_cast<const VariableSetStatement &>(*statement);
+        session_variables_[set_stmt.variable_] = set_stmt.value_;
+        continue;
+      }
       case StatementType::EXPLAIN_STATEMENT: {
         const auto &explain_stmt = dynamic_cast<const ExplainStatement &>(*statement);
         std::string output;
@@ -227,7 +240,7 @@ void BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) {
         }
 
         // Print optimizer result.
-        bustub::Optimizer optimizer(*catalog_);
+        bustub::Optimizer optimizer(*catalog_, IsForceStarterRule());
         auto optimized_plan = optimizer.Optimize(planner.plan_);
 
         if ((explain_stmt.options_ & ExplainOptions::OPTIMIZER) != 0) {
@@ -250,7 +263,7 @@ void BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) {
     planner.PlanQuery(*statement);
 
     // Optimize the query.
-    bustub::Optimizer optimizer(*catalog_);
+    bustub::Optimizer optimizer(*catalog_, IsForceStarterRule());
     auto optimized_plan = optimizer.Optimize(planner.plan_);
 
     // Execute the query.

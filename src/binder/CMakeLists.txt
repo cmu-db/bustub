@@ -7,6 +7,7 @@ add_library(
   bind_create.cpp
   bind_insert.cpp
   bind_select.cpp
+  bind_variable.cpp
   bound_statement.cpp
   fmt_impl.cpp
   keyword_helper.cpp

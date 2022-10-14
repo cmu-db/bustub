@@ -14,7 +14,7 @@ IndexStatement::IndexStatement(std::string index_name, std::unique_ptr<BoundBase
       cols_(std::move(cols)) {}
 
 auto IndexStatement::ToString() const -> std::string {
-  return fmt::format("Index {{ index_name={}, table={}, cols={} }}", index_name_, *table_, cols_);
+  return fmt::format("BoundIndex {{ index_name={}, table={}, cols={} }}", index_name_, *table_, cols_);
 }
 
 }  // namespace bustub

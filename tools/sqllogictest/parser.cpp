@@ -73,12 +73,18 @@ auto ParseInner(const std::string &filename, const std::string &script) -> std::
     }
     if (tokens[0] == "statement") {
       bool error;
-      if (tokens.size() == 2 && tokens[1] == "ok") {
+      if (tokens[1] == "ok") {
         error = false;
-      } else if (tokens.size() == 2 && tokens[1] == "error") {
+      } else if (tokens[1] == "error") {
         error = true;
-      } else {
-        throw bustub::Exception("unexpected args");
+      }
+      std::vector<std::string> extra_options;
+      for (auto iter = tokens.cbegin() + 2; iter != tokens.cend(); iter++) {
+        if (iter->length() > 0) {
+          if ((*iter)[0] == '+') {
+            extra_options.emplace_back(std::string(iter->cbegin() + 1, iter->cend()));
+          }
+        }
       }
       if (line_iter != lines.cend()) {
         line_iter++;
@@ -94,24 +100,26 @@ auto ParseInner(const std::string &filename, const std::string &script) -> std::
         line_iter++;
       }
       StringUtil::RTrim(&sql);
-      records.emplace_back(std::make_unique<StatementRecord>(loc, error, std::move(sql)));
+      records.emplace_back(std::make_unique<StatementRecord>(loc, error, std::move(sql), std::move(extra_options)));
       if (line_iter == lines.cend()) {
         break;
       }
     }
 
     if (tokens[0] == "query") {
-      auto sort_mode = SortMode::INVALID;
-      if (tokens.size() == 2) {
+      auto sort_mode = SortMode::NOSORT;
+      if (tokens.size() >= 2) {
         if (tokens[1] == "rowsort") {
           sort_mode = SortMode::ROWSORT;
-        } else {
-          throw bustub::Exception("unexpected args");
         }
-      } else if (tokens.size() == 1) {
-        sort_mode = SortMode::NOSORT;
-      } else {
-        throw bustub::Exception("unexpected args");
+      }
+      std::vector<std::string> extra_options;
+      for (auto iter = tokens.cbegin() + 1; iter != tokens.cend(); iter++) {
+        if (iter->length() > 0) {
+          if ((*iter)[0] == '+') {
+            extra_options.emplace_back(std::string(iter->cbegin() + 1, iter->cend()));
+          }
+        }
       }
       line_iter++;
       if (line_iter == lines.cend()) {
@@ -151,7 +159,8 @@ auto ParseInner(const std::string &filename, const std::string &script) -> std::
         line_iter++;
       }
       StringUtil::RTrim(&sql);
-      records.emplace_back(std::make_unique<QueryRecord>(loc, sort_mode, std::move(sql), std::move(expected_result)));
+      records.emplace_back(std::make_unique<QueryRecord>(loc, sort_mode, std::move(sql), std::move(expected_result),
+                                                         std::move(extra_options)));
       if (line_iter == lines.cend()) {
         break;
       }
