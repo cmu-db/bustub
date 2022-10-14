@@ -1,3 +1,5 @@
+# 5 pts
+
 query
 -- v1: (cursor + 2) % 10
 -- v2: cursor

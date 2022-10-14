@@ -1,3 +1,5 @@
+# 5 pts
+
 # Create a table
 statement ok
 create table t1(v1 int);

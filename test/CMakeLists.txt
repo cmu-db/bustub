@@ -58,6 +58,16 @@ set(BUSTUB_SLT_SOURCES
         "${PROJECT_SOURCE_DIR}/test/sql/p3.07-group-agg-1.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.08-group-agg-2.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.09-simple-join.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.10-multi-way-join.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.11-repeat-execute.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.12-nested-index-join.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.13-sort-limit.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.14-topn.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.15-integration-1.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.16-integration-2.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.leaderboard-q1.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.leaderboard-q2.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.leaderboard-q3.slt"
 )
 
 add_custom_target(test-p3 ${CMAKE_CTEST_COMMAND} -R SQLLogicTest)
@@ -71,7 +81,7 @@ foreach(bustub_test_source ${BUSTUB_SLT_SOURCES})
         string(REPLACE ".slt" "" bustub_filename_wo_suffix "${bustub_test_filename}")
         string(REPLACE ".slt" "" bustub_test_name "SQLLogicTest.${bustub_filename_wo_suffix}")
         add_test(NAME ${bustub_test_name} COMMAND "${CMAKE_BINARY_DIR}/bin/bustub-sqllogictest" ${bustub_test_source} --verbose -d)
-        add_custom_target(${bustub_filename_wo_suffix}_test COMMAND ${CMAKE_CTEST_COMMAND} -R ${bustub_test_name} --verbose)
+        add_custom_target(${bustub_filename_wo_suffix}_test COMMAND "${CMAKE_BINARY_DIR}/bin/bustub-sqllogictest" "${bustub_test_source}" --verbose -d)
         add_dependencies(${bustub_filename_wo_suffix}_test sqllogictest)
 endforeach()
 

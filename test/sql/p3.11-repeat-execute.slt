@@ -1,0 +1,60 @@
+# 5 pts
+# Put everything on the right side of NLJ
+
+statement ok
+create table t1(v1 int, v2 varchar(128));
+
+query
+insert into t1 values (0, '🥰'), (1, '🥰🥰');
+----
+2
+
+# SeqScan as the right child
+
+query rowsort
+select * from __mock_table_123, t1;
+----
+1 0 🥰 
+1 1 🥰🥰 
+2 0 🥰 
+2 1 🥰🥰 
+3 0 🥰 
+3 1 🥰🥰
+
+# SimpleAgg as the right child
+
+query rowsort
+select * from __mock_table_123, (select count(*) as cnt from t1);
+----
+1 2
+2 2
+3 2
+
+# GroupAgg as the right child
+
+query rowsort
+select * from __mock_table_123, (select distinct v2 from t1);
+----
+1 🥰🥰 
+1 🥰 
+2 🥰🥰 
+2 🥰 
+3 🥰🥰 
+3 🥰
+
+# IndexScan as the right child
+
+statement ok
+create index t1v1 on t1(v1);
+
+query rowsort
+select * from __mock_table_123, (select * from t1 order by v1);
+----
+1 0 🥰 
+1 1 🥰🥰 
+2 0 🥰 
+2 1 🥰🥰 
+3 0 🥰 
+3 1 🥰🥰
+
+# TODO: limit + repeat
