@@ -74,6 +74,11 @@ class Optimizer {
   auto MatchIndex(const std::string &table_name, uint32_t index_key_idx)
       -> std::optional<std::tuple<index_oid_t, std::string>>;
 
+  /**
+   * @brief optimize sort + limit as top N
+   */
+  auto OptimizeSortLimitAsTopN(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef;
+
   /** Catalog will be used during the planning process. USERS SHOULD ENSURE IT OUTLIVES
    * OPTIMIZER, otherwise it's a dangling reference.
    */

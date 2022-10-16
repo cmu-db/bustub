@@ -1,5 +1,4 @@
 #include <type_traits>
-#include "execution/plans/sort_plan.h"
 #include "fmt/format.h"
 #include "fmt/ranges.h"
 
@@ -7,7 +6,10 @@
 #include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
 #include "execution/plans/aggregation_plan.h"
+#include "execution/plans/limit_plan.h"
 #include "execution/plans/projection_plan.h"
+#include "execution/plans/sort_plan.h"
+#include "execution/plans/topn_plan.h"
 
 namespace bustub {
 
@@ -38,6 +40,12 @@ auto ProjectionPlanNode::PlanNodeToString() const -> std::string {
 
 auto SortPlanNode::PlanNodeToString() const -> std::string {
   return fmt::format("Sort {{ order_bys={} }}", order_bys_);
+}
+
+auto LimitPlanNode::PlanNodeToString() const -> std::string { return fmt::format("Limit {{ limit={} }}", limit_); }
+
+auto TopNPlanNode::PlanNodeToString() const -> std::string {
+  return fmt::format("TopN {{ n={}, order_bys={}}}", n_, order_bys_);
 }
 
 }  // namespace bustub
