@@ -9,7 +9,8 @@ auto Optimizer::Optimize(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef
   auto p3 = OptimizeNLJAsIndexJoin(p2);
   auto p4 = OptimizeNLJAsHashJoin(p3);
   auto p5 = OptimizeOrderByAsIndexScan(p4);
-  return p5;
+  auto p6 = OptimizeSortLimitAsTopN(p5);
+  return p6;
 }
 
 }  // namespace bustub

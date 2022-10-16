@@ -15,7 +15,9 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
+#include "binder/bound_order_by.h"
 #include "catalog/catalog.h"
 #include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
@@ -33,10 +35,18 @@ class TopNPlanNode : public AbstractPlanNode {
    * @param output The output schema of this topN plan node
    * @param child The child plan node
    */
-  TopNPlanNode(SchemaRef output, AbstractPlanNodeRef child) : AbstractPlanNode(std::move(output), {std::move(child)}) {}
+  TopNPlanNode(SchemaRef output, AbstractPlanNodeRef child,
+               std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys, std::size_t n)
+      : AbstractPlanNode(std::move(output), {std::move(child)}), order_bys_(std::move(order_bys)), n_{n} {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::TopN; }
+
+  /** @return The N (limit) */
+  auto GetN() const -> size_t { return n_; }
+
+  /** @return Get order by expressions */
+  auto GetOrderBy() const -> const std::vector<std::pair<OrderByType, AbstractExpressionRef>> & { return order_bys_; }
 
   /** @return The child plan node */
   auto GetChildPlan() const -> AbstractPlanNodeRef {
@@ -47,9 +57,11 @@ class TopNPlanNode : public AbstractPlanNode {
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(TopNPlanNode);
 
  protected:
-  auto PlanNodeToString() const -> std::string override { return fmt::format("TopN {{ }}"); }
+  auto PlanNodeToString() const -> std::string override;
 
  private:
+  std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys_;
+  std::size_t n_;
 };
 
 }  // namespace bustub
