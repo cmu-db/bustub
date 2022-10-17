@@ -1,3 +1,5 @@
+# 10 pts
+
 # Ensure all order-bys in this file are transformed into index scan
 statement ok
 set force_optimizer_starter_rule=yes

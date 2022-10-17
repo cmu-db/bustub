@@ -1,3 +1,5 @@
+# 5 pts
+
 # How many TAs are there in 2022 Fall?
 query
 select count(*) from __mock_table_tas_2022;

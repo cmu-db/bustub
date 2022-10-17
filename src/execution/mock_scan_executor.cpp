@@ -38,6 +38,7 @@ const char *mock_table_list[] = {"__mock_table_1",
                                  "__mock_agg_input_small",
                                  "__mock_agg_input_big",
                                  "__mock_table_schedule_2022",
+                                 "__mock_table_123",
                                  nullptr};
 
 auto GetMockTableSchemaOf(const std::string &table) -> Schema {
@@ -70,6 +71,10 @@ auto GetMockTableSchemaOf(const std::string &table) -> Schema {
                               {Column{"v6", TypeId::VARCHAR, 128}}}};
   }
 
+  if (table == "__mock_table_123") {
+    return Schema{std::vector{Column{"number", TypeId::INTEGER}}};
+  }
+
   throw bustub::Exception(fmt::format("mock table {} not found", table));
 }
 
@@ -100,6 +105,10 @@ auto GetSizeOf(const MockScanPlanNode *plan) -> size_t {
 
   if (plan->GetTable() == "__mock_agg_input_big") {
     return 10000;
+  }
+
+  if (plan->GetTable() == "__mock_table_123") {
+    return 3;
   }
 
   return 100;
@@ -183,6 +192,14 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
       values.push_back(ValueFactory::GetIntegerValue(233));
       values.push_back(
           ValueFactory::GetVarcharValue(StringUtil::Repeat("\U0001F4A9", (cursor % 16) + 1)));  // the poop emoji
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
+  if (plan->GetTable() == "__mock_table_123") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.push_back(ValueFactory::GetIntegerValue(cursor + 1));
       return Tuple{values, &plan->OutputSchema()};
     };
   }

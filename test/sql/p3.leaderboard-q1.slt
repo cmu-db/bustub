@@ -1,0 +1,21 @@
+statement ok
+create table t1_100k(x int, y int);
+
+statement ok
+create table t2_10k(x int, y int);
+
+statement ok
+create table t3_1k(x int, y int);
+
+statement ok
+create index t1y on t1_100k(y);
+
+statement ok
+explain select * from (
+    t1_100k inner join t2_10k on t1_100k.x = t2_10k.x
+) inner join t3_1k on t2_10k.y = t3_1k.y;
+
+statement ok
+select * from (
+    t1_100k inner join t2_10k on t1_100k.x = t2_10k.x
+) inner join t3_1k on t2_10k.y = t3_1k.y;

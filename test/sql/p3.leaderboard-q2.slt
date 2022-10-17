@@ -1,0 +1,14 @@
+statement ok
+create table t1(x int, y int);
+
+statement ok
+create table t2(x int, y int);
+
+statement ok
+create table t3(x int, y int);
+
+statement ok
+explain select * from t1, t2, t3 where (t1.x = t2.x) and (t3.y = t2.y) and (t1.x > 10) and (t3.y < 10);
+
+statement ok
+select * from t1, t2, t3 where (t1.x = t2.x) and (t3.y = t2.y) and (t1.x > 10) and (t3.y < 10);
