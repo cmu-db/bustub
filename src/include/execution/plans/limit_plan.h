@@ -48,7 +48,7 @@ class LimitPlanNode : public AbstractPlanNode {
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(LimitPlanNode);
 
  protected:
-  auto PlanNodeToString() const -> std::string override { return fmt::format("Limit {{ limit={} }}", limit_); }
+  auto PlanNodeToString() const -> std::string override;
 
  private:
   /** The limit */
