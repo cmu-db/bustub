@@ -38,6 +38,7 @@
 
 #include "binder/simplified_token.h"
 #include "binder/statement/select_statement.h"
+#include "binder/statement/set_show_statement.h"
 #include "binder/tokens.h"
 #include "catalog/catalog.h"
 #include "catalog/column.h"
@@ -185,6 +186,10 @@ class Binder {
   auto BindDelete(duckdb_libpgquery::PGDeleteStmt *stmt) -> std::unique_ptr<DeleteStatement>;
 
   auto BindCTE(duckdb_libpgquery::PGWithClause *node) -> std::vector<std::unique_ptr<BoundSubqueryRef>>;
+
+  auto BindVariableSet(duckdb_libpgquery::PGVariableSetStmt *stmt) -> std::unique_ptr<VariableSetStatement>;
+
+  auto BindVariableShow(duckdb_libpgquery::PGVariableShowStmt *stmt) -> std::unique_ptr<VariableShowStatement>;
 
   class ContextGuard {
    public:

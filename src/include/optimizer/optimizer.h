@@ -19,9 +19,12 @@ namespace bustub {
  */
 class Optimizer {
  public:
-  explicit Optimizer(const Catalog &catalog) : catalog_(catalog) {}
+  explicit Optimizer(const Catalog &catalog, bool force_starter_rule)
+      : catalog_(catalog), force_starter_rule_(force_starter_rule) {}
 
   auto Optimize(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef;
+
+  auto OptimizeCustom(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef;
 
  private:
   /**
@@ -74,10 +77,17 @@ class Optimizer {
   auto MatchIndex(const std::string &table_name, uint32_t index_key_idx)
       -> std::optional<std::tuple<index_oid_t, std::string>>;
 
+  /**
+   * @brief optimize sort + limit as top N
+   */
+  auto OptimizeSortLimitAsTopN(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef;
+
   /** Catalog will be used during the planning process. USERS SHOULD ENSURE IT OUTLIVES
    * OPTIMIZER, otherwise it's a dangling reference.
    */
   const Catalog &catalog_;
+
+  const bool force_starter_rule_;
 };
 
 }  // namespace bustub

@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include "fmt/format.h"
 
@@ -68,8 +69,11 @@ class IncludeRecord : public Record {
 
 class StatementRecord : public Record {
  public:
-  explicit StatementRecord(Location loc, bool is_error, std::string sql)
-      : Record{RecordType::STATEMENT, std::move(loc)}, is_error_(is_error), sql_(std::move(sql)){};
+  explicit StatementRecord(Location loc, bool is_error, std::string sql, std::vector<std::string> extra_options)
+      : Record{RecordType::STATEMENT, std::move(loc)},
+        is_error_(is_error),
+        sql_(std::move(sql)),
+        extra_options_(std::move(extra_options)){};
 
   auto ToString() const -> std::string override {
     return fmt::format("Statement {{\nis_error={},\nsql={}\n}}", is_error_, sql_);
@@ -77,15 +81,18 @@ class StatementRecord : public Record {
 
   bool is_error_;
   std::string sql_;
+  std::vector<std::string> extra_options_;
 };
 
 class QueryRecord : public Record {
  public:
-  explicit QueryRecord(Location loc, SortMode sort_mode, std::string sql, std::string expected_result)
+  explicit QueryRecord(Location loc, SortMode sort_mode, std::string sql, std::string expected_result,
+                       std::vector<std::string> extra_options)
       : Record{RecordType::QUERY, std::move(loc)},
         sort_mode_(sort_mode),
         sql_(std::move(sql)),
-        expected_result_(std::move(expected_result)){};
+        expected_result_(std::move(expected_result)),
+        extra_options_(std::move(extra_options)) {}
 
   auto ToString() const -> std::string override {
     return fmt::format("Query {{\n  sort_mode={},\n  sql={},\n  expected_result=\n{}}}", sort_mode_, sql_,
@@ -95,6 +102,7 @@ class QueryRecord : public Record {
   SortMode sort_mode_;
   std::string sql_;
   std::string expected_result_;
+  std::vector<std::string> extra_options_;
 };
 
 class SleepRecord : public Record {

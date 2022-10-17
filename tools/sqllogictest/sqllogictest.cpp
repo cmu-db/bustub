@@ -10,6 +10,7 @@
 #include "common/bustub_instance.h"
 #include "common/exception.h"
 #include "common/util/string_util.h"
+#include "fmt/ranges.h"
 #include "parser.h"
 
 auto SplitLines(const std::string &lines) -> std::vector<std::string> {
@@ -114,6 +115,9 @@ auto main(int argc, char **argv) -> int {  // NOLINT
         const auto &statement = dynamic_cast<const bustub::StatementRecord &>(*record);
         if (verbose) {
           fmt::print("{}\n", statement.sql_);
+          if (!statement.extra_options_.empty()) {
+            fmt::print("{}\n", statement.extra_options_);
+          }
         }
         try {
           std::stringstream result;
@@ -141,6 +145,9 @@ auto main(int argc, char **argv) -> int {  // NOLINT
         const auto &query = dynamic_cast<const bustub::QueryRecord &>(*record);
         if (verbose) {
           fmt::print("{}\n", query.sql_);
+          if (!query.extra_options_.empty()) {
+            fmt::print("{}\n", query.extra_options_);
+          }
         }
         try {
           std::stringstream result;

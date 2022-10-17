@@ -35,7 +35,7 @@
 
     .terminal::after {
         content: "";
-        background-image: url("/shell/bustub.svg");
+        background-image: url("bustub.svg");
         opacity: 0.02;
         top: -50%;
         left: -50%;
@@ -57,11 +57,12 @@
     }
 </style>
 
-<script src="/shell/bustub-wasm-shell.js"></script>
+<script src="bustub-wasm-shell.js"></script>
 
 <script type="text/javascript">
     const BUSTUB_PUBLIC_VERSION_VAR = "${BUSTUB_PUBLIC_VERSION}"
     const BUSTUB_PRIVATE_VERSION_VAR = "${BUSTUB_PRIVATE_VERSION}"
+    const BUSTUB_BUILD_TIME_VAR = "${BUSTUB_BUILD_TIME}"
 
     Module['onRuntimeInitialized'] = function () {
         const executeQuery = Module.cwrap('BustubExecuteQuery', 'number', ['string', 'number', 'number'])
@@ -110,7 +111,7 @@ BusTub is a relational database management system built at Carnegie Mellon Unive
 
 Use \\help to learn about the usage. Use \\clear to clear the page.
 
-This is BusTub reference solution running in your browser. Solution Version: ${BUSTUB_PRIVATE_VERSION_VAR}, BusTub Version: ${BUSTUB_PUBLIC_VERSION_VAR}.
+This is BusTub reference solution running in your browser. Solution Version: ${BUSTUB_PRIVATE_VERSION_VAR}, BusTub Version: ${BUSTUB_PUBLIC_VERSION_VAR}, built at ${BUSTUB_BUILD_TIME_VAR}.
 `,
             prompt: () => line.length == 0 ? "[[b;;]bustub> ]" : "[[b;;]... ]"
         })
