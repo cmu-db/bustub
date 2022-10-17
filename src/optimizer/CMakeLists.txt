@@ -6,6 +6,7 @@ add_library(
     nlj_as_hash_join.cpp
     nlj_as_index_join.cpp
     optimizer.cpp
+    optimizer_custom_rules.cpp
     order_by_index_scan.cpp
     sort_limit_as_topn.cpp)
 

@@ -21,15 +21,17 @@ namespace bustub {
 // Statement Types
 //===--------------------------------------------------------------------===//
 enum class StatementType : uint8_t {
-  INVALID_STATEMENT,  // invalid statement type
-  SELECT_STATEMENT,   // select statement type
-  INSERT_STATEMENT,   // insert statement type
-  UPDATE_STATEMENT,   // update statement type
-  CREATE_STATEMENT,   // create statement type
-  DELETE_STATEMENT,   // delete statement type
-  EXPLAIN_STATEMENT,  // explain statement type
-  DROP_STATEMENT,     // drop statement type
-  INDEX_STATEMENT,    // index statement type
+  INVALID_STATEMENT,        // invalid statement type
+  SELECT_STATEMENT,         // select statement type
+  INSERT_STATEMENT,         // insert statement type
+  UPDATE_STATEMENT,         // update statement type
+  CREATE_STATEMENT,         // create statement type
+  DELETE_STATEMENT,         // delete statement type
+  EXPLAIN_STATEMENT,        // explain statement type
+  DROP_STATEMENT,           // drop statement type
+  INDEX_STATEMENT,          // index statement type
+  VARIABLE_SET_STATEMENT,   // set variable statement type
+  VARIABLE_SHOW_STATEMENT,  // show variable statement type
 };
 
 }  // namespace bustub
@@ -66,6 +68,12 @@ struct fmt::formatter<bustub::StatementType> : formatter<string_view> {
         break;
       case bustub::StatementType::INDEX_STATEMENT:
         name = "Index";
+        break;
+      case bustub::StatementType::VARIABLE_SHOW_STATEMENT:
+        name = "VariableShow";
+        break;
+      case bustub::StatementType::VARIABLE_SET_STATEMENT:
+        name = "VariableSet";
         break;
     }
     return formatter<string_view>::format(name, ctx);

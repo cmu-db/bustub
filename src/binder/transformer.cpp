@@ -64,6 +64,10 @@ auto Binder::BindStatement(duckdb_libpgquery::PGNode *stmt) -> std::unique_ptr<B
       return BindDelete(reinterpret_cast<duckdb_libpgquery::PGDeleteStmt *>(stmt));
     case duckdb_libpgquery::T_PGIndexStmt:
       return BindIndex(reinterpret_cast<duckdb_libpgquery::PGIndexStmt *>(stmt));
+    case duckdb_libpgquery::T_PGVariableSetStmt:
+      return BindVariableSet(reinterpret_cast<duckdb_libpgquery::PGVariableSetStmt *>(stmt));
+    case duckdb_libpgquery::T_PGVariableShowStmt:
+      return BindVariableShow(reinterpret_cast<duckdb_libpgquery::PGVariableShowStmt *>(stmt));
     case duckdb_libpgquery::T_PGUpdateStmt:
     default:
       throw NotImplementedException(NodeTagToString(stmt->type));

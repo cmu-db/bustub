@@ -19,9 +19,12 @@ namespace bustub {
  */
 class Optimizer {
  public:
-  explicit Optimizer(const Catalog &catalog) : catalog_(catalog) {}
+  explicit Optimizer(const Catalog &catalog, bool force_starter_rule)
+      : catalog_(catalog), force_starter_rule_(force_starter_rule) {}
 
   auto Optimize(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef;
+
+  auto OptimizeCustom(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef;
 
  private:
   /**
@@ -83,6 +86,8 @@ class Optimizer {
    * OPTIMIZER, otherwise it's a dangling reference.
    */
   const Catalog &catalog_;
+
+  const bool force_starter_rule_;
 };
 
 }  // namespace bustub

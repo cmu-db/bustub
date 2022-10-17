@@ -1,3 +1,7 @@
+# Ensure all order-bys in this file are transformed into index scan
+statement ok
+set force_optimizer_starter_rule=yes
+
 # Create a table
 statement ok
 create table t1(v1 int, v2 int);
@@ -20,7 +24,7 @@ explain select * from t1 order by v1;
 statement ok
 explain select * from t1 order by v2;
 
-query
+query +ensure:index_scan
 select * from t1 order by v1;
 ----
 1 50
@@ -29,7 +33,7 @@ select * from t1 order by v1;
 4 20
 5 10
 
-query
+query +ensure:index_scan
 select * from t1 order by v2;
 ----
 5 10
@@ -44,7 +48,7 @@ insert into t1 values (6, 0), (7, -10);
 ----
 2
 
-query
+query +ensure:index_scan
 select * from t1 order by v1;
 ----
 1 50
@@ -55,7 +59,7 @@ select * from t1 order by v1;
 6 0
 7 -10
 
-query
+query +ensure:index_scan
 select * from t1 order by v2;
 ----
 7 -10
@@ -72,7 +76,7 @@ delete from t1 where v1 = 2;
 ----
 1
 
-query
+query +ensure:index_scan
 select * from t1 order by v1;
 ----
 1 50
@@ -82,7 +86,7 @@ select * from t1 order by v1;
 6 0
 7 -10
 
-query
+query +ensure:index_scan
 select * from t1 order by v2;
 ----
 7 -10
@@ -98,7 +102,7 @@ delete from t1 where v2 = 30;
 ----
 1
 
-query
+query +ensure:index_scan
 select * from t1 order by v1;
 ----
 1 50
@@ -107,7 +111,7 @@ select * from t1 order by v1;
 6 0
 7 -10
 
-query
+query +ensure:index_scan
 select * from t1 order by v2;
 ----
 7 -10
@@ -123,11 +127,11 @@ delete from t1;
 5
 
 
-query
+query +ensure:index_scan
 select * from t1 order by v1;
 ----
 
-query
+query +ensure:index_scan
 select * from t1 order by v2;
 ----
 
@@ -137,13 +141,13 @@ insert into t1 values (6, 0), (7, -10);
 ----
 2
 
-query
+query +ensure:index_scan
 select * from t1 order by v1;
 ----
 6 0
 7 -10
 
-query
+query +ensure:index_scan
 select * from t1 order by v2;
 ----
 7 -10

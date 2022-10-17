@@ -14,13 +14,16 @@
 
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "catalog/catalog.h"
 #include "common/config.h"
+#include "common/util/string_util.h"
 #include "libfort/lib/fort.hpp"
 #include "type/value.h"
 
@@ -229,11 +232,24 @@ class BustubInstance {
   Catalog *catalog_;
   ExecutionEngine *execution_engine_;
 
+  auto GetSessionVariable(const std::string &key) -> std::string {
+    if (session_variables_.find(key) != session_variables_.end()) {
+      return session_variables_[key];
+    }
+    return "";
+  }
+
+  auto IsForceStarterRule() -> bool {
+    auto variable = StringUtil::Lower(GetSessionVariable("force_optimizer_starter_rule"));
+    return variable == "1" || variable == "true" || variable == "yes";
+  }
+
  private:
   void CmdDisplayTables(ResultWriter &writer);
   void CmdDisplayIndices(ResultWriter &writer);
   void CmdDisplayHelp(ResultWriter &writer);
   void WriteOneCell(const std::string &cell, ResultWriter &writer);
+  std::unordered_map<std::string, std::string> session_variables_;
 };
 
 }  // namespace bustub

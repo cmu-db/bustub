@@ -7,5 +7,6 @@
             "source": "/",
             "destination": "/shell/"
         }
-    ]
+    ],
+    "trailingSlash": true
 }
