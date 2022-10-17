@@ -5,7 +5,7 @@
     "redirects": [
         {
             "source": "/",
-            "destination": "/shell/"
+            "destination": "/bustub/"
         }
     ],
     "trailingSlash": true
