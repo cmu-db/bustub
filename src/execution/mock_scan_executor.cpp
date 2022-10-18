@@ -39,7 +39,10 @@ const char *mock_table_list[] = {"__mock_table_1",
                                  "__mock_agg_input_big",
                                  "__mock_table_schedule_2022",
                                  "__mock_table_123",
+                                 "__mock_graph",
                                  nullptr};
+
+static const int GRAPH_NODE_CNT = 10;
 
 auto GetMockTableSchemaOf(const std::string &table) -> Schema {
   if (table == "__mock_table_1") {
@@ -63,12 +66,15 @@ auto GetMockTableSchemaOf(const std::string &table) -> Schema {
   }
 
   if (table == "__mock_agg_input_small" || table == "__mock_agg_input_big") {
-    return Schema{std::vector{Column{"v1", TypeId::INTEGER},
-                              Column{"v2", TypeId::INTEGER},
-                              Column{"v3", TypeId::INTEGER},
-                              Column{"v4", TypeId::INTEGER},
-                              Column{"v5", TypeId::INTEGER},
-                              {Column{"v6", TypeId::VARCHAR, 128}}}};
+    return Schema{std::vector{Column{"v1", TypeId::INTEGER}, Column{"v2", TypeId::INTEGER},
+                              Column{"v3", TypeId::INTEGER}, Column{"v4", TypeId::INTEGER},
+                              Column{"v5", TypeId::INTEGER}, Column{"v6", TypeId::VARCHAR, 128}}};
+  }
+
+  if (table == "__mock_graph") {
+    return Schema{std::vector{Column{"src", TypeId::INTEGER}, Column{"dst", TypeId::INTEGER},
+                              Column{"src_label", TypeId::VARCHAR, 8}, Column{"dst_label", TypeId::VARCHAR, 8},
+                              Column{"distance", TypeId::INTEGER}}};
   }
 
   if (table == "__mock_table_123") {
@@ -105,6 +111,10 @@ auto GetSizeOf(const MockScanPlanNode *plan) -> size_t {
 
   if (plan->GetTable() == "__mock_agg_input_big") {
     return 10000;
+  }
+
+  if (plan->GetTable() == "__mock_graph") {
+    return GRAPH_NODE_CNT * GRAPH_NODE_CNT;
   }
 
   if (plan->GetTable() == "__mock_table_123") {
@@ -200,6 +210,24 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
     return [plan](size_t cursor) {
       std::vector<Value> values{};
       values.push_back(ValueFactory::GetIntegerValue(cursor + 1));
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
+  if (plan->GetTable() == "__mock_graph") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      int src = cursor % GRAPH_NODE_CNT;
+      int dst = cursor / GRAPH_NODE_CNT;
+      values.push_back(ValueFactory::GetIntegerValue(src));
+      values.push_back(ValueFactory::GetIntegerValue(dst));
+      values.push_back(ValueFactory::GetVarcharValue(fmt::format("{:03}", src)));
+      values.push_back(ValueFactory::GetVarcharValue(fmt::format("{:03}", dst)));
+      if (src == dst) {
+        values.push_back(ValueFactory::GetNullValueByType(TypeId::INTEGER));
+      } else {
+        values.push_back(ValueFactory::GetIntegerValue(1));
+      }
       return Tuple{values, &plan->OutputSchema()};
     };
   }

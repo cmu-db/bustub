@@ -1,1 +1,193 @@
 # 10 pts
+# This is something done by some TAs in some start-ups before. Once they got a wrong result
+# in a query, they split the query into parts so as to find which one goes wrong...
+#
+# This ultimate goal is to run an extra-complex query to compute the shortest path within x
+# steps from each of the vertex. We will start from the table scan.
+
+statement ok
+CREATE TABLE graph(src int, dst int, src_label VARCHAR(8), dst_label VARCHAR(8), distance int);
+
+statement ok
+INSERT INTO graph SELECT * FROM __mock_graph;
+
+query rowsort
+select count(distance) from __mock_graph;
+----
+90
+
+query rowsort
+-- sanity check
+select count(distance), sum(distance) from (
+    -- find shortest path within 1 neighbor
+    select src, dst, src_label, dst_label, min(distance) as distance from (
+        -- with in all the paths
+        select
+            left_graph.src as src,
+            right_graph.dst as dst,
+            left_graph.src_label as src_label,
+            right_graph.dst_label as dst_label,
+            (left_graph.distance + right_graph.distance) as distance
+        from 
+            graph left_graph inner join graph right_graph
+            on left_graph.dst = right_graph.src
+    ) group by src, dst, src_label, dst_label
+);
+----
+100 200
+
+statement ok
+select * from (
+select
+    left_graph.src as src,
+    right_graph.dst as dst,
+    left_graph.src_label as src_label,
+    right_graph.dst_label as dst_label,
+    (left_graph.distance + right_graph.distance) as distance 
+from (
+    -- find shortest path within 1 neighbor
+    select src, dst, src_label, dst_label, min(distance) as distance from (
+        -- with in all the paths
+        select
+            left_graph.src as src,
+            right_graph.dst as dst,
+            left_graph.src_label as src_label,
+            right_graph.dst_label as dst_label,
+            (left_graph.distance + right_graph.distance) as distance
+        from 
+            graph left_graph inner join graph right_graph
+            on left_graph.dst = right_graph.src
+    ) group by src, dst, src_label, dst_label
+) left_graph inner join graph right_graph on left_graph.dst = right_graph.src
+) order by src, dst;
+
+query rowsort
+-- sanity check
+select count(distance), sum(distance) from (
+    -- find shortest path within 2 neighbors
+    select src, dst, src_label, dst_label, min(distance) as distance from (
+        -- with in all the paths
+        select
+            left_graph.src as src,
+            right_graph.dst as dst,
+            left_graph.src_label as src_label,
+            right_graph.dst_label as dst_label,
+            (left_graph.distance + right_graph.distance) as distance 
+        from (
+            -- find shortest path within 1 neighbor
+            select src, dst, src_label, dst_label, min(distance) as distance from (
+                -- with in all the paths
+                select
+                    left_graph.src as src,
+                    right_graph.dst as dst,
+                    left_graph.src_label as src_label,
+                    right_graph.dst_label as dst_label,
+                    (left_graph.distance + right_graph.distance) as distance
+                from 
+                    graph left_graph inner join graph right_graph
+                    on left_graph.dst = right_graph.src
+            ) group by src, dst, src_label, dst_label
+        ) left_graph inner join graph right_graph on left_graph.dst = right_graph.src
+    ) group by src, dst, src_label, dst_label
+);
+----
+100 300
+
+query rowsort
+-- sanity check
+select count(distance), sum(distance) from (
+    -- find shortest path within 3 neighbors
+    select src, dst, src_label, dst_label, min(distance) as distance from (
+        -- with in all the paths
+        select
+            left_graph.src as src,
+            right_graph.dst as dst,
+            left_graph.src_label as src_label,
+            right_graph.dst_label as dst_label,
+            (left_graph.distance + right_graph.distance) as distance 
+        from (
+            -- find shortest path within 2 neighbors
+            select src, dst, src_label, dst_label, min(distance) as distance from (
+                -- with in all the paths
+                select
+                    left_graph.src as src,
+                    right_graph.dst as dst,
+                    left_graph.src_label as src_label,
+                    right_graph.dst_label as dst_label,
+                    (left_graph.distance + right_graph.distance) as distance 
+                from (
+                    -- find shortest path within 1 neighbor
+                    select src, dst, src_label, dst_label, min(distance) as distance from (
+                        -- with in all the paths
+                        select
+                            left_graph.src as src,
+                            right_graph.dst as dst,
+                            left_graph.src_label as src_label,
+                            right_graph.dst_label as dst_label,
+                            (left_graph.distance + right_graph.distance) as distance
+                        from 
+                            graph left_graph inner join graph right_graph
+                            on left_graph.dst = right_graph.src
+                    ) group by src, dst, src_label, dst_label
+                ) left_graph inner join graph right_graph on left_graph.dst = right_graph.src
+            ) group by src, dst, src_label, dst_label
+        ) left_graph inner join graph right_graph on left_graph.dst = right_graph.src
+    ) group by src, dst, src_label, dst_label
+);
+----
+100 400
+
+query
+select * from (
+    select src, dst, src_label, dst_label, min(distance) as distance from (
+        -- with in all the paths
+        select
+            left_graph.src as src,
+            right_graph.dst as dst,
+            left_graph.src_label as src_label,
+            right_graph.dst_label as dst_label,
+            (left_graph.distance + right_graph.distance) as distance 
+        from (
+            -- find shortest path within 2 neighbors
+            select src, dst, src_label, dst_label, min(distance) as distance from (
+                -- with in all the paths
+                select
+                    left_graph.src as src,
+                    right_graph.dst as dst,
+                    left_graph.src_label as src_label,
+                    right_graph.dst_label as dst_label,
+                    (left_graph.distance + right_graph.distance) as distance 
+                from (
+                    -- find shortest path within 1 neighbor
+                    select src, dst, src_label, dst_label, min(distance) as distance from (
+                        -- with in all the paths
+                        select
+                            left_graph.src as src,
+                            right_graph.dst as dst,
+                            left_graph.src_label as src_label,
+                            right_graph.dst_label as dst_label,
+                            (left_graph.distance + right_graph.distance) as distance
+                        from 
+                            graph left_graph inner join graph right_graph
+                            on left_graph.dst = right_graph.src
+                    ) group by src, dst, src_label, dst_label
+                ) left_graph inner join graph right_graph on left_graph.dst = right_graph.src
+            ) group by src, dst, src_label, dst_label
+        ) left_graph inner join graph right_graph on left_graph.dst = right_graph.src
+    ) group by src, dst, src_label, dst_label
+) where src = 0 order by dst limit 10;
+----
+0 0 000 000 4 
+0 1 000 001 4 
+0 2 000 002 4 
+0 3 000 003 4 
+0 4 000 004 4 
+0 5 000 005 4 
+0 6 000 006 4 
+0 7 000 007 4 
+0 8 000 008 4 
+0 9 000 009 4
+
+# In the future, we will construct some custom graphs with different link weight.
+# But for now, that's the end of the test!
+# TODO: recursive CTE 🤤
