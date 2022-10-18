@@ -115,7 +115,8 @@ auto Planner::PlanCrossProductRef(const BoundCrossProductRef &table_ref) -> Abst
   auto right = PlanTableRef(*table_ref.right_);
   return std::make_shared<NestedLoopJoinPlanNode>(
       std::make_shared<Schema>(NestedLoopJoinPlanNode::InferJoinSchema(*left, *right)), std::move(left),
-      std::move(right), std::make_shared<ConstantValueExpression>(ValueFactory::GetBooleanValue(true)));
+      std::move(right), std::make_shared<ConstantValueExpression>(ValueFactory::GetBooleanValue(true)),
+      JoinType::INNER);
 }
 
 auto Planner::PlanCTERef(const BoundCTERef &table_ref) -> AbstractPlanNodeRef {
@@ -133,7 +134,7 @@ auto Planner::PlanJoinRef(const BoundJoinRef &table_ref) -> AbstractPlanNodeRef 
   auto [_, join_condition] = PlanExpression(*table_ref.condition_, {left, right});
   auto nlj_node = std::make_shared<NestedLoopJoinPlanNode>(
       std::make_shared<Schema>(NestedLoopJoinPlanNode::InferJoinSchema(*left, *right)), std::move(left),
-      std::move(right), std::move(join_condition));
+      std::move(right), std::move(join_condition), table_ref.join_type_);
   return nlj_node;
 }
 

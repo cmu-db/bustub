@@ -16,6 +16,7 @@
 #include <utility>
 #include <vector>
 
+#include "binder/table_ref/bound_join_ref.h"
 #include "catalog/catalog.h"
 #include "catalog/schema.h"
 #include "concurrency/transaction.h"
@@ -34,19 +35,23 @@ class NestedIndexJoinPlanNode : public AbstractPlanNode {
  public:
   NestedIndexJoinPlanNode(SchemaRef output, AbstractPlanNodeRef child, AbstractExpressionRef key_predicate,
                           table_oid_t inner_table_oid, index_oid_t index_oid, std::string index_name,
-                          std::string index_table_name, SchemaRef inner_table_schema)
+                          std::string index_table_name, SchemaRef inner_table_schema, JoinType join_type)
       : AbstractPlanNode(std::move(output), {std::move(child)}),
         key_predicate_(std::move(key_predicate)),
         inner_table_oid_(inner_table_oid),
         index_oid_(index_oid),
         index_name_(std::move(index_name)),
         index_table_name_(std::move(index_table_name)),
-        inner_table_schema_(std::move(inner_table_schema)) {}
+        inner_table_schema_(std::move(inner_table_schema)),
+        join_type_(join_type) {}
 
   auto GetType() const -> PlanType override { return PlanType::NestedIndexJoin; }
 
   /** @return the predicate to be used to extract the join key from the child */
   auto KeyPredicate() const -> const AbstractExpressionRef & { return key_predicate_; }
+
+  /** @return The join type used in the nested index join */
+  auto GetJoinType() const -> JoinType { return join_type_; };
 
   /** @return the plan node for the outer table of the nested index join */
   auto GetChildPlan() const -> AbstractPlanNodeRef { return GetChildAt(0); }
@@ -67,8 +72,8 @@ class NestedIndexJoinPlanNode : public AbstractPlanNode {
 
  protected:
   auto PlanNodeToString() const -> std::string override {
-    return fmt::format("NestedIndexJoin {{ key_predicate={}, index={}, index_table={} }}", key_predicate_, index_name_,
-                       index_table_name_);
+    return fmt::format("NestedIndexJoin {{ type={}, key_predicate={}, index={}, index_table={} }}", join_type_,
+                       key_predicate_, index_name_, index_table_name_);
   }
 
  private:
@@ -79,5 +84,8 @@ class NestedIndexJoinPlanNode : public AbstractPlanNode {
   const std::string index_name_;
   const std::string index_table_name_;
   SchemaRef inner_table_schema_;
+
+  /** The join type */
+  JoinType join_type_;
 };
 }  // namespace bustub

@@ -35,7 +35,8 @@ class BoundJoinRef : public BoundTableRef {
         condition_(std::move(condition)) {}
 
   auto ToString() const -> std::string override {
-    return fmt::format("BoundJoin {{ type={}, left={}, right={}, condition={} }}", type_, left_, right_, condition_);
+    return fmt::format("BoundJoin {{ type={}, left={}, right={}, condition={} }}", join_type_, left_, right_,
+                       condition_);
   }
 
   /** Type of join. */
