@@ -1,1 +1,135 @@
 # 10 pts
+# Run in RELEASE MODE
+
+# This test is like how a data engineer works towards their goal. They query some data,
+# store it (materialize it), and query some more data again, until they reach their goal.
+
+statement ok
+-- still the graph :)
+CREATE TABLE graph(src int, dst int, src_label VARCHAR(8), dst_label VARCHAR(8), distance int);
+
+statement ok
+-- and we materialize the result
+CREATE TABLE result(src int, dst int, src_label VARCHAR(8), dst_label VARCHAR(8), distance int, steps int);
+
+statement ok
+-- temp table (as we don't support union and insert into the table selected from)
+CREATE TABLE tmp(src int, dst int, src_label VARCHAR(8), dst_label VARCHAR(8), distance int, steps int);
+
+statement ok
+INSERT INTO graph SELECT * FROM __mock_graph;
+
+query rowsort
+select count(distance) from __mock_graph;
+----
+90
+
+query
+-- initialize the result set
+INSERT INTO result SELECT src, src as dst, src_label, src_label as dst_label, 0, 0 FROM __mock_graph GROUP BY src, src_label ORDER BY src;
+----
+10
+
+query rowsort
+SELECT * FROM result;
+----
+0 0 000 000 0 0 
+1 1 001 001 0 0 
+2 2 002 002 0 0 
+3 3 003 003 0 0 
+4 4 004 004 0 0 
+5 5 005 005 0 0 
+6 6 006 006 0 0 
+7 7 007 007 0 0 
+8 8 008 008 0 0 
+9 9 009 009 0 0
+
+query rowsort
+-- 1st neighbor
+INSERT INTO tmp SELECT * FROM (
+    SELECT
+        result.src as src,
+        graph.dst as dst,
+        result.src_label as src_label,
+        graph.dst_label as dst_label,
+        result.distance + graph.distance as distance,
+        steps + 1
+    FROM
+        result INNER JOIN graph ON result.dst = graph.src
+) WHERE distance = distance; -- filter null as we don't have is null func
+----
+90
+
+statement ok
+INSERT INTO result SELECT * FROM tmp; DELETE FROM tmp; SELECT count(*) FROM result;
+
+query rowsort
+-- 2nd neighbor
+INSERT INTO tmp SELECT * FROM (
+    SELECT
+        result.src as src,
+        graph.dst as dst,
+        result.src_label as src_label,
+        graph.dst_label as dst_label,
+        result.distance + graph.distance as distance,
+        steps + 1
+    FROM
+        result INNER JOIN graph ON result.dst = graph.src
+) WHERE distance = distance; -- filter null as we don't have is null func
+----
+900
+
+statement ok
+INSERT INTO result SELECT * FROM tmp; DELETE FROM tmp; SELECT count(*) FROM result;
+
+query rowsort
+-- 3rd neighbor
+INSERT INTO tmp SELECT * FROM (
+    SELECT
+        result.src as src,
+        graph.dst as dst,
+        result.src_label as src_label,
+        graph.dst_label as dst_label,
+        result.distance + graph.distance as distance,
+        steps + 1
+    FROM
+        result INNER JOIN graph ON result.dst = graph.src
+) WHERE distance = distance; -- filter null as we don't have is null func
+----
+9000
+
+statement ok
+INSERT INTO result SELECT * FROM tmp; DELETE FROM tmp; SELECT count(*) FROM result;
+
+query rowsort
+-- 4th neighbor
+INSERT INTO tmp SELECT * FROM (
+    SELECT
+        result.src as src,
+        graph.dst as dst,
+        result.src_label as src_label,
+        graph.dst_label as dst_label,
+        result.distance + graph.distance as distance,
+        steps + 1
+    FROM
+        (SELECT * FROM result WHERE src = 1) INNER JOIN graph ON result.dst = graph.src
+) WHERE distance = distance; -- filter null as we don't have is null func
+----
+9000
+
+statement ok
+INSERT INTO result SELECT * FROM tmp; DELETE FROM tmp; SELECT count(*) FROM result;
+
+query rowsort
+SELECT src, src_label, dst, dst_label, count(*), min(distance), max(distance), min(steps), max(steps) FROM result WHERE src = 1 GROUP BY src, src_label, dst, dst_label ORDER BY dst;
+----
+1 001 0 000 1000 1 4 1 4 
+1 001 1 001 1000 0 4 0 4 
+1 001 2 002 1000 1 4 1 4 
+1 001 3 003 1000 1 4 1 4 
+1 001 4 004 1000 1 4 1 4 
+1 001 5 005 1000 1 4 1 4 
+1 001 6 006 1000 1 4 1 4 
+1 001 7 007 1000 1 4 1 4 
+1 001 8 008 1000 1 4 1 4 
+1 001 9 009 1000 1 4 1 4
