@@ -16,6 +16,7 @@
 #include <utility>
 #include <vector>
 
+#include "binder/table_ref/bound_join_ref.h"
 #include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
 
@@ -34,10 +35,12 @@ class HashJoinPlanNode : public AbstractPlanNode {
    * @param right_key_expression The expression for the right JOIN key
    */
   HashJoinPlanNode(SchemaRef output_schema, AbstractPlanNodeRef left, AbstractPlanNodeRef right,
-                   AbstractExpressionRef left_key_expression, AbstractExpressionRef right_key_expression)
+                   AbstractExpressionRef left_key_expression, AbstractExpressionRef right_key_expression,
+                   JoinType join_type)
       : AbstractPlanNode(std::move(output_schema), {std::move(left), std::move(right)}),
         left_key_expression_{std::move(left_key_expression)},
-        right_key_expression_{std::move(right_key_expression)} {}
+        right_key_expression_{std::move(right_key_expression)},
+        join_type_(join_type) {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::HashJoin; }
@@ -60,11 +63,15 @@ class HashJoinPlanNode : public AbstractPlanNode {
     return GetChildAt(1);
   }
 
+  /** @return The join type used in the hash join */
+  auto GetJoinType() const -> JoinType { return join_type_; };
+
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(HashJoinPlanNode);
 
  protected:
   auto PlanNodeToString() const -> std::string override {
-    return fmt::format("HashJoin {{ left_key={}, right_key={} }}", left_key_expression_, right_key_expression_);
+    return fmt::format("HashJoin {{ type={}, left_key={}, right_key={} }}", join_type_, left_key_expression_,
+                       right_key_expression_);
   }
 
  private:
@@ -72,6 +79,9 @@ class HashJoinPlanNode : public AbstractPlanNode {
   AbstractExpressionRef left_key_expression_;
   /** The expression to compute the right JOIN key */
   AbstractExpressionRef right_key_expression_;
+
+  /** The join type */
+  JoinType join_type_;
 };
 
 }  // namespace bustub

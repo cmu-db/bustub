@@ -66,7 +66,8 @@ auto Optimizer::OptimizeMergeFilterNLJ(const AbstractPlanNodeRef &plan) -> Abstr
             filter_plan.output_schema_, nlj_plan.GetLeftPlan(), nlj_plan.GetRightPlan(),
             RewriteExpressionForJoin(filter_plan.GetPredicate(),
                                      nlj_plan.GetLeftPlan()->OutputSchema().GetColumnCount(),
-                                     nlj_plan.GetRightPlan()->OutputSchema().GetColumnCount()));
+                                     nlj_plan.GetRightPlan()->OutputSchema().GetColumnCount()),
+            nlj_plan.GetJoinType());
       }
     }
   }

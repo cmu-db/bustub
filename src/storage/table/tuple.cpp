@@ -27,7 +27,11 @@ Tuple::Tuple(std::vector<Value> values, const Schema *schema) : allocated_(true)
   // 1. Calculate the size of the tuple.
   uint32_t tuple_size = schema->GetLength();
   for (auto &i : schema->GetUnlinedColumns()) {
-    tuple_size += (values[i].GetLength() + sizeof(uint32_t));
+    auto len = values[i].GetLength();
+    if (len == BUSTUB_VALUE_NULL) {
+      len = 0;
+    }
+    tuple_size += (len + sizeof(uint32_t));
   }
 
   // 2. Allocate memory.
@@ -46,7 +50,11 @@ Tuple::Tuple(std::vector<Value> values, const Schema *schema) : allocated_(true)
       *reinterpret_cast<uint32_t *>(data_ + col.GetOffset()) = offset;
       // Serialize varchar value, in place (size+data).
       values[i].SerializeTo(data_ + offset);
-      offset += (values[i].GetLength() + sizeof(uint32_t));
+      auto len = values[i].GetLength();
+      if (len == BUSTUB_VALUE_NULL) {
+        len = 0;
+      }
+      offset += (len + sizeof(uint32_t));
     } else {
       values[i].SerializeTo(data_ + col.GetOffset());
     }
