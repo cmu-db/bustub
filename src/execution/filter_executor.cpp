@@ -15,7 +15,6 @@ void FilterExecutor::Init() {
 
 auto FilterExecutor::Next(Tuple *tuple, RID *rid) -> bool {
   auto filter_expr = plan_->GetPredicate();
-  auto true_value = ValueFactory::GetBooleanValue(true);
 
   while (true) {
     // Get the next tuple
@@ -26,7 +25,7 @@ auto FilterExecutor::Next(Tuple *tuple, RID *rid) -> bool {
     }
 
     auto value = filter_expr->Evaluate(tuple, child_executor_->GetOutputSchema());
-    if (value.CompareEquals(true_value) == CmpBool::CmpTrue) {
+    if (!value.IsNull() && value.GetAs<bool>()) {
       return true;
     }
   }

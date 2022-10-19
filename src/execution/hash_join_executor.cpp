@@ -12,6 +12,9 @@
 
 #include "execution/executors/hash_join_executor.h"
 
+// Note for 2022 Fall: You don't need to implement HashJoinExecutor to pass all tests. You ONLY need to implement it
+// if you want to get faster in leaderboard tests.
+
 namespace bustub {
 
 HashJoinExecutor::HashJoinExecutor(ExecutorContext *exec_ctx, const HashJoinPlanNode *plan,
