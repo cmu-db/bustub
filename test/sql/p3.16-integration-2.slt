@@ -1,5 +1,5 @@
 # 10 pts
-# Run in RELEASE MODE
+# Run in RELEASE MODE, set at least 60s timeout.
 
 # This test is like how a data engineer works towards their goal. They query some data,
 # store it (materialize it), and query some more data again, until they reach their goal.

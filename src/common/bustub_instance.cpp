@@ -125,9 +125,9 @@ void BustubInstance::WriteOneCell(const std::string &cell, ResultWriter &writer)
 void BustubInstance::CmdDisplayHelp(ResultWriter &writer) {
   std::string help = R"(Welcome to the BusTub shell!
 
-\\dt: show all tables
-\\di: show all indices
-\\help: show this message again
+\dt: show all tables
+\di: show all indices
+\help: show this message again
 
 BusTub shell currently only supports a small set of Postgres queries. We'll set
 up a doc describing the current status later. It will silently ignore some parts
