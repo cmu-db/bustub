@@ -16,7 +16,12 @@ namespace bustub {
 
 NestIndexJoinExecutor::NestIndexJoinExecutor(ExecutorContext *exec_ctx, const NestedIndexJoinPlanNode *plan,
                                              std::unique_ptr<AbstractExecutor> &&child_executor)
-    : AbstractExecutor(exec_ctx) {}
+    : AbstractExecutor(exec_ctx) {
+  if (!(plan->GetJoinType() == JoinType::LEFT || plan->GetJoinType() == JoinType::INNER)) {
+    // Note for 2022 Fall: You ONLY need to implement left join and inner join.
+    throw bustub::NotImplementedException(fmt::format("join type {} not supported", plan->GetJoinType()));
+  }
+}
 
 void NestIndexJoinExecutor::Init() { throw NotImplementedException("NestIndexJoinExecutor is not implemented"); }
 
