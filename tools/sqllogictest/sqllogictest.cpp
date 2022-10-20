@@ -58,6 +58,38 @@ auto ResultCompare(const std::string &produced_result, const std::string &expect
   return cmp_result;
 }
 
+auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instance,
+                         const std::vector<std::string> &extra_options, bool verbose) -> bool {
+  for (const auto &opt : extra_options) {
+    if (bustub::StringUtil::StartsWith(opt, "ensure:")) {
+      std::stringstream result;
+      auto writer = bustub::SimpleStreamWriter(result);
+      instance.ExecuteSql("explain " + sql, writer);
+
+      if (opt == "ensure:index_scan") {
+        if (!bustub::StringUtil::Contains(result.str(), "IndexScan")) {
+          fmt::print("IndexScan not found\n");
+          return false;
+        }
+      } else if (opt == "ensure:topn") {
+        if (!bustub::StringUtil::Contains(result.str(), "TopN")) {
+          fmt::print("TopN not found\n");
+          return false;
+        }
+      } else {
+        throw bustub::NotImplementedException(fmt::format("unsupported extra option: {}", opt));
+      }
+    } else {
+      throw bustub::NotImplementedException(fmt::format("unsupported extra option: {}", opt));
+    }
+
+    if (verbose) {
+      fmt::print("[PASS] extra check: {}\n", opt);
+    }
+  }
+  return true;
+}
+
 auto main(int argc, char **argv) -> int {  // NOLINT
   argparse::ArgumentParser program("bustub-sqllogictest");
   program.add_argument("file").help("the sqllogictest file to run");
@@ -116,10 +148,15 @@ auto main(int argc, char **argv) -> int {  // NOLINT
         if (verbose) {
           fmt::print("{}\n", statement.sql_);
           if (!statement.extra_options_.empty()) {
-            fmt::print("{}\n", statement.extra_options_);
+            fmt::print("Extra checks: {}\n", statement.extra_options_);
           }
         }
         try {
+          if (!ProcessExtraOptions(statement.sql_, *bustub, statement.extra_options_, verbose)) {
+            fmt::print("failed to process extra options\n");
+            return 1;
+          }
+
           std::stringstream result;
           auto writer = bustub::SimpleStreamWriter(result);
           bustub->ExecuteSql(statement.sql_, writer);
@@ -146,10 +183,15 @@ auto main(int argc, char **argv) -> int {  // NOLINT
         if (verbose) {
           fmt::print("{}\n", query.sql_);
           if (!query.extra_options_.empty()) {
-            fmt::print("{}\n", query.extra_options_);
+            fmt::print("Extra checks: {}\n", query.extra_options_);
           }
         }
         try {
+          if (!ProcessExtraOptions(query.sql_, *bustub, query.extra_options_, verbose)) {
+            fmt::print("failed to process extra options\n");
+            return 1;
+          }
+
           std::stringstream result;
           auto writer = bustub::SimpleStreamWriter(result, true, " ");
           bustub->ExecuteSql(query.sql_, writer);
