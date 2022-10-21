@@ -57,6 +57,19 @@ class ResultWriter {
   bool simplified_output_{false};
 };
 
+class NoopWriter : public ResultWriter {
+ public:
+  NoopWriter() = default;
+  void WriteCell(const std::string &cell) override {}
+  void WriteHeaderCell(const std::string &cell) override {}
+  void BeginHeader() override {}
+  void EndHeader() override {}
+  void BeginRow() override {}
+  void EndRow() override {}
+  void BeginTable(bool simplified_output) override {}
+  void EndTable() override {}
+};
+
 class SimpleStreamWriter : public ResultWriter {
  public:
   explicit SimpleStreamWriter(std::ostream &stream, bool disable_header = false, const char *separator = "\t")

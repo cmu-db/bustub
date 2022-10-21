@@ -1,1 +1,19 @@
 # 5 pts
+
+statement ok
+create table t1(v1 int);
+
+statement ok
+insert into t1 values (1), (1);
+
+query
+select * from (t1 a inner join t1 b on a.v1 = b.v1) inner join t1 c on a.v1 = c.v1;
+----
+1 1 1 
+1 1 1 
+1 1 1 
+1 1 1 
+1 1 1 
+1 1 1 
+1 1 1 
+1 1 1

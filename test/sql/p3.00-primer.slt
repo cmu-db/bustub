@@ -1,0 +1,14 @@
+query rowsort
+select github_id from __mock_table_tas_2022;
+----
+amstqq 
+durovo 
+joyceliaoo 
+karthik-ramanathan-3006 
+kush789 
+lmwnshn 
+mkpjnx 
+skyzh 
+thepinetree 
+timlee0119 
+yliang412

@@ -1,21 +1,15 @@
 statement ok
-create table t1(v int, v1 int, v2 int, p varchar(128));
-
-statement ok
-create table t2(v4 int, p varchar(128)); -- t2 very large
-
-statement ok
-explain (b,p,o) select v, d1, d2, v4 from (
+explain (o) select v, d1, d2 from (
     select
         v, max(v1) as d1, max(v1) + max(v1) + max(v2) as d2,
         min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2)
-    from t1 group by v
-) left join (select v4 from t2 where 1 != 2) on v < v4;
+    from __mock_t7 left join (select v4 from __mock_t8 where 1 == 2) on v < v4 group by v
+)
 
-statement ok
-select v, d1, d2, v4 from (
+statement ok +timing:x10:.q3
+select v, d1, d2 from (
     select
         v, max(v1) as d1, max(v1) + max(v1) + max(v2) as d2,
         min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2)
-    from t1 group by v
-) left join (select v4 from t2 where 1 != 2) on v < v4;
+    from __mock_t7 left join (select v4 from __mock_t8 where 1 == 2) on v < v4 group by v
+)
