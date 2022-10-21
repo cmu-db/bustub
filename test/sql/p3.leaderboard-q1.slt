@@ -1,21 +1,22 @@
 statement ok
-create table t1_100k(x int, y int);
+create table t1_50k(x int, y int);
 
 statement ok
-create table t2_10k(x int, y int);
+create index t1x on t1_50k(x);
+
+query
+INSERT INTO t1_50k SELECT * FROM __mock_t1_50k;
+----
+50000
 
 statement ok
-create table t3_1k(x int, y int);
+explain (o) select count(*), max(t1_50k.x), max(t1_50k.y), max(__mock_t2_100k.x), max(__mock_t2_100k.y), max(__mock_t3_1k.x), max(__mock_t3_1k.y) from (
+    t1_50k inner join __mock_t2_100k on t1_50k.x = __mock_t2_100k.x
+) inner join __mock_t3_1k on __mock_t2_100k.y = __mock_t3_1k.y;
 
-statement ok
-create index t1y on t1_100k(y);
-
-statement ok
-explain select * from (
-    t1_100k inner join t2_10k on t1_100k.x = t2_10k.x
-) inner join t3_1k on t2_10k.y = t3_1k.y;
-
-statement ok
-select * from (
-    t1_100k inner join t2_10k on t1_100k.x = t2_10k.x
-) inner join t3_1k on t2_10k.y = t3_1k.y;
+query +timing:x10:.q1
+select count(*), max(t1_50k.x), max(t1_50k.y), max(__mock_t2_100k.x), max(__mock_t2_100k.y), max(__mock_t3_1k.x), max(__mock_t3_1k.y) from (
+    t1_50k inner join __mock_t2_100k on t1_50k.x = __mock_t2_100k.x
+) inner join __mock_t3_1k on __mock_t2_100k.y = __mock_t3_1k.y;
+----
+1000 99900 9990000 99900 9990000 99900 9990000

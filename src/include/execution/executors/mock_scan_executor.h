@@ -76,6 +76,9 @@ class MockScanExecutor : public AbstractExecutor {
 
   /** The size of the mock table */
   std::size_t size_;
+
+  /** The shuffled output */
+  std::vector<size_t> shuffled_idx_;
 };
 
 }  // namespace bustub

@@ -82,6 +82,15 @@ class Optimizer {
    */
   auto OptimizeSortLimitAsTopN(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef;
 
+  /**
+   * @brief get the estimated cardinality for a table based on the table name. Useful when join reordering. BusTub
+   * doesn't support statistics for now, so it's the only way for you to get the table size :(
+   *
+   * @param table_name
+   * @return std::optional<size_t>
+   */
+  auto EstimatedCardinality(const std::string &table_name) -> std::optional<size_t>;
+
   /** Catalog will be used during the planning process. USERS SHOULD ENSURE IT OUTLIVES
    * OPTIMIZER, otherwise it's a dangling reference.
    */

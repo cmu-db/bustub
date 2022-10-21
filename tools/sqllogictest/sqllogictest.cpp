@@ -10,6 +10,7 @@
 #include "common/bustub_instance.h"
 #include "common/exception.h"
 #include "common/util/string_util.h"
+#include "fmt/core.h"
 #include "fmt/ranges.h"
 #include "parser.h"
 
@@ -79,6 +80,37 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instanc
       } else {
         throw bustub::NotImplementedException(fmt::format("unsupported extra option: {}", opt));
       }
+    } else if (bustub::StringUtil::StartsWith(opt, "timing")) {
+      auto args = bustub::StringUtil::Split(opt, ":");
+      auto iter = args.cbegin() + 1;
+      int repeat = 1;
+      std::string label;
+      for (; iter != args.cend(); iter++) {
+        if (bustub::StringUtil::StartsWith(*iter, "x")) {
+          repeat = std::stoi(std::string(iter->cbegin() + 1, iter->cend()));
+        } else if (bustub::StringUtil::StartsWith(*iter, ".")) {
+          label = std::string(iter->cbegin() + 1, iter->cend());
+        } else {
+          throw bustub::NotImplementedException(fmt::format("unsupported arg: {}", *iter));
+        }
+      }
+      std::vector<size_t> duration;
+      for (int i = 0; i < repeat; i++) {
+        auto writer = bustub::NoopWriter();
+        auto clock_start = std::chrono::system_clock::now();
+        instance.ExecuteSql(sql, writer);
+        auto clock_end = std::chrono::system_clock::now();
+        auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(clock_end - clock_start);
+        duration.push_back(dur.count());
+        fmt::print("timing pass {} complete\n", i + 1);
+      }
+      fmt::print("<<<BEGIN\n");
+      fmt::print(".{}", label);
+      for (auto x : duration) {
+        fmt::print(" {}", x);
+      }
+      fmt::print("\n");
+      fmt::print(">>>END\n");
     } else {
       throw bustub::NotImplementedException(fmt::format("unsupported extra option: {}", opt));
     }
