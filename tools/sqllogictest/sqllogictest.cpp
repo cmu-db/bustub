@@ -77,6 +77,11 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instanc
           fmt::print("TopN not found\n");
           return false;
         }
+      } else if (opt == "ensure:index_join") {
+        if (!bustub::StringUtil::Contains(result.str(), "NestedIndexJoin")) {
+          fmt::print("NestedIndexJoin not found\n");
+          return false;
+        }
       } else {
         throw bustub::NotImplementedException(fmt::format("unsupported extra option: {}", opt));
       }
