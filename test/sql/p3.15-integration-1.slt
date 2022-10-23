@@ -36,31 +36,6 @@ select count(distance), sum(distance) from (
 ----
 100 200
 
-statement ok
-select * from (
-select
-    left_graph.src as src,
-    right_graph.dst as dst,
-    left_graph.src_label as src_label,
-    right_graph.dst_label as dst_label,
-    (left_graph.distance + right_graph.distance) as distance 
-from (
-    -- find shortest path within 1 neighbor
-    select src, dst, src_label, dst_label, min(distance) as distance from (
-        -- with in all the paths
-        select
-            left_graph.src as src,
-            right_graph.dst as dst,
-            left_graph.src_label as src_label,
-            right_graph.dst_label as dst_label,
-            (left_graph.distance + right_graph.distance) as distance
-        from 
-            graph left_graph inner join graph right_graph
-            on left_graph.dst = right_graph.src
-    ) group by src, dst, src_label, dst_label
-) left_graph inner join graph right_graph on left_graph.dst = right_graph.src
-) order by src, dst;
-
 query rowsort
 -- sanity check
 select count(distance), sum(distance) from (

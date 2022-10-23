@@ -108,13 +108,12 @@ void TableGenerator::GenerateTestTables() {
         {"colC", TypeId::INTEGER, false, Dist::Uniform, 0, 9999},
         {"colD", TypeId::INTEGER, false, Dist::Uniform, 0, 99999}}},
 
-      // // Table 2
-      // {"test_2",
-      //  TEST2_SIZE,
-      //  {{"col1", TypeId::SMALLINT, false, Dist::Serial, 0, 0},
-      //   {"col2", TypeId::INTEGER, true, Dist::Uniform, 0, 9},
-      //   {"col3", TypeId::BIGINT, false, Dist::Uniform, 0, 1024},
-      //   {"col4", TypeId::INTEGER, true, Dist::Uniform, 0, 2048}}},
+      // Table 2
+      {"test_2",
+       TEST7_SIZE,
+       {{"colA", TypeId::INTEGER, false, Dist::Serial, 0, 99},
+        {"colB", TypeId::INTEGER, true, Dist::Uniform, 0, 999},
+        {"colC", TypeId::INTEGER, true, Dist::Cyclic, 0, 9}}},
 
       // // Table 3
       // {"test_3",
@@ -143,9 +142,10 @@ void TableGenerator::GenerateTestTables() {
       // // Table 7
       // {"test_7",
       //  TEST7_SIZE,
-      //  {{"colA", TypeId::BIGINT, false, Dist::Serial, 0, 0},
-      //   {"colB", TypeId::INTEGER, true, Dist::Serial, 0, 0},
-      //   {"colC", TypeId::INTEGER, true, Dist::Cyclic, 0, 9}}},
+      //  {{"col1", TypeId::SMALLINT, false, Dist::Serial, 0, 0},
+      //   {"col2", TypeId::INTEGER, true, Dist::Uniform, 0, 9},
+      //   {"col3", TypeId::BIGINT, false, Dist::Uniform, 0, 1024},
+      //   {"col4", TypeId::INTEGER, true, Dist::Uniform, 0, 2048}}},
 
       // // Table 8
       // {"test_8",
