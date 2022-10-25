@@ -334,3 +334,39 @@ select L.colC as colC, L.t1B, L.t2B, R.t3B, R.t4B from
 0 132 917 917 221
 0 132 917 8 8
 0 132 917 8 221
+
+statement ok
+create table t2(v1 int); insert into t2 values (1), (1), (2);
+
+statement ok
+create table t3(v1 int); insert into t3 values (1), (2), (3);
+
+statement ok
+create table t4(v1 int); insert into t4 values (2), (3), (3);
+
+query rowsort
+select * from t3 left join t2 on t2.v1 = t3.v1;
+----
+1 1 
+1 1 
+2 2 
+3 integer_null
+
+query rowsort
+select * from (t3 left join t2 on t2.v1 = t3.v1) left join t4 on t3.v1 = t4.v1;
+----
+1 1 integer_null 
+1 1 integer_null 
+2 2 2 
+3 integer_null 3 
+3 integer_null 3 
+
+statement ok
+create table t5(v1 int);
+
+query rowsort
+select * from ((t3 left join t5 on t3.v1 < t5.v1) left join t5 as t52 on t3.v1 < t52.v1) left join t5 as t53 on t3.v1 < t53.v1;
+----
+1 integer_null integer_null integer_null 
+2 integer_null integer_null integer_null 
+3 integer_null integer_null integer_null 

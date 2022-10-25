@@ -44,7 +44,7 @@ SELECT * FROM result;
 8 8 008 008 0 0 
 9 9 009 009 0 0
 
-query rowsort
+query rowsort +explain:o
 -- 1st neighbor
 INSERT INTO tmp SELECT * FROM (
     SELECT
@@ -63,7 +63,7 @@ INSERT INTO tmp SELECT * FROM (
 statement ok
 INSERT INTO result SELECT * FROM tmp; DELETE FROM tmp; SELECT count(*) FROM result;
 
-query rowsort
+query rowsort +explain:o
 -- 2nd neighbor
 INSERT INTO tmp SELECT * FROM (
     SELECT
@@ -82,7 +82,7 @@ INSERT INTO tmp SELECT * FROM (
 statement ok
 INSERT INTO result SELECT * FROM tmp; DELETE FROM tmp; SELECT count(*) FROM result;
 
-query rowsort
+query rowsort +explain:o
 -- 3rd neighbor
 INSERT INTO tmp SELECT * FROM (
     SELECT
@@ -101,7 +101,7 @@ INSERT INTO tmp SELECT * FROM (
 statement ok
 INSERT INTO result SELECT * FROM tmp; DELETE FROM tmp; SELECT count(*) FROM result;
 
-query rowsort
+query rowsort +explain:o
 -- 4th neighbor
 INSERT INTO tmp SELECT * FROM (
     SELECT
@@ -120,7 +120,7 @@ INSERT INTO tmp SELECT * FROM (
 statement ok
 INSERT INTO result SELECT * FROM tmp; DELETE FROM tmp; SELECT count(*) FROM result;
 
-query rowsort
+query rowsort +explain:o
 SELECT src, src_label, dst, dst_label, count(*), min(distance), max(distance), min(steps), max(steps) FROM result WHERE src = 1 GROUP BY src, src_label, dst, dst_label ORDER BY dst;
 ----
 1 001 0 000 1000 1 4 1 4 

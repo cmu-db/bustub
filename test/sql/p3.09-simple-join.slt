@@ -391,7 +391,7 @@ select * from temp_3 t3 inner join temp_2 t2 on t3.colB = t2.colA;
 
 query rowsort
 select * from
-    temp_2 t2 inner join
+    (select * from temp_2 where colB < 10) t2 inner join
     (select distinct(temp_2.colA) from temp_1 inner join temp_2 on temp_1.colC = temp_2.colA) t3
     on t2.colB  < t3.colA;
 ----
