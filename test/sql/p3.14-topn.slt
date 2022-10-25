@@ -350,3 +350,10 @@ select * from
 84 711 4 9 92192 84 4626
 69 603 9 8 20385 69 755
 33 701 3 8 24527 33 991
+
+query rowsort +explain +ensure:topn*2
+select * from (select * from test_simple_seq_2 order by col1 desc limit 5) order by col1 asc limit 3;
+----
+5 15 
+6 16 
+7 17

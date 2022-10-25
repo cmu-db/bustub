@@ -77,6 +77,11 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instanc
           fmt::print("TopN not found\n");
           return false;
         }
+      } else if (opt == "ensure:topn*2") {
+        if (bustub::StringUtil::Split(result.str(), "TopN").size() != 3) {
+          fmt::print("TopN should appear exactly twice\n");
+          return false;
+        }
       } else if (opt == "ensure:index_join") {
         if (!bustub::StringUtil::Contains(result.str(), "NestedIndexJoin")) {
           fmt::print("NestedIndexJoin not found\n");
@@ -116,6 +121,14 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instanc
       }
       fmt::print("\n");
       fmt::print(">>>END\n");
+    } else if (bustub::StringUtil::StartsWith(opt, "explain")) {
+      auto writer = bustub::SimpleStreamWriter(std::cout);
+      auto x = bustub::StringUtil::Split(opt, "explain:");
+      if (!x.empty() && !x[0].empty()) {
+        instance.ExecuteSql(fmt::format("explain ({}) {}", x[0], sql), writer);
+      } else {
+        instance.ExecuteSql("explain " + sql, writer);
+      }
     } else {
       throw bustub::NotImplementedException(fmt::format("unsupported extra option: {}", opt));
     }
@@ -195,7 +208,7 @@ auto main(int argc, char **argv) -> int {  // NOLINT
           }
 
           std::stringstream result;
-          auto writer = bustub::SimpleStreamWriter(result);
+          auto writer = bustub::SimpleStreamWriter(result, true);
           bustub->ExecuteSql(statement.sql_, writer);
           if (verbose) {
             fmt::print("----\n{}\n", result.str());
