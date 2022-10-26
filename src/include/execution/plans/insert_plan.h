@@ -25,8 +25,7 @@ namespace bustub {
 /**
  * The InsertPlanNode identifies a table into which tuples are inserted.
  *
- * The values to be inserted are either embedded into the InsertPlanNode
- * itself, i.e. a "raw insert", or will come from the child of the node.
+ * The values to be inserted will come from the child of the node.
  *
  * NOTE: To simplify the assignment, InsertPlanNode has at most one child.
  */

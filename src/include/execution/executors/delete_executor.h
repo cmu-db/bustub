@@ -42,13 +42,13 @@ class DeleteExecutor : public AbstractExecutor {
   void Init() override;
 
   /**
-   * Yield the next tuple from the delete.
-   * @param[out] tuple The next tuple produced by the update
-   * @param[out] rid The next tuple RID produced by the update
-   * @return `false` unconditionally (throw to indicate failure)
+   * Yield the number of rows deleted from the table.
+   * @param[out] tuple The integer tuple indicating the number of rows deleted from the table
+   * @param[out] rid The next tuple RID produced by the update (ignore, not used)
+   * @return `true` if a tuple was produced, `false` if there are no more tuples
    *
    * NOTE: DeleteExecutor::Next() does not use the `tuple` out-parameter.
-   * NOTE: DeleteExecutor::Next() does not use the `rid` out-parameter.
+   * NOTE: DeleteExecutor::Next() returns true with the number of deleted rows produced only once
    */
   auto Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool override;
 
