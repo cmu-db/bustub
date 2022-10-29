@@ -17,14 +17,14 @@
 main() {
   set -o errexit
 
-    if [ "$1" == "-y" ] 
-    then 
+    if [ "$1" == "-y" ]
+    then
         install
     else
         echo "PACKAGES WILL BE INSTALLED. THIS MAY BREAK YOUR EXISTING TOOLCHAIN."
         echo "YOU ACCEPT ALL RESPONSIBILITY BY PROCEEDING."
         read -p "Proceed? [Y/n] : " yn
-    
+
         case $yn in
             Y|y) install;;
             *) ;;
@@ -71,7 +71,9 @@ install_mac() {
   # Install Homebrew.
   if test ! $(which brew); then
     echo "Installing Homebrew (https://brew.sh/)"
-    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+    eval "$(/opt/homebrew/bin/brew shellenv)"
   fi
   # Update Homebrew.
   brew update
