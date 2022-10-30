@@ -34,7 +34,7 @@ class NestedLoopJoinPlanNode : public AbstractPlanNode {
    * @param output The output format of this nested loop join node
    * @param children Two sequential scan children plans
    * @param predicate The predicate to join with, the tuples are joined
-   * if predicate(tuple) = true or predicate = `nullptr`
+   * if predicate(tuple) = true.
    */
   NestedLoopJoinPlanNode(SchemaRef output_schema, AbstractPlanNodeRef left, AbstractPlanNodeRef right,
                          AbstractExpressionRef predicate, JoinType join_type)

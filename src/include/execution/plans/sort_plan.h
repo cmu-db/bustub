@@ -34,7 +34,7 @@ class SortPlanNode : public AbstractPlanNode {
    * Construct a new SortPlanNode instance.
    * @param output The output schema of this sort plan node
    * @param child The child plan node
-   * @param order_by The sort expressions and their order by types.
+   * @param order_bys The sort expressions and their order by types.
    */
   SortPlanNode(SchemaRef output, AbstractPlanNodeRef child,
                std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys)

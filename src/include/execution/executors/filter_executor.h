@@ -32,6 +32,7 @@ class FilterExecutor : public AbstractExecutor {
    * Construct a new FilterExecutor instance.
    * @param exec_ctx The executor context
    * @param plan The filter plan to be executed
+   * @param child_executor The child executor that feeds the filter
    */
   FilterExecutor(ExecutorContext *exec_ctx, const FilterPlanNode *plan,
                  std::unique_ptr<AbstractExecutor> &&child_executor);

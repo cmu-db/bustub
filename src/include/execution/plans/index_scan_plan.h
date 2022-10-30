@@ -28,8 +28,6 @@ class IndexScanPlanNode : public AbstractPlanNode {
   /**
    * Creates a new index scan plan node.
    * @param output the output format of this scan plan node
-   * @param predicate the predicate to scan with, tuples are returned if predicate(tuple) == true or predicate ==
-   * nullptr
    * @param table_oid the identifier of table to be scanned
    */
   IndexScanPlanNode(SchemaRef output, index_oid_t index_oid)

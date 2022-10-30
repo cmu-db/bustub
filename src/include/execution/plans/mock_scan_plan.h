@@ -31,7 +31,6 @@ class MockScanPlanNode : public AbstractPlanNode {
   /**
    * Construct a new MockScanPlanNode instance.
    * @param output The output schema of this mock scan plan node
-   * @param size The size of the scanned table
    */
   MockScanPlanNode(SchemaRef output, std::string table)
       : AbstractPlanNode(std::move(output), {}), table_(std::move(table)) {}

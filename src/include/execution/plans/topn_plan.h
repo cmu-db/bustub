@@ -34,6 +34,8 @@ class TopNPlanNode : public AbstractPlanNode {
    * Construct a new TopNPlanNode instance.
    * @param output The output schema of this topN plan node
    * @param child The child plan node
+   * @param order_bys The sort expressions and their order by types.
+   * @param n Retain n elements.
    */
   TopNPlanNode(SchemaRef output, AbstractPlanNodeRef child,
                std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys, std::size_t n)
