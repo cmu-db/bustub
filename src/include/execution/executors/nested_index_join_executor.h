@@ -36,7 +36,7 @@ class NestIndexJoinExecutor : public AbstractExecutor {
    * Creates a new nested index join executor.
    * @param exec_ctx the context that the hash join should be performed in
    * @param plan the nested index join plan node
-   * @param outer table child
+   * @param child_executor the outer table
    */
   NestIndexJoinExecutor(ExecutorContext *exec_ctx, const NestedIndexJoinPlanNode *plan,
                         std::unique_ptr<AbstractExecutor> &&child_executor);

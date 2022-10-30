@@ -47,7 +47,7 @@ class InsertExecutor : public AbstractExecutor {
    * @return `true` if a tuple was produced, `false` if there are no more tuples
    *
    * NOTE: InsertExecutor::Next() does not use the `rid` out-parameter.
-   * NOTE: InsertExecutor::Next() returns true with number of inserted rows produced only once
+   * NOTE: InsertExecutor::Next() returns true with number of inserted rows produced only once.
    */
   auto Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool override;
 

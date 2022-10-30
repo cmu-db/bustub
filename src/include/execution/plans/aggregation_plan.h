@@ -40,7 +40,6 @@ class AggregationPlanNode : public AbstractPlanNode {
    * Construct a new AggregationPlanNode.
    * @param output_schema The output format of this plan node
    * @param child The child plan to aggregate data over
-   * @param having The having clause of the aggregation
    * @param group_bys The group by clause of the aggregation
    * @param aggregates The expressions that we are aggregating
    * @param agg_types The types that we are aggregating

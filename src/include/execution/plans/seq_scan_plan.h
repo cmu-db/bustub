@@ -26,14 +26,12 @@ namespace bustub {
 
 /**
  * The SeqScanPlanNode represents a sequential table scan operation.
- * It identifies a table to be scanned and an optional predicate.
  */
 class SeqScanPlanNode : public AbstractPlanNode {
  public:
   /**
    * Construct a new SeqScanPlanNode instance.
    * @param output The output schema of this sequential scan plan node
-   * @param predicate The predicate applied during the scan operation
    * @param table_oid The identifier of table to be scanned
    */
   SeqScanPlanNode(SchemaRef output, table_oid_t table_oid, std::string table_name)

@@ -33,7 +33,7 @@ class ValuesPlanNode : public AbstractPlanNode {
   /**
    * Construct a new ValuesPlanNode instance.
    * @param output The output schema of this values plan node
-   * @param child The child plan node
+   * @param values The values produced by this plan node
    */
   explicit ValuesPlanNode(SchemaRef output, std::vector<std::vector<AbstractExpressionRef>> values)
       : AbstractPlanNode(std::move(output), {}), values_(std::move(values)) {}
