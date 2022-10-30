@@ -113,7 +113,9 @@
             } else if (line == "?") {
                 this.echo(helpMessage)
             } else {
-                if (!initialized) {
+                if (!window.initialize) {
+                    this.echo("BusTub shell is still initializing, please wait.")
+                } else if (!initialized) {
                     const [x, y] = line.split(" ")
                     const [px, py] = [parseInt(x), parseInt(y)]
                     if (px >= 2 && py >= 3) {
