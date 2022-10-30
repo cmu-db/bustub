@@ -76,12 +76,18 @@ class BPlusTree {
   void Print(BufferPoolManager *bpm) { throw bustub::NotImplementedException("not implemented"); }
 
   // draw the B+ tree
-  void Draw(BufferPoolManager *bpm, const std::string &outf);
+  void Draw(BufferPoolManager *bpm, const std::string &outf) {
+    throw bustub::NotImplementedException("not implemented");
+  }
 
   /* Debug Routines for FREE!! */
-  void ToGraph(BPlusTreePage *page, BufferPoolManager *bpm, std::ofstream &out) const;
+  void ToGraph(BPlusTreePage *page, BufferPoolManager *bpm, std::ofstream &out) const {
+    throw bustub::NotImplementedException("not implemented");
+  }
 
-  auto FindLeafPage(const KeyType &key, bool leftMost = false) -> Page *;
+  auto FindLeafPage(const KeyType &key, bool leftMost = false) -> Page * {
+    throw bustub::NotImplementedException("not implemented");
+  }
 
   auto GetRootPageId() -> page_id_t { return INVALID_PAGE_ID; }
 
