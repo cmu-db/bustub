@@ -63,6 +63,7 @@
     const BUSTUB_PUBLIC_VERSION_VAR = "${BUSTUB_PUBLIC_VERSION}"
     const BUSTUB_PRIVATE_VERSION_VAR = "${BUSTUB_PRIVATE_VERSION}"
     const BUSTUB_BUILD_TIME_VAR = "${BUSTUB_BUILD_TIME}"
+    let is_ready = false
 
     Module['onRuntimeInitialized'] = function () {
         const executeQuery = Module.cwrap('BustubExecuteQuery', 'number', ['string', 'number', 'number'])
@@ -77,6 +78,7 @@
             return [retCode, output]
         }
         initialize()
+        is_ready = true
     }
 
     $(document).ready(() => {
@@ -89,6 +91,10 @@
         }
         let line = ""
         var term = $('body').terminal(function (command) {
+            if (!is_ready) {
+                this.echo("BusTub shell is still initializing, please wait.")
+                return
+            }
             line += command
             if (line.endsWith(';') || line.startsWith("\\")) {
                 if (line == "\\clear") {
