@@ -15,6 +15,7 @@
 #include <iostream>
 #include <memory>
 #include <optional>
+#include <shared_mutex>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -220,6 +221,11 @@ class BustubInstance {
   void ExecuteSql(const std::string &sql, ResultWriter &writer);
 
   /**
+   * Execute a SQL query in the BusTub instance with provided txn.
+   */
+  void ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn);
+
+  /**
    * FOR TEST ONLY. Generate test tables in this BusTub instance.
    * It's used in the shell to predefine some tables, as we don't support
    * create / drop table and insert for now. Should remove it in the future.
@@ -239,11 +245,12 @@ class BustubInstance {
   DiskManager *disk_manager_;
   BufferPoolManager *buffer_pool_manager_;
   LockManager *lock_manager_;
-  TransactionManager *transaction_manager_;
+  TransactionManager *txn_manager_;
   LogManager *log_manager_;
   CheckpointManager *checkpoint_manager_;
   Catalog *catalog_;
   ExecutionEngine *execution_engine_;
+  std::shared_mutex catalog_lock_;
 
   auto GetSessionVariable(const std::string &key) -> std::string {
     if (session_variables_.find(key) != session_variables_.end()) {
