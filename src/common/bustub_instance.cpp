@@ -1,4 +1,5 @@
 #include <optional>
+#include <shared_mutex>
 #include <string>
 #include <tuple>
 
@@ -18,6 +19,7 @@
 #include "common/exception.h"
 #include "common/util/string_util.h"
 #include "concurrency/lock_manager.h"
+#include "concurrency/transaction.h"
 #include "execution/execution_engine.h"
 #include "execution/executor_context.h"
 #include "execution/executors/mock_scan_executor.h"
@@ -36,7 +38,7 @@
 namespace bustub {
 
 auto BustubInstance::MakeExecutorContext(Transaction *txn) -> std::unique_ptr<ExecutorContext> {
-  return std::make_unique<ExecutorContext>(txn, catalog_, buffer_pool_manager_, transaction_manager_, lock_manager_);
+  return std::make_unique<ExecutorContext>(txn, catalog_, buffer_pool_manager_, txn_manager_, lock_manager_);
 }
 
 BustubInstance::BustubInstance(const std::string &db_file_name) {
@@ -61,16 +63,16 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
 
   // Transaction (txn) related.
   lock_manager_ = new LockManager();
-  transaction_manager_ = new TransactionManager(lock_manager_, log_manager_);
+  txn_manager_ = new TransactionManager(lock_manager_, log_manager_);
 
   // Checkpoint related.
-  checkpoint_manager_ = new CheckpointManager(transaction_manager_, log_manager_, buffer_pool_manager_);
+  checkpoint_manager_ = new CheckpointManager(txn_manager_, log_manager_, buffer_pool_manager_);
 
   // Catalog.
   catalog_ = new Catalog(buffer_pool_manager_, lock_manager_, log_manager_);
 
   // Execution engine.
-  execution_engine_ = new ExecutionEngine(buffer_pool_manager_, transaction_manager_, catalog_);
+  execution_engine_ = new ExecutionEngine(buffer_pool_manager_, txn_manager_, catalog_);
 }
 
 void BustubInstance::CmdDisplayTables(ResultWriter &writer) {
@@ -141,6 +143,13 @@ see the execution plan of your query.
 }
 
 void BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) {
+  auto txn = txn_manager_->Begin();
+  ExecuteSqlTxn(sql, writer, txn);
+  txn_manager_->Commit(txn);
+  delete txn;
+}
+
+void BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn) {
   if (!sql.empty() && sql[0] == '\\') {
     // Internal meta-commands, like in `psql`.
     if (sql == "\\dt") {
@@ -158,18 +167,21 @@ void BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) {
     throw Exception(fmt::format("unsupported internal command: {}", sql));
   }
 
+  std::shared_lock<std::shared_mutex> l(catalog_lock_);
   bustub::Binder binder(*catalog_);
   binder.ParseAndSave(sql);
+  l.unlock();
 
   for (auto *stmt : binder.statement_nodes_) {
     auto statement = binder.BindStatement(stmt);
     switch (statement->type_) {
       case StatementType::CREATE_STATEMENT: {
         const auto &create_stmt = dynamic_cast<const CreateStatement &>(*statement);
-        auto txn = transaction_manager_->Begin();
+
+        std::unique_lock<std::shared_mutex> l(catalog_lock_);
         auto info = catalog_->CreateTable(txn, create_stmt.table_, Schema(create_stmt.columns_));
-        transaction_manager_->Commit(txn);
-        delete txn;
+        l.unlock();
+
         if (info == nullptr) {
           throw bustub::Exception("Failed to create table");
         }
@@ -178,7 +190,6 @@ void BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) {
       }
       case StatementType::INDEX_STATEMENT: {
         const auto &index_stmt = dynamic_cast<const IndexStatement &>(*statement);
-        auto txn = transaction_manager_->Begin();
 
         std::vector<uint32_t> col_ids;
         for (const auto &col : index_stmt.cols_) {
@@ -192,11 +203,13 @@ void BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) {
           throw NotImplementedException("only support creating index with exactly one column");
         }
         auto key_schema = Schema::CopySchema(&index_stmt.table_->schema_, col_ids);
+
+        std::unique_lock<std::shared_mutex> l(catalog_lock_);
         auto info = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
             txn, index_stmt.index_name_, index_stmt.table_->table_, index_stmt.table_->schema_, key_schema, col_ids,
             INTEGER_SIZE, IntegerHashFunctionType{});
-        transaction_manager_->Commit(txn);
-        delete txn;
+        l.unlock();
+
         if (info == nullptr) {
           throw bustub::Exception("Failed to create index");
         }
@@ -226,6 +239,8 @@ void BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) {
           output += "\n";
         }
 
+        std::shared_lock<std::shared_mutex> l(catalog_lock_);
+
         bustub::Planner planner(*catalog_);
         planner.PlanQuery(*explain_stmt.statement_);
 
@@ -243,6 +258,8 @@ void BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) {
         bustub::Optimizer optimizer(*catalog_, IsForceStarterRule());
         auto optimized_plan = optimizer.Optimize(planner.plan_);
 
+        l.unlock();
+
         if ((explain_stmt.options_ & ExplainOptions::OPTIMIZER) != 0) {
           output += "=== OPTIMIZER ===";
           output += "\n";
@@ -258,6 +275,8 @@ void BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) {
         break;
     }
 
+    std::shared_lock<std::shared_mutex> l(catalog_lock_);
+
     // Plan the query.
     bustub::Planner planner(*catalog_);
     planner.PlanQuery(*statement);
@@ -266,14 +285,12 @@ void BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) {
     bustub::Optimizer optimizer(*catalog_, IsForceStarterRule());
     auto optimized_plan = optimizer.Optimize(planner.plan_);
 
+    l.unlock();
+
     // Execute the query.
-    auto txn = transaction_manager_->Begin();
     auto exec_ctx = MakeExecutorContext(txn);
     std::vector<Tuple> result_set{};
     execution_engine_->Execute(optimized_plan, &result_set, txn, exec_ctx.get());
-
-    transaction_manager_->Commit(txn);
-    delete txn;
 
     // Return the result set as a vector of string.
     auto schema = planner.plan_->OutputSchema();
@@ -304,12 +321,15 @@ void BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) {
  * create / drop table and insert for now. Should remove it in the future.
  */
 void BustubInstance::GenerateTestTable() {
-  auto txn = transaction_manager_->Begin();
+  auto txn = txn_manager_->Begin();
   auto exec_ctx = MakeExecutorContext(txn);
   TableGenerator gen{exec_ctx.get()};
-  gen.GenerateTestTables();
 
-  transaction_manager_->Commit(txn);
+  std::shared_lock<std::shared_mutex> l(catalog_lock_);
+  gen.GenerateTestTables();
+  l.unlock();
+
+  txn_manager_->Commit(txn);
   delete txn;
 }
 
@@ -320,13 +340,15 @@ void BustubInstance::GenerateTestTable() {
  */
 void BustubInstance::GenerateMockTable() {
   // The actual content generated by mock scan executors are described in `mock_scan_executor.cpp`.
-  auto txn = transaction_manager_->Begin();
+  auto txn = txn_manager_->Begin();
 
+  std::shared_lock<std::shared_mutex> l(catalog_lock_);
   for (auto table_name = &mock_table_list[0]; *table_name != nullptr; table_name++) {
     catalog_->CreateTable(txn, *table_name, GetMockTableSchemaOf(*table_name), false);
   }
+  l.unlock();
 
-  transaction_manager_->Commit(txn);
+  txn_manager_->Commit(txn);
   delete txn;
 }
 
@@ -340,7 +362,7 @@ BustubInstance::~BustubInstance() {
   delete log_manager_;
   delete buffer_pool_manager_;
   delete lock_manager_;
-  delete transaction_manager_;
+  delete txn_manager_;
   delete disk_manager_;
 }
 

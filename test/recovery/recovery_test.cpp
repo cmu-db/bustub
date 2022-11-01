@@ -60,7 +60,7 @@ TEST_F(RecoveryTest, DISABLED_RedoTest) {
   LOG_INFO("System logging thread running...");
 
   LOG_INFO("Create a test table");
-  Transaction *txn = bustub_instance->transaction_manager_->Begin();
+  Transaction *txn = bustub_instance->txn_manager_->Begin();
   auto *test_table = new TableHeap(bustub_instance->buffer_pool_manager_, bustub_instance->lock_manager_,
                                    bustub_instance->log_manager_, txn);
   page_id_t first_page_id = test_table->GetFirstPageId();
@@ -82,7 +82,7 @@ TEST_F(RecoveryTest, DISABLED_RedoTest) {
   ASSERT_TRUE(test_table->InsertTuple(tuple, &rid, txn));
   ASSERT_TRUE(test_table->InsertTuple(tuple1, &rid1, txn));
 
-  bustub_instance->transaction_manager_->Commit(txn);
+  bustub_instance->txn_manager_->Commit(txn);
   LOG_INFO("Commit txn");
 
   delete txn;
@@ -98,12 +98,12 @@ TEST_F(RecoveryTest, DISABLED_RedoTest) {
   LOG_INFO("Check if tuple is not in table before recovery");
   Tuple old_tuple;
   Tuple old_tuple1;
-  txn = bustub_instance->transaction_manager_->Begin();
+  txn = bustub_instance->txn_manager_->Begin();
   test_table = new TableHeap(bustub_instance->buffer_pool_manager_, bustub_instance->lock_manager_,
                              bustub_instance->log_manager_, first_page_id);
   ASSERT_FALSE(test_table->GetTuple(rid, &old_tuple, txn));
   ASSERT_FALSE(test_table->GetTuple(rid1, &old_tuple1, txn));
-  bustub_instance->transaction_manager_->Commit(txn);
+  bustub_instance->txn_manager_->Commit(txn);
   delete txn;
 
   LOG_INFO("Begin recovery");
@@ -117,14 +117,14 @@ TEST_F(RecoveryTest, DISABLED_RedoTest) {
   log_recovery->Undo();
 
   LOG_INFO("Check if recovery success");
-  txn = bustub_instance->transaction_manager_->Begin();
+  txn = bustub_instance->txn_manager_->Begin();
   delete test_table;
   test_table = new TableHeap(bustub_instance->buffer_pool_manager_, bustub_instance->lock_manager_,
                              bustub_instance->log_manager_, first_page_id);
 
   ASSERT_TRUE(test_table->GetTuple(rid, &old_tuple, txn));
   ASSERT_TRUE(test_table->GetTuple(rid1, &old_tuple1, txn));
-  bustub_instance->transaction_manager_->Commit(txn);
+  bustub_instance->txn_manager_->Commit(txn);
   delete txn;
   delete test_table;
   delete log_recovery;
@@ -149,7 +149,7 @@ TEST_F(RecoveryTest, DISABLED_UndoTest) {
   LOG_INFO("System logging thread running...");
 
   LOG_INFO("Create a test table");
-  Transaction *txn = bustub_instance->transaction_manager_->Begin();
+  Transaction *txn = bustub_instance->txn_manager_->Begin();
   auto *test_table = new TableHeap(bustub_instance->buffer_pool_manager_, bustub_instance->lock_manager_,
                                    bustub_instance->log_manager_, txn);
   page_id_t first_page_id = test_table->GetFirstPageId();
@@ -180,14 +180,14 @@ TEST_F(RecoveryTest, DISABLED_UndoTest) {
 
   LOG_INFO("Check if tuple exists before recovery");
   Tuple old_tuple;
-  txn = bustub_instance->transaction_manager_->Begin();
+  txn = bustub_instance->txn_manager_->Begin();
   test_table = new TableHeap(bustub_instance->buffer_pool_manager_, bustub_instance->lock_manager_,
                              bustub_instance->log_manager_, first_page_id);
 
   ASSERT_TRUE(test_table->GetTuple(rid, &old_tuple, txn));
   ASSERT_EQ(old_tuple.GetValue(&schema, 0).CompareEquals(val_0), CmpBool::CmpTrue);
   ASSERT_EQ(old_tuple.GetValue(&schema, 1).CompareEquals(val_1), CmpBool::CmpTrue);
-  bustub_instance->transaction_manager_->Commit(txn);
+  bustub_instance->txn_manager_->Commit(txn);
   delete txn;
 
   LOG_INFO("Recovery started..");
@@ -201,13 +201,13 @@ TEST_F(RecoveryTest, DISABLED_UndoTest) {
   LOG_INFO("Undo underway...");
 
   LOG_INFO("Check if failed txn is undo successfully");
-  txn = bustub_instance->transaction_manager_->Begin();
+  txn = bustub_instance->txn_manager_->Begin();
   delete test_table;
   test_table = new TableHeap(bustub_instance->buffer_pool_manager_, bustub_instance->lock_manager_,
                              bustub_instance->log_manager_, first_page_id);
 
   ASSERT_FALSE(test_table->GetTuple(rid, &old_tuple, txn));
-  bustub_instance->transaction_manager_->Commit(txn);
+  bustub_instance->txn_manager_->Commit(txn);
 
   delete txn;
   delete test_table;
@@ -228,10 +228,10 @@ TEST_F(RecoveryTest, DISABLED_CheckpointTest) {
   LOG_INFO("System logging thread running...");
 
   LOG_INFO("Create a test table");
-  Transaction *txn = bustub_instance->transaction_manager_->Begin();
+  Transaction *txn = bustub_instance->txn_manager_->Begin();
   auto *test_table = new TableHeap(bustub_instance->buffer_pool_manager_, bustub_instance->lock_manager_,
                                    bustub_instance->log_manager_, txn);
-  bustub_instance->transaction_manager_->Commit(txn);
+  bustub_instance->txn_manager_->Commit(txn);
 
   Column col1{"a", TypeId::VARCHAR, 20};
   Column col2{"b", TypeId::SMALLINT};
@@ -246,12 +246,12 @@ TEST_F(RecoveryTest, DISABLED_CheckpointTest) {
   log_timeout = std::chrono::seconds(15);
 
   // insert a ton of tuples
-  Transaction *txn1 = bustub_instance->transaction_manager_->Begin();
+  Transaction *txn1 = bustub_instance->txn_manager_->Begin();
   for (int i = 0; i < 1000; i++) {
     RID rid;
     EXPECT_TRUE(test_table->InsertTuple(tuple, &rid, txn1));
   }
-  bustub_instance->transaction_manager_->Commit(txn1);
+  bustub_instance->txn_manager_->Commit(txn1);
 
   // Do checkpoint
   bustub_instance->checkpoint_manager_->BeginCheckpoint();
