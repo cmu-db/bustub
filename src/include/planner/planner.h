@@ -35,6 +35,7 @@ class BoundJoinRef;
 class BoundExpressionListRef;
 class BoundAggCall;
 class BoundCTERef;
+class ColumnValueExpression;
 
 /**
  * The context for the planner. Used for planning aggregation calls.
@@ -118,7 +119,7 @@ class Planner {
       -> AbstractExpressionRef;
 
   auto PlanColumnRef(const BoundColumnRef &expr, const std::vector<AbstractPlanNodeRef> &children)
-      -> std::tuple<std::string, AbstractExpressionRef>;
+      -> std::tuple<std::string, std::shared_ptr<ColumnValueExpression>>;
 
   auto PlanConstant(const BoundConstant &expr, const std::vector<AbstractPlanNodeRef> &children)
       -> AbstractExpressionRef;
@@ -137,6 +138,8 @@ class Planner {
   auto PlanInsert(const InsertStatement &statement) -> AbstractPlanNodeRef;
 
   auto PlanDelete(const DeleteStatement &statement) -> AbstractPlanNodeRef;
+
+  auto PlanUpdate(const UpdateStatement &statement) -> AbstractPlanNodeRef;
 
   /** the root plan node of the plan tree */
   AbstractPlanNodeRef plan_;

@@ -68,6 +68,7 @@ struct PGJoinExpr;
 namespace bustub {
 
 class Catalog;
+class BoundColumnRef;
 class BoundExpression;
 class BoundTableRef;
 class BoundBaseTableRef;
@@ -79,6 +80,7 @@ class CreateStatement;
 class ExplainStatement;
 class IndexStatement;
 class DeleteStatement;
+class UpdateStatement;
 
 /**
  * The binder is responsible for transforming the Postgres parse tree to a binder tree
@@ -171,6 +173,15 @@ class Binder {
   auto ResolveColumnInternal(const BoundTableRef &table_ref, const std::vector<std::string> &col_name)
       -> std::unique_ptr<BoundExpression>;
 
+  auto ResolveColumnRefFromSelectList(const std::vector<std::vector<std::string>> &subquery_select_list,
+                                      const std::vector<std::string> &col_name) -> std::unique_ptr<BoundColumnRef>;
+
+  auto ResolveColumnRefFromBaseTableRef(const BoundBaseTableRef &table_ref, const std::vector<std::string> &col_name)
+      -> std::unique_ptr<BoundColumnRef>;
+
+  auto ResolveColumnRefFromSubqueryRef(const BoundSubqueryRef &subquery_ref, const std::string &alias,
+                                       const std::vector<std::string> &col_name) -> std::unique_ptr<BoundColumnRef>;
+
   auto BindInsert(duckdb_libpgquery::PGInsertStmt *pg_stmt) -> std::unique_ptr<InsertStatement>;
 
   auto BindValuesList(duckdb_libpgquery::PGList *list) -> std::unique_ptr<BoundExpressionListRef>;
@@ -184,6 +195,8 @@ class Binder {
   auto BindIndex(duckdb_libpgquery::PGIndexStmt *stmt) -> std::unique_ptr<IndexStatement>;
 
   auto BindDelete(duckdb_libpgquery::PGDeleteStmt *stmt) -> std::unique_ptr<DeleteStatement>;
+
+  auto BindUpdate(duckdb_libpgquery::PGUpdateStmt *stmt) -> std::unique_ptr<UpdateStatement>;
 
   auto BindCTE(duckdb_libpgquery::PGWithClause *node) -> std::vector<std::unique_ptr<BoundSubqueryRef>>;
 

@@ -61,7 +61,6 @@ class NestedLoopJoinPlanNode : public AbstractPlanNode {
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(NestedLoopJoinPlanNode);
 
- private:
   /** The join predicate */
   AbstractExpressionRef predicate_;
 

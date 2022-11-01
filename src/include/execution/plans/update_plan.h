@@ -11,8 +11,10 @@
 //===----------------------------------------------------------------------===//
 
 #pragma once
+#include <string>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "catalog/catalog.h"
 #include "execution/expressions/abstract_expression.h"
@@ -20,21 +22,9 @@
 
 namespace bustub {
 
-/** The UpdateType enumeration describes the supported update operations */
-enum class UpdateType { Add, Set };
-
-/** Metadata about an Update. */
-struct UpdateInfo {
-  UpdateInfo(UpdateType type, int update_val) : type_{type}, update_val_{update_val} {}
-  UpdateType type_;
-  int update_val_;
-};
-
 /**
  * The UpdatePlanNode identifies a table that should be updated.
  * The tuple(s) to be updated come from the child of the UpdateExecutor.
- *
- * NOTE: To simplify the assignment, UpdatePlanNode has at most one child.
  */
 class UpdatePlanNode : public AbstractPlanNode {
  public:
@@ -42,12 +32,13 @@ class UpdatePlanNode : public AbstractPlanNode {
    * Construct a new UpdatePlanNode instance.
    * @param child the child plan to obtain tuple from
    * @param table_oid the identifier of the table that should be updated
+   * @param target_expressions the target expressions for new tuples
    */
   UpdatePlanNode(SchemaRef output, AbstractPlanNodeRef child, table_oid_t table_oid,
-                 std::unordered_map<uint32_t, UpdateInfo> update_attrs)
+                 std::vector<AbstractExpressionRef> target_expressions)
       : AbstractPlanNode(std::move(output), {std::move(child)}),
         table_oid_{table_oid},
-        update_attrs_{std::move(update_attrs)} {}
+        target_expressions_(std::move(target_expressions)) {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::Update; }
@@ -57,20 +48,20 @@ class UpdatePlanNode : public AbstractPlanNode {
 
   /** @return The child plan providing tuples to be inserted */
   auto GetChildPlan() const -> AbstractPlanNodeRef {
-    BUSTUB_ASSERT(GetChildren().size() == 1, "UPDATE should have at most one child plan.");
+    BUSTUB_ASSERT(GetChildren().size() == 1, "UPDATE should have exactly one child plan.");
     return GetChildAt(0);
   }
 
-  /** @return The update attributes */
-  auto GetUpdateAttr() const -> const std::unordered_map<uint32_t, UpdateInfo> & { return update_attrs_; }
-
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(UpdatePlanNode);
 
- private:
   /** The table to be updated. */
   table_oid_t table_oid_;
-  /** Map from column index -> update operation */
-  const std::unordered_map<uint32_t, UpdateInfo> update_attrs_;
+
+  /** The new expression at each column */
+  std::vector<AbstractExpressionRef> target_expressions_;
+
+ protected:
+  auto PlanNodeToString() const -> std::string override;
 };
 
 }  // namespace bustub

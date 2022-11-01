@@ -15,11 +15,6 @@
 #include "common/enums/statement_type.h"
 #include "fmt/format.h"
 
-namespace duckdb_libpgquery {
-struct PGVariableSetStmt;
-struct PGVariableShowStmt;
-}  // namespace duckdb_libpgquery
-
 namespace bustub {
 
 class VariableSetStatement : public BoundStatement {

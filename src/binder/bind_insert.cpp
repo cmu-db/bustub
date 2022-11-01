@@ -7,10 +7,13 @@
 #include "binder/bound_expression.h"
 #include "binder/bound_order_by.h"
 #include "binder/bound_table_ref.h"
+#include "binder/expressions/bound_column_ref.h"
 #include "binder/expressions/bound_constant.h"
 #include "binder/statement/delete_statement.h"
 #include "binder/statement/insert_statement.h"
 #include "binder/statement/select_statement.h"
+#include "binder/statement/update_statement.h"
+#include "binder/tokens.h"
 #include "common/exception.h"
 #include "common/util/string_util.h"
 #include "nodes/parsenodes.hpp"
@@ -46,6 +49,39 @@ auto Binder::BindDelete(duckdb_libpgquery::PGDeleteStmt *stmt) -> std::unique_pt
   }
 
   return std::make_unique<DeleteStatement>(std::move(table), std::move(expr));
+}
+
+auto Binder::BindUpdate(duckdb_libpgquery::PGUpdateStmt *stmt) -> std::unique_ptr<UpdateStatement> {
+  if (stmt->withClause != nullptr) {
+    throw bustub::NotImplementedException("update with clause not supported yet");
+  }
+
+  if (stmt->fromClause != nullptr) {
+    throw bustub::NotImplementedException("update from clause not supported yet");
+  }
+
+  auto table = BindBaseTableRef(stmt->relation->relname, std::nullopt);
+  auto ctx_guard = NewContext();
+  scope_ = table.get();
+
+  std::unique_ptr<BoundExpression> filter_expr = nullptr;
+
+  if (stmt->whereClause != nullptr) {
+    filter_expr = BindExpression(stmt->whereClause);
+  } else {
+    filter_expr = std::make_unique<BoundConstant>(ValueFactory::GetBooleanValue(true));
+  }
+
+  auto root = stmt->targetList;
+  std::vector<std::pair<std::unique_ptr<BoundColumnRef>, std::unique_ptr<BoundExpression>>> target_expr;
+
+  for (auto cell = root->head; cell != nullptr; cell = cell->next) {
+    auto target = reinterpret_cast<duckdb_libpgquery::PGResTarget *>(cell->data.ptr_value);
+    auto column = ResolveColumnRefFromBaseTableRef(*table, std::vector{std::string{target->name}});
+    target_expr.emplace_back(std::make_pair(std::move(column), BindExpression(target->val)));
+  }
+
+  return std::make_unique<UpdateStatement>(std::move(table), std::move(filter_expr), std::move(target_expr));
 }
 
 }  // namespace bustub
