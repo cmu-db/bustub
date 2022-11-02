@@ -54,10 +54,10 @@ class SortPlanNode : public AbstractPlanNode {
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(SortPlanNode);
 
+  std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys_;
+
  protected:
   auto PlanNodeToString() const -> std::string override;
-
-  std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys_;
 };
 
 }  // namespace bustub

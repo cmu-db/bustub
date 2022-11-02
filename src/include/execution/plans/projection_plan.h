@@ -57,11 +57,10 @@ class ProjectionPlanNode : public AbstractPlanNode {
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(ProjectionPlanNode);
 
+  std::vector<AbstractExpressionRef> expressions_;
+
  protected:
   auto PlanNodeToString() const -> std::string override;
-
- private:
-  std::vector<AbstractExpressionRef> expressions_;
 };
 
 }  // namespace bustub

@@ -68,12 +68,6 @@ class HashJoinPlanNode : public AbstractPlanNode {
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(HashJoinPlanNode);
 
- protected:
-  auto PlanNodeToString() const -> std::string override {
-    return fmt::format("HashJoin {{ type={}, left_key={}, right_key={} }}", join_type_, left_key_expression_,
-                       right_key_expression_);
-  }
-
   /** The expression to compute the left JOIN key */
   AbstractExpressionRef left_key_expression_;
   /** The expression to compute the right JOIN key */
@@ -81,6 +75,12 @@ class HashJoinPlanNode : public AbstractPlanNode {
 
   /** The join type */
   JoinType join_type_;
+
+ protected:
+  auto PlanNodeToString() const -> std::string override {
+    return fmt::format("HashJoin {{ type={}, left_key={}, right_key={} }}", join_type_, left_key_expression_,
+                       right_key_expression_);
+  }
 };
 
 }  // namespace bustub

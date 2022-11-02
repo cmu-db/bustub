@@ -51,12 +51,11 @@ class InsertPlanNode : public AbstractPlanNode {
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(InsertPlanNode);
 
- protected:
-  auto PlanNodeToString() const -> std::string override { return fmt::format("Insert {{ table_oid={} }}", table_oid_); }
-
- private:
   /** The table to be inserted into. */
   table_oid_t table_oid_;
+
+ protected:
+  auto PlanNodeToString() const -> std::string override { return fmt::format("Insert {{ table_oid={} }}", table_oid_); }
 };
 
 }  // namespace bustub
