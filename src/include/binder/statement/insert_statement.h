@@ -16,10 +16,6 @@
 #include "catalog/column.h"
 #include "type/value.h"
 
-namespace duckdb_libpgquery {
-struct PGInsertStmt;
-}  // namespace duckdb_libpgquery
-
 namespace bustub {
 
 class SelectStatement;

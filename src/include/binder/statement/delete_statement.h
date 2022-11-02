@@ -15,10 +15,6 @@
 #include "binder/table_ref/bound_base_table_ref.h"
 #include "catalog/column.h"
 
-namespace duckdb_libpgquery {
-struct PGDeleteStmt;
-}  // namespace duckdb_libpgquery
-
 namespace bustub {
 
 class DeleteStatement : public BoundStatement {

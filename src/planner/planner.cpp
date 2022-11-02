@@ -7,6 +7,7 @@
 #include "binder/statement/delete_statement.h"
 #include "binder/statement/insert_statement.h"
 #include "binder/statement/select_statement.h"
+#include "binder/statement/update_statement.h"
 #include "binder/tokens.h"
 #include "common/enums/statement_type.h"
 #include "common/exception.h"
@@ -34,6 +35,10 @@ void Planner::PlanQuery(const BoundStatement &statement) {
     }
     case StatementType::DELETE_STATEMENT: {
       plan_ = PlanDelete(dynamic_cast<const DeleteStatement &>(statement));
+      return;
+    }
+    case StatementType::UPDATE_STATEMENT: {
+      plan_ = PlanUpdate(dynamic_cast<const UpdateStatement &>(statement));
       return;
     }
     default:

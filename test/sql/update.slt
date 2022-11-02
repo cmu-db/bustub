@@ -1,0 +1,12 @@
+statement ok
+create table t1(v1 int); insert into t1 values (1);
+
+query
+update t1 set v1 = 2;
+----
+1
+
+query
+select * from t1;
+----
+2

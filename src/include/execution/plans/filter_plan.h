@@ -51,14 +51,13 @@ class FilterPlanNode : public AbstractPlanNode {
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(FilterPlanNode);
 
+  /** The predicate that all returned tuples must satisfy */
+  AbstractExpressionRef predicate_;
+
  protected:
   auto PlanNodeToString() const -> std::string override {
     return fmt::format("Filter {{ predicate={} }}", *predicate_);
   }
-
- private:
-  /** The predicate that all returned tuples must satisfy */
-  AbstractExpressionRef predicate_;
 };
 
 }  // namespace bustub

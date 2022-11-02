@@ -557,8 +557,8 @@ static auto ResolveColumnRefFromSchema(const Schema &schema, const std::vector<s
 /**
  * @brief Get `BoundColumnRef` from the table. Returns something like `alias.column` or `table_name.column`.
  */
-static auto ResolveColumnRefFromBaseTableRef(const BoundBaseTableRef &table_ref,
-                                             const std::vector<std::string> &col_name)
+auto Binder::ResolveColumnRefFromBaseTableRef(const BoundBaseTableRef &table_ref,
+                                              const std::vector<std::string> &col_name)
     -> std::unique_ptr<BoundColumnRef> {
   auto bound_table_name = table_ref.GetBoundTableName();
   // Firstly, try directly resolve the column name through schema
@@ -599,8 +599,8 @@ static auto MatchSuffix(const std::vector<std::string> &suffix, const std::vecto
   return std::equal(suffix.rbegin(), suffix.rend(), lowercase_full_name.rbegin());
 }
 
-static auto ResolveColumnRefFromSelectList(const std::vector<std::vector<std::string>> &subquery_select_list,
-                                           const std::vector<std::string> &col_name)
+auto Binder::ResolveColumnRefFromSelectList(const std::vector<std::vector<std::string>> &subquery_select_list,
+                                            const std::vector<std::string> &col_name)
     -> std::unique_ptr<BoundColumnRef> {
   std::unique_ptr<BoundColumnRef> column_ref = nullptr;
   for (const auto &column_full_name : subquery_select_list) {
@@ -614,8 +614,9 @@ static auto ResolveColumnRefFromSelectList(const std::vector<std::vector<std::st
   return column_ref;
 }
 
-static auto ResolveColumnRefFromSubqueryRef(const BoundSubqueryRef &subquery_ref, const std::string &alias,
-                                            const std::vector<std::string> &col_name) {
+auto Binder::ResolveColumnRefFromSubqueryRef(const BoundSubqueryRef &subquery_ref, const std::string &alias,
+                                             const std::vector<std::string> &col_name)
+    -> std::unique_ptr<BoundColumnRef> {
   // Firstly, try directly resolve the column name through schema
   std::unique_ptr<BoundColumnRef> direct_resolved_expr = BoundColumnRef::Prepend(
       ResolveColumnRefFromSelectList(subquery_ref.select_list_name_, col_name), subquery_ref.alias_);

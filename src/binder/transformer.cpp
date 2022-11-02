@@ -31,6 +31,7 @@
 #include "binder/statement/index_statement.h"
 #include "binder/statement/insert_statement.h"
 #include "binder/statement/select_statement.h"
+#include "binder/statement/update_statement.h"
 #include "binder/table_ref/bound_base_table_ref.h"
 #include "common/exception.h"
 #include "common/logger.h"
@@ -62,13 +63,14 @@ auto Binder::BindStatement(duckdb_libpgquery::PGNode *stmt) -> std::unique_ptr<B
       return BindExplain(reinterpret_cast<duckdb_libpgquery::PGExplainStmt *>(stmt));
     case duckdb_libpgquery::T_PGDeleteStmt:
       return BindDelete(reinterpret_cast<duckdb_libpgquery::PGDeleteStmt *>(stmt));
+    case duckdb_libpgquery::T_PGUpdateStmt:
+      return BindUpdate(reinterpret_cast<duckdb_libpgquery::PGUpdateStmt *>(stmt));
     case duckdb_libpgquery::T_PGIndexStmt:
       return BindIndex(reinterpret_cast<duckdb_libpgquery::PGIndexStmt *>(stmt));
     case duckdb_libpgquery::T_PGVariableSetStmt:
       return BindVariableSet(reinterpret_cast<duckdb_libpgquery::PGVariableSetStmt *>(stmt));
     case duckdb_libpgquery::T_PGVariableShowStmt:
       return BindVariableShow(reinterpret_cast<duckdb_libpgquery::PGVariableShowStmt *>(stmt));
-    case duckdb_libpgquery::T_PGUpdateStmt:
     default:
       throw NotImplementedException(NodeTagToString(stmt->type));
   }

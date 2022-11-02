@@ -1,4 +1,5 @@
 #include <type_traits>
+#include "execution/plans/update_plan.h"
 #include "fmt/format.h"
 #include "fmt/ranges.h"
 
@@ -36,6 +37,10 @@ auto AggregationPlanNode::PlanNodeToString() const -> std::string {
 
 auto ProjectionPlanNode::PlanNodeToString() const -> std::string {
   return fmt::format("Projection {{ exprs={} }}", expressions_);
+}
+
+auto UpdatePlanNode::PlanNodeToString() const -> std::string {
+  return fmt::format("Update {{ table_oid={}, target_exprs={} }}", table_oid_, target_expressions_);
 }
 
 auto SortPlanNode::PlanNodeToString() const -> std::string {

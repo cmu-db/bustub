@@ -74,7 +74,6 @@ class HashJoinPlanNode : public AbstractPlanNode {
                        right_key_expression_);
   }
 
- private:
   /** The expression to compute the left JOIN key */
   AbstractExpressionRef left_key_expression_;
   /** The expression to compute the right JOIN key */

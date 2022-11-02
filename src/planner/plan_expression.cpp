@@ -29,7 +29,7 @@ auto Planner::PlanBinaryOp(const BoundBinaryOp &expr, const std::vector<Abstract
 }
 
 auto Planner::PlanColumnRef(const BoundColumnRef &expr, const std::vector<AbstractPlanNodeRef> &children)
-    -> std::tuple<std::string, AbstractExpressionRef> {
+    -> std::tuple<std::string, std::shared_ptr<ColumnValueExpression>> {
   if (children.empty()) {
     throw Exception("column ref should have at least one child");
   }

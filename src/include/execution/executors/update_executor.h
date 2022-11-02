@@ -58,13 +58,6 @@ class UpdateExecutor : public AbstractExecutor {
   auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); }
 
  private:
-  /**
-   * Given a tuple, creates a new, updated tuple
-   * based on the `UpdateInfo` provided in the plan.
-   * @param src_tuple The tuple to be updated
-   */
-  auto GenerateUpdatedTuple(const Tuple &src_tuple) -> Tuple;
-
   /** The update plan node to be executed */
   const UpdatePlanNode *plan_;
   /** Metadata identifying the table that should be updated */
