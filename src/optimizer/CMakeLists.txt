@@ -1,8 +1,10 @@
 add_library(
     bustub_optimizer
     OBJECT
+    eliminate_true_filter.cpp
     merge_projection.cpp
     merge_filter_nlj.cpp
+    merge_filter_scan.cpp
     nlj_as_hash_join.cpp
     nlj_as_index_join.cpp
     optimizer.cpp

@@ -34,8 +34,12 @@ class SeqScanPlanNode : public AbstractPlanNode {
    * @param output The output schema of this sequential scan plan node
    * @param table_oid The identifier of table to be scanned
    */
-  SeqScanPlanNode(SchemaRef output, table_oid_t table_oid, std::string table_name)
-      : AbstractPlanNode(std::move(output), {}), table_oid_{table_oid}, table_name_(std::move(table_name)) {}
+  SeqScanPlanNode(SchemaRef output, table_oid_t table_oid, std::string table_name,
+                  AbstractExpressionRef filter_predicate = nullptr)
+      : AbstractPlanNode(std::move(output), {}),
+        table_oid_{table_oid},
+        table_name_(std::move(table_name)),
+        filter_predicate_(std::move(filter_predicate)) {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::SeqScan; }
@@ -53,8 +57,18 @@ class SeqScanPlanNode : public AbstractPlanNode {
   /** The table name */
   std::string table_name_;
 
+  /** The predicate to filter in seqscan. It will ALWAYS be nullptr until you enable the MergeFilterScan rule.
+      You don't need to handle it to get a perfect score as of in Fall 2022.
+  */
+  AbstractExpressionRef filter_predicate_;
+
  protected:
-  auto PlanNodeToString() const -> std::string override { return fmt::format("SeqScan {{ table={} }}", table_name_); }
+  auto PlanNodeToString() const -> std::string override {
+    if (filter_predicate_) {
+      return fmt::format("SeqScan {{ table={}, filter={} }}", table_name_, filter_predicate_);
+    }
+    return fmt::format("SeqScan {{ table={} }}", table_name_);
+  }
 };
 
 }  // namespace bustub
