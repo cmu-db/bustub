@@ -47,12 +47,11 @@ class LimitPlanNode : public AbstractPlanNode {
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(LimitPlanNode);
 
- protected:
-  auto PlanNodeToString() const -> std::string override;
-
- private:
   /** The limit */
   std::size_t limit_;
+
+ protected:
+  auto PlanNodeToString() const -> std::string override;
 };
 
 }  // namespace bustub

@@ -45,11 +45,10 @@ class ValuesPlanNode : public AbstractPlanNode {
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(ValuesPlanNode);
 
+  std::vector<std::vector<AbstractExpressionRef>> values_;
+
  protected:
   auto PlanNodeToString() const -> std::string override { return fmt::format("Values {{ rows={} }}", values_.size()); }
-
- private:
-  std::vector<std::vector<AbstractExpressionRef>> values_;
 };
 
 }  // namespace bustub

@@ -81,7 +81,6 @@ class AggregationPlanNode : public AbstractPlanNode {
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(AggregationPlanNode);
 
- private:
   /** The GROUP BY expressions */
   std::vector<AbstractExpressionRef> group_bys_;
   /** The aggregation expressions */

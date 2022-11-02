@@ -70,13 +70,6 @@ class NestedIndexJoinPlanNode : public AbstractPlanNode {
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(NestedIndexJoinPlanNode);
 
- protected:
-  auto PlanNodeToString() const -> std::string override {
-    return fmt::format("NestedIndexJoin {{ type={}, key_predicate={}, index={}, index_table={} }}", join_type_,
-                       key_predicate_, index_name_, index_table_name_);
-  }
-
- private:
   /** The nested index join predicate. */
   AbstractExpressionRef key_predicate_;
   table_oid_t inner_table_oid_;
@@ -87,5 +80,11 @@ class NestedIndexJoinPlanNode : public AbstractPlanNode {
 
   /** The join type */
   JoinType join_type_;
+
+ protected:
+  auto PlanNodeToString() const -> std::string override {
+    return fmt::format("NestedIndexJoin {{ type={}, key_predicate={}, index={}, index_table={} }}", join_type_,
+                       key_predicate_, index_name_, index_table_name_);
+  }
 };
 }  // namespace bustub

@@ -51,12 +51,11 @@ class DeletePlanNode : public AbstractPlanNode {
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(DeletePlanNode);
 
- protected:
-  auto PlanNodeToString() const -> std::string override { return fmt::format("Delete {{ table_oid={} }}", table_oid_); }
-
- private:
   /** The identifier of the table from which tuples are deleted */
   table_oid_t table_oid_;
+
+ protected:
+  auto PlanNodeToString() const -> std::string override { return fmt::format("Delete {{ table_oid={} }}", table_oid_); }
 };
 
 }  // namespace bustub

@@ -40,14 +40,13 @@ class IndexScanPlanNode : public AbstractPlanNode {
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(IndexScanPlanNode);
 
+  /** The table whose tuples should be scanned. */
+  index_oid_t index_oid_;
+
  protected:
   auto PlanNodeToString() const -> std::string override {
     return fmt::format("IndexScan {{ index_oid={} }}", index_oid_);
   }
-
- private:
-  /** The table whose tuples should be scanned. */
-  index_oid_t index_oid_;
 };
 
 }  // namespace bustub

@@ -58,12 +58,11 @@ class TopNPlanNode : public AbstractPlanNode {
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(TopNPlanNode);
 
- protected:
-  auto PlanNodeToString() const -> std::string override;
-
- private:
   std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys_;
   std::size_t n_;
+
+ protected:
+  auto PlanNodeToString() const -> std::string override;
 };
 
 }  // namespace bustub
