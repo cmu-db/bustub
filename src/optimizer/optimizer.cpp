@@ -27,6 +27,9 @@ auto Optimizer::EstimatedCardinality(const std::string &table_name) -> std::opti
   if (StringUtil::EndsWith(table_name, "_100k")) {
     return std::make_optional(100000);
   }
+  if (StringUtil::EndsWith(table_name, "_50k")) {
+    return std::make_optional(50000);
+  }
   if (StringUtil::EndsWith(table_name, "_10k")) {
     return std::make_optional(10000);
   }

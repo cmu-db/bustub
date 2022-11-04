@@ -34,7 +34,7 @@ auto Tokenize(const std::string &str, char delimiter = ' ') -> std::vector<std::
 }
 
 auto ParseInner(const std::string &filename, const std::string &script) -> std::vector<std::unique_ptr<Record>> {
-  auto lines = StringUtil::Split(script, '\n');
+  auto lines = StringUtil::Split(StringUtil::Replace(script, "\r\n", "\n"), '\n');
   std::vector<std::unique_ptr<Record>> records;
   auto line_iter = lines.cbegin();
   while (line_iter != lines.cend()) {
