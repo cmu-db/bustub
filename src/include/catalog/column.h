@@ -34,7 +34,6 @@ class Column {
    * Non-variable-length constructor for creating a Column.
    * @param column_name name of the column
    * @param type type of the column
-   * @param expr expression used to create this column
    */
   Column(std::string column_name, TypeId type)
       : column_name_(std::move(column_name)), column_type_(type), fixed_length_(TypeSize(type)) {
