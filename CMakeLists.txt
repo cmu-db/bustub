@@ -342,4 +342,23 @@ add_custom_target(submit-p3
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         )
 
+set(P4_FILES
+        "src/include/concurrency/lock_manager.h"
+        "src/concurrency/lock_manager.cpp"
+        ${P3_FILES}
+        )
+
+add_custom_target(check-clang-tidy-p4
+        ${BUSTUB_BUILD_SUPPORT_DIR}/run_clang_tidy.py                     # run LLVM's clang-tidy script
+        -clang-tidy-binary ${CLANG_TIDY_BIN}                              # using our clang-tidy binary
+        -p ${CMAKE_BINARY_DIR}                                            # using cmake's generated compile commands
+        ${P4_FILES}
+        )
+
+add_custom_target(submit-p4
+        zip project4-submission.zip
+        ${P4_FILES}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        )
+
 add_dependencies(check-clang-tidy gtest bustub)                    # needs gtest headers, compile_commands.json
