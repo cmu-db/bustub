@@ -297,20 +297,6 @@ class LockManager {
    */
   auto UnlockRow(Transaction *txn, const table_oid_t &oid, const RID &rid) -> bool;
 
-  /**
-   * Internal; do not include the following methods in public
-   */
-
-  auto UpgradeLockTable(Transaction *txn, LockMode lock_mode, const table_oid_t &oid) -> bool;
-  auto UpgradeLockRow(Transaction *txn, LockMode lock_mode, const table_oid_t &oid, const RID &rid) -> bool;
-  auto AreLocksCompatible(LockMode l1, LockMode l2) -> bool;
-  auto CanTxnTakeLock(Transaction *txn, LockMode lock_mode) -> bool;
-  void GrantNewLocksIfPossible(LockRequestQueue *lock_request_queue);
-  auto CanLockUpgrade(LockMode curr_lock_mode, LockMode requested_lock_mode) -> bool;
-  auto CheckAppropriateLockOnTable(Transaction *txn, const table_oid_t &oid, LockMode row_lock_mode) -> bool;
-  auto findCycle(txn_id_t source_txn, std::vector<txn_id_t> &path, std::unordered_set<txn_id_t> &on_path,
-                 std::unordered_set<txn_id_t> &visited, txn_id_t *abort_txn_id) -> bool;
-
  private:
   /** Fall 2022 */
   /** Structure that holds lock requests for a given table oid */
