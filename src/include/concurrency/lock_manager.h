@@ -203,39 +203,6 @@ class LockManager {
    *    appropriately (check transaction.h)
    */
 
-  /*** Graph API ***/
-
-  /**
-   * Adds an edge from t1 -> t2 from waits for graph.
-   * @param t1 transaction waiting for a lock
-   * @param t2 transaction being waited for
-   */
-  auto AddEdge(txn_id_t t1, txn_id_t t2) -> void;
-
-  /**
-   * Removes an edge from t1 -> t2 from waits for graph.
-   * @param t1 transaction waiting for a lock
-   * @param t2 transaction being waited for
-   */
-  auto RemoveEdge(txn_id_t t1, txn_id_t t2) -> void;
-
-  /**
-   * Checks if the graph has a cycle, returning the newest transaction ID in the cycle if so.
-   * @param[out] txn_id if the graph has a cycle, will contain the newest transaction ID
-   * @return false if the graph has no cycle, otherwise stores the newest transaction ID in the cycle to txn_id
-   */
-  auto HasCycle(txn_id_t *txn_id) -> bool;
-
-  /**
-   * @return all edges in current waits_for graph
-   */
-  auto GetEdgeList() -> std::vector<std::pair<txn_id_t, txn_id_t>>;
-
-  /**
-   * Runs cycle detection in the background.
-   */
-  auto RunCycleDetection() -> void;
-
   /**
    * Acquire a lock on table_oid_t in the given lock_mode.
    * If the transaction already holds a lock on the table, upgrade the lock
@@ -250,7 +217,7 @@ class LockManager {
    * @param oid the table_oid_t of the table to be locked in lock_mode
    * @return true if the upgrade is successful, false otherwise
    */
-  bool LockTable(Transaction *txn, LockMode lock_mode, const table_oid_t &oid) noexcept(false);
+  auto LockTable(Transaction *txn, LockMode lock_mode, const table_oid_t &oid) noexcept(false) -> bool;
 
   /**
    * Release the lock held on a table by the transaction.
@@ -297,6 +264,39 @@ class LockManager {
    */
   auto UnlockRow(Transaction *txn, const table_oid_t &oid, const RID &rid) -> bool;
 
+  /*** Graph API ***/
+
+  /**
+   * Adds an edge from t1 -> t2 from waits for graph.
+   * @param t1 transaction waiting for a lock
+   * @param t2 transaction being waited for
+   */
+  auto AddEdge(txn_id_t t1, txn_id_t t2) -> void;
+
+  /**
+   * Removes an edge from t1 -> t2 from waits for graph.
+   * @param t1 transaction waiting for a lock
+   * @param t2 transaction being waited for
+   */
+  auto RemoveEdge(txn_id_t t1, txn_id_t t2) -> void;
+
+  /**
+   * Checks if the graph has a cycle, returning the newest transaction ID in the cycle if so.
+   * @param[out] txn_id if the graph has a cycle, will contain the newest transaction ID
+   * @return false if the graph has no cycle, otherwise stores the newest transaction ID in the cycle to txn_id
+   */
+  auto HasCycle(txn_id_t *txn_id) -> bool;
+
+  /**
+   * @return all edges in current waits_for graph
+   */
+  auto GetEdgeList() -> std::vector<std::pair<txn_id_t, txn_id_t>>;
+
+  /**
+   * Runs cycle detection in the background.
+   */
+  auto RunCycleDetection() -> void;
+
  private:
   /** Fall 2022 */
   /** Structure that holds lock requests for a given table oid */
@@ -311,8 +311,7 @@ class LockManager {
 
   std::atomic<bool> enable_cycle_detection_;
   std::thread *cycle_detection_thread_;
-  /** Waits-for graph representation. */
-  std::unordered_map<txn_id_t, std::vector<txn_id_t>> waits_for_;
+
 };
 
 }  // namespace bustub

@@ -37,16 +37,6 @@
 #include "test_util.h"  // NOLINT
 #include "type/value_factory.h"
 
-#define TEST_TIMEOUT_BEGIN                           \
-  std::promise<bool> promisedFinished;               \
-  auto futureResult = promisedFinished.get_future(); \
-                              std::thread([](std::promise<bool>& finished) {
-#define TEST_TIMEOUT_FAIL_END(X)                                                                  \
-  finished.set_value(true);                                                                       \
-  }, std::ref(promisedFinished)).detach();                                                        \
-  EXPECT_TRUE(futureResult.wait_for(std::chrono::milliseconds(X)) != std::future_status::timeout) \
-      << "Test Failed Due to Time Out";
-
 namespace bustub {
 
 class TransactionTest : public ::testing::Test {
@@ -78,7 +68,7 @@ void CheckTxnLockSize(Transaction *txn, size_t shared_size, size_t exclusive_siz
 }
 
 // NOLINTNEXTLINE
-TEST_F(TransactionTest, DISABLED_SimpleInsertRollbackTest) {
+TEST_F(TransactionTest, SimpleInsertRollbackTest) {
   // txn1: INSERT INTO empty_table2 VALUES (200, 20), (201, 21), (202, 22)
   // txn1: abort
   // txn2: SELECT * FROM empty_table2;
@@ -101,7 +91,7 @@ TEST_F(TransactionTest, DISABLED_SimpleInsertRollbackTest) {
 }
 
 // NOLINTNEXTLINE
-TEST_F(TransactionTest, DISABLED_DirtyReadsTest) {
+TEST_F(TransactionTest, DirtyReadsTest) {
   bustub_->GenerateTestTable();
 
   // txn1: INSERT INTO empty_table2 VALUES (200, 20), (201, 21), (202, 22)
