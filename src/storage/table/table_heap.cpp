@@ -138,7 +138,9 @@ void TableHeap::ApplyDelete(const RID &rid, Transaction *txn) {
   // Delete the tuple from the page.
   page->WLatch();
   page->ApplyDelete(rid, txn, log_manager_);
-  lock_manager_->Unlock(txn, rid);
+  /** Commented out to make compatible with p4; This is called only on commit or delete, which consequently unlocks the
+   * tuple; so should be fine */
+  // lock_manager_->Unlock(txn, rid);
   page->WUnlatch();
   buffer_pool_manager_->UnpinPage(page->GetTablePageId(), true);
 }

@@ -17,6 +17,7 @@
 #include <memory>
 #include <string>
 #include <thread>  // NOLINT
+#include <unordered_map>
 #include <unordered_set>
 
 #include "common/config.h"
@@ -104,10 +105,14 @@ class IndexWriteRecord {
  */
 enum class AbortReason {
   LOCK_ON_SHRINKING,
-  UNLOCK_ON_SHRINKING,
   UPGRADE_CONFLICT,
   DEADLOCK,
-  LOCKSHARED_ON_READ_UNCOMMITTED
+  LOCK_SHARED_ON_READ_UNCOMMITTED,
+  TABLE_LOCK_NOT_PRESENT,
+  ATTEMPTED_INTENTION_LOCK_ON_ROW,
+  TABLE_UNLOCKED_BEFORE_UNLOCKING_ROWS,
+  INCOMPATIBLE_UPGRADE,
+  ATTEMPTED_UNLOCK_BUT_NO_LOCK_HELD
 };
 
 /**
@@ -127,16 +132,24 @@ class TransactionAbortException : public std::exception {
       case AbortReason::LOCK_ON_SHRINKING:
         return "Transaction " + std::to_string(txn_id_) +
                " aborted because it can not take locks in the shrinking state\n";
-      case AbortReason::UNLOCK_ON_SHRINKING:
-        return "Transaction " + std::to_string(txn_id_) +
-               " aborted because it can not excute unlock in the shrinking state\n";
       case AbortReason::UPGRADE_CONFLICT:
         return "Transaction " + std::to_string(txn_id_) +
                " aborted because another transaction is already waiting to upgrade its lock\n";
       case AbortReason::DEADLOCK:
         return "Transaction " + std::to_string(txn_id_) + " aborted on deadlock\n";
-      case AbortReason::LOCKSHARED_ON_READ_UNCOMMITTED:
+      case AbortReason::LOCK_SHARED_ON_READ_UNCOMMITTED:
         return "Transaction " + std::to_string(txn_id_) + " aborted on lockshared on READ_UNCOMMITTED\n";
+      case AbortReason::TABLE_LOCK_NOT_PRESENT:
+        return "Transaction " + std::to_string(txn_id_) + " aborted because table lock not present\n";
+      case AbortReason::ATTEMPTED_INTENTION_LOCK_ON_ROW:
+        return "Transaction " + std::to_string(txn_id_) + " aborted because intention lock attempted on row\n";
+      case AbortReason::TABLE_UNLOCKED_BEFORE_UNLOCKING_ROWS:
+        return "Transaction " + std::to_string(txn_id_) +
+               " aborted because table locks dropped before dropping row locks\n";
+      case AbortReason::INCOMPATIBLE_UPGRADE:
+        return "Transaction " + std::to_string(txn_id_) + " aborted because attempted lock upgrade is incompatible\n";
+      case AbortReason::ATTEMPTED_UNLOCK_BUT_NO_LOCK_HELD:
+        return "Transaction " + std::to_string(txn_id_) + " aborted because attempted to unlock but no lock held \n";
     }
     // Todo: Should fail with unreachable.
     return "";
@@ -154,7 +167,14 @@ class Transaction {
         txn_id_(txn_id),
         prev_lsn_(INVALID_LSN),
         shared_lock_set_{new std::unordered_set<RID>},
-        exclusive_lock_set_{new std::unordered_set<RID>} {
+        exclusive_lock_set_{new std::unordered_set<RID>},
+        s_table_lock_set_{new std::unordered_set<table_oid_t>},
+        x_table_lock_set_{new std::unordered_set<table_oid_t>},
+        is_table_lock_set_{new std::unordered_set<table_oid_t>},
+        ix_table_lock_set_{new std::unordered_set<table_oid_t>},
+        six_table_lock_set_{new std::unordered_set<table_oid_t>},
+        s_row_lock_set_{new std::unordered_map<table_oid_t, std::unordered_set<RID>>},
+        x_row_lock_set_{new std::unordered_map<table_oid_t, std::unordered_set<RID>>} {
     // Initialize the sets that will be tracked.
     table_write_set_ = std::make_shared<std::deque<TableWriteRecord>>();
     index_write_set_ = std::make_shared<std::deque<IndexWriteRecord>>();
@@ -218,19 +238,78 @@ class Transaction {
   /** @return the set of resources under a shared lock */
   inline auto GetSharedLockSet() -> std::shared_ptr<std::unordered_set<RID>> { return shared_lock_set_; }
 
+  /** @return the set of rows under a shared lock */
+  inline auto GetSharedRowLockSet() -> std::shared_ptr<std::unordered_map<table_oid_t, std::unordered_set<RID>>> {
+    return s_row_lock_set_;
+  }
+
   /** @return the set of resources under an exclusive lock */
   inline auto GetExclusiveLockSet() -> std::shared_ptr<std::unordered_set<RID>> { return exclusive_lock_set_; }
 
-  /** @return true if rid is shared locked by this transaction */
-  auto IsSharedLocked(const RID &rid) -> bool { return shared_lock_set_->find(rid) != shared_lock_set_->end(); }
+  /** @return the set of rows in under an exclusive lock */
+  inline auto GetExclusiveRowLockSet() -> std::shared_ptr<std::unordered_map<table_oid_t, std::unordered_set<RID>>> {
+    return x_row_lock_set_;
+  }
 
-  /** @return true if rid is exclusively locked by this transaction */
-  auto IsExclusiveLocked(const RID &rid) -> bool {
-    return exclusive_lock_set_->find(rid) != exclusive_lock_set_->end();
+  /** @return the set of resources under a shared lock */
+  inline auto GetSharedTableLockSet() -> std::shared_ptr<std::unordered_set<table_oid_t>> { return s_table_lock_set_; }
+  inline auto GetExclusiveTableLockSet() -> std::shared_ptr<std::unordered_set<table_oid_t>> {
+    return x_table_lock_set_;
+  }
+  inline auto GetIntentionSharedTableLockSet() -> std::shared_ptr<std::unordered_set<table_oid_t>> {
+    return is_table_lock_set_;
+  }
+  inline auto GetIntentionExclusiveTableLockSet() -> std::shared_ptr<std::unordered_set<table_oid_t>> {
+    return ix_table_lock_set_;
+  }
+  inline auto GetSharedIntentionExclusiveTableLockSet() -> std::shared_ptr<std::unordered_set<table_oid_t>> {
+    return six_table_lock_set_;
+  }
+
+  /** @return true if rid (belong to table oid) is shared locked by this transaction */
+  auto IsRowSharedLocked(const table_oid_t &oid, const RID &rid) -> bool {
+    auto row_lock_set = s_row_lock_set_->find(oid);
+    if (row_lock_set == s_row_lock_set_->end()) {
+      return false;
+    }
+    return row_lock_set->second.find(rid) != row_lock_set->second.end();
+  }
+
+  /** @return true if rid (belong to table oid) is exclusive locked by this transaction */
+  auto IsRowExclusiveLocked(const table_oid_t &oid, const RID &rid) -> bool {
+    auto row_lock_set = x_row_lock_set_->find(oid);
+    if (row_lock_set == x_row_lock_set_->end()) {
+      return false;
+    }
+    return row_lock_set->second.find(rid) != row_lock_set->second.end();
+  }
+
+  auto IsTableIntentionSharedLocked(const table_oid_t &oid) -> bool {
+    return is_table_lock_set_->find(oid) != is_table_lock_set_->end();
+  }
+
+  auto IsTableSharedLocked(const table_oid_t &oid) -> bool {
+    return s_table_lock_set_->find(oid) != s_table_lock_set_->end();
+  }
+
+  auto IsTableIntentionExclusiveLocked(const table_oid_t &oid) -> bool {
+    return ix_table_lock_set_->find(oid) != ix_table_lock_set_->end();
+  }
+
+  auto IsTableExclusiveLocked(const table_oid_t &oid) -> bool {
+    return x_table_lock_set_->find(oid) != x_table_lock_set_->end();
+  }
+
+  auto IsTableSharedIntentionExclusiveLocked(const table_oid_t &oid) -> bool {
+    return six_table_lock_set_->find(oid) != six_table_lock_set_->end();
   }
 
   /** @return the current state of the transaction */
   inline auto GetState() -> TransactionState { return state_; }
+
+  inline auto LockTxn() -> void { latch_.lock(); }
+
+  inline auto UnlockTxn() -> void { latch_.unlock(); }
 
   /**
    * Set the state of the transaction.
@@ -264,6 +343,8 @@ class Transaction {
   /** The LSN of the last record written by the transaction. */
   lsn_t prev_lsn_;
 
+  std::mutex latch_;
+
   /** Concurrent index: the pages that were latched during index operation. */
   std::shared_ptr<std::deque<Page *>> page_set_;
   /** Concurrent index: the page IDs that were deleted during index operation.*/
@@ -273,6 +354,17 @@ class Transaction {
   std::shared_ptr<std::unordered_set<RID>> shared_lock_set_;
   /** LockManager: the set of exclusive-locked tuples held by this transaction. */
   std::shared_ptr<std::unordered_set<RID>> exclusive_lock_set_;
+
+  /** LockManager: the set of table locks held by this transaction. */
+  std::shared_ptr<std::unordered_set<table_oid_t>> s_table_lock_set_;
+  std::shared_ptr<std::unordered_set<table_oid_t>> x_table_lock_set_;
+  std::shared_ptr<std::unordered_set<table_oid_t>> is_table_lock_set_;
+  std::shared_ptr<std::unordered_set<table_oid_t>> ix_table_lock_set_;
+  std::shared_ptr<std::unordered_set<table_oid_t>> six_table_lock_set_;
+
+  /** LockManager: the set of row locks held by this transaction. */
+  std::shared_ptr<std::unordered_map<table_oid_t, std::unordered_set<RID>>> s_row_lock_set_;
+  std::shared_ptr<std::unordered_map<table_oid_t, std::unordered_set<RID>>> x_row_lock_set_;
 };
 
 }  // namespace bustub

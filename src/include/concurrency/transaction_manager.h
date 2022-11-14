@@ -90,15 +90,48 @@ class TransactionManager {
    * @param txn the transaction whose locks should be released
    */
   void ReleaseLocks(Transaction *txn) {
-    std::unordered_set<RID> lock_set;
-    for (auto item : *txn->GetExclusiveLockSet()) {
-      lock_set.emplace(item);
+    /** Drop all row locks */
+    txn->LockTxn();
+    std::unordered_map<table_oid_t, std::unordered_set<RID>> row_lock_set;
+    for (const auto &s_row_lock_set : *txn->GetSharedRowLockSet()) {
+      for (auto rid : s_row_lock_set.second) {
+        row_lock_set[s_row_lock_set.first].emplace(rid);
+      }
     }
-    for (auto item : *txn->GetSharedLockSet()) {
-      lock_set.emplace(item);
+    for (const auto &x_row_lock_set : *txn->GetExclusiveRowLockSet()) {
+      for (auto rid : x_row_lock_set.second) {
+        row_lock_set[x_row_lock_set.first].emplace(rid);
+      }
     }
-    for (auto locked_rid : lock_set) {
-      lock_manager_->Unlock(txn, locked_rid);
+
+    /** Drop all table locks */
+    std::unordered_set<table_oid_t> table_lock_set;
+    for (auto oid : *txn->GetSharedTableLockSet()) {
+      table_lock_set.emplace(oid);
+    }
+    for (table_oid_t oid : *(txn->GetIntentionSharedTableLockSet())) {
+      table_lock_set.emplace(oid);
+    }
+    for (auto oid : *txn->GetExclusiveTableLockSet()) {
+      table_lock_set.emplace(oid);
+    }
+    for (auto oid : *txn->GetIntentionExclusiveTableLockSet()) {
+      table_lock_set.emplace(oid);
+    }
+    for (auto oid : *txn->GetSharedIntentionExclusiveTableLockSet()) {
+      table_lock_set.emplace(oid);
+    }
+    txn->UnlockTxn();
+
+    for (const auto &locked_table_row_set : row_lock_set) {
+      table_oid_t oid = locked_table_row_set.first;
+      for (auto rid : locked_table_row_set.second) {
+        lock_manager_->UnlockRow(txn, oid, rid);
+      }
+    }
+
+    for (auto oid : table_lock_set) {
+      lock_manager_->UnlockTable(txn, oid);
     }
   }
 
