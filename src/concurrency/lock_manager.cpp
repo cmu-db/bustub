@@ -18,15 +18,15 @@
 
 namespace bustub {
 
-auto LockManager::LockTable(Transaction *txn, LockMode lock_mode, const table_oid_t &oid) -> bool { return false; }
+auto LockManager::LockTable(Transaction *txn, LockMode lock_mode, const table_oid_t &oid) -> bool { return true; }
 
-auto LockManager::UnlockTable(Transaction *txn, const table_oid_t &oid) -> bool { return false; }
+auto LockManager::UnlockTable(Transaction *txn, const table_oid_t &oid) -> bool { return true; }
 
 auto LockManager::LockRow(Transaction *txn, LockMode lock_mode, const table_oid_t &oid, const RID &rid) -> bool {
-  return false;
+  return true;
 }
 
-auto LockManager::UnlockRow(Transaction *txn, const table_oid_t &oid, const RID &rid) -> bool { return false; }
+auto LockManager::UnlockRow(Transaction *txn, const table_oid_t &oid, const RID &rid) -> bool { return true; }
 
 void LockManager::AddEdge(txn_id_t t1, txn_id_t t2) {}
 
