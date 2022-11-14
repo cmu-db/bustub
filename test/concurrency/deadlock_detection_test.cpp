@@ -31,6 +31,7 @@ TEST(LockManagerDeadlockDetectionTest, DISABLED_EdgeTest) {
 
   // Create txn ids and shuffle
   std::vector<txn_id_t> txn_ids;
+  txn_ids.reserve(num_nodes);
   for (int i = 0; i < num_nodes; i++) {
     txn_ids.push_back(i);
   }
