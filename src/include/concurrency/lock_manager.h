@@ -311,7 +311,9 @@ class LockManager {
 
   std::atomic<bool> enable_cycle_detection_;
   std::thread *cycle_detection_thread_;
-
+  /** Waits-for graph representation. */
+  std::unordered_map<txn_id_t, std::vector<txn_id_t>> waits_for_;
+  std::mutex waits_for_latch_;
 };
 
 }  // namespace bustub

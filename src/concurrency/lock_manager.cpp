@@ -32,9 +32,9 @@ void LockManager::AddEdge(txn_id_t t1, txn_id_t t2) {}
 
 void LockManager::RemoveEdge(txn_id_t t1, txn_id_t t2) {}
 
-bool LockManager::HasCycle(txn_id_t *txn_id) { return false; }
+auto LockManager::HasCycle(txn_id_t *txn_id) -> bool { return false; }
 
-std::vector<std::pair<txn_id_t, txn_id_t>> LockManager::GetEdgeList() {
+auto LockManager::GetEdgeList() -> std::vector<std::pair<txn_id_t, txn_id_t>> {
   std::vector<std::pair<txn_id_t, txn_id_t>> edges(0);
   return edges;
 }
