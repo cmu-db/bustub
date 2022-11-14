@@ -91,7 +91,7 @@ TEST_F(TransactionTest, DISABLED_SimpleInsertRollbackTest) {
 }
 
 // NOLINTNEXTLINE
-TEST_F(TransactionTest, DirtyReadsTest) {
+TEST_F(TransactionTest, DISABLED_DirtyReadsTest) {
   bustub_->GenerateTestTable();
 
   // txn1: INSERT INTO empty_table2 VALUES (200, 20), (201, 21), (202, 22)
