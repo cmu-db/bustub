@@ -27,7 +27,7 @@ void CheckAborted(Transaction *txn) { EXPECT_EQ(txn->GetState(), TransactionStat
 
 void CheckCommitted(Transaction *txn) { EXPECT_EQ(txn->GetState(), TransactionState::COMMITTED); }
 
-void CheckTxnLockSize(Transaction *txn, table_oid_t oid, size_t shared_size, size_t exclusive_size) {
+void CheckTxnRowLockSize(Transaction *txn, table_oid_t oid, size_t shared_size, size_t exclusive_size) {
   EXPECT_EQ((*(txn->GetSharedRowLockSet()))[oid].size(), shared_size);
   EXPECT_EQ((*(txn->GetExclusiveRowLockSet()))[oid].size(), exclusive_size);
 }
@@ -211,29 +211,29 @@ void TwoPLTest1() {
   EXPECT_TRUE(res);
 
   CheckGrowing(txn);
-  CheckTxnLockSize(txn, oid, 1, 0);
+  CheckTxnRowLockSize(txn, oid, 1, 0);
 
   res = lock_mgr.LockRow(txn, LockManager::LockMode::EXCLUSIVE, oid, rid1);
   EXPECT_TRUE(res);
   CheckGrowing(txn);
-  CheckTxnLockSize(txn, oid, 1, 1);
+  CheckTxnRowLockSize(txn, oid, 1, 1);
 
   res = lock_mgr.UnlockRow(txn, oid, rid0);
   EXPECT_TRUE(res);
   CheckShrinking(txn);
-  CheckTxnLockSize(txn, oid, 0, 1);
+  CheckTxnRowLockSize(txn, oid, 0, 1);
 
   try {
     lock_mgr.LockRow(txn, LockManager::LockMode::SHARED, oid, rid0);
   } catch (TransactionAbortException &e) {
     CheckAborted(txn);
-    CheckTxnLockSize(txn, oid, 0, 1);
+    CheckTxnRowLockSize(txn, oid, 0, 1);
   }
 
   // Need to call txn_mgr's abort
   txn_mgr.Abort(txn);
   CheckAborted(txn);
-  CheckTxnLockSize(txn, oid, 0, 0);
+  CheckTxnRowLockSize(txn, oid, 0, 0);
   CheckTableLockSizes(txn, 0, 0, 0, 0, 0);
 
   delete txn;
