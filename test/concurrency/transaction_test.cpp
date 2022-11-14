@@ -62,7 +62,7 @@ void CheckAborted(Transaction *txn) { EXPECT_EQ(txn->GetState(), TransactionStat
 
 void CheckCommitted(Transaction *txn) { EXPECT_EQ(txn->GetState(), TransactionState::COMMITTED); }
 
-void CheckTxnLockSize(Transaction *txn, size_t shared_size, size_t exclusive_size) {
+void CheckTxnRowLockSize(Transaction *txn, size_t shared_size, size_t exclusive_size) {
   EXPECT_EQ(txn->GetSharedLockSet()->size(), shared_size);
   EXPECT_EQ(txn->GetExclusiveLockSet()->size(), exclusive_size);
 }
