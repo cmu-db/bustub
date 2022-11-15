@@ -70,11 +70,10 @@ class TransactionManager {
    * @return the transaction with the given transaction id
    */
   static auto GetTransaction(txn_id_t txn_id) -> Transaction * {
-    TransactionManager::txn_map_mutex.lock_shared();
+    std::shared_lock<std::shared_mutex> l(TransactionManager::txn_map_mutex);
     assert(TransactionManager::txn_map.find(txn_id) != TransactionManager::txn_map.end());
     auto *res = TransactionManager::txn_map[txn_id];
     assert(res != nullptr);
-    TransactionManager::txn_map_mutex.unlock_shared();
     return res;
   }
 

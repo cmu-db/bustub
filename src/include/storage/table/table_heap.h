@@ -97,7 +97,7 @@ class TableHeap {
    * @param txn transaction performing the read
    * @return true if the read was successful (i.e. the tuple exists)
    */
-  auto GetTuple(const RID &rid, Tuple *tuple, Transaction *txn) -> bool;
+  auto GetTuple(const RID &rid, Tuple *tuple, Transaction *txn, bool acquire_read_lock = true) -> bool;
 
   /** @return the begin iterator of this table */
   auto Begin(Transaction *txn) -> TableIterator;

@@ -213,17 +213,19 @@ class BustubInstance {
  public:
   explicit BustubInstance(const std::string &db_file_name);
 
+  BustubInstance();
+
   ~BustubInstance();
 
   /**
    * Execute a SQL query in the BusTub instance.
    */
-  void ExecuteSql(const std::string &sql, ResultWriter &writer);
+  auto ExecuteSql(const std::string &sql, ResultWriter &writer) -> bool;
 
   /**
    * Execute a SQL query in the BusTub instance with provided txn.
    */
-  void ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn);
+  auto ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn) -> bool;
 
   /**
    * FOR TEST ONLY. Generate test tables in this BusTub instance.

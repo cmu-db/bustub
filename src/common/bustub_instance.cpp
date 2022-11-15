@@ -42,12 +42,42 @@ auto BustubInstance::MakeExecutorContext(Transaction *txn) -> std::unique_ptr<Ex
 }
 
 BustubInstance::BustubInstance(const std::string &db_file_name) {
-  // TODO(chi): revisit this when designing the recovery project.
-
   enable_logging = false;
 
   // Storage related.
   disk_manager_ = new DiskManager(db_file_name);
+
+  // Log related.
+  log_manager_ = new LogManager(disk_manager_);
+
+  // We need more frames for GenerateTestTable to work. Therefore, we use 128 instead of the default
+  // buffer pool size specified in `config.h`.
+  try {
+    buffer_pool_manager_ = new BufferPoolManagerInstance(128, disk_manager_, LRUK_REPLACER_K, log_manager_);
+  } catch (NotImplementedException &e) {
+    std::cerr << "BufferPoolManager is not implemented, only mock tables are supported." << std::endl;
+    buffer_pool_manager_ = nullptr;
+  }
+
+  // Transaction (txn) related.
+  lock_manager_ = new LockManager();
+  txn_manager_ = new TransactionManager(lock_manager_, log_manager_);
+
+  // Checkpoint related.
+  checkpoint_manager_ = new CheckpointManager(txn_manager_, log_manager_, buffer_pool_manager_);
+
+  // Catalog.
+  catalog_ = new Catalog(buffer_pool_manager_, lock_manager_, log_manager_);
+
+  // Execution engine.
+  execution_engine_ = new ExecutionEngine(buffer_pool_manager_, txn_manager_, catalog_);
+}
+
+BustubInstance::BustubInstance() {
+  enable_logging = false;
+
+  // Storage related.
+  disk_manager_ = new DiskManagerUnlimitedMemory();
 
   // Log related.
   log_manager_ = new LogManager(disk_manager_);
@@ -142,30 +172,33 @@ see the execution plan of your query.
   WriteOneCell(help, writer);
 }
 
-void BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) {
+auto BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) -> bool {
   auto txn = txn_manager_->Begin();
-  ExecuteSqlTxn(sql, writer, txn);
+  auto result = ExecuteSqlTxn(sql, writer, txn);
   txn_manager_->Commit(txn);
   delete txn;
+  return result;
 }
 
-void BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn) {
+auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn) -> bool {
   if (!sql.empty() && sql[0] == '\\') {
     // Internal meta-commands, like in `psql`.
     if (sql == "\\dt") {
       CmdDisplayTables(writer);
-      return;
+      return true;
     }
     if (sql == "\\di") {
       CmdDisplayIndices(writer);
-      return;
+      return true;
     }
     if (sql == "\\help") {
       CmdDisplayHelp(writer);
-      return;
+      return true;
     }
     throw Exception(fmt::format("unsupported internal command: {}", sql));
   }
+
+  bool is_successful = true;
 
   std::shared_lock<std::shared_mutex> l(catalog_lock_);
   bustub::Binder binder(*catalog_);
@@ -290,7 +323,7 @@ void BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
     // Execute the query.
     auto exec_ctx = MakeExecutorContext(txn);
     std::vector<Tuple> result_set{};
-    execution_engine_->Execute(optimized_plan, &result_set, txn, exec_ctx.get());
+    is_successful &= execution_engine_->Execute(optimized_plan, &result_set, txn, exec_ctx.get());
 
     // Return the result set as a vector of string.
     auto schema = planner.plan_->OutputSchema();
@@ -313,6 +346,8 @@ void BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
     }
     writer.EndTable();
   }
+
+  return is_successful;
 }
 
 /**
