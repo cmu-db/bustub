@@ -245,7 +245,7 @@ auto main(int argc, char **argv) -> int {
   {
     auto txn = bustub->txn_manager_->Begin(nullptr, bustub::IsolationLevel::REPEATABLE_READ);
     auto writer = bustub::SimpleStreamWriter(std::cerr);
-    std::string query = fmt::format("SELECT count(*) FROM terrier");
+    std::string query = fmt::format("SELECT count(*) FROM nft");
     bustub->ExecuteSqlTxn(query, writer, txn);
   }
 
