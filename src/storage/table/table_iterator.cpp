@@ -12,6 +12,8 @@
 
 #include <cassert>
 
+#include "common/exception.h"
+#include "concurrency/transaction.h"
 #include "storage/table/table_heap.h"
 
 namespace bustub {
@@ -19,7 +21,9 @@ namespace bustub {
 TableIterator::TableIterator(TableHeap *table_heap, RID rid, Transaction *txn)
     : table_heap_(table_heap), tuple_(new Tuple(rid)), txn_(txn) {
   if (rid.GetPageId() != INVALID_PAGE_ID) {
-    table_heap_->GetTuple(tuple_->rid_, tuple_, txn_);
+    if (!table_heap_->GetTuple(tuple_->rid_, tuple_, txn_)) {
+      throw bustub::Exception("read non-existing tuple");
+    }
   }
 }
 
@@ -36,9 +40,9 @@ auto TableIterator::operator->() -> Tuple * {
 auto TableIterator::operator++() -> TableIterator & {
   BufferPoolManager *buffer_pool_manager = table_heap_->buffer_pool_manager_;
   auto cur_page = static_cast<TablePage *>(buffer_pool_manager->FetchPage(tuple_->rid_.GetPageId()));
-  cur_page->RLatch();
-  assert(cur_page != nullptr);  // all pages are pinned
+  BUSTUB_ENSURE(cur_page != nullptr, "BPM full");  // all pages are pinned
 
+  cur_page->RLatch();
   RID next_tuple_rid;
   if (!cur_page->GetNextTupleRid(tuple_->rid_,
                                  &next_tuple_rid)) {  // end of this page
@@ -56,7 +60,13 @@ auto TableIterator::operator++() -> TableIterator & {
   tuple_->rid_ = next_tuple_rid;
 
   if (*this != table_heap_->End()) {
-    table_heap_->GetTuple(tuple_->rid_, tuple_, txn_);
+    // DO NOT ACQUIRE READ LOCK twice in a single thread otherwise it may deadlock.
+    // See https://users.rust-lang.org/t/how-bad-is-the-potential-deadlock-mentioned-in-rwlocks-document/67234
+    if (!table_heap_->GetTuple(tuple_->rid_, tuple_, txn_, false)) {
+      cur_page->RUnlatch();
+      buffer_pool_manager->UnpinPage(cur_page->GetTablePageId(), false);
+      throw bustub::Exception("read non-existing tuple");
+    }
   }
   // release until copy the tuple
   cur_page->RUnlatch();

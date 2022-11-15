@@ -12,12 +12,13 @@
 
 #include "concurrency/transaction_manager.h"
 
+#include <mutex>  // NOLINT
+#include <shared_mutex>
 #include <unordered_map>
 #include <unordered_set>
 
 #include "catalog/catalog.h"
 #include "storage/table/table_heap.h"
-
 namespace bustub {
 
 std::unordered_map<txn_id_t, Transaction *> TransactionManager::txn_map = {};
@@ -30,9 +31,15 @@ auto TransactionManager::Begin(Transaction *txn, IsolationLevel isolation_level)
   if (txn == nullptr) {
     txn = new Transaction(next_txn_id_++, isolation_level);
   }
-  txn_map_mutex.lock();
+
+  if (enable_logging) {
+    LogRecord record = LogRecord(txn->GetTransactionId(), txn->GetPrevLSN(), LogRecordType::BEGIN);
+    lsn_t lsn = log_manager_->AppendLogRecord(&record);
+    txn->SetPrevLSN(lsn);
+  }
+
+  std::unique_lock<std::shared_mutex> l(txn_map_mutex);
   txn_map[txn->GetTransactionId()] = txn;
-  txn_map_mutex.unlock();
   return txn;
 }
 
@@ -43,7 +50,7 @@ void TransactionManager::Commit(Transaction *txn) {
   auto write_set = txn->GetWriteSet();
   while (!write_set->empty()) {
     auto &item = write_set->back();
-    auto table = item.table_;
+    auto *table = item.table_;
     if (item.wtype_ == WType::DELETE) {
       // Note that this also releases the lock when holding the page latch.
       table->ApplyDelete(item.rid_, txn);
@@ -64,7 +71,7 @@ void TransactionManager::Abort(Transaction *txn) {
   auto table_write_set = txn->GetWriteSet();
   while (!table_write_set->empty()) {
     auto &item = table_write_set->back();
-    auto table = item.table_;
+    auto *table = item.table_;
     if (item.wtype_ == WType::DELETE) {
       table->RollbackDelete(item.rid_, txn);
     } else if (item.wtype_ == WType::INSERT) {
@@ -80,7 +87,7 @@ void TransactionManager::Abort(Transaction *txn) {
   auto index_write_set = txn->GetIndexWriteSet();
   while (!index_write_set->empty()) {
     auto &item = index_write_set->back();
-    auto catalog = item.catalog_;
+    auto *catalog = item.catalog_;
     // Metadata identifying the table that should be deleted from.
     TableInfo *table_info = catalog->GetTable(item.table_oid_);
     IndexInfo *index_info = catalog->GetIndex(item.index_oid_);

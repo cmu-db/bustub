@@ -13,6 +13,7 @@
 #include <cassert>
 
 #include "common/logger.h"
+#include "fmt/format.h"
 #include "storage/table/table_heap.h"
 
 namespace bustub {
@@ -31,9 +32,7 @@ TableHeap::TableHeap(BufferPoolManager *buffer_pool_manager, LockManager *lock_m
   auto first_page = reinterpret_cast<TablePage *>(buffer_pool_manager_->NewPage(&first_page_id_));
   BUSTUB_ASSERT(first_page != nullptr,
                 "Couldn't create a page for the table heap. Have you completed the buffer pool manager project?");
-  first_page->WLatch();
   first_page->Init(first_page_id_, BUSTUB_PAGE_SIZE, INVALID_LSN, log_manager_, txn);
-  first_page->WUnlatch();
   buffer_pool_manager_->UnpinPage(first_page_id_, true);
 }
 
@@ -50,18 +49,19 @@ auto TableHeap::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn) -> b
   }
 
   cur_page->WLatch();
+
   // Insert into the first page with enough space. If no such page exists, create a new page and insert into that.
   // INVARIANT: cur_page is WLatched if you leave the loop normally.
   while (!cur_page->InsertTuple(tuple, rid, txn, lock_manager_, log_manager_)) {
     auto next_page_id = cur_page->GetNextPageId();
     // If the next page is a valid page,
     if (next_page_id != INVALID_PAGE_ID) {
+      auto next_page = static_cast<TablePage *>(buffer_pool_manager_->FetchPage(next_page_id));
+      next_page->WLatch();
       // Unlatch and unpin the current page.
       cur_page->WUnlatch();
       buffer_pool_manager_->UnpinPage(cur_page->GetTablePageId(), false);
-      // And repeat the process with the next page.
-      cur_page = static_cast<TablePage *>(buffer_pool_manager_->FetchPage(next_page_id));
-      cur_page->WLatch();
+      cur_page = next_page;
     } else {
       // Otherwise we have run out of valid pages. We need to create a new page.
       auto new_page = static_cast<TablePage *>(buffer_pool_manager_->NewPage(&next_page_id));
@@ -156,7 +156,7 @@ void TableHeap::RollbackDelete(const RID &rid, Transaction *txn) {
   buffer_pool_manager_->UnpinPage(page->GetTablePageId(), true);
 }
 
-auto TableHeap::GetTuple(const RID &rid, Tuple *tuple, Transaction *txn) -> bool {
+auto TableHeap::GetTuple(const RID &rid, Tuple *tuple, Transaction *txn, bool acquire_read_lock) -> bool {
   // Find the page which contains the tuple.
   auto page = static_cast<TablePage *>(buffer_pool_manager_->FetchPage(rid.GetPageId()));
   // If the page could not be found, then abort the transaction.
@@ -165,9 +165,13 @@ auto TableHeap::GetTuple(const RID &rid, Tuple *tuple, Transaction *txn) -> bool
     return false;
   }
   // Read the tuple from the page.
-  page->RLatch();
+  if (acquire_read_lock) {
+    page->RLatch();
+  }
   bool res = page->GetTuple(rid, tuple, txn, lock_manager_);
-  page->RUnlatch();
+  if (acquire_read_lock) {
+    page->RUnlatch();
+  }
   buffer_pool_manager_->UnpinPage(rid.GetPageId(), false);
   return res;
 }
