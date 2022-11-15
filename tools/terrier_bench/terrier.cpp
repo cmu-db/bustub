@@ -247,6 +247,8 @@ auto main(int argc, char **argv) -> int {
     auto writer = bustub::SimpleStreamWriter(std::cerr);
     std::string query = fmt::format("SELECT count(*) FROM nft");
     bustub->ExecuteSqlTxn(query, writer, txn);
+    bustub->txn_manager_->Commit(txn);
+    delete txn;
   }
 
   return 0;
