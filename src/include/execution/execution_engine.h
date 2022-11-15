@@ -21,6 +21,7 @@
 #include "execution/executor_factory.h"
 #include "execution/plans/abstract_plan.h"
 #include "storage/table/tuple.h"
+
 namespace bustub {
 
 /**
@@ -47,36 +48,53 @@ class ExecutionEngine {
    * @param exec_ctx The executor context in which the query executes
    * @return `true` if execution of the query plan succeeds, `false` otherwise
    */
+  // NOLINTNEXTLINE
   auto Execute(const AbstractPlanNodeRef &plan, std::vector<Tuple> *result_set, Transaction *txn,
                ExecutorContext *exec_ctx) -> bool {
-    // Construct and executor for the plan
+    BUSTUB_ASSERT((txn == exec_ctx->GetTransaction()), "Broken Invariant");
+
+    // Construct the executor for the abstract plan node
     auto executor = ExecutorFactory::CreateExecutor(exec_ctx, plan);
 
-    // Prepare the root executor
-    executor->Init();
+    // Initialize the executor
+    auto executor_succeeded = true;
 
-    // Execute the query plan
     try {
-      Tuple tuple;
-      RID rid;
-      while (executor->Next(&tuple, &rid)) {
-        if (result_set != nullptr) {
-          result_set->push_back(tuple);
-        }
+      executor->Init();
+      PollExecutor(executor.get(), plan, result_set);
+    } catch (const Exception &ex) {
+#ifndef NDEBUG
+      LOG_ERROR("Error Encountered in Executor Execution: %s", ex.what());
+#endif
+      executor_succeeded = false;
+      if (result_set != nullptr) {
+        result_set->clear();
       }
-    } catch (Exception &e) {
-      // TODO(student): handle exceptions
     }
 
-    return true;
+    return executor_succeeded;
   }
 
  private:
-  /** The buffer pool manager used during query execution */
+  /**
+   * Poll the executor until exhausted, or exception escapes.
+   * @param executor The root executor
+   * @param plan The plan to execute
+   * @param result_set The tuple result set
+   */
+  static void PollExecutor(AbstractExecutor *executor, const AbstractPlanNodeRef &plan,
+                           std::vector<Tuple> *result_set) {
+    RID rid{};
+    Tuple tuple{};
+    while (executor->Next(&tuple, &rid)) {
+      if (result_set != nullptr) {
+        result_set->push_back(tuple);
+      }
+    }
+  }
+
   [[maybe_unused]] BufferPoolManager *bpm_;
-  /** The transaction manager used during query execution */
   [[maybe_unused]] TransactionManager *txn_mgr_;
-  /** The catalog used during query execution */
   [[maybe_unused]] Catalog *catalog_;
 };
 
