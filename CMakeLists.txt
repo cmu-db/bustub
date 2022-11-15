@@ -345,6 +345,10 @@ add_custom_target(submit-p3
 set(P4_FILES
         "src/include/concurrency/lock_manager.h"
         "src/concurrency/lock_manager.cpp"
+        "src/include/execution/executors/update_executor.h"
+        "src/execution/update_executor.cpp"
+        "src/include/execution/plans/index_scan_plan.h"
+        "tools/terrier_bench/terrier_bench_config.h"
         ${P3_FILES}
         )
 
