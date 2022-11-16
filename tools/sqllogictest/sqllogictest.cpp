@@ -1,6 +1,7 @@
 #include <fstream>
 #include <ios>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -145,6 +146,7 @@ auto main(int argc, char **argv) -> int {  // NOLINT
   program.add_argument("file").help("the sqllogictest file to run");
   program.add_argument("--verbose").help("increase output verbosity").default_value(false).implicit_value(true);
   program.add_argument("-d", "--diff").help("write diff file").default_value(false).implicit_value(true);
+  program.add_argument("--in-memory").help("use in-memory backend").default_value(false).implicit_value(true);
 
   try {
     program.parse_args(argc, argv);
@@ -169,7 +171,14 @@ auto main(int argc, char **argv) -> int {  // NOLINT
 
   auto result = bustub::SQLLogicTestParser::Parse(script);
 
-  auto bustub = std::make_unique<bustub::BustubInstance>("test.db");
+  std::unique_ptr<bustub::BustubInstance> bustub;
+
+  if (program.get<bool>("--in-memory")) {
+    bustub = std::make_unique<bustub::BustubInstance>();
+  } else {
+    bustub = std::make_unique<bustub::BustubInstance>("test.db");
+  }
+
   bustub->GenerateMockTable();
 
   if (bustub->buffer_pool_manager_ != nullptr) {
