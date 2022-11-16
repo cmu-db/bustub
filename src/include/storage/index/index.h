@@ -154,7 +154,7 @@ class Index {
   /**
    * Insert an entry into the index.
    * @param key The index key
-   * @param rid The RID associated with the key (unused)
+   * @param rid The RID associated with the key
    * @param transaction The transaction context
    */
   virtual void InsertEntry(const Tuple &key, RID rid, Transaction *transaction) = 0;
