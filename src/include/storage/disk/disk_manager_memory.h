@@ -23,6 +23,7 @@
 
 #include "common/config.h"
 #include "common/exception.h"
+#include "common/logger.h"
 #include "storage/disk/disk_manager.h"
 
 namespace bustub {
@@ -90,11 +91,13 @@ class DiskManagerUnlimitedMemory : public DiskManager {
    */
   void ReadPage(page_id_t page_id, char *page_data) override {
     std::unique_lock<std::mutex> l(mutex_);
-    if (page_id >= static_cast<int>(data_.size())) {
-      throw bustub::Exception("page not exist");
+    if (page_id >= static_cast<int>(data_.size()) || page_id < 0) {
+      LOG_WARN("page not exist");
+      return;
     }
     if (data_[page_id] == nullptr) {
-      throw bustub::Exception("page not exist");
+      LOG_WARN("page not exist");
+      return;
     }
     std::shared_ptr<ProtectedPage> ptr = data_[page_id];
     std::shared_lock<std::shared_mutex> l_page(ptr->second);
