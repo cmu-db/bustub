@@ -155,7 +155,7 @@ class TrieNode {
 };
 
 /**
- * TrieNodeWithValue is a node that mark the ending of a key, and it can
+ * TrieNodeWithValue is a node that marks the ending of a key, and it can
  * hold a value of any type T.
  */
 template <typename T>
@@ -191,7 +191,7 @@ class TrieNodeWithValue : public TrieNode {
    * @brief Construct a new TrieNodeWithValue. This is used when a new terminal node is constructed.
    *
    * You should:
-   * 1) Invoke the constructor for TrieNode with given key_char.
+   * 1) Invoke the constructor for TrieNode with the given key_char.
    * 2) Set value_ for this node.
    * 3) set is_end_ to true.
    *
@@ -214,7 +214,7 @@ class TrieNodeWithValue : public TrieNode {
 };
 
 /**
- * Trie is a concurrent key-value store. Each key is string and its corresponding
+ * Trie is a concurrent key-value store. Each key is a string and its corresponding
  * value can be any type.
  */
 class Trie {
@@ -238,9 +238,9 @@ class Trie {
    *
    * @brief Insert key-value pair into the trie.
    *
-   * If key is empty string, return false immediately.
+   * If the key is an empty string, return false immediately.
    *
-   * If key alreadys exists, return false. Duplicated keys are not allowed and
+   * If the key already exists, return false. Duplicated keys are not allowed and
    * you should never overwrite value of an existing key.
    *
    * When you reach the ending character of a key:
@@ -249,15 +249,15 @@ class Trie {
    * 2. If the terminal node is a TrieNode, then convert it into TrieNodeWithValue by
    * invoking the appropriate constructor.
    * 3. If it is already a TrieNodeWithValue,
-   * then insertion fails and return false. Do not overwrite existing data with new data.
+   * then insertion fails and returns false. Do not overwrite existing data with new data.
    *
    * You can quickly check whether a TrieNode pointer holds TrieNode or TrieNodeWithValue
    * by checking the is_end_ flag. If is_end_ == false, then it points to TrieNode. If
    * is_end_ == true, it points to TrieNodeWithValue.
    *
-   * @param key Key used to traverse the trie and find correct node
+   * @param key Key used to traverse the trie and find the correct node
    * @param value Value to be inserted
-   * @return True if insertion succeeds, false if key already exists
+   * @return True if insertion succeeds, false if the key already exists
    */
   template <typename T>
   bool Insert(const std::string &key, T value) {
@@ -275,11 +275,11 @@ class Trie {
    * 1) Find the terminal node for the given key.
    * 2) If this terminal node does not have any children, remove it from its
    * parent's children_ map.
-   * 3) Recursively remove nodes that have no children and is not terminal node
+   * 3) Recursively remove nodes that have no children and are not terminal node
    * of another key.
    *
-   * @param key Key used to traverse the trie and find correct node
-   * @return True if key exists and is removed, false otherwise
+   * @param key Key used to traverse the trie and find the correct node
+   * @return True if the key exists and is removed, false otherwise
    */
   bool Remove(const std::string &key) { return false; }
 
@@ -289,7 +289,7 @@ class Trie {
    * @brief Get the corresponding value of type T given its key.
    * If key is empty, set success to false.
    * If key does not exist in trie, set success to false.
-   * If given type T is not the same as the value type stored in TrieNodeWithValue
+   * If the given type T is not the same as the value type stored in TrieNodeWithValue
    * (ie. GetValue<int> is called but terminal node holds std::string),
    * set success to false.
    *
@@ -297,7 +297,7 @@ class Trie {
    * the terminal TrieNode to TrieNodeWithValue<T>. If the casted result
    * is not nullptr, then type T is the correct type.
    *
-   * @param key Key used to traverse the trie and find correct node
+   * @param key Key used to traverse the trie and find the correct node
    * @param success Whether GetValue is successful or not
    * @return Value of type T if type matches
    */
