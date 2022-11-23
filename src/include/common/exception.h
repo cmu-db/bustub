@@ -47,6 +47,8 @@ enum class ExceptionType {
   OUT_OF_MEMORY = 9,
   /** Method not implemented. */
   NOT_IMPLEMENTED = 11,
+  /** Execution exception. */
+  EXECUTION = 12,
 };
 
 class Exception : public std::runtime_error {
@@ -115,6 +117,12 @@ class NotImplementedException : public Exception {
  public:
   NotImplementedException() = delete;
   explicit NotImplementedException(const std::string &msg) : Exception(ExceptionType::NOT_IMPLEMENTED, msg) {}
+};
+
+class ExecutionException : public Exception {
+ public:
+  ExecutionException() = delete;
+  explicit ExecutionException(const std::string &msg) : Exception(ExceptionType::EXECUTION, msg) {}
 };
 
 }  // namespace bustub

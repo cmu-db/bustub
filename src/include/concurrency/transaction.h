@@ -106,7 +106,6 @@ class IndexWriteRecord {
 enum class AbortReason {
   LOCK_ON_SHRINKING,
   UPGRADE_CONFLICT,
-  DEADLOCK,
   LOCK_SHARED_ON_READ_UNCOMMITTED,
   TABLE_LOCK_NOT_PRESENT,
   ATTEMPTED_INTENTION_LOCK_ON_ROW,
@@ -135,8 +134,6 @@ class TransactionAbortException : public std::exception {
       case AbortReason::UPGRADE_CONFLICT:
         return "Transaction " + std::to_string(txn_id_) +
                " aborted because another transaction is already waiting to upgrade its lock\n";
-      case AbortReason::DEADLOCK:
-        return "Transaction " + std::to_string(txn_id_) + " aborted on deadlock\n";
       case AbortReason::LOCK_SHARED_ON_READ_UNCOMMITTED:
         return "Transaction " + std::to_string(txn_id_) + " aborted on lockshared on READ_UNCOMMITTED\n";
       case AbortReason::TABLE_LOCK_NOT_PRESENT:

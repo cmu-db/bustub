@@ -16,6 +16,7 @@
 
 #include "buffer/buffer_pool_manager.h"
 #include "catalog/catalog.h"
+#include "concurrency/transaction.h"
 #include "concurrency/transaction_manager.h"
 #include "execution/executor_context.h"
 #include "execution/executor_factory.h"
@@ -62,7 +63,7 @@ class ExecutionEngine {
     try {
       executor->Init();
       PollExecutor(executor.get(), plan, result_set);
-    } catch (const Exception &ex) {
+    } catch (const ExecutionException &ex) {
 #ifndef NDEBUG
       LOG_ERROR("Error Encountered in Executor Execution: %s", ex.what());
 #endif
