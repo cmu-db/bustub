@@ -758,11 +758,14 @@ auto Binder::BindBoolExpr(duckdb_libpgquery::PGBoolExpr *root) -> std::unique_pt
 
       auto exprs = BindExpressionList(root->args);
       if (exprs.size() <= 1) {
-        throw bustub::Exception("AND should have at least 1 arg");
+        if (root->boolop == duckdb_libpgquery::PG_AND_EXPR) {
+          throw bustub::Exception("AND should have at least 1 arg");
+        }
+        throw bustub::Exception("OR should have at least 1 arg");
       }
-      auto expr = std::make_unique<BoundBinaryOp>("and", std::move(exprs[0]), std::move(exprs[1]));
+      auto expr = std::make_unique<BoundBinaryOp>(op_name, std::move(exprs[0]), std::move(exprs[1]));
       for (size_t i = 2; i < exprs.size(); i++) {
-        expr = std::make_unique<BoundBinaryOp>("and", std::move(expr), std::move(exprs[i]));
+        expr = std::make_unique<BoundBinaryOp>(op_name, std::move(expr), std::move(exprs[i]));
       }
       return expr;
     }
