@@ -82,7 +82,7 @@ class ExtendibleHashTable : public HashTable<K, V> {
    * TODO(P1): Add implementation
    *
    * @brief Insert the given key-value pair into the hash table.
-   * If a key already exists, the value should be updated.
+   * If a key already exists, the value should be updated and return true.
    * If the bucket is full and can't be inserted, do the following steps before retrying:
    *    1. If the local depth of the bucket is equal to the global depth,
    *        increment the global depth and double the size of the directory.
@@ -91,6 +91,7 @@ class ExtendibleHashTable : public HashTable<K, V> {
    *
    * @param key The key to be inserted.
    * @param value The value to be inserted.
+   * @return True if the key is inserted, false otherwise.
    */
   auto Insert(const K &key, const V &value) -> bool override;
 
