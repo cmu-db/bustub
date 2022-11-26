@@ -92,7 +92,7 @@ class ExtendibleHashTable : public HashTable<K, V> {
    * @param key The key to be inserted.
    * @param value The value to be inserted.
    */
-  void Insert(const K &key, const V &value) override;
+  auto Insert(const K &key, const V &value) -> bool override;
 
   /**
    *
