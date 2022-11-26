@@ -75,7 +75,7 @@ auto ExtendibleHashTable<K, V>::Remove(const K &key) -> bool {
 }
 
 template <typename K, typename V>
-void ExtendibleHashTable<K, V>::Insert(const K &key, const V &value) {
+auto ExtendibleHashTable<K, V>::Insert(const K &key, const V &value) -> bool {
   UNREACHABLE("not implemented");
 }
 
