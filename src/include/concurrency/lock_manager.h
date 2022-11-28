@@ -149,7 +149,7 @@ class LockManager {
    *    A lock request being upgraded should be prioritised over other waiting lock requests on the same resource.
    *
    *    While upgrading, only the following transitions should be allowed:
-   *        IS -> [S, X, SIX]
+   *        IS -> [S, X, IX, SIX]
    *        S -> [X, SIX]
    *        IX -> [X, SIX]
    *        SIX -> [X]
