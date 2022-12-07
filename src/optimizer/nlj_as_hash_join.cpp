@@ -40,7 +40,7 @@ auto Optimizer::OptimizeNLJAsHashJoin(const AbstractPlanNodeRef &plan) -> Abstra
             auto left_expr_tuple_0 =
                 std::make_shared<ColumnValueExpression>(0, left_expr->GetColIdx(), left_expr->GetReturnType());
             auto right_expr_tuple_0 =
-                std::make_shared<ColumnValueExpression>(0, right_expr->GetColIdx(), right_expr->GetReturnType());
+                std::make_shared<ColumnValueExpression>(1, right_expr->GetColIdx(), right_expr->GetReturnType());
             // Now it's in form of <column_expr> = <column_expr>. Let's check if one of them is from the left table, and
             // the other is from the right table.
             if (left_expr->GetTupleIdx() == 0 && right_expr->GetTupleIdx() == 1) {
