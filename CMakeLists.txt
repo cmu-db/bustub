@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)              # Compile as C++17.
 set(CMAKE_CXX_STANDARD_REQUIRED ON)     # Require C++17 support.
 
 project(BusTub
-        VERSION 2022.8
+        VERSION 2023.1
         DESCRIPTION "The BusTub Relational Database Management System (Educational) @ https://github.com/cmu-db/bustub"
         LANGUAGES C CXX
         )
@@ -32,19 +32,19 @@ endif ()
 
 # Expected directory structure.
 set(BUSTUB_BUILD_SUPPORT_DIR "${CMAKE_SOURCE_DIR}/build_support")
-set(BUSTUB_CLANG_SEARCH_PATH "/usr/local/bin" "/usr/bin" "/usr/local/opt/llvm/bin" "/usr/local/opt/llvm@12/bin"
-        "/usr/local/Cellar/llvm/12.0.1/bin" "/opt/homebrew/opt/llvm@12/bin/")
+set(BUSTUB_CLANG_SEARCH_PATH "/usr/local/bin" "/usr/bin" "/usr/local/opt/llvm/bin" "/usr/local/opt/llvm@14/bin"
+        "/opt/homebrew/opt/llvm@14/bin/")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    if (CMAKE_CXX_COMPILER_VERSION MATCHES "^12.")
+    if (CMAKE_CXX_COMPILER_VERSION MATCHES "^14.")
         message(STATUS "You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
     else ()
-        message(WARNING "!! We recommend that you use clang-12 for developing BusTub. You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, a different version.")
+        message(WARNING "!! We recommend that you use clang-14 for developing BusTub. You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, a different version.")
     endif ()
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     message(STATUS "You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 else ()
-    message(WARNING "!! We recommend that you use clang-12 for developing BusTub. You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, which is not clang.")
+    message(WARNING "!! We recommend that you use clang-14 for developing BusTub. You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, which is not clang.")
 endif ()
 
 ######################################################################################################################
@@ -58,7 +58,7 @@ enable_testing()
 
 # attempt to find the binary if user did not specify
 find_program(CLANG_FORMAT_BIN
-        NAMES clang-format clang-format-12
+        NAMES clang-format clang-format-14
         HINTS ${BUSTUB_CLANG_SEARCH_PATH})
 
 if ("${CLANG_FORMAT_BIN}" STREQUAL "CLANG_FORMAT_BIN-NOTFOUND")
@@ -69,7 +69,7 @@ endif ()
 
 # attempt to find the binary if user did not specify
 find_program(CLANG_TIDY_BIN
-        NAMES clang-tidy clang-tidy-12
+        NAMES clang-tidy clang-tidy-14
         HINTS ${BUSTUB_CLANG_SEARCH_PATH})
 
 if ("${CLANG_TIDY_BIN}" STREQUAL "CLANG_TIDY_BIN-NOTFOUND")
@@ -82,7 +82,7 @@ endif ()
 
 
 find_program(CLANG_APPLY_REPLACEMENTS_BIN
-        NAMES clang-apply-replacements clang-apply-replacements-12
+        NAMES clang-apply-replacements clang-apply-replacements-14
         HINTS ${BUSTUB_CLANG_SEARCH_PATH})
 
 if ("${CLANG_APPLY_REPLACEMENTS_BIN}" STREQUAL "CLANG_APPLY_REPLACEMENTS_BIN-NOTFOUND")
