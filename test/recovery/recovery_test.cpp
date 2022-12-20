@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include "buffer/buffer_pool_manager_instance.h"
+#include "buffer/buffer_pool_manager.h"
 #include "common/bustub_instance.h"
 #include "common/config.h"
 #include "concurrency/lock_manager.h"
@@ -258,7 +258,7 @@ TEST_F(RecoveryTest, DISABLED_CheckpointTest) {
   bustub_instance->checkpoint_manager_->EndCheckpoint();
 
   // Hacky
-  Page *pages = dynamic_cast<BufferPoolManagerInstance *>(bustub_instance->buffer_pool_manager_)->GetPages();
+  Page *pages = dynamic_cast<BufferPoolManager *>(bustub_instance->buffer_pool_manager_)->GetPages();
   size_t pool_size = bustub_instance->buffer_pool_manager_->GetPoolSize();
 
   // make sure that all pages in the buffer pool are marked as non-dirty
