@@ -107,7 +107,7 @@ auto HASH_TABLE_TYPE::GetGlobalDepth() -> uint32_t {
   table_latch_.RLock();
   HashTableDirectoryPage *dir_page = FetchDirectoryPage();
   uint32_t global_depth = dir_page->GetGlobalDepth();
-  assert(buffer_pool_manager_->UnpinPage(directory_page_id_, false, nullptr));
+  assert(buffer_pool_manager_->UnpinPage(directory_page_id_, false));
   table_latch_.RUnlock();
   return global_depth;
 }
@@ -120,7 +120,7 @@ void HASH_TABLE_TYPE::VerifyIntegrity() {
   table_latch_.RLock();
   HashTableDirectoryPage *dir_page = FetchDirectoryPage();
   dir_page->VerifyIntegrity();
-  assert(buffer_pool_manager_->UnpinPage(directory_page_id_, false, nullptr));
+  assert(buffer_pool_manager_->UnpinPage(directory_page_id_, false));
   table_latch_.RUnlock();
 }
 
