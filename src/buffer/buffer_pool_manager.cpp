@@ -2,7 +2,7 @@
 //
 //                         BusTub
 //
-// buffer_pool_manager_instance.cpp
+// buffer_pool_manager.cpp
 //
 // Identification: src/buffer/buffer_pool_manager.cpp
 //
@@ -33,7 +33,7 @@ BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager
   // TODO(students): remove this line after you have implemented the buffer pool manager
   throw NotImplementedException(
       "BufferPoolManager is not implemented yet. If you have finished implementing BPM, please remove the throw "
-      "exception line in `buffer_pool_manager_instance.cpp`.");
+      "exception line in `buffer_pool_manager.cpp`.");
 }
 
 BufferPoolManager::~BufferPoolManager() {
