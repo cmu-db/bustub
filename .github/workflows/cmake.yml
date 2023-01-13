@@ -23,48 +23,24 @@ jobs:
               os: "ubuntu-22.04",
               cc: "/usr/bin/gcc",
               cxx: "/usr/bin/g++",
-              format: "/usr/bin/clang-format-12",
-              tidy: "/usr/bin/clang-tidy-12",
-            }
-          - {
-              name: "Ubuntu 20.04 GCC",
-              os: "ubuntu-20.04",
-              cc: "/usr/bin/gcc",
-              cxx: "/usr/bin/g++",
-              format: "/usr/bin/clang-format-12",
-              tidy: "/usr/bin/clang-tidy-12",
+              format: "/usr/bin/clang-format-14",
+              tidy: "/usr/bin/clang-tidy-14",
             }
           - {
               name: "Ubuntu 22.04 Clang",
               os: "ubuntu-22.04",
-              cc: "/usr/bin/clang-12",
-              cxx: "/usr/bin/clang++-12",
-              format: "/usr/bin/clang-format-12",
-              tidy: "/usr/bin/clang-tidy-12",
-            }
-          - {
-              name: "Ubuntu 20.04 Clang",
-              os: "ubuntu-20.04",
-              cc: "/usr/bin/clang-12",
-              cxx: "/usr/bin/clang++-12",
-              format: "/usr/bin/clang-format-12",
-              tidy: "/usr/bin/clang-tidy-12",
-            }
-          - {
-              name: "macOS 11 (Big Sur) AppleClang",
-              os: macos-11,
-              cc: "/usr/bin/clang",
-              cxx: "/usr/bin/clang++",
-              format: "/usr/local/opt/llvm@12/bin/clang-format",
-              tidy: "/usr/local/opt/llvm@12/bin/clang-tidy",
+              cc: "/usr/bin/clang-14",
+              cxx: "/usr/bin/clang++-14",
+              format: "/usr/bin/clang-format-14",
+              tidy: "/usr/bin/clang-tidy-14",
             }
           - {
               name: "macOS 12 (Monterey) AppleClang",
               os: macos-12,
               cc: "/usr/bin/clang",
               cxx: "/usr/bin/clang++",
-              format: "/usr/local/opt/llvm@12/bin/clang-format",
-              tidy: "/usr/local/opt/llvm@12/bin/clang-tidy",
+              format: "/usr/local/opt/llvm@14/bin/clang-format",
+              tidy: "/usr/local/opt/llvm@14/bin/clang-tidy",
             }
     steps:
       - uses: actions/checkout@v2
@@ -98,7 +74,6 @@ jobs:
         run: make check-lint
 
       - name: Check Clang Tidy
-        if: matrix.config.os == 'macos-12' || matrix.config.os == 'ubuntu-22.04'
         working-directory: ${{github.workspace}}/build
         run: make check-clang-tidy
 

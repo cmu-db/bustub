@@ -7,8 +7,6 @@
 ## build and run the DBMS.
 ##
 ## Supported environments:
-##  * Ubuntu 18.04 (x86-64)
-##  * Ubuntu 20.04 (x86-64)
 ##  * Ubuntu 22.04 (x86-64)
 ##  * macOS 11 Big Sur (x86-64 or ARM)
 ##  * macOS 12 Monterey (x86-64 or ARM)
@@ -80,7 +78,7 @@ install_mac() {
   brew ls --versions coreutils || brew install coreutils
   brew ls --versions doxygen || brew install doxygen
   brew ls --versions git || brew install git
-  (brew ls --versions llvm | grep 12) || brew install llvm@12
+  (brew ls --versions llvm | grep 14) || brew install llvm@14
 }
 
 install_linux() {
@@ -89,13 +87,12 @@ install_linux() {
   # Install packages.
   apt-get -y install \
       build-essential \
-      clang-12 \
-      clang-format-12 \
-      clang-tidy-12 \
+      clang-14 \
+      clang-format-14 \
+      clang-tidy-14 \
       cmake \
       doxygen \
       git \
-      g++-12 \
       pkg-config \
       zlib1g-dev
 }
