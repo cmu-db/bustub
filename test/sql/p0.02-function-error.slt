@@ -1,0 +1,14 @@
+statement error
+select upper(1);
+
+statement error
+select lower(1);
+
+statement error
+select lower('a', 'b');
+
+statement error
+select upper('a', 'b');
+
+statement error
+select upper(lower(1));

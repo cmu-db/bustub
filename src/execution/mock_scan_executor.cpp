@@ -31,11 +31,9 @@ static const char *ta_oh_2022[] = {"Tuesday",   "Wednesday", "Monday",  "Wednesd
 
 static const char *course_on_date[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
-static int course_on_bool[] = {0, 1, 0, 1, 0, 1, 1};
-
 const char *mock_table_list[] = {"__mock_table_1", "__mock_table_2", "__mock_table_3", "__mock_table_tas_2022",
                                  "__mock_agg_input_small", "__mock_agg_input_big", "__mock_table_schedule_2022",
-                                 "__mock_table_123", "__mock_graph",
+                                 "__mock_table_schedule_2023", "__mock_table_123", "__mock_graph",
                                  // For leaderboard Q1
                                  "__mock_t1_50k", "__mock_t2_100k", "__mock_t3_1k",
                                  // For leaderboard Q2
@@ -63,6 +61,10 @@ auto GetMockTableSchemaOf(const std::string &table) -> Schema {
   }
 
   if (table == "__mock_table_schedule_2022") {
+    return Schema{std::vector{Column{"day_of_week", TypeId::VARCHAR, 128}, Column{"has_lecture", TypeId::INTEGER}}};
+  }
+
+  if (table == "__mock_table_schedule_2023") {
     return Schema{std::vector{Column{"day_of_week", TypeId::VARCHAR, 128}, Column{"has_lecture", TypeId::INTEGER}}};
   }
 
@@ -119,6 +121,10 @@ auto GetSizeOf(const MockScanPlanNode *plan) -> size_t {
   }
 
   if (table == "__mock_table_schedule_2022") {
+    return sizeof(course_on_date) / sizeof(course_on_date[0]);
+  }
+
+  if (table == "__mock_table_schedule_2023") {
     return sizeof(course_on_date) / sizeof(course_on_date[0]);
   }
 
@@ -234,7 +240,16 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
     return [plan](size_t cursor) {
       std::vector<Value> values{};
       values.push_back(ValueFactory::GetVarcharValue(course_on_date[cursor]));
-      values.push_back(ValueFactory::GetIntegerValue(course_on_bool[cursor]));
+      values.push_back(ValueFactory::GetIntegerValue(cursor == 1 || cursor == 3 ? 1 : 0));
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
+  if (table == "__mock_table_schedule_2023") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.push_back(ValueFactory::GetVarcharValue(course_on_date[cursor]));
+      values.push_back(ValueFactory::GetIntegerValue(cursor == 0 || cursor == 2 ? 1 : 0));
       return Tuple{values, &plan->OutputSchema()};
     };
   }

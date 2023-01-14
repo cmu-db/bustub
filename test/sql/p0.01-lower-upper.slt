@@ -1,0 +1,20 @@
+query rowsort
+select upper('CMU 15-445 Database Systems');
+----
+CMU 15-445 DATABASE SYSTEMS
+
+query rowsort
+select lower('CMU 15-445 Database Systems');
+----
+cmu 15-445 database systems
+
+query rowsort
+select lower('CMU 15-445 Database Systems'), '|', upper('CMU 15-445 Database Systems');
+----
+cmu 15-445 database systems | CMU 15-445 DATABASE SYSTEMS
+
+
+query rowsort
+select lower(upper(upper(lower(lower('CMU 15-445 Database Systems'))))), '|', upper(upper(lower(lower('CMU 15-445 Database Systems'))));
+----
+cmu 15-445 database systems | CMU 15-445 DATABASE SYSTEMS
