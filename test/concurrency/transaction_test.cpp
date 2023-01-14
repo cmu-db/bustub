@@ -20,7 +20,7 @@
 #include <utility>
 #include <vector>
 
-#include "buffer/buffer_pool_manager_instance.h"
+#include "buffer/buffer_pool_manager.h"
 #include "catalog/table_generator.h"
 #include "common/bustub_instance.h"
 #include "concurrency/transaction_manager.h"

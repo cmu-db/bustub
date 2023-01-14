@@ -9,7 +9,7 @@
 #include <iostream>
 #include <thread>  // NOLINT
 
-#include "buffer/buffer_pool_manager_instance.h"
+#include "buffer/buffer_pool_manager.h"
 #include "gtest/gtest.h"
 #include "storage/disk/disk_manager_memory.h"
 #include "storage/index/b_plus_tree.h"
@@ -25,7 +25,7 @@ bool BPlusTreeLockBenchmarkCall(size_t num_threads, int leaf_node_size, bool wit
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
   auto *disk_manager = new DiskManagerMemory(256 << 10);  // 1GB
-  BufferPoolManager *bpm = new BufferPoolManagerInstance(64, disk_manager);
+  auto *bpm = new BufferPoolManager(64, disk_manager);
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm, comparator, leaf_node_size, 10);
   // create and fetch header_page

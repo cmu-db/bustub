@@ -259,8 +259,8 @@ set(P1_FILES
         "src/container/hash/extendible_hash_table.cpp"
         "src/include/buffer/lru_k_replacer.h"
         "src/buffer/lru_k_replacer.cpp"
-        "src/include/buffer/buffer_pool_manager_instance.h"
-        "src/buffer/buffer_pool_manager_instance.cpp"
+        "src/include/buffer/buffer_pool_manager.h"
+        "src/buffer/buffer_pool_manager.cpp"
         )
 add_custom_target(check-clang-tidy-p1
         ${BUSTUB_BUILD_SUPPORT_DIR}/run_clang_tidy.py                     # run LLVM's clang-tidy script
