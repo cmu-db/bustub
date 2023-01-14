@@ -108,7 +108,7 @@ endif ()
 # COMPILER SETUP
 ######################################################################################################################
 
-if (NOT BUSTUB_SANITIZER)
+if (NOT DEFINED BUSTUB_SANITIZER)
     set(BUSTUB_SANITIZER address)
 endif ()
 
