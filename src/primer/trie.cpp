@@ -39,4 +39,7 @@ using Integer = std::unique_ptr<uint32_t>;
 template auto Trie::Put(std::string_view key, Integer value) const -> Trie;
 template auto Trie::Get(std::string_view key) const -> const Integer *;
 
+template auto Trie::Put(std::string_view key, MoveBlocked value) const -> Trie;
+template auto Trie::Get(std::string_view key) const -> const MoveBlocked *;
+
 }  // namespace bustub

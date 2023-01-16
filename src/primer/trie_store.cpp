@@ -35,4 +35,12 @@ template void TrieStore::Put(std::string_view key, uint32_t value);
 template auto TrieStore::Get(std::string_view key) -> std::optional<ValueGuard<std::string>>;
 template void TrieStore::Put(std::string_view key, std::string value);
 
+using Integer = std::unique_ptr<uint32_t>;
+
+template auto TrieStore::Get(std::string_view key) -> std::optional<ValueGuard<Integer>>;
+template void TrieStore::Put(std::string_view key, Integer value);
+
+template auto TrieStore::Get(std::string_view key) -> std::optional<ValueGuard<MoveBlocked>>;
+template void TrieStore::Put(std::string_view key, MoveBlocked value);
+
 }  // namespace bustub
