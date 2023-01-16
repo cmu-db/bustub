@@ -1,4 +1,4 @@
-#include <bitset>
+#include <fmt/format.h>
 #include <functional>
 #include <memory>
 #include <numeric>
@@ -17,8 +17,148 @@ using Integer = std::unique_ptr<uint32_t>;
 
 TEST(TrieStoreTest, BasicTest) {
   auto store = TrieStore();
-  store.Get<uint32_t>("233");
+  ASSERT_EQ(store.Get<uint32_t>("233"), std::nullopt);
   store.Put<uint32_t>("233", 2333);
+  {
+    auto guard = store.Get<uint32_t>("233");
+    ASSERT_EQ(**guard, 2333);
+  }
+  store.Remove("233");
+  {
+    auto guard = store.Get<uint32_t>("233");
+    ASSERT_EQ(guard, std::nullopt);
+  }
+}
+
+TEST(TrieStoreTest, GuardTest) {
+  auto store = TrieStore();
+  ASSERT_EQ(store.Get<uint32_t>("233"), std::nullopt);
+
+  store.Put<std::string>("233", "2333");
+  auto guard = store.Get<std::string>("233");
+  ASSERT_EQ(**guard, "2333");
+
+  store.Remove("233");
+  {
+    auto guard = store.Get<std::string>("233");
+    ASSERT_EQ(guard, std::nullopt);
+  }
+
+  ASSERT_EQ(**guard, "2333");
+}
+
+TEST(TrieStoreTest, MixedTest) {
+  auto store = TrieStore();
+  for (uint32_t i = 0; i < 23333; i++) {
+    std::string key = fmt::format("{:#05}", i);
+    std::string value = fmt::format("value-{:#08}", i);
+    store.Put<std::string>(key, value);
+  }
+  for (uint32_t i = 0; i < 23333; i += 2) {
+    std::string key = fmt::format("{:#05}", i);
+    std::string value = fmt::format("new-value-{:#08}", i);
+    store.Put<std::string>(key, value);
+  }
+  for (uint32_t i = 0; i < 23333; i += 3) {
+    std::string key = fmt::format("{:#05}", i);
+    store.Remove(key);
+  }
+
+  // verify final trie
+  for (uint32_t i = 0; i < 23333; i++) {
+    std::string key = fmt::format("{:#05}", i);
+    if (i % 3 == 0) {
+      ASSERT_EQ(store.Get<std::string>(key), std::nullopt);
+    } else if (i % 2 == 0) {
+      std::string value = fmt::format("new-value-{:#08}", i);
+      auto guard = store.Get<std::string>(key);
+      ASSERT_EQ(**guard, value);
+    } else {
+      std::string value = fmt::format("value-{:#08}", i);
+      auto guard = store.Get<std::string>(key);
+      ASSERT_EQ(**guard, value);
+    }
+  }
+}
+
+TEST(TrieStoreTest, ReadWriteTest) {
+  auto store = TrieStore();
+  store.Put<uint32_t>("a", 1);
+  store.Put<uint32_t>("b", 2);
+  store.Put<uint32_t>("c", 3);
+  std::promise<int> x;
+
+  std::cerr << "[0] begin" << std::endl;
+
+  std::thread t([&store, &x] { store.Put<MoveBlocked>("d", MoveBlocked(x.get_future())); });
+
+  std::cerr << "[1] thread spawn" << std::endl;
+
+  // Loop for enough time to ensure that the thread is blocked on the promise.
+  for (int i = 0; i < 100000; i++) {
+    {
+      auto guard = store.Get<uint32_t>("a");
+      ASSERT_EQ(**guard, 1);
+    }
+    {
+      auto guard = store.Get<uint32_t>("b");
+      ASSERT_EQ(**guard, 2);
+    }
+    {
+      auto guard = store.Get<uint32_t>("c");
+      ASSERT_EQ(**guard, 3);
+    }
+  }
+
+  std::cerr << "[2] read done" << std::endl;
+
+  x.set_value(233);
+
+  t.join();
+
+  std::cerr << "[3] write complete" << std::endl;
+
+  ASSERT_NE(store.Get<MoveBlocked>("d"), std::nullopt);
+}
+
+TEST(TrieStoreTest, MixedConcurrentTest) {
+  auto store = TrieStore();
+
+  std::vector<std::thread> threads;
+
+  const int keys_per_thread = 10000;
+
+  for (int tid = 0; tid < 4; tid++) {
+    std::thread t([&store, tid] {
+      for (uint32_t i = 0; i < keys_per_thread; i++) {
+        std::string key = fmt::format("{:#05}", i * 4 + tid);
+        std::string value = fmt::format("value-{:#08}", i * 4 + tid);
+        store.Put<std::string>(key, value);
+      }
+      for (uint32_t i = 0; i < keys_per_thread; i++) {
+        std::string key = fmt::format("{:#05}", i * 4 + tid);
+        store.Remove(key);
+      }
+      for (uint32_t i = 0; i < keys_per_thread; i++) {
+        std::string key = fmt::format("{:#05}", i * 4 + tid);
+        std::string value = fmt::format("new-value-{:#08}", i * 4 + tid);
+        store.Put<std::string>(key, value);
+      }
+    });
+    threads.push_back(std::move(t));
+  }
+
+  for (auto &t : threads) {
+    t.join();
+  }
+
+  // verify final trie
+  for (uint32_t i = 0; i < keys_per_thread * 4; i++) {
+    std::string key = fmt::format("{:#05}", i);
+    std::string value = fmt::format("new-value-{:#08}", i);
+    auto guard = store.Get<std::string>(key);
+    ASSERT_EQ(**guard, value);
+  }
 }
 
 }  // namespace bustub

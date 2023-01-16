@@ -10,7 +10,7 @@
 #include "gtest/gtest.h"
 #include "primer/trie.h"
 #include "primer/trie_answer.h"
-#include "trie_debug_answer.h"
+#include "trie_debug_answer.h"  // NOLINT
 
 namespace bustub {
 

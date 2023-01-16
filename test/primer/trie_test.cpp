@@ -240,4 +240,14 @@ TEST(TrieTest, MixedTest) {
   }
 }
 
+TEST(TrieTest, PointerStability) {
+  auto trie = Trie();
+  trie = trie.Put<uint32_t>("test", 2333);
+  auto *ptr_before = trie.Get<std::string>("test");
+  trie = trie.Put<uint32_t>("tes", 233);
+  trie = trie.Put<uint32_t>("te", 23);
+  auto *ptr_after = trie.Get<std::string>("test");
+  ASSERT_EQ(reinterpret_cast<uint64_t>(ptr_before), reinterpret_cast<uint64_t>(ptr_after));
+}
+
 }  // namespace bustub

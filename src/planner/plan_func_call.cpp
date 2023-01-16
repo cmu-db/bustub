@@ -33,6 +33,7 @@ auto Planner::PlanFuncCall(const BoundFuncCall &expr, const std::vector<Abstract
   return GetFuncCallFromFactory(expr.func_name_, std::move(args));
 }
 
+// NOLINTNEXTLINE
 auto Planner::GetFuncCallFromFactory(const std::string &func_name, std::vector<AbstractExpressionRef> args)
     -> AbstractExpressionRef {
   // 1. check if the function name is lower or upper.
