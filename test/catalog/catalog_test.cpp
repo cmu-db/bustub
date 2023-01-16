@@ -14,7 +14,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "buffer/buffer_pool_manager_instance.h"
+#include "buffer/buffer_pool_manager.h"
 #include "catalog/catalog.h"
 #include "catalog/table_generator.h"
 #include "execution/executor_context.h"
@@ -32,7 +32,7 @@ using BigintHashFunctionType = HashFunction<BigintKeyType>;
 
 TEST(CatalogTest, DISABLED_CreateTable1) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
 
   const std::string table_name{"foobar"};
@@ -63,7 +63,7 @@ TEST(CatalogTest, DISABLED_CreateTable1) {
 
 TEST(CatalogTest, DISABLED_CreateTable2) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
 
   const std::string table_name{"foobar"};
@@ -91,7 +91,7 @@ TEST(CatalogTest, DISABLED_CreateTable2) {
 
 TEST(CatalogTest, DISABLED_CreateTable3) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
 
   const std::string table_name{"foobar"};
@@ -123,7 +123,7 @@ TEST(CatalogTest, DISABLED_CreateTable3) {
 
 TEST(CatalogTest, DISABLED_CreateTableTest) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
 
   const std::string table_name{"foobar"};
@@ -178,7 +178,7 @@ TEST(CatalogTest, DISABLED_CreateTableTest) {
 // Vanilla index creation for valid table
 TEST(CatalogTest, DISABLED_CreateIndex1) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
   auto txn = std::make_unique<Transaction>(0);
 
@@ -220,7 +220,7 @@ TEST(CatalogTest, DISABLED_CreateIndex1) {
 // Attempts to create an index with duplicate name should fail
 TEST(CatalogTest, DISABLED_CreateIndex2) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
   auto txn = std::make_unique<Transaction>(0);
 
@@ -268,7 +268,7 @@ TEST(CatalogTest, DISABLED_CreateIndex2) {
 
 TEST(CatalogTest, DISABLED_CreateIndex3) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
 
   Transaction txn{0};
@@ -301,7 +301,7 @@ TEST(CatalogTest, DISABLED_CreateIndex3) {
 // Vanilla index queries by name
 TEST(CatalogTest, DISABLED_QueryIndex1) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
   auto txn = std::make_unique<Transaction>(0);
 
@@ -343,7 +343,7 @@ TEST(CatalogTest, DISABLED_QueryIndex1) {
 // Vanilla index queries by index OID
 TEST(CatalogTest, DISABLED_QueryIndex2) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
   auto txn = std::make_unique<Transaction>(0);
 
@@ -393,7 +393,7 @@ TEST(CatalogTest, DISABLED_QueryIndex2) {
 // Query for nonexistent index on table should fail
 TEST(CatalogTest, DISABLED_FailedQuery1) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
   auto txn = std::make_unique<Transaction>(0);
 
@@ -415,7 +415,7 @@ TEST(CatalogTest, DISABLED_FailedQuery1) {
 // Query for index on nonexistent table should fail
 TEST(CatalogTest, DISABLED_FailedQuery2) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
   auto txn = std::make_unique<Transaction>(0);
 
@@ -428,7 +428,7 @@ TEST(CatalogTest, DISABLED_FailedQuery2) {
 // Query for nonexistent index OID should throw
 TEST(CatalogTest, DISABLED_FailedQuery3) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
   auto txn = std::make_unique<Transaction>(0);
 
@@ -442,7 +442,7 @@ TEST(CatalogTest, DISABLED_FailedQuery3) {
 // Query for all indexes on nonexistent table should give empty collection
 TEST(CatalogTest, DISABLED_FailedQuery4) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
   auto txn = std::make_unique<Transaction>(0);
 
@@ -457,7 +457,7 @@ TEST(CatalogTest, DISABLED_FailedQuery4) {
 // indexes defined should return empty collection
 TEST(CatalogTest, DISABLED_FailedQuery5) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
   auto txn = std::make_unique<Transaction>(0);
 
@@ -480,7 +480,7 @@ TEST(CatalogTest, DISABLED_FailedQuery5) {
 // Should be able to create and interact with an index with a single BIGINT key
 TEST(CatalogTest, DISABLED_IndexInteraction0) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
   auto txn = std::make_unique<Transaction>(0);
 
@@ -532,7 +532,7 @@ TEST(CatalogTest, DISABLED_IndexInteraction0) {
 // Should be able to create and interact with an index that is keyed by two INTEGER values
 TEST(CatalogTest, DISABLED_IndexInteraction1) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
   auto txn = std::make_unique<Transaction>(0);
 
@@ -584,7 +584,7 @@ TEST(CatalogTest, DISABLED_IndexInteraction1) {
 // Should be able to create and interact with an index that is keyed by a single INTEGER column
 TEST(CatalogTest, DISABLED_IndexInteraction2) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
   auto txn = std::make_unique<Transaction>(0);
 
@@ -635,7 +635,7 @@ TEST(CatalogTest, DISABLED_IndexInteraction2) {
 
 TEST(CatalogTest, DISABLED_IndexInteraction3) {
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManagerInstance>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
   auto txn = std::make_unique<Transaction>(0);
 

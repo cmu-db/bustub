@@ -7,7 +7,7 @@
 #include <sstream>
 #include <string>
 #include "binder/binder.h"
-#include "buffer/buffer_pool_manager_instance.h"
+#include "buffer/buffer_pool_manager.h"
 #include "common/bustub_instance.h"
 #include "common/exception.h"
 #include "common/logger.h"
@@ -20,7 +20,6 @@
 
 using bustub::BPlusTree;
 using bustub::BufferPoolManager;
-using bustub::BufferPoolManagerInstance;
 using bustub::DiskManager;
 using bustub::Exception;
 using bustub::GenericComparator;
@@ -59,7 +58,7 @@ auto BustubInit(int leaf_max_size, int internal_max_size) -> int {
   GenericComparator<8> comparator(key_schema.get());
 
   auto *disk_manager = new DiskManager("test.db");
-  bpm = new BufferPoolManagerInstance(100, disk_manager);
+  bpm = new BufferPoolManager(100, disk_manager);
   // create header_page
   page_id_t page_id;
   bpm->NewPage(&page_id);
