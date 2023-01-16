@@ -35,6 +35,8 @@ template void TrieStore::Put(std::string_view key, uint32_t value);
 template auto TrieStore::Get(std::string_view key) -> std::optional<ValueGuard<std::string>>;
 template void TrieStore::Put(std::string_view key, std::string value);
 
+// If your solution cannot compile for non-copy tests, you can remove the below lines to get partial score.
+
 using Integer = std::unique_ptr<uint32_t>;
 
 template auto TrieStore::Get(std::string_view key) -> std::optional<ValueGuard<Integer>>;

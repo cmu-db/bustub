@@ -11,6 +11,7 @@ auto Trie::Get(std::string_view key) const -> const T * {
 
 template <class T>
 auto Trie::Put(std::string_view key, T value) const -> Trie {
+  // Note that `T` might be a non-copyable type. Always use `std::move` when creating `shared_ptr` on that value.
   throw NotImplementedException("Trie::Put is not implemented.");
 }
 
@@ -33,6 +34,8 @@ template auto Trie::Get(std::string_view key) const -> const uint64_t *;
 
 template auto Trie::Put(std::string_view key, std::string value) const -> Trie;
 template auto Trie::Get(std::string_view key) const -> const std::string *;
+
+// If your solution cannot compile for non-copy tests, you can remove the below lines to get partial score.
 
 using Integer = std::unique_ptr<uint32_t>;
 
