@@ -19,13 +19,15 @@ auto Trie::Put(std::string_view key, T value) const -> Trie {
   // Note that `T` might be a non-copyable type. Always use `std::move` when creating `shared_ptr` on that value.
   throw NotImplementedException("Trie::Put is not implemented.");
 
-  // We recommend you to define a `PutHelper` function, which recurses on the trie and returns the new trie.
+  // You should walk through the trie and create new nodes if necessary. If the node corresponding to the key already
+  // exists, you should create a new `TrieNodeWithValue`.
 }
 
 auto Trie::Remove(std::string_view key) const -> Trie {
   throw NotImplementedException("Trie::Remove is not implemented.");
 
-  // We recommend you to define a `RemoveHelper` function, which recurses on the trie and returns the new trie.
+  // You should walk through the trie and remove nodes if necessary. If the node doesn't contain a value any more,
+  // you should convert it to `TrieNode`. If a node doesn't have children any more, you should remove it.
 }
 
 // Below are explicit instantiation of template functions.
