@@ -63,6 +63,9 @@ class TrieNode {
   // A map of children, where the key is the next character in the key, and the value is the next TrieNode.
   std::map<char, std::shared_ptr<const TrieNode>> children_;
 
+  // Indicates if the node is the terminal node.
+  bool is_value_node_{false};
+
   // You can add additional fields and methods here. But in general, you don't need to add extra fields to
   // complete this project.
 };
@@ -72,11 +75,13 @@ template <class T>
 class TrieNodeWithValue : public TrieNode {
  public:
   // Create a trie node with no children and a value.
-  explicit TrieNodeWithValue(std::shared_ptr<T> value) : value_(std::move(value)) {}
+  explicit TrieNodeWithValue(std::shared_ptr<T> value) : value_(std::move(value)) { this->is_value_node_ = true; }
 
   // Create a trie node with children and a value.
   TrieNodeWithValue(std::map<char, std::shared_ptr<const TrieNode>> children, std::shared_ptr<T> value)
-      : TrieNode(std::move(children)), value_(std::move(value)) {}
+      : TrieNode(std::move(children)), value_(std::move(value)) {
+    this->is_value_node_ = true;
+  }
 
   // Override the Clone method to also clone the value.
   //
