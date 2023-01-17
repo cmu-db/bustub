@@ -174,10 +174,16 @@ see the execution plan of your query.
 
 auto BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) -> bool {
   auto txn = txn_manager_->Begin();
-  auto result = ExecuteSqlTxn(sql, writer, txn);
-  txn_manager_->Commit(txn);
-  delete txn;
-  return result;
+  try {
+    auto result = ExecuteSqlTxn(sql, writer, txn);
+    txn_manager_->Commit(txn);
+    delete txn;
+    return result;
+  } catch (bustub::Exception &ex) {
+    txn_manager_->Abort(txn);
+    delete txn;
+    throw ex;
+  }
 }
 
 auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn) -> bool {
