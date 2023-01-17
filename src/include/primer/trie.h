@@ -52,7 +52,7 @@ class TrieNode {
   virtual ~TrieNode() = default;
 
   // Clone returns a copy of this TrieNode. If the TrieNode has a value, the value is copied. The return
-  // type of this function is a shared_ptr to a TrieNode.
+  // type of this function is a unique_ptr to a TrieNode.
   //
   // You cannot use the copy constructor to clone the node because it doesn't know whether a `TrieNode`
   // contains a value or not.
