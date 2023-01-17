@@ -13,7 +13,7 @@ file(GLOB_RECURSE BUSTUB_TEST_SOURCES "${PROJECT_SOURCE_DIR}/test/*/*test.cpp")
 # #########################################
 add_custom_target(build-tests COMMAND ${CMAKE_CTEST_COMMAND} --show-only)
 add_custom_target(check-tests COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
-add_custom_target(check-public-ci-tests COMMAND ${CMAKE_CTEST_COMMAND} --verbose -E SQLLogicTest)
+add_custom_target(check-public-ci-tests COMMAND ${CMAKE_CTEST_COMMAND} --verbose -E "\"SQLLogicTest|Trie\"")
 
 # #########################################
 # "make XYZ_test"
@@ -49,6 +49,9 @@ foreach (bustub_test_source ${BUSTUB_TEST_SOURCES})
 endforeach ()
 
 set(BUSTUB_SLT_SOURCES
+        "${PROJECT_SOURCE_DIR}/test/sql/p0.01-lower-upper.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p0.02-function-error.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p0.03-string-scan.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.01-seqscan.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.02-insert.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.03-delete.slt"

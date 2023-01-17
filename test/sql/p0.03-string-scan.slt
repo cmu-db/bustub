@@ -1,0 +1,10 @@
+query rowsort
+select day_of_week, upper(day_of_week), lower(day_of_week), has_lecture from __mock_table_schedule_2023;
+----
+Monday MONDAY monday 1 
+Tuesday TUESDAY tuesday 0 
+Wednesday WEDNESDAY wednesday 1 
+Thursday THURSDAY thursday 0 
+Friday FRIDAY friday 0 
+Saturday SATURDAY saturday 0 
+Sunday SUNDAY sunday 0

@@ -7,6 +7,7 @@
 #include "binder/expressions/bound_binary_op.h"
 #include "binder/expressions/bound_column_ref.h"
 #include "binder/expressions/bound_constant.h"
+#include "binder/expressions/bound_func_call.h"
 #include "binder/expressions/bound_unary_op.h"
 #include "binder/statement/select_statement.h"
 #include "common/exception.h"
@@ -119,6 +120,13 @@ void Planner::AddAggCallToContext(BoundExpression &expr) {
       AddAggCallToContext(*binary_op_expr.rarg_);
       return;
     }
+    case ExpressionType::FUNC_CALL: {
+      auto &func_call_expr = dynamic_cast<BoundFuncCall &>(expr);
+      for (const auto &child : func_call_expr.args_) {
+        AddAggCallToContext(*child);
+      }
+      return;
+    }
     case ExpressionType::CONSTANT: {
       return;
     }
@@ -149,6 +157,10 @@ auto Planner::PlanExpression(const BoundExpression &expr, const std::vector<Abst
     case ExpressionType::BINARY_OP: {
       const auto &binary_op_expr = dynamic_cast<const BoundBinaryOp &>(expr);
       return std::make_tuple(UNNAMED_COLUMN, PlanBinaryOp(binary_op_expr, children));
+    }
+    case ExpressionType::FUNC_CALL: {
+      const auto &func_call_expr = dynamic_cast<const BoundFuncCall &>(expr);
+      return std::make_tuple(UNNAMED_COLUMN, PlanFuncCall(func_call_expr, children));
     }
     case ExpressionType::CONSTANT: {
       const auto &constant_expr = dynamic_cast<const BoundConstant &>(expr);
