@@ -14,6 +14,22 @@
 
 namespace bustub {
 
+LRUKNode::LRUKNode(size_t k, frame_id_t fid) : k_(k), fid_(fid) {}
+
+void LRUKNode::SetEvictable(bool evictable) {}
+
+auto LRUKNode::IsEvictable() -> bool { return false; }
+
+auto LRUKNode::GetFid() -> frame_id_t { return 0; }
+
+auto LRUKNode::GetBackwardKDist(size_t current_timestamp) -> size_t { return 0; }
+
+auto LRUKNode::HasInfBackwardKDist() -> bool { return false; }
+
+auto LRUKNode::GetEarliestTimestamp() -> size_t { return 0; }
+
+void LRUKNode::InsertHistoryTimestamp(size_t current_timestamp) {}
+
 LRUKReplacer::LRUKReplacer(size_t num_frames, size_t k) : replacer_size_(num_frames), k_(k) {}
 
 auto LRUKReplacer::Evict(frame_id_t *frame_id) -> bool { return false; }

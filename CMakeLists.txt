@@ -270,8 +270,8 @@ add_custom_target(submit-p0
         )
 
 set(P1_FILES
-        "src/include/container/hash/extendible_hash_table.h"
-        "src/container/hash/extendible_hash_table.cpp"
+        "src/include/storage/page/page_guard.h"
+        "src/storage/page/page_guard.cpp"
         "src/include/buffer/lru_k_replacer.h"
         "src/buffer/lru_k_replacer.cpp"
         "src/include/buffer/buffer_pool_manager.h"
