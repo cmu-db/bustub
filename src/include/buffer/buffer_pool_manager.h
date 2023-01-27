@@ -13,15 +13,16 @@
 #pragma once
 
 #include <list>
+#include <memory>
 #include <mutex>  // NOLINT
 #include <unordered_map>
 
 #include "buffer/lru_k_replacer.h"
 #include "common/config.h"
-#include "container/hash/extendible_hash_table.h"
 #include "recovery/log_manager.h"
 #include "storage/disk/disk_manager.h"
 #include "storage/page/page.h"
+#include "storage/page/page_guard.h"
 
 namespace bustub {
 
@@ -73,6 +74,20 @@ class BufferPoolManager {
   /**
    * TODO(P1): Add implementation
    *
+   * @brief PageGuard wrapper for NewPage
+   *
+   * Functionality should be the same as NewPage, except that
+   * instead of returning a pointer to a page, you return a
+   * BasicPageGuard structure.
+   *
+   * @param[out] page_id, the id of the new page
+   * @return BasicPageGuard holding a new page
+   */
+  auto NewPageGuarded(page_id_t *page_id) -> BasicPageGuard;
+
+  /**
+   * TODO(P1): Add implementation
+   *
    * @brief Fetch the requested page from the buffer pool. Return nullptr if page_id needs to be fetched from the disk
    * but all frames are currently in use and not evictable (in another word, pinned).
    *
@@ -87,6 +102,23 @@ class BufferPoolManager {
    * @return nullptr if page_id cannot be fetched, otherwise pointer to the requested page
    */
   auto FetchPage(page_id_t page_id) -> Page *;
+
+  /**
+   * TODO(P1): Add implementation
+   *
+   * @brief PageGuard wrappers for FetchPage
+   *
+   * Functionality should be the same as FetchPage, except
+   * that, depending on the function called, a guard is returned.
+   * If FetchPageRead or FetchPageWrite is called, it is expected that
+   * the returned page already has a read or write latch held, respectively.
+   *
+   * @param page_id, the id of the page to fetch
+   * @return PageGuard holding the fetched page
+   */
+  auto FetchPageBasic(page_id_t page_id) -> BasicPageGuard;
+  auto FetchPageRead(page_id_t page_id) -> ReadPageGuard;
+  auto FetchPageWrite(page_id_t page_id) -> WritePageGuard;
 
   /**
    * TODO(P1): Add implementation
@@ -143,8 +175,6 @@ class BufferPoolManager {
   const size_t pool_size_;
   /** The next page id to be allocated  */
   std::atomic<page_id_t> next_page_id_ = 0;
-  /** Bucket size for the extendible hash table */
-  const size_t bucket_size_ = 4;
 
   /** Array of buffer pool pages. */
   Page *pages_;
@@ -153,9 +183,9 @@ class BufferPoolManager {
   /** Pointer to the log manager. Please ignore this for P1. */
   LogManager *log_manager_ __attribute__((__unused__));
   /** Page table for keeping track of buffer pool pages. */
-  ExtendibleHashTable<page_id_t, frame_id_t> *page_table_;
+  std::unordered_map<page_id_t, frame_id_t> page_table_;
   /** Replacer to find unpinned pages for replacement. */
-  LRUKReplacer *replacer_;
+  std::unique_ptr<LRUKReplacer> replacer_;
   /** List of free frames that don't have any pages on them. */
   std::list<frame_id_t> free_list_;
   /** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */

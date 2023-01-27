@@ -11,8 +11,42 @@
 //===----------------------------------------------------------------------===//
 
 #include "buffer/lru_k_replacer.h"
+#include "common/exception.h"
 
 namespace bustub {
+
+LRUKNode::LRUKNode(size_t k, frame_id_t fid) : k_(k), fid_(fid) {}
+
+void LRUKNode::SetEvictable(bool evictable) { throw NotImplementedException("SetEvictable not implemented"); }
+
+auto LRUKNode::IsEvictable() -> bool {
+  throw NotImplementedException("IsEvictable not implemented");
+  return false;
+}
+
+auto LRUKNode::GetFid() -> frame_id_t {
+  throw NotImplementedException("GetFid not implemented");
+  return 0;
+}
+
+auto LRUKNode::GetBackwardKDist(size_t current_timestamp) -> size_t {
+  throw NotImplementedException("GetBackwardKDist not implemented");
+  return 0;
+}
+
+auto LRUKNode::HasInfBackwardKDist() -> bool {
+  throw NotImplementedException("HasInfBackwardKDist not implemented");
+  return false;
+}
+
+auto LRUKNode::GetEarliestTimestamp() -> size_t {
+  throw NotImplementedException("GetEarliestTimestamp not implemented");
+  return 0;
+}
+
+void LRUKNode::InsertHistoryTimestamp(size_t current_timestamp) {
+  throw NotImplementedException("InsertHistoryTimestamp not implemented");
+}
 
 LRUKReplacer::LRUKReplacer(size_t num_frames, size_t k) : replacer_size_(num_frames), k_(k) {}
 
