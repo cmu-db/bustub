@@ -13,6 +13,7 @@
 #pragma once
 
 #include <list>
+#include <memory>
 #include <mutex>  // NOLINT
 #include <unordered_map>
 
@@ -184,7 +185,7 @@ class BufferPoolManager {
   /** Page table for keeping track of buffer pool pages. */
   std::unordered_map<page_id_t, frame_id_t> page_table_;
   /** Replacer to find unpinned pages for replacement. */
-  LRUKReplacer *replacer_;
+  std::unique_ptr<LRUKReplacer> replacer_;
   /** List of free frames that don't have any pages on them. */
   std::list<frame_id_t> free_list_;
   /** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */

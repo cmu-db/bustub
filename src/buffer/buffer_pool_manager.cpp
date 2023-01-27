@@ -28,7 +28,7 @@ BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager
 
   // we allocate a consecutive memory space for the buffer pool
   pages_ = new Page[pool_size_];
-  replacer_ = new LRUKReplacer(pool_size, replacer_k);
+  replacer_ = std::make_unique<LRUKReplacer>(pool_size, replacer_k);
 
   // Initially, every page is in the free list.
   for (size_t i = 0; i < pool_size_; ++i) {
@@ -38,7 +38,6 @@ BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager
 
 BufferPoolManager::~BufferPoolManager() {
   delete[] pages_;
-  delete replacer_;
 }
 
 auto BufferPoolManager::NewPage(page_id_t *page_id) -> Page * { return nullptr; }
