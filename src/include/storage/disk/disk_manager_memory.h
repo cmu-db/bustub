@@ -18,7 +18,7 @@
 #include <optional>
 #include <shared_mutex>
 #include <string>
-#include <thread>
+#include <thread>  // NOLINT
 #include <utility>
 #include <vector>
 
