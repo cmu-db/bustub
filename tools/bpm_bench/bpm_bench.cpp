@@ -13,6 +13,7 @@
 #include "argparse/argparse.hpp"
 #include "binder/binder.h"
 #include "buffer/buffer_pool_manager.h"
+#include "buffer/lru_k_replacer.h"
 #include "common/config.h"
 #include "common/exception.h"
 #include "common/util/string_util.h"
@@ -101,6 +102,7 @@ struct BpmMetrics {
 
 // NOLINTNEXTLINE
 auto main(int argc, char **argv) -> int {
+  using bustub::AccessType;
   using bustub::BufferPoolManager;
   using bustub::DiskManagerUnlimitedMemory;
   using bustub::page_id_t;
@@ -165,7 +167,7 @@ auto main(int argc, char **argv) -> int {
       size_t page_idx = BUSTUB_PAGE_CNT * thread_id / BUSTUB_SCAN_THREAD;
 
       while (!metrics.ShouldFinish()) {
-        auto *page = bpm->FetchPage(page_ids[page_idx]);
+        auto *page = bpm->FetchPage(page_ids[page_idx], AccessType::Scan);
 
         char &ch = page->GetData()[page_idx % 1024];
         ch += 1;
@@ -173,7 +175,7 @@ auto main(int argc, char **argv) -> int {
           ch = 1;
         }
 
-        bpm->UnpinPage(page->GetPageId(), true);
+        bpm->UnpinPage(page->GetPageId(), true, AccessType::Scan);
         page_idx = (page_idx + 1) % BUSTUB_PAGE_CNT;
         metrics.Tick();
         metrics.Report();
@@ -194,14 +196,14 @@ auto main(int argc, char **argv) -> int {
 
       while (!metrics.ShouldFinish()) {
         auto page_idx = dist(gen);
-        auto *page = bpm->FetchPage(page_ids[page_idx]);
+        auto *page = bpm->FetchPage(page_ids[page_idx], AccessType::Get);
 
         char ch = page->GetData()[page_idx % 1024];
         if (ch == 0) {
           throw std::runtime_error("invalid data");
         }
 
-        bpm->UnpinPage(page->GetPageId(), true);
+        bpm->UnpinPage(page->GetPageId(), false, AccessType::Get);
         page_idx += 1;
         metrics.Tick();
         metrics.Report();

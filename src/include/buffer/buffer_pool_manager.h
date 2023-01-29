@@ -99,9 +99,10 @@ class BufferPoolManager {
    * In addition, remember to disable eviction and record the access history of the frame like you did for NewPage().
    *
    * @param page_id id of page to be fetched
+   * @param access_type type of access to the page, only needed for leaderboard tests.
    * @return nullptr if page_id cannot be fetched, otherwise pointer to the requested page
    */
-  auto FetchPage(page_id_t page_id) -> Page *;
+  auto FetchPage(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> Page *;
 
   /**
    * TODO(P1): Add implementation
@@ -131,9 +132,10 @@ class BufferPoolManager {
    *
    * @param page_id id of page to be unpinned
    * @param is_dirty true if the page should be marked as dirty, false otherwise
+   * @param access_type type of access to the page, only needed for leaderboard tests.
    * @return false if the page is not in the page table or its pin count is <= 0 before this call, true otherwise
    */
-  auto UnpinPage(page_id_t page_id, bool is_dirty) -> bool;
+  auto UnpinPage(page_id_t page_id, bool is_dirty, AccessType access_type = AccessType::Unknown) -> bool;
 
   /**
    * TODO(P1): Add implementation
