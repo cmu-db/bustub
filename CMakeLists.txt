@@ -112,6 +112,8 @@ if (NOT DEFINED BUSTUB_SANITIZER)
     set(BUSTUB_SANITIZER address)
 endif ()
 
+set(BUSTUB_SANITIZER "")
+
 message("Build mode: ${CMAKE_BUILD_TYPE}")
 message("${BUSTUB_SANITIZER} sanitizer will be enabled in debug mode.")
 
