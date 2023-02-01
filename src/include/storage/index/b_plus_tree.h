@@ -67,6 +67,7 @@ class BPlusTree {
   // print the B+ tree
   void Print(BufferPoolManager *bpm);
 
+  // draw the B+ tree
   void Draw(BufferPoolManager *bpm, const std::string &outf);
 
   /**
