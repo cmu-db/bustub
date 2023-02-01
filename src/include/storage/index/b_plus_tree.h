@@ -23,6 +23,8 @@ namespace bustub {
 
 #define BPLUSTREE_TYPE BPlusTree<KeyType, ValueType, KeyComparator>
 
+struct PrintableBPlusTree;
+
 /**
  * Main class providing the API for the Interactive B+ Tree.
  *
@@ -65,8 +67,20 @@ class BPlusTree {
   // print the B+ tree
   void Print(BufferPoolManager *bpm);
 
-  // draw the B+ tree
   void Draw(BufferPoolManager *bpm, const std::string &outf);
+
+  /**
+   * @brief daraw a beautiful B+ tree, below is a printed
+   * B+ tree(3 max leaf, 4 max internal) after inserting key:
+   *  {1, 5, 9, 13, 17, 21, 25, 29, 33, 37, 18, 19, 20}
+   *
+   *                               (25)
+   *                 (9,17,19)                          (33)
+   *  (1,5)    (9,13)    (17,18)    (19,20,21)    (25,29)    (33,37)
+   *
+   * @return std::string
+   */
+  auto DrawBPlusTree() -> std::string;
 
   // read data from file and insert one by one
   void InsertFromFile(const std::string &file_name, Transaction *transaction = nullptr);
@@ -82,6 +96,14 @@ class BPlusTree {
 
   void ToString(BPlusTreePage *page, BufferPoolManager *bpm) const;
 
+  /**
+   * @brief Convert A B+ tree into a Printable B+ tree
+   *
+   * @param root_id
+   * @return PrintableNode
+   */
+  PrintableBPlusTree toPrintableBPlusTree(page_id_t root_id);
+
   // member variable
   std::string index_name_;
   page_id_t root_page_id_;
@@ -89,6 +111,43 @@ class BPlusTree {
   KeyComparator comparator_;
   int leaf_max_size_;
   int internal_max_size_;
+};
+
+/**
+ * @brief for test only. PrintableBPlusTree is a printalbe B+ tree.
+ * We first convert B+ tree into a printable B+ tree and the print it.
+ *
+ */
+struct PrintableBPlusTree {
+  int size;
+  std::string keys;
+  std::vector<PrintableBPlusTree> children;
+
+  /**
+   * @brief BFS traverse a printable B+ tree and print it into
+   * into out_buf
+   *
+   * @param out_buf
+   */
+  void Print(std::string &out_buf) {
+    std::vector<PrintableBPlusTree *> que = {this};
+    while (que.size() > 0) {
+      std::vector<PrintableBPlusTree *> new_que;
+
+      for (auto &t : que) {
+        int padding = (t->size - t->keys.size()) / 2;
+        out_buf.append(padding, ' ');
+        out_buf.append(t->keys);
+        out_buf.append(padding, ' ');
+
+        for (auto &c : t->children) {
+          new_que.push_back(&c);
+        }
+      }
+      out_buf.append("\n");
+      que = new_que;
+    }
+  }
 };
 
 }  // namespace bustub
