@@ -314,36 +314,36 @@ auto BPLUSTREE_TYPE::DrawBPlusTree() -> std::string {
     return "()";
   }
 
-  PrintableBPlusTree p_root = toPrintableBPlusTree(root_page_id_);
+  PrintableBPlusTree p_root = ToPrintableBPlusTree(root_page_id_);
   std::string out_buf;
-  p_root.Print(out_buf);
+  p_root.Print(&out_buf);
 
   return out_buf;
 }
 
 INDEX_TEMPLATE_ARGUMENTS
-PrintableBPlusTree BPLUSTREE_TYPE::toPrintableBPlusTree(page_id_t root_id) {
-  BPlusTreePage *root_page = reinterpret_cast<BPlusTreePage *>(buffer_pool_manager_->FetchPage(root_id)->GetData());
+auto BPLUSTREE_TYPE::ToPrintableBPlusTree(page_id_t root_id) -> PrintableBPlusTree {
+  auto root_page = reinterpret_cast<BPlusTreePage *>(buffer_pool_manager_->FetchPage(root_id)->GetData());
   PrintableBPlusTree proot;
 
   if (root_page->IsLeafPage()) {
-    LeafPage *leaf_page = reinterpret_cast<LeafPage *>(root_page);
-    proot.keys = leaf_page->ToString();
-    proot.size = proot.keys.size() + 4;  // 4 more spaces for indent
+    auto leaf_page = reinterpret_cast<LeafPage *>(root_page);
+    proot.keys_ = leaf_page->ToString();
+    proot.size_ = proot.keys_.size() + 4;  // 4 more spaces for indent
     buffer_pool_manager_->UnpinPage(root_id, false);
 
     return proot;
   }
 
   // draw internal page
-  InternalPage *internal_page = reinterpret_cast<InternalPage *>(root_page);
-  proot.keys = internal_page->ToString();
-  proot.size = 0;
+  auto internal_page = reinterpret_cast<InternalPage *>(root_page);
+  proot.keys_ = internal_page->ToString();
+  proot.size_ = 0;
   for (int i = 0; i < internal_page->GetSize(); i++) {
     page_id_t child_id = internal_page->ValueAt(i);
-    PrintableBPlusTree child_node = toPrintableBPlusTree(child_id);
-    proot.size += child_node.size;
-    proot.children.push_back(child_node);
+    PrintableBPlusTree child_node = ToPrintableBPlusTree(child_id);
+    proot.size_ += child_node.size_;
+    proot.children_.push_back(child_node);
   }
   buffer_pool_manager_->UnpinPage(root_id, false);
 

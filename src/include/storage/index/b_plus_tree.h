@@ -103,7 +103,7 @@ class BPlusTree {
    * @param root_id
    * @return PrintableNode
    */
-  PrintableBPlusTree toPrintableBPlusTree(page_id_t root_id);
+  auto ToPrintableBPlusTree(page_id_t root_id) -> PrintableBPlusTree;
 
   // member variable
   std::string index_name_;
@@ -120,9 +120,9 @@ class BPlusTree {
  *
  */
 struct PrintableBPlusTree {
-  int size;
-  std::string keys;
-  std::vector<PrintableBPlusTree> children;
+  int size_;
+  std::string keys_;
+  std::vector<PrintableBPlusTree> children_;
 
   /**
    * @brief BFS traverse a printable B+ tree and print it into
@@ -130,22 +130,22 @@ struct PrintableBPlusTree {
    *
    * @param out_buf
    */
-  void Print(std::string &out_buf) {
+  void Print(std::string *out_buf) {
     std::vector<PrintableBPlusTree *> que = {this};
-    while (que.size() > 0) {
+    while (!que.empty()) {
       std::vector<PrintableBPlusTree *> new_que;
 
       for (auto &t : que) {
-        int padding = (t->size - t->keys.size()) / 2;
-        out_buf.append(padding, ' ');
-        out_buf.append(t->keys);
-        out_buf.append(padding, ' ');
+        int padding = (t->size_ - t->keys_.size()) / 2;
+        out_buf->append(padding, ' ');
+        out_buf->append(t->keys_);
+        out_buf->append(padding, ' ');
 
-        for (auto &c : t->children) {
+        for (auto &c : t->children_) {
           new_que.push_back(&c);
         }
       }
-      out_buf.append("\n");
+      out_buf->append("\n");
       que = new_que;
     }
   }
