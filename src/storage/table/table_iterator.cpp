@@ -32,7 +32,7 @@ auto TableIterator::operator*() -> const Tuple & {
   return *tuple_;
 }
 
-auto TableIterator::operator->() -> Tuple * {
+auto TableIterator::operator-> () -> Tuple * {
   assert(*this != table_heap_->End());
   return tuple_;
 }

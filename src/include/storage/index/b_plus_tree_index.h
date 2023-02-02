@@ -45,7 +45,7 @@ class BPlusTreeIndex : public Index {
   // comparator for key
   KeyComparator comparator_;
   // container
-  BPlusTree<KeyType, ValueType, KeyComparator> container_;
+  std::shared_ptr<BPlusTree<KeyType, ValueType, KeyComparator>> container_;
 };
 
 /** We only support index table with one integer key for now in BusTub. Hardcode everything here. */

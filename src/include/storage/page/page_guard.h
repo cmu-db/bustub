@@ -1,48 +1,65 @@
+
+
 #pragma once
 
-#include <cstring>
-#include <iostream>
-
-#include "buffer/buffer_pool_manager.h"
-#include "common/config.h"
-#include "common/rwlatch.h"
+#include "storage/page/page.h"
 
 namespace bustub {
 
-class OwnedPageGuard {
+class BufferPoolManager;
+
+class BasicPageGuard {
  public:
-  OwnedPageGuard() = default;
+  BasicPageGuard() = default;
 
-  OwnedPageGuard(BufferPoolManager *bpm, Page *page) : bpm_(bpm), page_(page) {}
+  BasicPageGuard(BufferPoolManager *bpm, Page *page) : bpm_(bpm), page_(page) {}
 
-  OwnedPageGuard(const OwnedPageGuard &) = delete;
-  auto operator=(const OwnedPageGuard &) -> OwnedPageGuard & = delete;
+  BasicPageGuard(const BasicPageGuard &) = delete;
+  auto operator=(const BasicPageGuard &) -> BasicPageGuard & = delete;
 
-  OwnedPageGuard(OwnedPageGuard &&that) noexcept {
-    bpm_ = that.bpm_;
-    page_ = that.page_;
-    is_dirty_ = that.is_dirty_;
-    that.page_ = nullptr;
-  }
+  /** TODO(P1): Add implementation
+   *
+   * @brief Move constructor for BasicPageGuard
+   *
+   * When you call BasicPageGuard(std::move(other_guard)), you
+   * expect that the new guard will behave exactly like the other
+   * one. In addition, the old page guard should not be usable. For
+   * example, it should not be possible to call .Drop() on both page
+   * guards and have the pin count decrease by 2.
+   */
+  BasicPageGuard(BasicPageGuard &&that) noexcept;
 
-  void Drop() {
-    if (page_ != nullptr) {
-      bpm_->UnpinPage(page_->GetPageId(), is_dirty_);
-    }
-    page_ = nullptr;
-  }
+  /** TODO(P1): Add implementation
+   *
+   * @brief Drop a page guard
+   *
+   * Dropping a page guard should clear all contents
+   * (so that the page guard is no longer useful), and
+   * it should tell the BPM that we are done using this page,
+   * per the specification in the writeup.
+   */
+  void Drop();
 
-  auto operator=(OwnedPageGuard &&that) noexcept -> OwnedPageGuard & {
-    Drop();
+  /** TODO(P1): Add implementation
+   *
+   * @brief Move assignment for BasicPageGuard
+   *
+   * Similar to a move constructor, except that the move
+   * assignment assumes that BasicPageGuard already has a page
+   * being guarded. Think carefully about what should happen when
+   * a guard replaces its held page with a different one, given
+   * the purpose of a page guard.
+   */
+  auto operator=(BasicPageGuard &&that) noexcept -> BasicPageGuard &;
 
-    bpm_ = that.bpm_;
-    page_ = that.page_;
-    is_dirty_ = that.is_dirty_;
-    that.page_ = nullptr;
-    return *this;
-  }
-
-  ~OwnedPageGuard() { Drop(); }
+  /** TODO(P1): Add implementation
+   *
+   * @brief Destructor for BasicPageGuard
+   *
+   * When a page guard goes out of scope, it should behave as if
+   * the page guard was dropped.
+   */
+  ~BasicPageGuard();
 
   auto PageId() -> page_id_t { return page_->GetPageId(); }
 
@@ -67,7 +84,7 @@ class OwnedPageGuard {
   friend class ReadPageGuard;
   friend class WritePageGuard;
 
-  BufferPoolManager *bpm_{nullptr};
+  [[maybe_unused]] BufferPoolManager *bpm_{nullptr};
   Page *page_{nullptr};
   bool is_dirty_{false};
 };
@@ -77,23 +94,46 @@ class ReadPageGuard {
   ReadPageGuard() = default;
   ReadPageGuard(BufferPoolManager *bpm, Page *page) : guard_(bpm, page) {}
   ReadPageGuard(const ReadPageGuard &) = delete;
-  ReadPageGuard(ReadPageGuard &&that) = default;
   auto operator=(const ReadPageGuard &) -> ReadPageGuard & = delete;
 
-  auto operator=(ReadPageGuard &&that) noexcept -> ReadPageGuard & {
-    Drop();
-    guard_ = std::move(that.guard_);
-    return *this;
-  }
+  /** TODO(P1): Add implementation
+   *
+   * @brief Move constructor for ReadPageGuard
+   *
+   * Very similar to BasicPageGuard. You want to create
+   * a ReadPageGuard using another ReadPageGuard. Think
+   * about if there's any way you can make this easier for yourself...
+   */
+  ReadPageGuard(ReadPageGuard &&that) noexcept;
 
-  void Drop() {
-    if (guard_.page_ != nullptr) {
-      guard_.page_->RUnlatch();
-    }
-    guard_.Drop();
-  }
+  /** TODO(P1): Add implementation
+   *
+   * @brief Move assignment for ReadPageGuard
+   *
+   * Very similar to BasicPageGuard. Given another ReadPageGuard,
+   * replace the contents of this one with that one.
+   */
+  auto operator=(ReadPageGuard &&that) noexcept -> ReadPageGuard &;
 
-  ~ReadPageGuard() { Drop(); }
+  /** TODO(P1): Add implementation
+   *
+   * @brief Drop a ReadPageGuard
+   *
+   * ReadPageGuard's Drop should behave similarly to BasicPageGuard,
+   * except that ReadPageGuard has an additional resource - the latch!
+   * However, you should think VERY carefully about in which order you
+   * want to release these resources.
+   */
+  void Drop();
+
+  /** TODO(P1): Add implementation
+   *
+   * @brief Destructor for ReadPageGuard
+   *
+   * Just like with BasicPageGuard, this should behave
+   * as if you were dropping the guard.
+   */
+  ~ReadPageGuard();
 
   auto PageId() -> page_id_t { return guard_.PageId(); }
 
@@ -105,7 +145,8 @@ class ReadPageGuard {
   }
 
  private:
-  OwnedPageGuard guard_;
+  // You may choose to get rid of this and add your own private variables.
+  BasicPageGuard guard_;
 };
 
 class WritePageGuard {
@@ -113,23 +154,46 @@ class WritePageGuard {
   WritePageGuard() = default;
   WritePageGuard(BufferPoolManager *bpm, Page *page) : guard_(bpm, page) {}
   WritePageGuard(const WritePageGuard &) = delete;
-  WritePageGuard(WritePageGuard &&that) = default;
   auto operator=(const WritePageGuard &) -> WritePageGuard & = delete;
 
-  auto operator=(WritePageGuard &&that) noexcept -> WritePageGuard & {
-    Drop();
-    guard_ = std::move(that.guard_);
-    return *this;
-  }
+  /** TODO(P1): Add implementation
+   *
+   * @brief Move constructor for WritePageGuard
+   *
+   * Very similar to BasicPageGuard. You want to create
+   * a WritePageGuard using another WritePageGuard. Think
+   * about if there's any way you can make this easier for yourself...
+   */
+  WritePageGuard(WritePageGuard &&that) noexcept;
 
-  void Drop() {
-    if (guard_.page_ != nullptr) {
-      guard_.page_->WUnlatch();
-    }
-    guard_.Drop();
-  }
+  /** TODO(P1): Add implementation
+   *
+   * @brief Move assignment for WritePageGuard
+   *
+   * Very similar to BasicPageGuard. Given another WritePageGuard,
+   * replace the contents of this one with that one.
+   */
+  auto operator=(WritePageGuard &&that) noexcept -> WritePageGuard &;
 
-  ~WritePageGuard() { Drop(); }
+  /** TODO(P1): Add implementation
+   *
+   * @brief Drop a WritePageGuard
+   *
+   * WritePageGuard's Drop should behave similarly to BasicPageGuard,
+   * except that WritePageGuard has an additional resource - the latch!
+   * However, you should think VERY carefully about in which order you
+   * want to release these resources.
+   */
+  void Drop();
+
+  /** TODO(P1): Add implementation
+   *
+   * @brief Destructor for WritePageGuard
+   *
+   * Just like with BasicPageGuard, this should behave
+   * as if you were dropping the guard.
+   */
+  ~WritePageGuard();
 
   auto PageId() -> page_id_t { return guard_.PageId(); }
 
@@ -148,7 +212,8 @@ class WritePageGuard {
   }
 
  private:
-  OwnedPageGuard guard_;
+  // You may choose to get rid of this and add your own private variables.
+  BasicPageGuard guard_;
 };
 
 }  // namespace bustub
