@@ -79,7 +79,6 @@ def make_absolute(f, directory):
 def supports_color():
     """
     Modified from https://github.com/django/django/blob/main/django/core/management/color.py
-
     Return True if the running system's terminal supports color,
     and False otherwise.
     """
@@ -106,7 +105,7 @@ def get_tidy_invocation(f, clang_tidy_binary, checks, tmpdir, build_path,
     start = [clang_tidy_binary]
 
     if supports_color():
-        start.append('--use-color')
+        start.append('--color')
 
     if header_filter is not None:
         start.append('-header-filter=' + header_filter)
@@ -425,3 +424,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    

@@ -21,6 +21,7 @@
 #pragma once
 
 #include <algorithm>
+#include <deque>
 #include <optional>
 #include <queue>
 #include <shared_mutex>
