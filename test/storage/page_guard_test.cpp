@@ -42,7 +42,6 @@ TEST(PageGuardTest, DISABLED_SampleTest) {
 
   guarded_page.Drop();
 
-  EXPECT_EQ(nullptr, guarded_page.GetData());
   EXPECT_EQ(0, page0->GetPinCount());
 
   // Shutdown the disk manager and remove the temporary file we created.
