@@ -18,6 +18,7 @@
 #include <optional>
 #include <shared_mutex>
 #include <string>
+#include <thread>  // NOLINT
 #include <utility>
 #include <vector>
 
@@ -70,6 +71,10 @@ class DiskManagerUnlimitedMemory : public DiskManager {
    * @param page_data raw page data
    */
   void WritePage(page_id_t page_id, const char *page_data) override {
+    if (latency_ > 0) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(latency_));
+    }
+
     std::unique_lock<std::mutex> l(mutex_);
     if (page_id >= static_cast<int>(data_.size())) {
       data_.resize(page_id + 1);
@@ -90,6 +95,10 @@ class DiskManagerUnlimitedMemory : public DiskManager {
    * @param[out] page_data output buffer
    */
   void ReadPage(page_id_t page_id, char *page_data) override {
+    if (latency_ > 0) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(latency_));
+    }
+
     std::unique_lock<std::mutex> l(mutex_);
     if (page_id >= static_cast<int>(data_.size()) || page_id < 0) {
       LOG_WARN("page not exist");
@@ -106,11 +115,14 @@ class DiskManagerUnlimitedMemory : public DiskManager {
     memcpy(page_data, ptr->first.data(), BUSTUB_PAGE_SIZE);
   }
 
+  void SetLatency(size_t latency_ms) { latency_ = latency_ms; }
+
  private:
   std::mutex mutex_;
   using Page = std::array<char, BUSTUB_PAGE_SIZE>;
   using ProtectedPage = std::pair<Page, std::shared_mutex>;
   std::vector<std::shared_ptr<ProtectedPage>> data_;
+  size_t latency_{0};
 };
 
 }  // namespace bustub

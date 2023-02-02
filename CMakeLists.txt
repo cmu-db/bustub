@@ -141,6 +141,7 @@ set(BUSTUB_THIRD_PARTY_INCLUDE_DIR
         ${PROJECT_SOURCE_DIR}/third_party/fmt/include
         ${PROJECT_SOURCE_DIR}/third_party/libpg_query/include
         ${PROJECT_SOURCE_DIR}/third_party/argparse/include
+        ${PROJECT_SOURCE_DIR}/third_party/cpp_random_distributions
         )
 
 include_directories(${BUSTUB_SRC_INCLUDE_DIR} ${BUSTUB_TEST_INCLUDE_DIR} ${BUSTUB_THIRD_PARTY_INCLUDE_DIR})
@@ -272,8 +273,8 @@ add_custom_target(submit-p0
         )
 
 set(P1_FILES
-        "src/include/container/hash/extendible_hash_table.h"
-        "src/container/hash/extendible_hash_table.cpp"
+        "src/include/storage/page/page_guard.h"
+        "src/storage/page/page_guard.cpp"
         "src/include/buffer/lru_k_replacer.h"
         "src/buffer/lru_k_replacer.cpp"
         "src/include/buffer/buffer_pool_manager.h"

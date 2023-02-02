@@ -76,12 +76,38 @@ def make_absolute(f, directory):
         return f
     return os.path.normpath(os.path.join(directory, f))
 
+def supports_color():
+    """
+    Modified from https://github.com/django/django/blob/main/django/core/management/color.py
+
+    Return True if the running system's terminal supports color,
+    and False otherwise.
+    """
+
+
+    # isatty is not always implemented, #6223.
+    is_a_tty = hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
+
+    return is_a_tty and (
+        sys.platform != "win32"
+        or "ANSICON" in os.environ
+        or
+        # Windows Terminal supports VT codes.
+        "WT_SESSION" in os.environ
+        or
+        # Microsoft Visual Studio Code's built-in terminal supports colors.
+        os.environ.get("TERM_PROGRAM") == "vscode"
+    )
 
 def get_tidy_invocation(f, clang_tidy_binary, checks, tmpdir, build_path,
                         header_filter, extra_arg, extra_arg_before, quiet,
                         config):
     """Gets a command line for clang-tidy."""
     start = [clang_tidy_binary]
+
+    if supports_color():
+        start.append('--use-color')
+
     if header_filter is not None:
         start.append('-header-filter=' + header_filter)
     else:
