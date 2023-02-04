@@ -8,29 +8,6 @@
 
 namespace bustub {
 
-auto Rp(BufferPoolManager *bpm, page_id_t pid) -> ReadPageGuard {
-  auto p = bpm->FetchPage(pid);
-  p->RLatch();
-  return {bpm, p};
-}
-
-auto Wp(BufferPoolManager *bpm, page_id_t pid) -> WritePageGuard {
-  auto p = bpm->FetchPage(pid);
-  p->WLatch();
-  return {bpm, p};
-}
-
-auto FRp(BufferPoolManager *bpm, page_id_t pid) -> BasicPageGuard {
-  auto p = bpm->FetchPage(pid);
-  return {bpm, p};
-}
-
-auto Op(BufferPoolManager *bpm) -> std::pair<page_id_t, BasicPageGuard> {
-  page_id_t pid;
-  auto p = bpm->NewPage(&pid);
-  return std::make_pair(pid, BasicPageGuard{bpm, p});
-}
-
 INDEX_TEMPLATE_ARGUMENTS
 BPLUSTREE_TYPE::BPlusTree(std::string name, page_id_t header_page_id, BufferPoolManager *buffer_pool_manager,
                           const KeyComparator &comparator, int leaf_max_size, int internal_max_size)
@@ -158,7 +135,7 @@ void BPLUSTREE_TYPE::RemoveFromFile(const std::string &file_name, Transaction *t
 INDEX_TEMPLATE_ARGUMENTS
 void BPLUSTREE_TYPE::Print(BufferPoolManager *bpm) {
   auto root_page_id = GetRootPageId();
-  auto guard = FRp(bpm, root_page_id);
+  auto guard = bpm->FetchPageBasic(root_page_id);
   PrintTree(guard.PageId(), guard.template As<BPlusTreePage>());
 }
 
@@ -194,7 +171,7 @@ void BPLUSTREE_TYPE::PrintTree(page_id_t page_id, const BPlusTreePage *page) {
     std::cout << std::endl;
     std::cout << std::endl;
     for (int i = 0; i < internal->GetSize(); i++) {
-      auto guard = FRp(bpm_, internal->ValueAt(i));
+      auto guard = bpm_->FetchPageBasic(internal->ValueAt(i));
       PrintTree(guard.PageId(), guard.template As<BPlusTreePage>());
     }
   }
@@ -213,7 +190,7 @@ void BPLUSTREE_TYPE::Draw(BufferPoolManager *bpm, const std::string &outf) {
   std::ofstream out(outf);
   out << "digraph G {" << std::endl;
   auto root_page_id = GetRootPageId();
-  auto guard = FRp(bpm, root_page_id);
+  auto guard = bpm->FetchPageBasic(root_page_id);
   ToGraph(guard.PageId(), guard.template As<BPlusTreePage>(), out);
   out << "}" << std::endl;
   out.close();
@@ -279,11 +256,11 @@ void BPLUSTREE_TYPE::ToGraph(page_id_t page_id, const BPlusTreePage *page, std::
     out << "</TABLE>>];\n";
     // Print leaves
     for (int i = 0; i < inner->GetSize(); i++) {
-      auto child_guard = FRp(bpm_, inner->ValueAt(i));
+      auto child_guard = bpm_->FetchPageBasic(inner->ValueAt(i));
       auto child_page = child_guard.template As<BPlusTreePage>();
       ToGraph(child_guard.PageId(), child_page, out);
       if (i > 0) {
-        auto sibling_guard = FRp(bpm_, inner->ValueAt(i - 1));
+        auto sibling_guard = bpm_->FetchPageBasic(inner->ValueAt(i - 1));
         auto sibling_page = sibling_guard.template As<BPlusTreePage>();
         if (!sibling_page->IsLeafPage() && !child_page->IsLeafPage()) {
           out << "{rank=same " << internal_prefix << sibling_guard.PageId() << " " << internal_prefix
