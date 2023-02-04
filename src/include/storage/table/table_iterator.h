@@ -44,7 +44,7 @@ class TableIterator {
 
   auto operator*() -> const Tuple &;
 
-  auto operator-> () -> Tuple *;
+  auto operator->() -> Tuple *;
 
   auto operator++() -> TableIterator &;
 
