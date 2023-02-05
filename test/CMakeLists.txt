@@ -28,12 +28,6 @@ foreach (bustub_test_source ${BUSTUB_TEST_SOURCES})
     add_dependencies(build-tests ${bustub_test_name})
     add_dependencies(check-tests ${bustub_test_name})
 
-    SET(TEST_TIMEOUT 120)
-
-    if(${bustub_test_name} STREQUAL "grading_b_plus_tree_checkpoint_2_concurrent_test")
-        SET(TEST_TIMEOUT 10000)
-    endif()
-
     gtest_discover_tests(${bustub_test_name}
             EXTRA_ARGS
             --gtest_color=auto
@@ -41,8 +35,8 @@ foreach (bustub_test_source ${BUSTUB_TEST_SOURCES})
             --gtest_catch_exceptions=0
             DISCOVERY_TIMEOUT 120
             PROPERTIES
-            TIMEOUT ${TEST_TIMEOUT}
-        )
+            TIMEOUT 120
+            )
 
     target_link_libraries(${bustub_test_name} bustub gtest gmock_main)
 
