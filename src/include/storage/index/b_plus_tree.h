@@ -38,6 +38,12 @@
 
 namespace bustub {
 
+/**
+ * @brief Definition of the Context class.
+ *
+ * Hint: This class is designed to help you keep track of the pages
+ * that you're modifying or accessing.
+ */
 class Context {
  public:
   std::optional<WritePageGuard> header_page_{std::nullopt};

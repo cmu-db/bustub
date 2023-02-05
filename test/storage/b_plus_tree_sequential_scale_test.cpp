@@ -16,10 +16,13 @@
 
 #include "buffer/buffer_pool_manager.h"
 #include "gtest/gtest.h"
+#include "storage/disk/disk_manager_memory.h"
 #include "storage/index/b_plus_tree.h"
 #include "test_util.h"  // NOLINT
 
 namespace bustub {
+
+using bustub::DiskManagerUnlimitedMemory;
 
 /**
  * This test should be passing with your Checkpoint 1 submission.
@@ -29,8 +32,8 @@ TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
 
-  auto *disk_manager = new DiskManager("test.db");
-  auto *bpm = new BufferPoolManager(30, disk_manager);
+  auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
+  auto *bpm = new BufferPoolManager(30, disk_manager.get());
 
   // create and fetch header_page
   page_id_t page_id;
@@ -72,9 +75,6 @@ TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete transaction;
-  delete disk_manager;
   delete bpm;
-  remove("test.db");
-  remove("test.log");
 }
 }  // namespace bustub

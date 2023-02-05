@@ -17,10 +17,14 @@
 
 #include "buffer/buffer_pool_manager.h"
 #include "gtest/gtest.h"
+#include "storage/disk/disk_manager_memory.h"
 #include "storage/index/b_plus_tree.h"
 #include "test_util.h"  // NOLINT
 
 namespace bustub {
+
+using bustub::DiskManagerUnlimitedMemory;
+
 // helper function to launch multiple threads
 template <typename... Args>
 void LaunchParallelTest(uint64_t num_threads, Args &&...args) {
@@ -123,8 +127,8 @@ TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest1) {
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
 
-  auto *disk_manager = new DiskManager("test.db");
-  auto *bpm = new BufferPoolManager(50, disk_manager);
+  auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
+  auto *bpm = new BufferPoolManager(50, disk_manager.get());
   // create and fetch header_page
   page_id_t page_id;
   auto header_page = bpm->NewPage(&page_id);
@@ -163,18 +167,15 @@ TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest1) {
   EXPECT_EQ(current_key, keys.size() + 1);
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
-  delete disk_manager;
   delete bpm;
-  remove("test.db");
-  remove("test.log");
 }
 
 TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest2) {
   // create KeyComparator and index schema
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
-  auto *disk_manager = new DiskManager("test.db");
-  auto *bpm = new BufferPoolManager(50, disk_manager);
+  auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
+  auto *bpm = new BufferPoolManager(50, disk_manager.get());
   // create and fetch header_page
   page_id_t page_id;
   auto header_page = bpm->NewPage(&page_id);
@@ -213,10 +214,7 @@ TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest2) {
   EXPECT_EQ(current_key, keys.size() + 1);
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
-  delete disk_manager;
   delete bpm;
-  remove("test.db");
-  remove("test.log");
 }
 
 TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest1) {
@@ -224,8 +222,8 @@ TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest1) {
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
 
-  auto *disk_manager = new DiskManager("test.db");
-  auto *bpm = new BufferPoolManager(50, disk_manager);
+  auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
+  auto *bpm = new BufferPoolManager(50, disk_manager.get());
 
   GenericKey<8> index_key;
   // create and fetch header_page
@@ -255,10 +253,7 @@ TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest1) {
   EXPECT_EQ(size, 1);
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
-  delete disk_manager;
   delete bpm;
-  remove("test.db");
-  remove("test.log");
 }
 
 TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest2) {
@@ -266,8 +261,8 @@ TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest2) {
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
 
-  auto *disk_manager = new DiskManager("test.db");
-  auto *bpm = new BufferPoolManager(50, disk_manager);
+  auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
+  auto *bpm = new BufferPoolManager(50, disk_manager.get());
   GenericKey<8> index_key;
   // create and fetch header_page
   page_id_t page_id;
@@ -297,10 +292,7 @@ TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest2) {
   EXPECT_EQ(size, 4);
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
-  delete disk_manager;
   delete bpm;
-  remove("test.db");
-  remove("test.log");
 }
 
 TEST(BPlusTreeConcurrentTest, DISABLED_MixTest1) {
@@ -308,8 +300,8 @@ TEST(BPlusTreeConcurrentTest, DISABLED_MixTest1) {
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
 
-  auto *disk_manager = new DiskManager("test.db");
-  auto *bpm = new BufferPoolManager(50, disk_manager);
+  auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
+  auto *bpm = new BufferPoolManager(50, disk_manager.get());
 
   // create and fetch header_page
   page_id_t page_id;
@@ -341,10 +333,7 @@ TEST(BPlusTreeConcurrentTest, DISABLED_MixTest1) {
   EXPECT_EQ(size, 5);
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
-  delete disk_manager;
   delete bpm;
-  remove("test.db");
-  remove("test.log");
 }
 
 TEST(BPlusTreeConcurrentTest, DISABLED_MixTest2) {
@@ -352,8 +341,8 @@ TEST(BPlusTreeConcurrentTest, DISABLED_MixTest2) {
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
 
-  auto *disk_manager = new DiskManager("test.db");
-  auto *bpm = new BufferPoolManager(50, disk_manager);
+  auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
+  auto *bpm = new BufferPoolManager(50, disk_manager.get());
 
   // create and fetch header_page
   page_id_t page_id;
@@ -410,10 +399,7 @@ TEST(BPlusTreeConcurrentTest, DISABLED_MixTest2) {
   ASSERT_EQ(size, perserved_keys.size());
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
-  delete disk_manager;
   delete bpm;
-  remove("test.db");
-  remove("test.log");
 }
 
 }  // namespace bustub

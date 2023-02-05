@@ -105,7 +105,7 @@ def get_tidy_invocation(f, clang_tidy_binary, checks, tmpdir, build_path,
     start = [clang_tidy_binary]
 
     if supports_color():
-        start.append('--color')
+        start.append('--use-color')
 
     if header_filter is not None:
         start.append('-header-filter=' + header_filter)
