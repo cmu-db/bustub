@@ -63,7 +63,7 @@ auto BustubInit(int leaf_max_size, int internal_max_size) -> int {
   page_id_t page_id;
   bpm->NewPage(&page_id);
   // create b+ tree
-  tree = new BPT("foo_pk", bpm, comparator, leaf_max_size, internal_max_size);
+  tree = new BPT("foo_pk", page_id, bpm, comparator, leaf_max_size, internal_max_size);
   transaction = new Transaction(0);
   return 0;
 }
