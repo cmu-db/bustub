@@ -30,7 +30,7 @@ foreach (bustub_test_source ${BUSTUB_TEST_SOURCES})
 
     SET(TEST_TIMEOUT 120)
 
-    if(${bustub_test_name} STREQUAL "BPlusTreeConcurrentTest.MixTest2")
+    if(${bustub_test_name} STREQUAL "grading_b_plus_tree_checkpoint_2_concurrent_test")
         SET(TEST_TIMEOUT 10000)
     endif()
 
@@ -41,7 +41,7 @@ foreach (bustub_test_source ${BUSTUB_TEST_SOURCES})
             --gtest_catch_exceptions=0
             DISCOVERY_TIMEOUT 120
             PROPERTIES
-            TIMEOUT TEST_TIMEOUT
+            TIMEOUT ${TEST_TIMEOUT}
         )
 
     target_link_libraries(${bustub_test_name} bustub gtest gmock_main)
