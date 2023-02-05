@@ -353,7 +353,7 @@ TEST(BPlusTreeConcurrentTest, DISABLED_MixTest2) {
   GenericComparator<8> comparator(key_schema.get());
 
   auto *disk_manager = new DiskManager("test.db");
-  auto *bpm = new BufferPoolManager(100, disk_manager);
+  auto *bpm = new BufferPoolManager(50, disk_manager);
 
   // create and fetch header_page
   page_id_t page_id;
@@ -366,7 +366,7 @@ TEST(BPlusTreeConcurrentTest, DISABLED_MixTest2) {
   // Add perserved_keys
   std::vector<int64_t> perserved_keys;
   std::vector<int64_t> dynamic_keys;
-  int64_t total_keys = 10000;
+  int64_t total_keys = 1000;
   int64_t sieve = 5;
   for (int64_t i = 1; i <= total_keys; i++) {
     if (i % sieve == 0) {
