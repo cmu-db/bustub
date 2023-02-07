@@ -79,7 +79,6 @@ def make_absolute(f, directory):
 def supports_color():
     """
     Modified from https://github.com/django/django/blob/main/django/core/management/color.py
-
     Return True if the running system's terminal supports color,
     and False otherwise.
     """
@@ -425,3 +424,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    

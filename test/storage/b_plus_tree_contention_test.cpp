@@ -26,12 +26,14 @@ bool BPlusTreeLockBenchmarkCall(size_t num_threads, int leaf_node_size, bool wit
   GenericComparator<8> comparator(key_schema.get());
   auto *disk_manager = new DiskManagerMemory(256 << 10);  // 1GB
   auto *bpm = new BufferPoolManager(64, disk_manager);
-  // create b+ tree
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm, comparator, leaf_node_size, 10);
+
   // create and fetch header_page
   page_id_t page_id;
   auto *header_page = bpm->NewPage(&page_id);
   (void)header_page;
+
+  // create b+ tree
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, leaf_node_size, 10);
 
   std::vector<std::thread> threads;
 

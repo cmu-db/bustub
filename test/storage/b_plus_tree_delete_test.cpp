@@ -15,29 +15,30 @@
 
 #include "buffer/buffer_pool_manager.h"
 #include "gtest/gtest.h"
+#include "storage/disk/disk_manager_memory.h"
 #include "storage/index/b_plus_tree.h"
 #include "test_util.h"  // NOLINT
 
 namespace bustub {
+
+using bustub::DiskManagerUnlimitedMemory;
 
 TEST(BPlusTreeTests, DISABLED_DeleteTest1) {
   // create KeyComparator and index schema
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
 
-  auto *disk_manager = new DiskManager("test.db");
-  auto *bpm = new BufferPoolManager(50, disk_manager);
+  auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
+  auto *bpm = new BufferPoolManager(50, disk_manager.get());
+  // create and fetch header_page
+  page_id_t page_id;
+  auto header_page = bpm->NewPage(&page_id);
   // create b+ tree
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm, comparator);
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", header_page->GetPageId(), bpm, comparator);
   GenericKey<8> index_key;
   RID rid;
   // create transaction
   auto *transaction = new Transaction(0);
-
-  // create and fetch header_page
-  page_id_t page_id;
-  auto header_page = bpm->NewPage(&page_id);
-  (void)header_page;
 
   std::vector<int64_t> keys = {1, 2, 3, 4, 5};
   for (auto key : keys) {
@@ -86,10 +87,7 @@ TEST(BPlusTreeTests, DISABLED_DeleteTest1) {
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete transaction;
-  delete disk_manager;
   delete bpm;
-  remove("test.db");
-  remove("test.log");
 }
 
 TEST(BPlusTreeTests, DISABLED_DeleteTest2) {
@@ -97,19 +95,17 @@ TEST(BPlusTreeTests, DISABLED_DeleteTest2) {
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
 
-  auto *disk_manager = new DiskManager("test.db");
-  auto *bpm = new BufferPoolManager(50, disk_manager);
+  auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
+  auto *bpm = new BufferPoolManager(50, disk_manager.get());
+  // create and fetch header_page
+  page_id_t page_id;
+  auto header_page = bpm->NewPage(&page_id);
   // create b+ tree
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm, comparator);
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", header_page->GetPageId(), bpm, comparator);
   GenericKey<8> index_key;
   RID rid;
   // create transaction
   auto *transaction = new Transaction(0);
-
-  // create and fetch header_page
-  page_id_t page_id;
-  auto header_page = bpm->NewPage(&page_id);
-  (void)header_page;
 
   std::vector<int64_t> keys = {1, 2, 3, 4, 5};
   for (auto key : keys) {
@@ -158,9 +154,6 @@ TEST(BPlusTreeTests, DISABLED_DeleteTest2) {
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete transaction;
-  delete disk_manager;
   delete bpm;
-  remove("test.db");
-  remove("test.log");
 }
 }  // namespace bustub

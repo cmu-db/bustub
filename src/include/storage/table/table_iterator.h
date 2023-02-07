@@ -37,7 +37,7 @@ class TableIterator {
   ~TableIterator() { delete tuple_; }
 
   inline auto operator==(const TableIterator &itr) const -> bool {
-    return tuple_->rid_.Get() == itr.tuple_->rid_.Get();
+    return tuple_->GetRid().Get() == itr.tuple_->GetRid().Get();
   }
 
   inline auto operator!=(const TableIterator &itr) const -> bool { return !(*this == itr); }
