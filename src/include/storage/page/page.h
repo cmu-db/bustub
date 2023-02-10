@@ -31,10 +31,13 @@ class Page {
 
  public:
   /** Constructor. Zeros out the page data. */
-  Page() { ResetMemory(); }
+  Page() {
+    data_ = new char[BUSTUB_PAGE_SIZE];
+    ResetMemory();
+  }
 
   /** Default destructor. */
-  ~Page() = default;
+  ~Page() { delete[] data_; }
 
   /** @return the actual data contained within this page */
   inline auto GetData() -> char * { return data_; }
@@ -79,7 +82,9 @@ class Page {
   inline void ResetMemory() { memset(data_, OFFSET_PAGE_START, BUSTUB_PAGE_SIZE); }
 
   /** The actual data that is stored within a page. */
-  char data_[BUSTUB_PAGE_SIZE]{};
+  // Usually this should be stored as `char data_[BUSTUB_PAGE_SIZE]{};`. But to enable ASAN to detect page overflow,
+  // we store it as a ptr.
+  char *data_;
   /** The ID of this page. */
   page_id_t page_id_ = INVALID_PAGE_ID;
   /** The pin count of this page. */
