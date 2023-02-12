@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common/config.h"
+
 namespace bustub {
 
 class BPlusTreeHeaderPage {
