@@ -4,7 +4,6 @@
 #include "common/logger.h"
 #include "common/rid.h"
 #include "storage/index/b_plus_tree.h"
-#include "storage/page/header_page.h"
 
 namespace bustub {
 
@@ -16,7 +15,11 @@ BPLUSTREE_TYPE::BPlusTree(std::string name, page_id_t header_page_id, BufferPool
       comparator_(std::move(comparator)),
       leaf_max_size_(leaf_max_size),
       internal_max_size_(internal_max_size),
-      header_page_id_(header_page_id) {}
+      header_page_id_(header_page_id) {
+  WritePageGuard guard = bpm_->FetchPageWrite(header_page_id_);
+  auto root_page = guard.AsMut<BPlusTreeHeaderPage>();
+  root_page->root_page_id_ = INVALID_PAGE_ID;
+}
 
 /*
  * Helper function to decide whether current b+tree is empty

@@ -27,7 +27,7 @@ namespace bustub {
  * next page id and set max size
  */
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_LEAF_PAGE_TYPE::Init(page_id_t page_id, page_id_t parent_id, int max_size) {}
+void B_PLUS_TREE_LEAF_PAGE_TYPE::Init(int max_size) {}
 
 /**
  * Helper methods to set/get next page id
