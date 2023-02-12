@@ -1,13 +1,14 @@
 #pragma once
 
 #include "common/config.h"
+
 namespace bustub {
 
-class BPlusTreeRootPage {
+class BPlusTreeHeaderPage {
  public:
   // Delete all constructor / destructor to ensure memory safety
-  BPlusTreeRootPage() = delete;
-  BPlusTreeRootPage(const BPlusTreeRootPage &other) = delete;
+  BPlusTreeHeaderPage() = delete;
+  BPlusTreeHeaderPage(const BPlusTreeHeaderPage &other) = delete;
 
   page_id_t root_page_id_;
 };
