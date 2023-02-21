@@ -77,7 +77,7 @@ class DiskManager {
   /** @return the number of disk flushes */
   auto GetNumFlushes() const -> int;
 
-  /** @return true iff the in-memory content has not been flushed yet */
+  /** @return true if the in-memory content has not been flushed yet */
   auto GetFlushState() const -> bool;
 
   /** @return the number of disk writes */
