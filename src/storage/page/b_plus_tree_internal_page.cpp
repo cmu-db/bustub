@@ -21,8 +21,7 @@ namespace bustub {
  *****************************************************************************/
 /*
  * Init method after creating a new internal page
- * Including set page type, set current size, set page id, set parent id and set
- * max page size
+ * Including set page type, set current size, and set max page size
  */
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::Init(int max_size) {}
