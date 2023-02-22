@@ -12,9 +12,11 @@
 
 #include <algorithm>
 #include <deque>
+#include <iostream>
 #include <optional>
 #include <queue>
 #include <shared_mutex>
+#include <string>
 #include <vector>
 
 #include "common/config.h"
@@ -31,8 +33,6 @@ namespace bustub {
 #define BPLUSTREE_TYPE BPlusTree<KeyType, ValueType, KeyComparator>
 
 struct PrintableBPlusTree;
-
-namespace bustub {
 
 /**
  * @brief Definition of the Context class.
@@ -100,7 +100,7 @@ class BPlusTree {
   void Draw(BufferPoolManager *bpm, const std::string &outf);
 
   /**
-   * @brief daraw a beautiful B+ tree, below is a printed
+   * @brief draw a B+ tree, below is a printed
    * B+ tree(3 max leaf, 4 max internal) after inserting key:
    *  {1, 5, 9, 13, 17, 21, 25, 29, 33, 37, 18, 19, 20}
    *
@@ -157,7 +157,7 @@ struct PrintableBPlusTree {
    *
    * @param out_buf
    */
-  void Print(std::ostream out_buf) {
+  void Print(std::ostream &out_buf) {
     std::vector<PrintableBPlusTree *> que = {this};
     while (!que.empty()) {
       std::vector<PrintableBPlusTree *> new_que;
