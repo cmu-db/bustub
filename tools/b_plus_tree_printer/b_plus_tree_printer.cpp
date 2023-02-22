@@ -77,7 +77,7 @@ auto main(int argc, char **argv) -> int {
   page_id_t page_id;
   auto header_page = bpm->NewPage(&page_id);
   // create b+ tree
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm, comparator, leaf_max_size, internal_max_size);
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, leaf_max_size, internal_max_size);
   // create transaction
   auto *transaction = new Transaction(0);
   while (!quit) {

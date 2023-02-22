@@ -18,7 +18,6 @@ namespace bustub {
  * Page type enum class is defined in b_plus_tree_page.h
  */
 auto BPlusTreePage::IsLeafPage() const -> bool { return false; }
-auto BPlusTreePage::IsRootPage() const -> bool { return false; }
 void BPlusTreePage::SetPageType(IndexPageType page_type) {}
 
 /*
@@ -40,22 +39,5 @@ void BPlusTreePage::SetMaxSize(int size) {}
  * Generally, min page size == max page size / 2
  */
 auto BPlusTreePage::GetMinSize() const -> int { return 0; }
-
-/*
- * Helper methods to get/set parent page id
- */
-auto BPlusTreePage::GetParentPageId() const -> page_id_t { return 0; }
-void BPlusTreePage::SetParentPageId(page_id_t parent_page_id) {}
-
-/*
- * Helper methods to get/set self page id
- */
-auto BPlusTreePage::GetPageId() const -> page_id_t { return 0; }
-void BPlusTreePage::SetPageId(page_id_t page_id) {}
-
-/*
- * Helper methods to set lsn
- */
-void BPlusTreePage::SetLSN(lsn_t lsn) { lsn_ = lsn; }
 
 }  // namespace bustub
