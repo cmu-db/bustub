@@ -30,8 +30,6 @@
 
 namespace bustub {
 
-#define BPLUSTREE_TYPE BPlusTree<KeyType, ValueType, KeyComparator>
-
 struct PrintableBPlusTree;
 
 /**
