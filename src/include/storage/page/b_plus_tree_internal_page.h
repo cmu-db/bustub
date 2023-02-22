@@ -11,6 +11,7 @@
 #pragma once
 
 #include <queue>
+#include <string>
 
 #include "storage/page/b_plus_tree_page.h"
 
@@ -71,6 +72,32 @@ class BPlusTreeInternalPage : public BPlusTreePage {
    * @return the value at the index
    */
   auto ValueAt(int index) const -> ValueType;
+
+  /**
+   * @brief For test only, return a string representing all keys in
+   * this internal page, formatted as "(key1,key2,key3,...)"
+   *
+   * @return std::string
+   */
+  auto ToString() const -> std::string {
+    std::string kstr = "(";
+    bool first = true;
+
+    // first key of internal page is always invalid
+    for (int i = 1; i < GetSize(); i++) {
+      KeyType key = KeyAt(i);
+      if (first) {
+        first = false;
+      } else {
+        kstr.append(",");
+      }
+
+      kstr.append(std::to_string(key.ToString()));
+    }
+    kstr.append(")");
+
+    return kstr;
+  }
 
  private:
   // Flexible array member for page data.

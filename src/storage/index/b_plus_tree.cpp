@@ -1,3 +1,4 @@
+#include <sstream>
 #include <string>
 
 #include "common/exception.h"
@@ -290,6 +291,47 @@ void BPLUSTREE_TYPE::ToGraph(page_id_t page_id, const BPlusTreePage *page, std::
       }
     }
   }
+}
+
+INDEX_TEMPLATE_ARGUMENTS
+auto BPLUSTREE_TYPE::DrawBPlusTree() -> std::string {
+  if (IsEmpty()) {
+    return "()";
+  }
+
+  PrintableBPlusTree p_root = ToPrintableBPlusTree(GetRootPageId());
+  std::ostringstream out_buf;
+  p_root.Print(out_buf);
+
+  return out_buf.str();
+}
+
+INDEX_TEMPLATE_ARGUMENTS
+auto BPLUSTREE_TYPE::ToPrintableBPlusTree(page_id_t root_id) -> PrintableBPlusTree {
+  auto root_page_guard = bpm_->FetchPageBasic(root_id);
+  auto root_page = root_page_guard.template As<BPlusTreePage>();
+  PrintableBPlusTree proot;
+
+  if (root_page->IsLeafPage()) {
+    auto leaf_page = root_page_guard.template As<LeafPage>();
+    proot.keys_ = leaf_page->ToString();
+    proot.size_ = proot.keys_.size() + 4;  // 4 more spaces for indent
+
+    return proot;
+  }
+
+  // draw internal page
+  auto internal_page = root_page_guard.template As<InternalPage>();
+  proot.keys_ = internal_page->ToString();
+  proot.size_ = 0;
+  for (int i = 0; i < internal_page->GetSize(); i++) {
+    page_id_t child_id = internal_page->ValueAt(i);
+    PrintableBPlusTree child_node = ToPrintableBPlusTree(child_id);
+    proot.size_ += child_node.size_;
+    proot.children_.push_back(child_node);
+  }
+
+  return proot;
 }
 
 template class BPlusTree<GenericKey<4>, RID, GenericComparator<4>>;
