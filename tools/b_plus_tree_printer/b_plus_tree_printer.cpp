@@ -111,7 +111,7 @@ auto main(int argc, char **argv) -> int {
         quit = true;
         break;
       case 'p':
-        tree.DrawBPlusTree();
+        std::cout << tree.DrawBPlusTree() << std::endl;
         tree.Print(bpm);
         break;
       case 'g':
