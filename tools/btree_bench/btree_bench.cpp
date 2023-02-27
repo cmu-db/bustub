@@ -179,29 +179,31 @@ auto main(int argc, char **argv) -> int {
       std::vector<bustub::RID> rids;
 
       while (!metrics.ShouldFinish()) {
-        auto key = dis(gen);
-        rids.clear();
-        index_key.SetFromInteger(key);
-        index.GetValue(index_key, &rids);
+        auto base_key = dis(gen);
+        size_t cnt = 0;
+        for (auto key = base_key; key < key_end && cnt < KEY_MODIFY_RANGE; key++, cnt++) {
+          rids.clear();
+          index_key.SetFromInteger(key);
+          index.GetValue(index_key, &rids);
 
-        if (!KeyWillVanish(key) && rids.empty()) {
-          std::string msg = fmt::format("key not found: {}", key);
-          throw std::runtime_error(msg);
-        }
-
-        if (!KeyWillVanish(key) && !KeyWillChange(key)) {
-          if (rids.size() != 1) {
+          if (!KeyWillVanish(key) && rids.empty()) {
             std::string msg = fmt::format("key not found: {}", key);
             throw std::runtime_error(msg);
           }
-          if (static_cast<size_t>(rids[0].GetPageId()) != key || static_cast<size_t>(rids[0].GetSlotNum()) != key) {
-            std::string msg = fmt::format("invalid data: {} -> {}", key, rids[0].Get());
-            throw std::runtime_error(msg);
-          }
-        }
 
-        metrics.Tick();
-        metrics.Report();
+          if (!KeyWillVanish(key) && !KeyWillChange(key)) {
+            if (rids.size() != 1) {
+              std::string msg = fmt::format("key not found: {}", key);
+              throw std::runtime_error(msg);
+            }
+            if (static_cast<size_t>(rids[0].GetPageId()) != key || static_cast<size_t>(rids[0].GetSlotNum()) != key) {
+              std::string msg = fmt::format("invalid data: {} -> {}", key, rids[0].Get());
+              throw std::runtime_error(msg);
+            }
+          }
+          metrics.Tick();
+          metrics.Report();
+        }
       }
 
       total_metrics.ReportRead(metrics.cnt_);
@@ -227,7 +229,7 @@ auto main(int argc, char **argv) -> int {
       while (!metrics.ShouldFinish()) {
         auto base_key = dis(gen);
         size_t cnt = 0;
-        for (auto key = base_key; key < key_end && cnt < KEY_MODIFY_RANGE; key++) {
+        for (auto key = base_key; key < key_end && cnt < KEY_MODIFY_RANGE; key++, cnt++) {
           if (KeyWillVanish(key)) {
             uint32_t value = key;
             rid.Set(value, value);
