@@ -76,7 +76,13 @@ bool BPlusTreeLockBenchmarkCall(size_t num_threads, int leaf_node_size, bool wit
   return success;
 }
 
-TEST(BPlusTreeTest, DISABLED_BPlusTreeContentionBenchmark) {  // NOLINT
+TEST(BPlusTreeContentionTest, BPlusTreeContentionBenchmark) {  // NOLINT
+  std::cout << "This test will see how your B+ tree performance differs with and without contention." << std::endl;
+  std::cout << "If your submission timeout, segfault, or didn't implement lock crabbing, we will manually deduct all "
+               "concurrent test points (maximum 25)."
+            << std::endl;
+  std::cout << "left_node_size = 2" << std::endl;
+
   std::vector<size_t> time_ms_with_mutex;
   std::vector<size_t> time_ms_wo_mutex;
   for (size_t iter = 0; iter < 20; iter++) {
@@ -91,7 +97,7 @@ TEST(BPlusTreeTest, DISABLED_BPlusTreeContentionBenchmark) {  // NOLINT
       time_ms_wo_mutex.push_back(dur.count());
     }
   }
-  std::cout << "This test will see how your B+ tree performance differs with and without contention." << std::endl;
+
   std::cout << "<<< BEGIN" << std::endl;
   std::cout << "Normal Access Time: ";
   double ratio_1 = 0;
@@ -116,7 +122,13 @@ TEST(BPlusTreeTest, DISABLED_BPlusTreeContentionBenchmark) {  // NOLINT
             << std::endl;
 }
 
-TEST(BPlusTreeTest, DISABLED_BPlusTreeContentionBenchmark2) {  // NOLINT
+TEST(BPlusTreeContentionTest, BPlusTreeContentionBenchmark2) {  // NOLINT
+  std::cout << "This test will see how your B+ tree performance differs with and without contention." << std::endl;
+  std::cout << "If your submission timeout, segfault, or didn't implement lock crabbing, we will manually deduct all "
+               "concurrent test points (maximum 25)."
+            << std::endl;
+  std::cout << "left_node_size = 10" << std::endl;
+
   std::vector<size_t> time_ms_with_mutex;
   std::vector<size_t> time_ms_wo_mutex;
   for (size_t iter = 0; iter < 20; iter++) {
@@ -131,7 +143,7 @@ TEST(BPlusTreeTest, DISABLED_BPlusTreeContentionBenchmark2) {  // NOLINT
       time_ms_wo_mutex.push_back(dur.count());
     }
   }
-  std::cout << "This test will see how your B+ tree performance differs with and without contention." << std::endl;
+
   std::cout << "<<< BEGIN2" << std::endl;
   std::cout << "Normal Access Time: ";
   double ratio_1 = 0;
