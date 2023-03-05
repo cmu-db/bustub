@@ -34,7 +34,7 @@ class IndexIterator {
 
   ~IndexIterator() = default;
 
-  auto IsEnd() -> bool { return iter_ != map_->cend(); }
+  auto IsEnd() -> bool { return iter_ == map_->cend(); }
 
   auto operator*() -> const MappingType & {
     ret_val_ = *iter_;
