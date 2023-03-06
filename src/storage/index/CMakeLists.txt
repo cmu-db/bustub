@@ -3,6 +3,7 @@ add_library(
     OBJECT
     b_plus_tree_index.cpp
     b_plus_tree.cpp
+    b_plus_tree_helper.cpp
     extendible_hash_table_index.cpp
     index_iterator.cpp
     linear_probe_hash_table_index.cpp)
