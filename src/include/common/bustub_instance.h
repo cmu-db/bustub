@@ -41,6 +41,12 @@ class CheckpointManager;
 class Catalog;
 class ExecutionEngine;
 
+class CreateStatement;
+class IndexStatement;
+class VariableSetStatement;
+class VariableShowStatement;
+class ExplainStatement;
+
 class ResultWriter {
  public:
   ResultWriter() = default;
@@ -271,6 +277,13 @@ class BustubInstance {
   void CmdDisplayIndices(ResultWriter &writer);
   void CmdDisplayHelp(ResultWriter &writer);
   void WriteOneCell(const std::string &cell, ResultWriter &writer);
+
+  void HandleCreateStatement(Transaction *txn, const CreateStatement &stmt, ResultWriter &writer);
+  void HandleIndexStatement(Transaction *txn, const IndexStatement &stmt, ResultWriter &writer);
+  void HandleExplainStatement(Transaction *txn, const ExplainStatement &stmt, ResultWriter &writer);
+  void HandleVariableShowStatement(Transaction *txn, const VariableShowStatement &stmt, ResultWriter &writer);
+  void HandleVariableSetStatement(Transaction *txn, const VariableSetStatement &stmt, ResultWriter &writer);
+
   std::unordered_map<std::string, std::string> session_variables_;
 };
 

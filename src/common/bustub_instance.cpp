@@ -216,98 +216,27 @@ auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
     switch (statement->type_) {
       case StatementType::CREATE_STATEMENT: {
         const auto &create_stmt = dynamic_cast<const CreateStatement &>(*statement);
-
-        std::unique_lock<std::shared_mutex> l(catalog_lock_);
-        auto info = catalog_->CreateTable(txn, create_stmt.table_, Schema(create_stmt.columns_));
-        l.unlock();
-
-        if (info == nullptr) {
-          throw bustub::Exception("Failed to create table");
-        }
-        WriteOneCell(fmt::format("Table created with id = {}", info->oid_), writer);
+        HandleCreateStatement(txn, create_stmt, writer);
         continue;
       }
       case StatementType::INDEX_STATEMENT: {
         const auto &index_stmt = dynamic_cast<const IndexStatement &>(*statement);
-
-        std::vector<uint32_t> col_ids;
-        for (const auto &col : index_stmt.cols_) {
-          auto idx = index_stmt.table_->schema_.GetColIdx(col->col_name_.back());
-          col_ids.push_back(idx);
-          if (index_stmt.table_->schema_.GetColumn(idx).GetType() != TypeId::INTEGER) {
-            throw NotImplementedException("only support creating index on integer column");
-          }
-        }
-        if (col_ids.size() != 1) {
-          throw NotImplementedException("only support creating index with exactly one column");
-        }
-        auto key_schema = Schema::CopySchema(&index_stmt.table_->schema_, col_ids);
-
-        std::unique_lock<std::shared_mutex> l(catalog_lock_);
-        auto info = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
-            txn, index_stmt.index_name_, index_stmt.table_->table_, index_stmt.table_->schema_, key_schema, col_ids,
-            INTEGER_SIZE, IntegerHashFunctionType{});
-        l.unlock();
-
-        if (info == nullptr) {
-          throw bustub::Exception("Failed to create index");
-        }
-        WriteOneCell(fmt::format("Index created with id = {}", info->index_oid_), writer);
+        HandleIndexStatement(txn, index_stmt, writer);
         continue;
       }
       case StatementType::VARIABLE_SHOW_STATEMENT: {
         const auto &show_stmt = dynamic_cast<const VariableShowStatement &>(*statement);
-        auto content = GetSessionVariable(show_stmt.variable_);
-        WriteOneCell(fmt::format("{}={}", show_stmt.variable_, content), writer);
+        HandleVariableShowStatement(txn, show_stmt, writer);
         continue;
       }
       case StatementType::VARIABLE_SET_STATEMENT: {
         const auto &set_stmt = dynamic_cast<const VariableSetStatement &>(*statement);
-        session_variables_[set_stmt.variable_] = set_stmt.value_;
+        HandleVariableSetStatement(txn, set_stmt, writer);
         continue;
       }
       case StatementType::EXPLAIN_STATEMENT: {
         const auto &explain_stmt = dynamic_cast<const ExplainStatement &>(*statement);
-        std::string output;
-
-        // Print binder result.
-        if ((explain_stmt.options_ & ExplainOptions::BINDER) != 0) {
-          output += "=== BINDER ===";
-          output += "\n";
-          output += explain_stmt.statement_->ToString();
-          output += "\n";
-        }
-
-        std::shared_lock<std::shared_mutex> l(catalog_lock_);
-
-        bustub::Planner planner(*catalog_);
-        planner.PlanQuery(*explain_stmt.statement_);
-
-        bool show_schema = (explain_stmt.options_ & ExplainOptions::SCHEMA) != 0;
-
-        // Print planner result.
-        if ((explain_stmt.options_ & ExplainOptions::PLANNER) != 0) {
-          output += "=== PLANNER ===";
-          output += "\n";
-          output += planner.plan_->ToString(show_schema);
-          output += "\n";
-        }
-
-        // Print optimizer result.
-        bustub::Optimizer optimizer(*catalog_, IsForceStarterRule());
-        auto optimized_plan = optimizer.Optimize(planner.plan_);
-
-        l.unlock();
-
-        if ((explain_stmt.options_ & ExplainOptions::OPTIMIZER) != 0) {
-          output += "=== OPTIMIZER ===";
-          output += "\n";
-          output += optimized_plan->ToString(show_schema);
-          output += "\n";
-        }
-
-        WriteOneCell(output, writer);
-
+        HandleExplainStatement(txn, explain_stmt, writer);
         continue;
       }
       default:
