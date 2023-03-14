@@ -29,7 +29,7 @@ class BPlusTreeIndex : public Index {
  public:
   BPlusTreeIndex(std::unique_ptr<IndexMetadata> &&metadata, BufferPoolManager *buffer_pool_manager);
 
-  void InsertEntry(const Tuple &key, RID rid, Transaction *transaction) override;
+  auto InsertEntry(const Tuple &key, RID rid, Transaction *transaction) -> bool override;
 
   void DeleteEntry(const Tuple &key, RID rid, Transaction *transaction) override;
 
@@ -50,10 +50,10 @@ class BPlusTreeIndex : public Index {
 
 /** We only support index table with one integer key for now in BusTub. Hardcode everything here. */
 
-constexpr static const auto INTEGER_SIZE = 4;
-using IntegerKeyType = GenericKey<INTEGER_SIZE>;
+constexpr static const auto TWO_INTEGER_SIZE = 8;
+using IntegerKeyType = GenericKey<TWO_INTEGER_SIZE>;
 using IntegerValueType = RID;
-using IntegerComparatorType = GenericComparator<INTEGER_SIZE>;
+using IntegerComparatorType = GenericComparator<TWO_INTEGER_SIZE>;
 using BPlusTreeIndexForOneIntegerColumn = BPlusTreeIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>;
 using BPlusTreeIndexIteratorForOneIntegerColumn =
     IndexIterator<IntegerKeyType, IntegerValueType, IntegerComparatorType>;
