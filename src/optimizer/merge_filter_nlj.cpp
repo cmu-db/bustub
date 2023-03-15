@@ -36,8 +36,8 @@ auto Optimizer::RewriteExpressionForJoin(const AbstractExpressionRef &expr, size
   return expr->CloneWithChildren(children);
 }
 
-auto Optimizer::IsPredicateTrue(const AbstractExpression &expr) -> bool {
-  if (const auto *const_expr = dynamic_cast<const ConstantValueExpression *>(&expr); const_expr != nullptr) {
+auto Optimizer::IsPredicateTrue(const AbstractExpressionRef &expr) -> bool {
+  if (const auto *const_expr = dynamic_cast<const ConstantValueExpression *>(expr.get()); const_expr != nullptr) {
     return const_expr->val_.CastAs(TypeId::BOOLEAN).GetAs<bool>();
   }
   return false;

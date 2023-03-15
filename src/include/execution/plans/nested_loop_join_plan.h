@@ -46,7 +46,7 @@ class NestedLoopJoinPlanNode : public AbstractPlanNode {
   auto GetType() const -> PlanType override { return PlanType::NestedLoopJoin; }
 
   /** @return The predicate to be used in the nested loop join */
-  auto Predicate() const -> const AbstractExpression & { return *predicate_; }
+  auto Predicate() const -> const AbstractExpressionRef & { return predicate_; }
 
   /** @return The join type used in the nested loop join */
   auto GetJoinType() const -> JoinType { return join_type_; };
