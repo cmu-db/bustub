@@ -20,6 +20,7 @@
 #include "concurrency/transaction_manager.h"
 #include "execution/executor_context.h"
 #include "execution/executor_factory.h"
+#include "execution/executors/init_check_executor.h"
 #include "execution/plans/abstract_plan.h"
 #include "storage/table/tuple.h"
 
@@ -63,6 +64,7 @@ class ExecutionEngine {
     try {
       executor->Init();
       PollExecutor(executor.get(), plan, result_set);
+      PerformChecks(exec_ctx);
     } catch (const ExecutionException &ex) {
 #ifndef NDEBUG
       LOG_ERROR("Error Encountered in Executor Execution: %s", ex.what());
@@ -74,6 +76,15 @@ class ExecutionEngine {
     }
 
     return executor_succeeded;
+  }
+
+  void PerformChecks(ExecutorContext *exec_ctx) {
+    for (const auto &[left_executor, right_executor] : exec_ctx->GetNLJCheckExecutorSet()) {
+      auto casted_left_executor = dynamic_cast<const InitCheckExecutor *>(left_executor);
+      auto casted_right_executor = dynamic_cast<const InitCheckExecutor *>(right_executor);
+      BUSTUB_ASSERT(casted_left_executor->GetNextCount() == casted_right_executor->GetInitCount(),
+                    "nlj check failed, are you initialising the right executor correctly?");
+    }
   }
 
  private:

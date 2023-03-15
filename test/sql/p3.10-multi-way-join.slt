@@ -6,7 +6,7 @@ create table t1(v1 int);
 statement ok
 insert into t1 values (1), (1);
 
-query
+query 
 select * from (t1 a inner join t1 b on a.v1 = b.v1) inner join t1 c on a.v1 = c.v1;
 ----
 1 1 1
@@ -18,7 +18,7 @@ select * from (t1 a inner join t1 b on a.v1 = b.v1) inner join t1 c on a.v1 = c.
 1 1 1
 1 1 1
 
-query rowsort
+query rowsort +ensure:nlj_init_check
 select * from __mock_table_123 a, __mock_table_123 b, __mock_table_123 c;
 ----
 1 1 1
@@ -364,7 +364,7 @@ select * from (t3 left join t2 on t2.v1 = t3.v1) left join t4 on t3.v1 = t4.v1;
 statement ok
 create table t5(v1 int);
 
-query rowsort
+query rowsort +ensure:nlj_init_check
 select * from ((t3 left join t5 on t3.v1 < t5.v1) left join t5 as t52 on t3.v1 < t52.v1) left join t5 as t53 on t3.v1 < t53.v1;
 ----
 1 integer_null integer_null integer_null 
