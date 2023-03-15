@@ -25,6 +25,7 @@
 #include "catalog/catalog.h"
 #include "common/config.h"
 #include "common/util/string_util.h"
+#include "execution/check_options.h"
 #include "libfort/lib/fort.hpp"
 #include "type/value.h"
 
@@ -226,12 +227,14 @@ class BustubInstance {
   /**
    * Execute a SQL query in the BusTub instance.
    */
-  auto ExecuteSql(const std::string &sql, ResultWriter &writer) -> bool;
+  auto ExecuteSql(const std::string &sql, ResultWriter &writer, std::shared_ptr<CheckOptions> check_options = nullptr)
+      -> bool;
 
   /**
    * Execute a SQL query in the BusTub instance with provided txn.
    */
-  auto ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn) -> bool;
+  auto ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn,
+                     std::shared_ptr<CheckOptions> check_options = nullptr) -> bool;
 
   /**
    * FOR TEST ONLY. Generate test tables in this BusTub instance.

@@ -20,6 +20,7 @@
 #include "common/util/string_util.h"
 #include "concurrency/lock_manager.h"
 #include "concurrency/transaction.h"
+#include "execution/check_options.h"
 #include "execution/execution_engine.h"
 #include "execution/executor_context.h"
 #include "execution/executors/mock_scan_executor.h"
@@ -172,10 +173,11 @@ see the execution plan of your query.
   WriteOneCell(help, writer);
 }
 
-auto BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) -> bool {
+auto BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer,
+                                std::shared_ptr<CheckOptions> check_options) -> bool {
   auto txn = txn_manager_->Begin();
   try {
-    auto result = ExecuteSqlTxn(sql, writer, txn);
+    auto result = ExecuteSqlTxn(sql, writer, txn, std::move(check_options));
     txn_manager_->Commit(txn);
     delete txn;
     return result;
@@ -186,7 +188,8 @@ auto BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer) ->
   }
 }
 
-auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn) -> bool {
+auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn,
+                                   std::shared_ptr<CheckOptions> check_options) -> bool {
   if (!sql.empty() && sql[0] == '\\') {
     // Internal meta-commands, like in `psql`.
     if (sql == "\\dt") {
@@ -257,6 +260,9 @@ auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
 
     // Execute the query.
     auto exec_ctx = MakeExecutorContext(txn);
+    if (check_options != nullptr) {
+      exec_ctx->InitCheckOptions(std::move(check_options));
+    }
     std::vector<Tuple> result_set{};
     is_successful &= execution_engine_->Execute(optimized_plan, &result_set, txn, exec_ctx.get());
 

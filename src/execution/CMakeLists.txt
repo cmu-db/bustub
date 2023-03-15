@@ -8,6 +8,7 @@ add_library(
         fmt_impl.cpp
         hash_join_executor.cpp
         index_scan_executor.cpp
+        init_check_executor.cpp
         insert_executor.cpp
         limit_executor.cpp
         mock_scan_executor.cpp
