@@ -3,20 +3,21 @@
 # Show office hours on lecture days
 # "rowsort" means that the order of result doesn't matter.
 
+statement ok
+set force_optimizer_starter_rule=yes
+
 query rowsort
 select * from
-    __mock_table_tas_2022 inner join __mock_table_schedule_2022
+    __mock_table_tas_2023 inner join __mock_table_schedule_2023
     on office_hour = day_of_week
     where has_lecture = 1;
 ----
-amstqq Tuesday Tuesday 1 
-thepinetree Tuesday Tuesday 1 
-yliang412 Tuesday Tuesday 1 
-kush789 Thursday Thursday 1 
+David-Lyons Monday Monday 1 
+yarkhinephyo Wednesday Wednesday 1 
 
 # The real test begins...
 
-query rowsort
+query rowsort +ensure:nlj_init_check
 select * from test_simple_seq_1 s1 inner join test_simple_seq_2 s2 on s1.col1 + 5 = s2.col1;
 ----
 0 5 15
@@ -26,7 +27,7 @@ select * from test_simple_seq_1 s1 inner join test_simple_seq_2 s2 on s1.col1 + 
 4 9 19
 
 
-query rowsort
+query rowsort +ensure:nlj_init_check
 select * from test_simple_seq_1 s1 left join test_simple_seq_2 s2 on s1.col1 + 5 = s2.col1;
 ----
 0 5 15
@@ -304,7 +305,7 @@ insert into temp_3 values
     (19, 974),
     (20, 739);
 
-query rowsort
+query rowsort +ensure:nlj_init_check
 select * from temp_1 t1 inner join test_simple_seq_2 seq on t1.colA = seq.col2 ;
 ----
 10 8 398 60977 0 10
@@ -324,14 +325,14 @@ select * from __mock_table_1 m1 inner join temp_1 t1 on t1.colA = m1.colB;
 0 0 0 1 6113 48270
 
 
-query rowsort
+query rowsort +ensure:nlj_init_check
 select * from temp_1 t1 inner join temp_2 t2 on t1.colD = t2.colA;
 ----
 60 5 4347 34 34 311 4
 
 
 # Non-eq condition
-query rowsort
+query rowsort +ensure:nlj_init_check
 select * from temp_2 t2 inner join test_simple_seq_2 s2 on t2.colB < s2.col2;
 ----
 15 2 5 0 10
@@ -362,7 +363,7 @@ create table t2(v1 int, v2 int);
 statement ok
 insert into t2 values (0, 45), (0, 45), (0, 65), (1, 45), (1, 45), (1, 65), (2, 45);
 
-query rowsort
+query rowsort +ensure:nlj_init_check
 select * from temp_2 inner join t2 on v2 = colA;
 ----
 45 518 5 0 45
@@ -374,7 +375,7 @@ select * from temp_2 inner join t2 on v2 = colA;
 45 518 5 2 45
 
 
-query rowsort
+query rowsort +ensure:nlj_init_check
 select * from temp_3 t3 inner join temp_2 t2 on t3.colB = t2.colA;
 ----
 5 29 29 538 9
@@ -389,7 +390,7 @@ select * from temp_3 t3 inner join temp_2 t2 on t3.colB = t2.colA;
 16 52 52 276 2
 18 38 38 194 8
 
-query rowsort
+query rowsort +ensure:nlj_init_check
 select * from
     (select * from temp_2 where colB < 10) t2 inner join
     (select distinct(temp_2.colA) from temp_1 inner join temp_2 on temp_1.colC = temp_2.colA) t3

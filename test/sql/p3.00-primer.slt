@@ -1,14 +1,12 @@
 query rowsort
-select github_id from __mock_table_tas_2022;
+select github_id from __mock_table_tas_2023;
 ----
-amstqq 
-durovo 
-joyceliaoo 
-karthik-ramanathan-3006 
-kush789 
-lmwnshn 
-mkpjnx 
-skyzh 
-thepinetree 
-timlee0119 
-yliang412
+abigalekim
+arvinwu168
+christopherlim98
+David-Lyons
+fanyuex2
+Mayank-Baranwal
+skyzh
+yarkhinephyo
+yliang412     
