@@ -15,6 +15,7 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         config:
           - {
