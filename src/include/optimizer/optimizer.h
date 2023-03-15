@@ -78,7 +78,7 @@ class Optimizer {
       -> AbstractExpressionRef;
 
   /** @brief check if the predicate is true::boolean */
-  auto IsPredicateTrue(const AbstractExpression &expr) -> bool;
+  auto IsPredicateTrue(const AbstractExpressionRef &expr) -> bool;
 
   /**
    * @brief optimize order by as index scan if there's an index on a table

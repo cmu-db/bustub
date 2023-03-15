@@ -35,21 +35,21 @@ class HashJoinPlanNode : public AbstractPlanNode {
    * @param right_key_expression The expression for the right JOIN key
    */
   HashJoinPlanNode(SchemaRef output_schema, AbstractPlanNodeRef left, AbstractPlanNodeRef right,
-                   AbstractExpressionRef left_key_expression, AbstractExpressionRef right_key_expression,
-                   JoinType join_type)
+                   std::vector<AbstractExpressionRef> left_key_expressions,
+                   std::vector<AbstractExpressionRef> right_key_expressions, JoinType join_type)
       : AbstractPlanNode(std::move(output_schema), {std::move(left), std::move(right)}),
-        left_key_expression_{std::move(left_key_expression)},
-        right_key_expression_{std::move(right_key_expression)},
+        left_key_expressions_{std::move(left_key_expressions)},
+        right_key_expressions_{std::move(right_key_expressions)},
         join_type_(join_type) {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::HashJoin; }
 
   /** @return The expression to compute the left join key */
-  auto LeftJoinKeyExpression() const -> const AbstractExpression & { return *left_key_expression_; }
+  auto LeftJoinKeyExpressions() const -> const std::vector<AbstractExpressionRef> & { return left_key_expressions_; }
 
   /** @return The expression to compute the right join key */
-  auto RightJoinKeyExpression() const -> const AbstractExpression & { return *right_key_expression_; }
+  auto RightJoinKeyExpressions() const -> const std::vector<AbstractExpressionRef> & { return right_key_expressions_; }
 
   /** @return The left plan node of the hash join */
   auto GetLeftPlan() const -> AbstractPlanNodeRef {
@@ -69,18 +69,15 @@ class HashJoinPlanNode : public AbstractPlanNode {
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(HashJoinPlanNode);
 
   /** The expression to compute the left JOIN key */
-  AbstractExpressionRef left_key_expression_;
+  std::vector<AbstractExpressionRef> left_key_expressions_;
   /** The expression to compute the right JOIN key */
-  AbstractExpressionRef right_key_expression_;
+  std::vector<AbstractExpressionRef> right_key_expressions_;
 
   /** The join type */
   JoinType join_type_;
 
  protected:
-  auto PlanNodeToString() const -> std::string override {
-    return fmt::format("HashJoin {{ type={}, left_key={}, right_key={} }}", join_type_, left_key_expression_,
-                       right_key_expression_);
-  }
+  auto PlanNodeToString() const -> std::string override;
 };
 
 }  // namespace bustub
