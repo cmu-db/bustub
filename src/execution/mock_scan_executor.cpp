@@ -26,14 +26,21 @@ static const char *ta_list_2022[] = {"amstqq",      "durovo",     "joyceliaoo", 
                                      "kush789",     "lmwnshn",    "mkpjnx",     "skyzh",
                                      "thepinetree", "timlee0119", "yliang412"};
 
+static const char *ta_list_2023[] = {"abigalekim",      "arvinwu168", "christopherlim98", "David-Lyons", "fanyuex2",
+                                     "Mayank-Baranwal", "skyzh",      "yarkhinephyo",     "yliang412"};
+
 static const char *ta_oh_2022[] = {"Tuesday",   "Wednesday", "Monday",  "Wednesday", "Thursday", "Friday",
                                    "Wednesday", "Randomly",  "Tuesday", "Monday",    "Tuesday"};
+
+static const char *ta_oh_2023[] = {"Friday",  "Thursday", "Tuesday",   "Monday",  "Tuesday",
+                                   "Tuesday", "Randomly", "Wednesday", "Thursday"};
 
 static const char *course_on_date[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
 const char *mock_table_list[] = {"__mock_table_1", "__mock_table_2", "__mock_table_3", "__mock_table_tas_2022",
-                                 "__mock_agg_input_small", "__mock_agg_input_big", "__mock_table_schedule_2022",
-                                 "__mock_table_schedule_2023", "__mock_table_123", "__mock_graph",
+                                 "__mock_table_tas_2023", "__mock_agg_input_small", "__mock_agg_input_big",
+                                 "__mock_table_schedule_2022", "__mock_table_schedule_2023", "__mock_table_123",
+                                 "__mock_graph",
                                  // For leaderboard Q1
                                  "__mock_t1_50k", "__mock_t2_100k", "__mock_t3_1k",
                                  // For leaderboard Q2
@@ -57,6 +64,10 @@ auto GetMockTableSchemaOf(const std::string &table) -> Schema {
   }
 
   if (table == "__mock_table_tas_2022") {
+    return Schema{std::vector{Column{"github_id", TypeId::VARCHAR, 128}, Column{"office_hour", TypeId::VARCHAR, 128}}};
+  }
+
+  if (table == "__mock_table_tas_2023") {
     return Schema{std::vector{Column{"github_id", TypeId::VARCHAR, 128}, Column{"office_hour", TypeId::VARCHAR, 128}}};
   }
 
@@ -118,6 +129,10 @@ auto GetSizeOf(const MockScanPlanNode *plan) -> size_t {
 
   if (table == "__mock_table_tas_2022") {
     return sizeof(ta_list_2022) / sizeof(ta_list_2022[0]);
+  }
+
+  if (table == "__mock_table_tas_2023") {
+    return sizeof(ta_list_2023) / sizeof(ta_list_2023[0]);
   }
 
   if (table == "__mock_table_schedule_2022") {
@@ -232,6 +247,15 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
       std::vector<Value> values{};
       values.push_back(ValueFactory::GetVarcharValue(ta_list_2022[cursor]));
       values.push_back(ValueFactory::GetVarcharValue(ta_oh_2022[cursor]));
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
+  if (table == "__mock_table_tas_2023") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.push_back(ValueFactory::GetVarcharValue(ta_list_2023[cursor]));
+      values.push_back(ValueFactory::GetVarcharValue(ta_oh_2023[cursor]));
       return Tuple{values, &plan->OutputSchema()};
     };
   }

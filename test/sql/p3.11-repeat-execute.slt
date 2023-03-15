@@ -11,7 +11,7 @@ insert into t1 values (0, '🥰'), (1, '🥰🥰');
 
 # SeqScan as the right child
 
-query rowsort
+query rowsort +ensure:nlj_init_check
 select * from __mock_table_123, t1;
 ----
 1 0 🥰 
@@ -23,7 +23,7 @@ select * from __mock_table_123, t1;
 
 # SimpleAgg as the right child
 
-query rowsort
+query rowsort +ensure:nlj_init_check
 select * from __mock_table_123, (select count(*) as cnt from t1);
 ----
 1 2
@@ -32,7 +32,7 @@ select * from __mock_table_123, (select count(*) as cnt from t1);
 
 # GroupAgg as the right child
 
-query rowsort
+query rowsort +ensure:nlj_init_check
 select * from __mock_table_123, (select distinct v2 from t1);
 ----
 1 🥰🥰 
@@ -47,7 +47,7 @@ select * from __mock_table_123, (select distinct v2 from t1);
 statement ok
 create index t1v1 on t1(v1);
 
-query rowsort
+query rowsort +ensure:nlj_init_check
 select * from __mock_table_123, (select * from t1 order by v1);
 ----
 1 0 🥰 

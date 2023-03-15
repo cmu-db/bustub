@@ -4,51 +4,45 @@
 
 # Default
 query
-select * from  __mock_table_tas_2022 order by office_hour, github_id;
+select * from  __mock_table_tas_2023 order by office_hour, github_id;
 ----
-lmwnshn Friday
-joyceliaoo Monday
-timlee0119 Monday
+abigalekim Friday
+David-Lyons Monday
 skyzh Randomly
-kush789 Thursday
-amstqq Tuesday
-thepinetree Tuesday
-yliang412 Tuesday
-durovo Wednesday
-karthik-ramanathan-3006 Wednesday
-mkpjnx Wednesday
+arvinwu168 Thursday
+yliang412 Thursday
+Mayank-Baranwal Tuesday
+christopherlim98 Tuesday
+fanyuex2 Tuesday
+yarkhinephyo Wednesday
 
 # ASC
 query
-select * from  __mock_table_tas_2022 order by office_hour asc, github_id desc;
+select * from  __mock_table_tas_2023 order by office_hour asc, github_id desc;
 ----
-lmwnshn Friday
-timlee0119 Monday
-joyceliaoo Monday
-skyzh Randomly
-kush789 Thursday
-yliang412 Tuesday
-thepinetree Tuesday
-amstqq Tuesday
-mkpjnx Wednesday
-karthik-ramanathan-3006 Wednesday
-durovo Wednesday
+abigalekim Friday        
+David-Lyons Monday        
+skyzh Randomly      
+yliang412 Thursday      
+arvinwu168 Thursday      
+fanyuex2 Tuesday       
+christopherlim98 Tuesday       
+Mayank-Baranwal Tuesday       
+yarkhinephyo Wednesday     
 
 
 query
-select * from  __mock_table_tas_2022 order by github_id desc;
+select * from  __mock_table_tas_2023 order by github_id desc;
 ----
-yliang412 Tuesday
-timlee0119 Monday
-thepinetree Tuesday
+yliang412 Thursday
+yarkhinephyo Wednesday
 skyzh Randomly
-mkpjnx Wednesday
-lmwnshn Friday
-kush789 Thursday
-karthik-ramanathan-3006 Wednesday
-joyceliaoo Monday
-durovo Wednesday
-amstqq Tuesday
+fanyuex2 Tuesday
+christopherlim98 Tuesday
+arvinwu168 Thursday
+abigalekim Friday
+Mayank-Baranwal Tuesday
+David-Lyons Monday
 
 
 # Simple limit
@@ -381,7 +375,7 @@ select * from __mock_table_123, (select * from temp_1 order by colA desc limit 3
 3 98 3 1394 17139
 3 97 1 2273 63790
 
-query rowsort
+query rowsort +ensure:nlj_init_check
 select * from
     temp_2 t2 inner join
     (select colB, colD, colA, colC from temp_1 order by colB desc, colD, colA desc limit 10 ) t1

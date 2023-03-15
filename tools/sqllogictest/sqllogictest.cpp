@@ -75,6 +75,11 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instanc
           fmt::print("IndexScan not found\n");
           return false;
         }
+      } else if (opt == "ensure:hash_join") {
+        if (!bustub::StringUtil::Contains(result.str(), "HashJoin")) {
+          fmt::print("HashJoin not found\n");
+          return false;
+        }
       } else if (opt == "ensure:topn") {
         if (!bustub::StringUtil::Contains(result.str(), "TopN")) {
           fmt::print("TopN not found\n");
@@ -93,6 +98,10 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instanc
           return false;
         }
       } else if (opt == "ensure:nlj_init_check") {
+        if (!bustub::StringUtil::Contains(result.str(), "NestedLoopJoin")) {
+          fmt::print("NestedLoopJoin not found\n");
+          return false;
+        }
         check_options->check_options_set_.emplace(bustub::CheckOption::ENABLE_NLJ_CHECK);
       } else {
         throw bustub::NotImplementedException(fmt::format("unsupported extra option: {}", opt));
@@ -177,7 +186,6 @@ auto main(int argc, char **argv) -> int {  // NOLINT
 
   auto result = bustub::SQLLogicTestParser::Parse(script);
 
-  auto check_options = std::make_shared<bustub::CheckOptions>();
   std::unique_ptr<bustub::BustubInstance> bustub;
 
   if (program.get<bool>("--in-memory")) {
@@ -193,6 +201,7 @@ auto main(int argc, char **argv) -> int {  // NOLINT
   }
 
   for (const auto &record : result) {
+    auto check_options = std::make_shared<bustub::CheckOptions>();
     fmt::print("{}\n", record->loc_);
     switch (record->type_) {
       case bustub::RecordType::HALT: {
