@@ -28,7 +28,7 @@ class IndexIterator {
 
   auto IsEnd() -> bool;
 
-  auto operator*() -> const MappingType &;
+  auto operator*() -> MappingType;
 
   auto operator++() -> IndexIterator &;
 
