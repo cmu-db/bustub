@@ -13,6 +13,7 @@
 #pragma once
 
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "execution/executor_context.h"
@@ -49,8 +50,18 @@ class TopNExecutor : public AbstractExecutor {
   /** @return The output schema for the topn */
   auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); }
 
+  /** Sets new child executor (for testing only) */
+  void SetChildExecutor(std::unique_ptr<AbstractExecutor> &&child_executor) {
+    child_executor_ = std::move(child_executor);
+  }
+
+  /** @return The size of top_entries_ container, which will be called on each child_executor->Next(). */
+  auto GetNumInHeap() -> size_t;
+
  private:
   /** The topn plan node to be executed */
   const TopNPlanNode *plan_;
+  /** The child executor from which tuples are obtained */
+  std::unique_ptr<AbstractExecutor> child_executor_;
 };
 }  // namespace bustub
