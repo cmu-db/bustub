@@ -10,15 +10,17 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "catalog/catalog.h"
+
 #include <string>
 #include <unordered_set>
 #include <vector>
 
 #include "buffer/buffer_pool_manager.h"
-#include "catalog/catalog.h"
 #include "catalog/table_generator.h"
 #include "execution/executor_context.h"
 #include "gtest/gtest.h"
+#include "storage/table/tuple.h"
 #include "type/value_factory.h"
 
 namespace bustub {
@@ -165,13 +167,14 @@ TEST(CatalogTest, DISABLED_CreateTableTest) {
     Tuple tuple(values, &schema);
 
     Transaction txn(0);
-    RID rid;
-    table_metadata->table_->InsertTuple(tuple, &rid, &txn);
-
-    auto table_iter = catalog->GetTable(table_name)->table_->Begin(&txn);
-    EXPECT_EQ((*table_iter).GetValue(&schema, 0).CompareEquals(tuple.GetValue(&schema, 0)), CmpBool::CmpTrue);
-    EXPECT_EQ((*table_iter).GetValue(&schema, 1).CompareEquals(tuple.GetValue(&schema, 1)), CmpBool::CmpTrue);
-    EXPECT_EQ(++table_iter, catalog->GetTable(table_name)->table_->End());
+    table_metadata->table_->InsertTuple(TupleMeta{0, 0, false}, tuple);
+    auto table_iter = catalog->GetTable(table_name)->table_->MakeIterator();
+    EXPECT_EQ(table_iter.GetTuple().second.GetValue(&schema, 0).CompareEquals(tuple.GetValue(&schema, 0)),
+              CmpBool::CmpTrue);
+    EXPECT_EQ(table_iter.GetTuple().second.GetValue(&schema, 1).CompareEquals(tuple.GetValue(&schema, 1)),
+              CmpBool::CmpTrue);
+    ++table_iter;
+    EXPECT_TRUE(table_iter.IsEnd());
   }
 }
 
@@ -218,7 +221,7 @@ TEST(CatalogTest, DISABLED_CreateIndex1) {
 }
 
 // Attempts to create an index with duplicate name should fail
-TEST(CatalogTest, DISABLED_CreateIndex2) {
+TEST(CatalogTest, CreateIndex2) {  // NOLINT
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
@@ -282,8 +285,8 @@ TEST(CatalogTest, DISABLED_CreateIndex3) {
   EXPECT_NE(Catalog::NULL_TABLE_INFO, table_info);
 
   Schema &schema = table_info->schema_;
-  auto itr = table_info->table_->Begin(&txn);
-  auto tuple = *itr;
+  auto itr = table_info->table_->MakeIterator();
+  auto tuple = itr.GetTuple().second;
 
   std::vector<Column> key_columns{Column{"A", TypeId::BIGINT}};
   Schema key_schema{key_columns};
@@ -477,8 +480,10 @@ TEST(CatalogTest, DISABLED_FailedQuery5) {
   remove("catalog_test.log");
 }
 
+// TODO(chi): enable IndexInteractionTest. They work with hash index but not with BPlusTree index. That's weird.
+
 // Should be able to create and interact with an index with a single BIGINT key
-TEST(CatalogTest, DISABLED_IndexInteraction0) {
+TEST(CatalogTest, DISABLED_IndexInteraction0) {  // NOLINT
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
@@ -530,9 +535,9 @@ TEST(CatalogTest, DISABLED_IndexInteraction0) {
 }
 
 // Should be able to create and interact with an index that is keyed by two INTEGER values
-TEST(CatalogTest, DISABLED_IndexInteraction1) {
+TEST(CatalogTest, DISABLED_IndexInteraction1) {  // NOLINT
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
-  auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
+  auto bpm = std::make_unique<BufferPoolManager>(128, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
   auto txn = std::make_unique<Transaction>(0);
 
@@ -557,7 +562,8 @@ TEST(CatalogTest, DISABLED_IndexInteraction1) {
   auto *index = index_info->index_.get();
 
   // We should now be able to interect with the index
-  Tuple tuple{std::vector<Value>{ValueFactory::GetBigIntValue(100), ValueFactory::GetIntegerValue(101)}, &table_schema};
+  Tuple tuple{std::vector<Value>{ValueFactory::GetIntegerValue(100), ValueFactory::GetIntegerValue(101)},
+              &table_schema};
 
   // Insert an entry
   RID rid{};
@@ -582,7 +588,7 @@ TEST(CatalogTest, DISABLED_IndexInteraction1) {
 }
 
 // Should be able to create and interact with an index that is keyed by a single INTEGER column
-TEST(CatalogTest, DISABLED_IndexInteraction2) {
+TEST(CatalogTest, DISABLED_IndexInteraction2) {  // NOLINT
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
@@ -633,7 +639,7 @@ TEST(CatalogTest, DISABLED_IndexInteraction2) {
   remove("catalog_test.log");
 }
 
-TEST(CatalogTest, DISABLED_IndexInteraction3) {
+TEST(CatalogTest, DISABLED_IndexInteraction3) {  // NOLINT
   auto disk_manager = std::make_unique<DiskManager>("catalog_test.db");
   auto bpm = std::make_unique<BufferPoolManager>(32, disk_manager.get());
   auto catalog = std::make_unique<Catalog>(bpm.get(), nullptr, nullptr);
