@@ -11,7 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include <cassert>
-#include <mutex>
+#include <mutex>  // NOLINT
 #include <utility>
 
 #include "common/config.h"

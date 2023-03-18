@@ -14,6 +14,7 @@
 
 #include <cassert>
 #include <memory>
+#include <utility>
 
 #include "common/macros.h"
 #include "common/rid.h"

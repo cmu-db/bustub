@@ -36,7 +36,7 @@ auto TablePage::GetNextTupleOffset(const TupleMeta &meta, const Tuple &tuple) co
   } else {
     slot_end_offset = BUSTUB_PAGE_SIZE;
   }
-  auto tuple_offset = slot_end_offset - tuple.size_;
+  auto tuple_offset = slot_end_offset - tuple.GetLength();
   auto offset_size = TABLE_PAGE_HEADER_SIZE + TUPLE_INFO_SIZE * (num_tuples_ + 1);
   if (tuple_offset < offset_size) {
     return std::nullopt;
@@ -50,9 +50,9 @@ auto TablePage::InsertTuple(const TupleMeta &meta, const Tuple &tuple) -> std::o
     return std::nullopt;
   }
   auto tuple_id = num_tuples_;
-  tuple_info_[tuple_id] = std::make_tuple(*tuple_offset, tuple.size_, meta);
+  tuple_info_[tuple_id] = std::make_tuple(*tuple_offset, tuple.GetLength(), meta);
   num_tuples_++;
-  memcpy(page_start_ + *tuple_offset, tuple.data_, tuple.size_);
+  memcpy(page_start_ + *tuple_offset, tuple.data_.data(), tuple.GetLength());
   return tuple_id;
 }
 
@@ -75,11 +75,9 @@ auto TablePage::GetTuple(const RID &rid) const -> std::pair<TupleMeta, Tuple> {
   }
   auto &[offset, size, meta] = tuple_info_[tuple_id];
   Tuple tuple;
-  tuple.size_ = size;
-  tuple.data_ = new char[size];
-  memmove(tuple.data_, page_start_ + offset, size);
+  tuple.data_.resize(size);
+  memmove(tuple.data_.data(), page_start_ + offset, size);
   tuple.rid_ = rid;
-  tuple.allocated_ = true;
   return std::make_pair(meta, std::move(tuple));
 }
 

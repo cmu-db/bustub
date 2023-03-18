@@ -15,6 +15,7 @@
 #include <cstring>
 #include <optional>
 #include <tuple>
+#include <utility>
 
 #include "common/config.h"
 #include "common/rid.h"
