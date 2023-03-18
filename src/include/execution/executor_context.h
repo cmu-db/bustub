@@ -89,7 +89,7 @@ class ExecutorContext {
  private:
   /** The transaction context associated with this executor context */
   Transaction *transaction_;
-  /** The datbase catalog associated with this executor context */
+  /** The database catalog associated with this executor context */
   Catalog *catalog_;
   /** The buffer pool manager associated with this executor context */
   BufferPoolManager *bpm_;

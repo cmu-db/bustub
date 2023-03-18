@@ -19,6 +19,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Preview -->
+    <meta property="og:site_name" content="CMU 15-445/645" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="BusTub SQL Database Shell " />
+    <meta property="og:url" content="https://15445.courses.cs.cmu.edu" />
+    <meta property="og:description" content="Interactive BusTub shell right in your browser!" />
+    <meta property="og:image" content="https://15445.courses.cs.cmu.edu/fall2022/images/bustub-shell.png" />
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@CMUDB">
+    <meta name="twitter:creator" content="@CMUDB">
+    <meta name="twitter:domain" content=".">
+    <meta property="twitter:label1" content="Semester?" />
+    <meta property="twitter:data1" content="Fall 2022" />
+    <meta property="twitter:label1" content="Relational?" />
+    <meta property="twitter:data1" content="Hell Yes" />
 </head>
 
 <body>
@@ -110,17 +125,20 @@
                 line = ""
             }
         }, {
-            greetings:
-                `Welcome to the BusTub shell! \u{1F68C}\u{1F6C1}
+            greetings: `[[@;;;;bustub.svg]]`,
+            prompt: () => line.length == 0 ? "[[b;;]bustub> ]" : "[[b;;]... ]"
+        })
+        term.echo(`<hr><h1>Live Database Shell</h1>`, { raw: true })
 
-BusTub is a relational database management system built at Carnegie Mellon University for the Introduction to Database Systems (15-445/645) course. This system was developed for educational purposes and should not be used in production environments. [[!;;;;https://github.com/cmu-db/bustub]BusTub on GitHub] [[!;;;;https://15445.courses.cs.cmu.edu/]Course Website] [[!;;;;https://github.com/cmu-db/bustub/issues/new]Report Bugs]
+        term.echo(`
+[[b;;]Solution Version:] ${BUSTUB_PRIVATE_VERSION_VAR} · [[b;;]BusTub Version:] ${BUSTUB_PUBLIC_VERSION_VAR} · [[b;;]Built Date:] ${BUSTUB_BUILD_TIME_VAR}
+
+BusTub is a relational database management system built at Carnegie Mellon University for the Introduction to Database Systems (15-445/645) course. This system was developed for educational purposes and should not be used in production environments. &#91;[[!;;;;https://github.com/cmu-db/bustub]BusTub on GitHub]&#93; &#91;[[!;;;;https://15445.courses.cs.cmu.edu/]Course Website]&#93; &#91;[[!;;;;https://github.com/cmu-db/bustub/issues/new]Report Bugs]&#93;
 
 Use \\help to learn about the usage. Use \\clear to clear the page.
 
-This is BusTub reference solution running in your browser. Solution Version: ${BUSTUB_PRIVATE_VERSION_VAR}, BusTub Version: ${BUSTUB_PUBLIC_VERSION_VAR}, built at ${BUSTUB_BUILD_TIME_VAR}.
-`,
-            prompt: () => line.length == 0 ? "[[b;;]bustub> ]" : "[[b;;]... ]"
-        })
+This is BusTub reference solution running in your browser.
+`)
     })
 </script>
 

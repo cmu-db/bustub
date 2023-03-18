@@ -61,7 +61,13 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
   }
 
   // Transaction (txn) related.
+
+#ifdef __EMSCRIPTEN__
+  lock_manager_ = new LockManager(false);
+#else
   lock_manager_ = new LockManager();
+#endif
+
   txn_manager_ = new TransactionManager(lock_manager_, log_manager_);
 
   // Checkpoint related.
@@ -93,7 +99,13 @@ BustubInstance::BustubInstance() {
   }
 
   // Transaction (txn) related.
+
+#ifdef __EMSCRIPTEN__
+  lock_manager_ = new LockManager(false);
+#else
   lock_manager_ = new LockManager();
+#endif
+
   txn_manager_ = new TransactionManager(lock_manager_, log_manager_);
 
   // Checkpoint related.
