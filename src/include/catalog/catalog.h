@@ -136,7 +136,7 @@ class Catalog {
     // When create_table_heap == false, it means that we're running binder tests (where no txn will be provided) or
     // we are running shell without buffer pool. We don't need to create TableHeap in this case.
     if (create_table_heap) {
-      table = std::make_unique<TableHeap>(bpm_, lock_manager_, log_manager_, txn);
+      table = std::make_unique<TableHeap>(bpm_);
     }
 
     // Fetch the table OID for the new table
@@ -230,9 +230,9 @@ class Catalog {
 
     // Populate the index with all tuples in table heap
     auto *table_meta = GetTable(table_name);
-    auto *heap = table_meta->table_.get();
-    for (auto tuple = heap->Begin(txn); tuple != heap->End(); ++tuple) {
-      index->InsertEntry(tuple->KeyFromTuple(schema, key_schema, key_attrs), tuple->GetRid(), txn);
+    for (auto iter = table_meta->table_->MakeIterator(); !iter.IsEnd(); ++iter) {
+      auto [meta, tuple] = iter.GetTuple();
+      index->InsertEntry(tuple.KeyFromTuple(schema, key_schema, key_attrs), tuple.GetRid(), txn);
     }
 
     // Get the next OID for the new index
