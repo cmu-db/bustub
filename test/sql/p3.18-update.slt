@@ -1,0 +1,114 @@
+# Create a table
+statement ok
+create table t1(v1 int, v2 varchar(128), v3 int);
+
+# Insert once
+query
+insert into t1 values (0, '🥰', 10), (1, '🥰🥰', 11), (2, '🥰🥰🥰', 12), (3, '🥰🥰🥰🥰', 13), (4, '🥰🥰🥰🥰🥰', 14);
+----
+5
+
+query
+select * from t1;
+----
+0 🥰 10
+1 🥰🥰 11
+2 🥰🥰🥰 12
+3 🥰🥰🥰🥰 13
+4 🥰🥰🥰🥰🥰 14
+
+# Update in table
+query
+update t1 set v3 = 445 where v1 >= 3;
+----
+2
+
+query
+select * from t1;
+----
+0 🥰 10
+1 🥰🥰 11
+2 🥰🥰🥰 12
+3 🥰🥰🥰🥰 445
+4 🥰🥰🥰🥰🥰 445
+
+
+# Insert more
+query
+insert into t1 values (0, '🥰', 10), (1, '🥰🥰', 11), (2, '🥰🥰🥰', 12), (3, '🥰🥰🥰🥰', 13), (4, '🥰🥰🥰🥰🥰', 14);
+----
+5
+
+
+query
+select * from t1;
+----
+0 🥰 10
+1 🥰🥰 11
+2 🥰🥰🥰 12
+3 🥰🥰🥰🥰 445
+4 🥰🥰🥰🥰🥰 445
+0 🥰 10
+1 🥰🥰 11
+2 🥰🥰🥰 12
+3 🥰🥰🥰🥰 13
+4 🥰🥰🥰🥰🥰 14
+
+# Update in table
+query
+update t1 set v3 = 645 where v1 >= 3;
+----
+4
+
+query
+select * from t1;
+----
+0 🥰 10
+1 🥰🥰 11
+2 🥰🥰🥰 12
+3 🥰🥰🥰🥰 645
+4 🥰🥰🥰🥰🥰 645
+0 🥰 10
+1 🥰🥰 11
+2 🥰🥰🥰 12
+3 🥰🥰🥰🥰 645
+4 🥰🥰🥰🥰🥰 645
+
+# Update nothing
+query
+update t1 set v3 = 645 where v1 >= 5;
+----
+0
+
+query
+select * from t1;
+----
+0 🥰 10
+1 🥰🥰 11
+2 🥰🥰🥰 12
+3 🥰🥰🥰🥰 645
+4 🥰🥰🥰🥰🥰 645
+0 🥰 10
+1 🥰🥰 11
+2 🥰🥰🥰 12
+3 🥰🥰🥰🥰 645
+4 🥰🥰🥰🥰🥰 645
+
+query
+update t1 set v3 = v3 + v1;
+----
+10
+
+query
+select * from t1;
+----
+0 🥰 10
+1 🥰🥰 12
+2 🥰🥰🥰 14
+3 🥰🥰🥰🥰 648
+4 🥰🥰🥰🥰🥰 649
+0 🥰 10
+1 🥰🥰 12
+2 🥰🥰🥰 14
+3 🥰🥰🥰🥰 648
+4 🥰🥰🥰🥰🥰 649
