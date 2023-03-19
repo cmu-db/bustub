@@ -3,10 +3,7 @@
 # Show office hours on lecture days
 # "rowsort" means that the order of result doesn't matter.
 
-statement ok
-set force_optimizer_starter_rule=yes
-
-query rowsort
+query rowsort +ensure:hash_join
 select * from
     __mock_table_tas_2023 inner join __mock_table_schedule_2023
     on office_hour = day_of_week
@@ -17,40 +14,30 @@ yarkhinephyo Wednesday Wednesday 1
 
 # The real test begins...
 
-query rowsort +ensure:nlj_init_check
-select * from test_simple_seq_1 s1 inner join test_simple_seq_2 s2 on s1.col1 + 5 = s2.col1;
+query rowsort +ensure:hash_join
+select * from test_simple_seq_1 s1 inner join test_simple_seq_2 s2 on s1.col1 = s2.col1;
 ----
-0 5 15
-1 6 16
-2 7 17
-3 8 18
-4 9 19
+0 0 10
+1 1 11
+2 2 12
+3 3 13
+4 4 14
+5 5 15
+6 6 16
+7 7 17
+8 8 18
+9 9 19
 
-
-query rowsort +ensure:nlj_init_check
-select * from test_simple_seq_1 s1 left join test_simple_seq_2 s2 on s1.col1 + 5 = s2.col1;
-----
-0 5 15
-1 6 16
-2 7 17
-3 8 18
-4 9 19
-5 integer_null integer_null
-6 integer_null integer_null
-7 integer_null integer_null
-8 integer_null integer_null
-9 integer_null integer_null
 
 statement ok
 create table t1(v1 int);
 
+
 statement ok
 insert into t1 (select * from __mock_table_123);
 
-statement ok
-create index t1_v1 on t1(v1);
 
-query rowsort
+query rowsort +ensure:hash_join
 select * from test_simple_seq_2 t2 left join t1 on t1.v1 = t2.col1;
 ----
 0 10 integer_null
@@ -67,6 +54,7 @@ select * from test_simple_seq_2 t2 left join t1 on t1.v1 = t2.col1;
 
 statement ok
 create table temp_1(colA int, colB int, colC int, colD int);
+
 
 statement ok
 insert into temp_1 values
@@ -175,6 +163,7 @@ insert into temp_1 values
 statement ok
 create table temp_2(colA int, colB int, colC int);
 
+
 statement ok
 insert into temp_2 values
     (0, 142, 0),
@@ -278,6 +267,7 @@ insert into temp_2 values
     (98, 351, 8),
     (99, 722, 9);
 
+
 statement ok
 create table temp_3(colA int, colB int);
 
@@ -305,7 +295,7 @@ insert into temp_3 values
     (19, 974),
     (20, 739);
 
-query rowsort +ensure:nlj_init_check
+query rowsort +ensure:hash_join
 select * from temp_1 t1 inner join test_simple_seq_2 seq on t1.colA = seq.col2 ;
 ----
 10 8 398 60977 0 10
@@ -319,7 +309,7 @@ select * from temp_1 t1 inner join test_simple_seq_2 seq on t1.colA = seq.col2 ;
 18 9 666 86073 8 18
 19 3 701 34675 9 19
 
-query rowsort +ensure:nlj_init_check
+query rowsort +ensure:hash_join
 select * from temp_2 t2 inner join test_simple_seq_2 seq on t2.colA = seq.col2 ;
 ----
 10 290 0 0 10
@@ -334,48 +324,22 @@ select * from temp_2 t2 inner join test_simple_seq_2 seq on t2.colA = seq.col2 ;
 19 974 9 9 19
 
 
-query rowsort
+query rowsort ensure:hash_join
 select * from __mock_table_1 m1 inner join temp_1 t1 on t1.colA = m1.colB;
 ----
 0 0 0 1 6113 48270
 
 
-query rowsort +ensure:nlj_init_check
-select * from temp_1 t1 inner join temp_2 t2 on t1.colD = t2.colA;
-----
-60 5 4347 34 34 311 4
-
-
-query rowsort ensure:nlj_init_check
+query rowsort ensure:hash_join
 select * from __mock_table_1 m1 inner join temp_2 t2 on t2.colA = m1.colB;
 ----
 0 0 0 142 0
 
 
-# Non-eq condition
-query rowsort +ensure:nlj_init_check
-select * from temp_2 t2 inner join test_simple_seq_2 s2 on t2.colB < s2.col2;
+query rowsort +ensure:hash_join
+select * from temp_1 t1 inner join temp_2 t2 on t1.colD = t2.colA;
 ----
-15 2 5 0 10
-15 2 5 1 11
-15 2 5 2 12
-15 2 5 3 13
-15 2 5 4 14
-15 2 5 5 15
-15 2 5 6 16
-15 2 5 7 17
-15 2 5 8 18
-15 2 5 9 19
-50 8 0 0 10
-50 8 0 1 11
-50 8 0 2 12
-50 8 0 3 13
-50 8 0 4 14
-50 8 0 5 15
-50 8 0 6 16
-50 8 0 7 17
-50 8 0 8 18
-50 8 0 9 19
+60 5 4347 34 34 311 4
 
 # Duplicate element in join key
 statement ok
@@ -383,6 +347,17 @@ create table t2(v1 int, v2 int);
 
 statement ok
 insert into t2 values (0, 45), (0, 45), (0, 65), (1, 45), (1, 45), (1, 65), (2, 45);
+
+query rowsort +ensure:hash_join
+select * from temp_2 inner join t2 on v2 = colA;
+----
+45 518 5 0 45
+45 518 5 0 45
+65 156 5 0 65
+45 518 5 1 45
+45 518 5 1 45
+65 156 5 1 65
+45 518 5 2 45
 
 statement ok
 create table t3(v1 int, v2 int);
@@ -404,19 +379,7 @@ insert into t3 values
     (5, 2),
     (6, 2);
 
-query rowsort +ensure:nlj_init_check
-select * from temp_2 inner join t2 on v2 = colA;
-----
-45 518 5 0 45
-45 518 5 0 45
-65 156 5 0 65
-45 518 5 1 45
-45 518 5 1 45
-65 156 5 1 65
-45 518 5 2 45
-
-
-query rowsort +ensure:nlj_init_check
+query rowsort +ensure:hash_join
 select * from t3 inner join t3 temp on t3.v1 = temp.v2;
 ----
 1 1 0 1
@@ -448,8 +411,7 @@ select * from t3 inner join t3 temp on t3.v1 = temp.v2;
 2 1 6 2
 2 2 6 2
 
-
-query rowsort +ensure:nlj_init_check
+query rowsort +ensure:hash_join
 select * from t3 left join t3 temp on t3.v1 = temp.v2;
 ----
 1 1 0 1
@@ -491,8 +453,7 @@ select * from t3 left join t3 temp on t3.v1 = temp.v2;
 0 1 integer_null integer_null
 0 2 integer_null integer_null
 
-
-query rowsort +ensure:nlj_init_check
+query rowsort +ensure:hash_join
 select * from temp_3 t3 inner join temp_2 t2 on t3.colB = t2.colA;
 ----
 5 29 29 538 9
@@ -507,8 +468,22 @@ select * from temp_3 t3 inner join temp_2 t2 on t3.colB = t2.colA;
 16 52 52 276 2
 18 38 38 194 8
 
+query rowsort +ensure:hash_join
+select * from temp_3 t3 inner join temp_2 t2 on t2.colA = t3.colB;
+----
+5 29 29 538 9
+6 52 52 276 2
+3 52 52 276 2
+7 88 88 241 8
+8 14 14 680 4
+9 52 52 276 2
+12 17 17 561 7
+13 52 52 276 2
+15 2 2 837 2
+16 52 52 276 2
+18 38 38 194 8
 
-query rowsort +ensure:nlj_init_check
+query rowsort +ensure:hash_join
 select * from temp_3 t3 left join temp_2 t2 on t3.colB = t2.colA;
 ----
 5 29 29 538 9
@@ -534,24 +509,14 @@ select * from temp_3 t3 left join temp_2 t2 on t3.colB = t2.colA;
 0 142 integer_null integer_null integer_null
 
 
-query rowsort +ensure:nlj_init_check
-select * from
-    (select * from temp_2 where colB < 10) t2 inner join
-    (select distinct(temp_2.colA) from temp_1 inner join temp_2 on temp_1.colC = temp_2.colA) t3
-    on t2.colB  < t3.colA;
-----
-15 2 5 34
-50 8 0 34
-
-
 # Composite Key
-query rowsort +ensure:nlj_init_check
+query rowsort +ensure:hash_join
 select * from temp_1 t1 inner join temp_2 t2 on t1.colB = t2.colA and t1.colA = t2.colC ;
 ----
 8 8 3074 56174 8 194 8
 
 
-query rowsort +ensure:nlj_init_check
+query rowsort +ensure:hash_join
 select * from temp_1 t1 inner join temp_2 t2 on t1.colC = t2.colB and t1.colB = t2.colC;
 ----
 6 2 170 92798 12 170 2
@@ -560,13 +525,13 @@ select * from temp_1 t1 inner join temp_2 t2 on t1.colC = t2.colB and t1.colB = 
 
 
 # Switch left and right table column expressions
-query rowsort +ensure:nlj_init_check
+query rowsort +ensure:hash_join
 select * from temp_1 t1 inner join temp_2 t2 on t1.colB = t2.colA and t2.colC = t1.colA ;
 ----
 8 8 3074 56174 8 194 8
 
 
-query rowsort +ensure:nlj_init_check
+query rowsort +ensure:hash_join
 select * from temp_1 t1 inner join temp_2 t2 on t1.colC = t2.colB and t2.colC = t1.colB ;
 ----
 6 2 170 92798 12 170 2

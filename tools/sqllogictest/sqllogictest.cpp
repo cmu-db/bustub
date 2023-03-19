@@ -76,8 +76,21 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instanc
           return false;
         }
       } else if (opt == "ensure:hash_join") {
-        if (!bustub::StringUtil::Contains(result.str(), "HashJoin")) {
+        if (bustub::StringUtil::Split(result.str(), "HashJoin").size() != 2 &&
+            !bustub::StringUtil::Contains(result.str(), "Filter")) {
           fmt::print("HashJoin not found\n");
+          return false;
+        }
+      } else if (opt == "ensure:hash_join*2") {
+        if (bustub::StringUtil::Split(result.str(), "HashJoin").size() != 3 &&
+            !bustub::StringUtil::Contains(result.str(), "Filter")) {
+          fmt::print("HashJoin should appear exactly twice\n");
+          return false;
+        }
+      } else if (opt == "ensure:hash_join*3") {
+        if (bustub::StringUtil::Split(result.str(), "HashJoin").size() != 4 &&
+            !bustub::StringUtil::Contains(result.str(), "Filter")) {
+          fmt::print("HashJoin should appear exactly thrice\n");
           return false;
         }
       } else if (opt == "ensure:topn") {
