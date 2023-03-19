@@ -76,9 +76,8 @@ void TableGenerator::FillTable(TableInfo *info, TableInsertMeta *table_meta) {
       for (const auto &col : values) {
         entry.emplace_back(col[i]);
       }
-      RID rid;
-      bool inserted = info->table_->InsertTuple(Tuple(entry, &info->schema_), &rid, exec_ctx_->GetTransaction());
-      BUSTUB_ENSURE(inserted, "Sequential insertion cannot fail");
+      auto rid = info->table_->InsertTuple(TupleMeta{0, 0, false}, Tuple(entry, &info->schema_));
+      BUSTUB_ENSURE(rid != std::nullopt, "Sequential insertion cannot fail");
       num_inserted++;
     }
   }

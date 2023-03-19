@@ -18,6 +18,7 @@
 #include <unordered_set>
 
 #include "catalog/catalog.h"
+#include "common/macros.h"
 #include "storage/table/table_heap.h"
 namespace bustub {
 
@@ -49,12 +50,12 @@ void TransactionManager::Commit(Transaction *txn) {
   // Perform all deletes before we commit.
   auto write_set = txn->GetWriteSet();
   while (!write_set->empty()) {
-    auto &item = write_set->back();
-    auto *table = item.table_;
-    if (item.wtype_ == WType::DELETE) {
-      // Note that this also releases the lock when holding the page latch.
-      table->ApplyDelete(item.rid_, txn);
-    }
+    // auto &item = write_set->back();
+    // auto *table = item.table_;
+    // if (item.wtype_ == WType::DELETE) {
+    //   // Note that this also releases the lock when holding the page latch.
+    //   table->ApplyDelete(item.rid_, txn);
+    // }
     write_set->pop_back();
   }
   write_set->clear();
@@ -70,16 +71,16 @@ void TransactionManager::Abort(Transaction *txn) {
   // Rollback before releasing the lock.
   auto table_write_set = txn->GetWriteSet();
   while (!table_write_set->empty()) {
-    auto &item = table_write_set->back();
-    auto *table = item.table_;
-    if (item.wtype_ == WType::DELETE) {
-      table->RollbackDelete(item.rid_, txn);
-    } else if (item.wtype_ == WType::INSERT) {
-      // Note that this also releases the lock when holding the page latch.
-      table->ApplyDelete(item.rid_, txn);
-    } else if (item.wtype_ == WType::UPDATE) {
-      table->UpdateTuple(item.tuple_, item.rid_, txn);
-    }
+    // auto &item = table_write_set->back();
+    // auto *table = item.table_;
+    // if (item.wtype_ == WType::DELETE) {
+    //   table->RollbackDelete(item.rid_, txn);
+    // } else if (item.wtype_ == WType::INSERT) {
+    //   // Note that this also releases the lock when holding the page latch.
+    //   table->ApplyDelete(item.rid_, txn);
+    // } else if (item.wtype_ == WType::UPDATE) {
+    //   table->UpdateTuple(item.tuple_, item.rid_, txn);
+    // }
     table_write_set->pop_back();
   }
   table_write_set->clear();

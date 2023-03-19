@@ -37,32 +37,22 @@ TEST(TupleTest, DISABLED_TableHeapTest) {
   Tuple tuple = ConstructTuple(&schema);
 
   // create transaction
-  auto *transaction = new Transaction(0);
   auto *disk_manager = new DiskManager("test.db");
   auto *buffer_pool_manager = new BufferPoolManager(50, disk_manager);
-  auto *lock_manager = new LockManager();
-  auto *log_manager = new LogManager(disk_manager);
-  auto *table = new TableHeap(buffer_pool_manager, lock_manager, log_manager, transaction);
+  auto *table = new TableHeap(buffer_pool_manager);
 
   std::vector<RID> rid_v;
   for (int i = 0; i < 5000; ++i) {
-    RID rid;
-    table->InsertTuple(tuple, &rid, transaction);
-    rid_v.push_back(rid);
+    auto rid = table->InsertTuple(TupleMeta{0, 0, false}, tuple);
+    rid_v.push_back(*rid);
   }
 
-  TableIterator itr = table->Begin(transaction);
-  while (itr != table->End()) {
+  TableIterator itr = table->MakeIterator();
+  while (!itr.IsEnd()) {
     // std::cout << itr->ToString(schema) << std::endl;
     ++itr;
   }
 
-  // int i = 0;
-  std::shuffle(rid_v.begin(), rid_v.end(), std::default_random_engine(0));
-  for (const auto &rid : rid_v) {
-    // std::cout << i++ << std::endl;
-    BUSTUB_ENSURE(table->MarkDelete(rid, transaction) == 1, "");
-  }
   disk_manager->ShutDown();
   remove("test.db");  // remove db file
   remove("test.log");

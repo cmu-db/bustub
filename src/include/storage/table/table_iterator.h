@@ -13,7 +13,10 @@
 #pragma once
 
 #include <cassert>
+#include <memory>
+#include <utility>
 
+#include "common/macros.h"
 #include "common/rid.h"
 #include "concurrency/transaction.h"
 #include "storage/table/tuple.h"
@@ -29,38 +32,24 @@ class TableIterator {
   friend class Cursor;
 
  public:
-  TableIterator(TableHeap *table_heap, RID rid, Transaction *txn);
+  DISALLOW_COPY(TableIterator);
 
-  TableIterator(const TableIterator &other)
-      : table_heap_(other.table_heap_), tuple_(new Tuple(*other.tuple_)), txn_(other.txn_) {}
+  TableIterator(TableHeap *table_heap, RID rid);
+  TableIterator(TableIterator &&) = default;
 
-  ~TableIterator() { delete tuple_; }
+  ~TableIterator() = default;
 
-  inline auto operator==(const TableIterator &itr) const -> bool {
-    return tuple_->GetRid().Get() == itr.tuple_->GetRid().Get();
-  }
+  auto GetTuple() -> std::pair<TupleMeta, Tuple>;
 
-  inline auto operator!=(const TableIterator &itr) const -> bool { return !(*this == itr); }
+  auto GetRID() -> RID;
 
-  auto operator*() -> const Tuple &;
-
-  auto operator->() -> Tuple *;
+  auto IsEnd() -> bool;
 
   auto operator++() -> TableIterator &;
 
-  auto operator++(int) -> TableIterator;
-
-  auto operator=(const TableIterator &other) -> TableIterator & {
-    table_heap_ = other.table_heap_;
-    *tuple_ = *other.tuple_;
-    txn_ = other.txn_;
-    return *this;
-  }
-
  private:
   TableHeap *table_heap_;
-  Tuple *tuple_;
-  Transaction *txn_;
+  RID rid_;
 };
 
 }  // namespace bustub
