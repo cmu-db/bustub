@@ -64,6 +64,7 @@ using index_oid_t = uint32_t;
  */
 class TableWriteRecord {
  public:
+  // NOLINTNEXTLINE
   TableWriteRecord(RID rid, WType wtype, const Tuple &tuple, TableHeap *table)
       : rid_(rid), wtype_(wtype), tuple_(tuple), table_(table) {}
 
@@ -80,6 +81,7 @@ class TableWriteRecord {
  */
 class IndexWriteRecord {
  public:
+  // NOLINTNEXTLINE
   IndexWriteRecord(RID rid, table_oid_t table_oid, WType wtype, const Tuple &tuple, index_oid_t index_oid,
                    Catalog *catalog)
       : rid_(rid), table_oid_(table_oid), wtype_(wtype), tuple_(tuple), index_oid_(index_oid), catalog_(catalog) {}
