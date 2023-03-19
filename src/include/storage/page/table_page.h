@@ -85,6 +85,11 @@ class TablePage {
    */
   auto GetTuple(const RID &rid) const -> std::pair<TupleMeta, Tuple>;
 
+  /**
+   * Update a tuple in place.
+   */
+  void UpdateTupleInPlaceUnsafe(const TupleMeta &meta, const Tuple &tuple, RID rid);
+
   static_assert(sizeof(page_id_t) == 4);
 
  private:
