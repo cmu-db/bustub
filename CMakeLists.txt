@@ -323,6 +323,7 @@ set(P3_FILES
         "src/include/execution/executors/seq_scan_executor.h"
         "src/include/execution/executors/sort_executor.h"
         "src/include/execution/executors/topn_executor.h"
+        "src/include/execution/executors/update_executor.h"
         "src/execution/aggregation_executor.cpp"
         "src/execution/delete_executor.cpp"
         "src/execution/filter_executor.cpp"
@@ -335,6 +336,7 @@ set(P3_FILES
         "src/execution/seq_scan_executor.cpp"
         "src/execution/sort_executor.cpp"
         "src/execution/topn_executor.cpp"
+        "src/execution/update_executor.cpp"
         "src/include/optimizer/optimizer.h"
         "src/include/optimizer/optimizer_internal.h"
         "src/optimizer/nlj_as_hash_join.cpp"
@@ -359,8 +361,6 @@ add_custom_target(submit-p3
 set(P4_FILES
         "src/include/concurrency/lock_manager.h"
         "src/concurrency/lock_manager.cpp"
-        "src/include/execution/executors/update_executor.h"
-        "src/execution/update_executor.cpp"
         "src/include/execution/plans/index_scan_plan.h"
         "tools/terrier_bench/terrier_bench_config.h"
         ${P3_FILES}
