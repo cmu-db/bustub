@@ -43,7 +43,7 @@ TEST(TupleTest, DISABLED_TableHeapTest) {
 
   std::vector<RID> rid_v;
   for (int i = 0; i < 5000; ++i) {
-    auto rid = table->InsertTuple(TupleMeta{0, 0, false}, tuple);
+    auto rid = table->InsertTuple(TupleMeta{INVALID_TXN_ID, INVALID_TXN_ID, false}, tuple);
     rid_v.push_back(*rid);
   }
 

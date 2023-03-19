@@ -86,6 +86,11 @@ class TablePage {
   auto GetTuple(const RID &rid) const -> std::pair<TupleMeta, Tuple>;
 
   /**
+   * Read a tuple meta from a table.
+   */
+  auto GetTupleMeta(const RID &rid) const -> TupleMeta;
+
+  /**
    * Update a tuple in place.
    */
   void UpdateTupleInPlaceUnsafe(const TupleMeta &meta, const Tuple &tuple, RID rid);

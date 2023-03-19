@@ -79,7 +79,17 @@ auto TableHeap::GetTuple(RID rid) -> std::pair<TupleMeta, Tuple> {
   return std::make_pair(meta, std::move(tuple));
 }
 
-auto TableHeap::MakeIterator() -> TableIterator { return {this, {first_page_id_, 0}}; }
+auto TableHeap::GetTupleMeta(RID rid) -> TupleMeta {
+  auto page_guard = bpm_->FetchPageRead(rid.GetPageId());
+  auto page = page_guard.As<TablePage>();
+  return page->GetTupleMeta(rid);
+}
+
+auto TableHeap::MakeIterator() -> TableIterator {
+  auto page_guard = bpm_->FetchPageRead(last_page_id_);
+  auto page = page_guard.As<TablePage>();
+  return {this, {first_page_id_, 0}, {last_page_id_, page->GetNumTuples()}};
+}
 
 void TableHeap::UpdateTupleInPlaceUnsafe(const TupleMeta &meta, const Tuple &tuple, RID rid) {
   auto page_guard = bpm_->FetchPageWrite(rid.GetPageId());
