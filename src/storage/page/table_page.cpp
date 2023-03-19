@@ -81,4 +81,20 @@ auto TablePage::GetTuple(const RID &rid) const -> std::pair<TupleMeta, Tuple> {
   return std::make_pair(meta, std::move(tuple));
 }
 
+void TablePage::UpdateTupleInPlaceUnsafe(const TupleMeta &meta, const Tuple &tuple, RID rid) {
+  auto tuple_id = rid.GetSlotNum();
+  if (tuple_id >= num_tuples_) {
+    throw bustub::Exception("Tuple ID out of range");
+  }
+  auto &[offset, size, old_meta] = tuple_info_[tuple_id];
+  if (size != tuple.GetLength()) {
+    throw bustub::Exception("Tuple size mismatch");
+  }
+  if (!old_meta.is_deleted_ && meta.is_deleted_) {
+    num_deleted_tuples_++;
+  }
+  tuple_info_[tuple_id] = std::make_tuple(offset, size, meta);
+  memcpy(page_start_ + offset, tuple.data_.data(), tuple.GetLength());
+}
+
 }  // namespace bustub

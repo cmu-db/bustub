@@ -81,4 +81,10 @@ auto TableHeap::GetTuple(RID rid) -> std::pair<TupleMeta, Tuple> {
 
 auto TableHeap::MakeIterator() -> TableIterator { return {this, {first_page_id_, 0}}; }
 
+void TableHeap::UpdateTupleInPlaceUnsafe(const TupleMeta &meta, const Tuple &tuple, RID rid) {
+  auto page_guard = bpm_->FetchPageWrite(rid.GetPageId());
+  auto page = page_guard.AsMut<TablePage>();
+  page->UpdateTupleInPlaceUnsafe(meta, tuple, rid);
+}
+
 }  // namespace bustub

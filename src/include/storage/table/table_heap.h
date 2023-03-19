@@ -71,6 +71,15 @@ class TableHeap {
   /** @return the id of the first page of this table */
   inline auto GetFirstPageId() const -> page_id_t { return first_page_id_; }
 
+  /**
+   * Update a tuple in place. SHOULD BE ONLY USED IN PROJECT 3. Only tuple of the same
+   * size is allowed.
+   * @param meta new tuple meta
+   * @param tuple  new tuple
+   * @param[out] rid the rid of the tuple to be updated
+   */
+  void UpdateTupleInPlaceUnsafe(const TupleMeta &meta, const Tuple &tuple, RID rid);
+
  private:
   BufferPoolManager *bpm_;
   page_id_t first_page_id_{INVALID_PAGE_ID};
