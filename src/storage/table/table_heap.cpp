@@ -58,8 +58,6 @@ auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple) -> std::o
     last_page_id_ = next_page_id;
     page_guard = std::move(next_page_guard);
   }
-  guard.unlock();
-
   auto page = page_guard.AsMut<TablePage>();
   auto slot_id = *page->InsertTuple(meta, tuple);
   return RID(last_page_id_, slot_id);
