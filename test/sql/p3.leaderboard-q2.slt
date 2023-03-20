@@ -1,13 +1,21 @@
 statement ok
 explain (o) select count(*), max(__mock_t4_1m.x), max(__mock_t4_1m.y), max(__mock_t5_1m.x), max(__mock_t5_1m.y), max(__mock_t6_1m.x), max(__mock_t6_1m.y)
-    from (select * from __mock_t4_1m, __mock_t5_1m where __mock_t4_1m.x = __mock_t5_1m.x), __mock_t6_1m
-        where (__mock_t6_1m.y = __mock_t5_1m.y)
-            and (__mock_t4_1m.y >= 1000000) and (__mock_t4_1m.y < 1500000) and (__mock_t6_1m.x < 150000) and (__mock_t6_1m.x >= 100000);
+    from __mock_t4_1m, __mock_t5_1m, __mock_t6_1m
+        where (__mock_t4_1m.x = __mock_t5_1m.x)
+            and (__mock_t6_1m.y = __mock_t5_1m.y)
+            and (__mock_t4_1m.y >= 1000000)
+            and (__mock_t4_1m.y < 1500000)
+            and (__mock_t6_1m.x < 150000)
+            and (__mock_t6_1m.x >= 100000);
 
 query +timing:x10:.q2
 select count(*), max(__mock_t4_1m.x), max(__mock_t4_1m.y), max(__mock_t5_1m.x), max(__mock_t5_1m.y), max(__mock_t6_1m.x), max(__mock_t6_1m.y)
-    from (select * from __mock_t4_1m, __mock_t5_1m where __mock_t4_1m.x = __mock_t5_1m.x), __mock_t6_1m
-        where (__mock_t6_1m.y = __mock_t5_1m.y)
-            and (__mock_t4_1m.y >= 1000000) and (__mock_t4_1m.y < 1500000) and (__mock_t6_1m.x < 150000) and (__mock_t6_1m.x >= 100000);
+    from __mock_t4_1m, __mock_t5_1m, __mock_t6_1m
+        where (__mock_t4_1m.x = __mock_t5_1m.x)
+            and (__mock_t6_1m.y = __mock_t5_1m.y)
+            and (__mock_t4_1m.y >= 1000000)
+            and (__mock_t4_1m.y < 1500000)
+            and (__mock_t6_1m.x < 150000)
+            and (__mock_t6_1m.x >= 100000);
 ----
 400000 149999 1499990 149999 1499990 149999 1499990 

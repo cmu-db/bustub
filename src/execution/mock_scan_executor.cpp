@@ -42,7 +42,7 @@ const char *mock_table_list[] = {"__mock_table_1", "__mock_table_2", "__mock_tab
                                  "__mock_table_schedule_2022", "__mock_table_schedule_2023", "__mock_table_123",
                                  "__mock_graph",
                                  // For leaderboard Q1
-                                 "__mock_t1_50k", "__mock_t2_100k", "__mock_t3_1k",
+                                 "__mock_t1",
                                  // For leaderboard Q2
                                  "__mock_t4_1m", "__mock_t5_1m", "__mock_t6_1m",
                                  // For leaderboard Q3
@@ -95,9 +95,13 @@ auto GetMockTableSchemaOf(const std::string &table) -> Schema {
     return Schema{std::vector{Column{"number", TypeId::INTEGER}}};
   }
 
-  if (table == "__mock_t1_50k" || table == "__mock_t2_100k" || table == "__mock_t3_1k" || table == "__mock_t4_1m" ||
-      table == "__mock_t5_1m" || table == "__mock_t6_1m") {
+  if (table == "__mock_t4_1m" || table == "__mock_t5_1m" || table == "__mock_t6_1m") {
     return Schema{std::vector{Column{"x", TypeId::INTEGER}, Column{"y", TypeId::INTEGER}}};
+  }
+
+  if (table == "__mock_t1") {
+    return Schema{
+        std::vector{Column{"x", TypeId::INTEGER}, Column{"y", TypeId::INTEGER}, Column{"z", TypeId::INTEGER}}};
   }
 
   if (table == "__mock_t7") {
@@ -159,16 +163,8 @@ auto GetSizeOf(const MockScanPlanNode *plan) -> size_t {
     return 3;
   }
 
-  if (table == "__mock_t1_50k") {
-    return 50000;
-  }
-
-  if (table == "__mock_t2_100k") {
-    return 100000;
-  }
-
-  if (table == "__mock_t3_1k") {
-    return 1000;
+  if (table == "__mock_t1") {
+    return 1000000;
   }
 
   if (table == "__mock_t4_1m" || table == "__mock_t5_1m" || table == "__mock_t6_1m") {
@@ -189,7 +185,7 @@ auto GetSizeOf(const MockScanPlanNode *plan) -> size_t {
 auto GetShuffled(const MockScanPlanNode *plan) -> bool {
   const auto &table = plan->GetTable();
 
-  if (table == "__mock_t1_50k") {
+  if (table == "__mock_t1") {
     return true;
   }
 
@@ -332,29 +328,12 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
     };
   }
 
-  if (table == "__mock_t1_50k") {
+  if (table == "__mock_t1") {
     return [plan](size_t cursor) {
       std::vector<Value> values{};
-      values.push_back(ValueFactory::GetIntegerValue(cursor * 10));
-      values.push_back(ValueFactory::GetIntegerValue(cursor * 1000));
-      return Tuple{values, &plan->OutputSchema()};
-    };
-  }
-
-  if (table == "__mock_t2_100k") {
-    return [plan](size_t cursor) {
-      std::vector<Value> values{};
+      values.push_back(ValueFactory::GetIntegerValue(cursor / 10000));
+      values.push_back(ValueFactory::GetIntegerValue(cursor % 10000));
       values.push_back(ValueFactory::GetIntegerValue(cursor));
-      values.push_back(ValueFactory::GetIntegerValue(cursor * 100));
-      return Tuple{values, &plan->OutputSchema()};
-    };
-  }
-
-  if (table == "__mock_t3_1k") {
-    return [plan](size_t cursor) {
-      std::vector<Value> values{};
-      values.push_back(ValueFactory::GetIntegerValue(cursor * 100));
-      values.push_back(ValueFactory::GetIntegerValue(cursor * 10000));
       return Tuple{values, &plan->OutputSchema()};
     };
   }

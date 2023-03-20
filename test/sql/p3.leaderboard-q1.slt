@@ -1,22 +1,27 @@
 statement ok
-create table t1_50k(x int, y int);
+create table t1(x int, y int, z int);
 
 statement ok
-create index t1x on t1_50k(x);
+create index t1xy on t1(x, y);
 
 query
-INSERT INTO t1_50k SELECT * FROM __mock_t1_50k;
+INSERT INTO t1 SELECT * FROM __mock_t1;
 ----
-50000
+1000000
 
 statement ok
-explain (o) select count(*), max(t1_50k.x), max(t1_50k.y), max(__mock_t2_100k.x), max(__mock_t2_100k.y), max(__mock_t3_1k.x), max(__mock_t3_1k.y) from (
-    t1_50k inner join __mock_t2_100k on t1_50k.x = __mock_t2_100k.x
-) inner join __mock_t3_1k on __mock_t2_100k.y = __mock_t3_1k.y;
+explain (o) select * from t1 where x >= 90 and y = 10;
 
-query +timing:x10:.q1
-select count(*), max(t1_50k.x), max(t1_50k.y), max(__mock_t2_100k.x), max(__mock_t2_100k.y), max(__mock_t3_1k.x), max(__mock_t3_1k.y) from (
-    t1_50k inner join __mock_t2_100k on t1_50k.x = __mock_t2_100k.x
-) inner join __mock_t3_1k on __mock_t2_100k.y = __mock_t3_1k.y;
+query rowsort +timing:x10:.q1
+select * from t1 where x >= 90 and y = 10;
 ----
-1000 99900 9990000 99900 9990000 99900 9990000
+91 10 910010
+92 10 920010
+95 10 950010
+93 10 930010
+98 10 980010
+96 10 960010
+90 10 900010
+99 10 990010
+97 10 970010
+94 10 940010
