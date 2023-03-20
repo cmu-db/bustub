@@ -59,6 +59,9 @@ auto TableIterator::operator++() -> TableIterator & {
     // if next page is invalid, RID is set to invalid page; otherwise, it's the first tuple in that page.
     rid_ = RID{next_page_id, 0};
   }
+
+  page_guard.Drop();  // workaround for TSAN: it doesn't like RAII destructors
+
   return *this;
 }
 

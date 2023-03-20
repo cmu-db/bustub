@@ -63,6 +63,10 @@ auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple) -> std::o
 
   auto page = page_guard.AsMut<TablePage>();
   auto slot_id = *page->InsertTuple(meta, tuple);
+
+  // Workaround for TSAN: manually drop here as it doesn't like RAII destruction...
+  page_guard.Drop();
+
   return RID(last_page_id, slot_id);
 }
 
