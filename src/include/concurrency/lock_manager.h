@@ -260,9 +260,10 @@ class LockManager {
    * @param rid the RID that is locked by the transaction
    * @param oid the table_oid_t of the table the row belongs to
    * @param rid the RID of the row to be unlocked
+   * @param force unlock the tuple regardless of isolation level, not changing the transaction state
    * @return true if the unlock is successful, false otherwise
    */
-  auto UnlockRow(Transaction *txn, const table_oid_t &oid, const RID &rid) -> bool;
+  auto UnlockRow(Transaction *txn, const table_oid_t &oid, const RID &rid, bool force = false) -> bool;
 
   /*** Graph API ***/
 
