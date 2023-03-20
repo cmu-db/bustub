@@ -12,8 +12,6 @@
 #include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
 
-#define BUSTUB_OPTIMIZER_HACK_REMOVE_AFTER_2022_FALL
-
 namespace bustub {
 
 /**
