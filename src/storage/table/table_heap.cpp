@@ -50,11 +50,17 @@ auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple) -> std::o
     page_id_t next_page_id = INVALID_PAGE_ID;
     auto npg = bpm_->NewPage(&next_page_id);
     BUSTUB_ENSURE(next_page_id != INVALID_PAGE_ID, "cannot allocate page");
+
+    // Don't do lock crabbing here: TSAN reports, also as last_page_id_ is only updated
+    // later, this page won't be accessed.
+    page->SetNextPageId(next_page_id);
+    page_guard.Drop();
+
     npg->WLatch();
     auto next_page_guard = WritePageGuard{bpm_, npg};
     auto next_page = next_page_guard.AsMut<TablePage>();
     next_page->Init();
-    page->SetNextPageId(next_page_id);
+
     last_page_id_ = next_page_id;
     page_guard = std::move(next_page_guard);
   }
@@ -64,7 +70,6 @@ auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple) -> std::o
   auto page = page_guard.AsMut<TablePage>();
   auto slot_id = *page->InsertTuple(meta, tuple);
 
-  // Workaround for TSAN: manually drop here as it doesn't like RAII destruction...
   page_guard.Drop();
 
   return RID(last_page_id, slot_id);
