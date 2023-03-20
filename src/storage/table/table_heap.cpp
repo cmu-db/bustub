@@ -58,9 +58,12 @@ auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple) -> std::o
     last_page_id_ = next_page_id;
     page_guard = std::move(next_page_guard);
   }
+  auto last_page_id = last_page_id_;
+  guard.unlock();
+
   auto page = page_guard.AsMut<TablePage>();
   auto slot_id = *page->InsertTuple(meta, tuple);
-  return RID(last_page_id_, slot_id);
+  return RID(last_page_id, slot_id);
 }
 
 void TableHeap::UpdateTupleMeta(const TupleMeta &meta, RID rid) {
@@ -84,9 +87,13 @@ auto TableHeap::GetTupleMeta(RID rid) -> TupleMeta {
 }
 
 auto TableHeap::MakeIterator() -> TableIterator {
-  auto page_guard = bpm_->FetchPageRead(last_page_id_);
+  std::unique_lock<std::mutex> guard(latch_);
+  auto last_page_id = last_page_id_;
+  guard.unlock();
+
+  auto page_guard = bpm_->FetchPageRead(last_page_id);
   auto page = page_guard.As<TablePage>();
-  return {this, {first_page_id_, 0}, {last_page_id_, page->GetNumTuples()}};
+  return {this, {first_page_id_, 0}, {last_page_id, page->GetNumTuples()}};
 }
 
 void TableHeap::UpdateTupleInPlaceUnsafe(const TupleMeta &meta, const Tuple &tuple, RID rid) {
