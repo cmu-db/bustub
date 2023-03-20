@@ -134,7 +134,7 @@ class TransactionManager {
     }
   }
 
-  std::atomic<txn_id_t> next_txn_id_{233};
+  std::atomic<txn_id_t> next_txn_id_{0};
   LockManager *lock_manager_ __attribute__((__unused__));
   LogManager *log_manager_ __attribute__((__unused__));
 
