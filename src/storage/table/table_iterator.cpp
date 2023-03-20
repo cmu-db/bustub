@@ -48,10 +48,12 @@ auto TableIterator::operator++() -> TableIterator & {
           (rid_.GetPageId() == stop_at_rid_.GetPageId() && next_tuple_id <= stop_at_rid_.GetSlotNum()),
       "iterate out of bound");
 
+  rid_ = RID{rid_.GetPageId(), next_tuple_id};
+
   if (rid_ == stop_at_rid_) {
     rid_ = RID{INVALID_PAGE_ID, 0};
   } else if (next_tuple_id < page->GetNumTuples()) {
-    rid_ = RID{rid_.GetPageId(), next_tuple_id};
+    // that's fine
   } else {
     auto next_page_id = page->GetNextPageId();
     // if next page is invalid, RID is set to invalid page; otherwise, it's the first tuple in that page.

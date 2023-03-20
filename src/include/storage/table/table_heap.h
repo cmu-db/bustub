@@ -79,8 +79,7 @@ class TableHeap {
   inline auto GetFirstPageId() const -> page_id_t { return first_page_id_; }
 
   /**
-   * Update a tuple in place. SHOULD BE ONLY USED IN PROJECT 3. Only tuple of the same
-   * size is allowed.
+   * Update a tuple in place. SHOULD NOT BE USED UNLESS YOU WANT TO OPTIMIZE FOR PROJECT 4.
    * @param meta new tuple meta
    * @param tuple  new tuple
    * @param[out] rid the rid of the tuple to be updated
