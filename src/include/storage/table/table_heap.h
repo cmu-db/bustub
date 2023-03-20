@@ -60,10 +60,17 @@ class TableHeap {
   /**
    * Read a tuple from the table.
    * @param rid rid of the tuple to read
-   * @param tuple output variable for the tuple
-   * @return the tuple
+   * @return the meta and tuple
    */
   auto GetTuple(RID rid) -> std::pair<TupleMeta, Tuple>;
+
+  /**
+   * Read a tuple meta from the table. Note: if you want to get tuple and meta together, use `GetTuple` insead
+   * to ensure atomicity.
+   * @param rid rid of the tuple to read
+   * @return the meta
+   */
+  auto GetTupleMeta(RID rid) -> TupleMeta;
 
   /** @return the iterator of this table */
   auto MakeIterator() -> TableIterator;
@@ -72,8 +79,7 @@ class TableHeap {
   inline auto GetFirstPageId() const -> page_id_t { return first_page_id_; }
 
   /**
-   * Update a tuple in place. SHOULD BE ONLY USED IN PROJECT 3. Only tuple of the same
-   * size is allowed.
+   * Update a tuple in place. SHOULD NOT BE USED UNLESS YOU WANT TO OPTIMIZE FOR PROJECT 4.
    * @param meta new tuple meta
    * @param tuple  new tuple
    * @param[out] rid the rid of the tuple to be updated

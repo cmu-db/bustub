@@ -26,7 +26,9 @@ auto LockManager::LockRow(Transaction *txn, LockMode lock_mode, const table_oid_
   return true;
 }
 
-auto LockManager::UnlockRow(Transaction *txn, const table_oid_t &oid, const RID &rid) -> bool { return true; }
+auto LockManager::UnlockRow(Transaction *txn, const table_oid_t &oid, const RID &rid, bool force) -> bool {
+  return true;
+}
 
 void LockManager::AddEdge(txn_id_t t1, txn_id_t t2) {}
 

@@ -60,7 +60,7 @@ update t1 set v3 = 645 where v1 >= 3;
 ----
 4
 
-query
+query rowsort
 select * from t1;
 ----
 0 🥰 10
@@ -80,7 +80,7 @@ update t1 set v3 = 645 where v1 >= 5;
 ----
 0
 
-query
+query rowsort
 select * from t1;
 ----
 0 🥰 10
@@ -99,7 +99,7 @@ update t1 set v3 = v3 + v1;
 ----
 10
 
-query
+query rowsort
 select * from t1;
 ----
 0 🥰 10

@@ -50,19 +50,29 @@ auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple) -> std::o
     page_id_t next_page_id = INVALID_PAGE_ID;
     auto npg = bpm_->NewPage(&next_page_id);
     BUSTUB_ENSURE(next_page_id != INVALID_PAGE_ID, "cannot allocate page");
+
+    // Don't do lock crabbing here: TSAN reports, also as last_page_id_ is only updated
+    // later, this page won't be accessed.
+    page->SetNextPageId(next_page_id);
+    page_guard.Drop();
+
     npg->WLatch();
     auto next_page_guard = WritePageGuard{bpm_, npg};
     auto next_page = next_page_guard.AsMut<TablePage>();
     next_page->Init();
-    page->SetNextPageId(next_page_id);
+
     last_page_id_ = next_page_id;
     page_guard = std::move(next_page_guard);
   }
+  auto last_page_id = last_page_id_;
   guard.unlock();
 
   auto page = page_guard.AsMut<TablePage>();
   auto slot_id = *page->InsertTuple(meta, tuple);
-  return RID(last_page_id_, slot_id);
+
+  page_guard.Drop();
+
+  return RID(last_page_id, slot_id);
 }
 
 void TableHeap::UpdateTupleMeta(const TupleMeta &meta, RID rid) {
@@ -79,7 +89,21 @@ auto TableHeap::GetTuple(RID rid) -> std::pair<TupleMeta, Tuple> {
   return std::make_pair(meta, std::move(tuple));
 }
 
-auto TableHeap::MakeIterator() -> TableIterator { return {this, {first_page_id_, 0}}; }
+auto TableHeap::GetTupleMeta(RID rid) -> TupleMeta {
+  auto page_guard = bpm_->FetchPageRead(rid.GetPageId());
+  auto page = page_guard.As<TablePage>();
+  return page->GetTupleMeta(rid);
+}
+
+auto TableHeap::MakeIterator() -> TableIterator {
+  std::unique_lock<std::mutex> guard(latch_);
+  auto last_page_id = last_page_id_;
+  guard.unlock();
+
+  auto page_guard = bpm_->FetchPageRead(last_page_id);
+  auto page = page_guard.As<TablePage>();
+  return {this, {first_page_id_, 0}, {last_page_id, page->GetNumTuples()}};
+}
 
 void TableHeap::UpdateTupleInPlaceUnsafe(const TupleMeta &meta, const Tuple &tuple, RID rid) {
   auto page_guard = bpm_->FetchPageWrite(rid.GetPageId());
