@@ -1,4 +1,4 @@
-# 10 pts
+# 7 pts
 
 # Ensure all order-bys in this file are transformed into index scan
 statement ok

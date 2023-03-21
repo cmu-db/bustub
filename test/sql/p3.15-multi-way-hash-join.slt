@@ -1,4 +1,4 @@
-# 5 pts
+# 8 pts
 
 statement ok
 create table t1(v1 int);

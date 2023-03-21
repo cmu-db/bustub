@@ -1,4 +1,4 @@
-# 5 pts
+# 6 pts
 
 query
 -- v1: (cursor + 2) % 10
