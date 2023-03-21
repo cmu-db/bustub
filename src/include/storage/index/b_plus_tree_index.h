@@ -54,8 +54,8 @@ constexpr static const auto TWO_INTEGER_SIZE = 8;
 using IntegerKeyType = GenericKey<TWO_INTEGER_SIZE>;
 using IntegerValueType = RID;
 using IntegerComparatorType = GenericComparator<TWO_INTEGER_SIZE>;
-using BPlusTreeIndexForOneIntegerColumn = BPlusTreeIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>;
-using BPlusTreeIndexIteratorForOneIntegerColumn =
+using BPlusTreeIndexForTwoIntegerColumn = BPlusTreeIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>;
+using BPlusTreeIndexIteratorForTwoIntegerColumn =
     IndexIterator<IntegerKeyType, IntegerValueType, IntegerComparatorType>;
 using IntegerHashFunctionType = HashFunction<IntegerKeyType>;
 

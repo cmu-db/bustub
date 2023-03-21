@@ -341,6 +341,8 @@ set(P3_FILES
         "src/optimizer/optimizer_custom_rules.cpp"
         "src/optimizer/sort_limit_as_topn.cpp"
         "src/optimizer/optimizer_internal.cpp"
+        "src/common/bustub_ddl.cpp"
+        "src/include/execution/plans/index_scan_plan.h"
         ${P2_FILES}
 )
 
@@ -359,7 +361,8 @@ add_custom_target(submit-p3
 set(P4_FILES
         "src/include/concurrency/lock_manager.h"
         "src/concurrency/lock_manager.cpp"
-        "src/include/execution/plans/index_scan_plan.h"
+        "src/include/concurrency/transaction_manager.h"
+        "src/concurrency/transaction_manager.cpp"
         "tools/terrier_bench/terrier_bench_config.h"
         ${P3_FILES}
 )

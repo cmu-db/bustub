@@ -58,7 +58,7 @@ class SeqScanPlanNode : public AbstractPlanNode {
   std::string table_name_;
 
   /** The predicate to filter in seqscan. It will ALWAYS be nullptr unless you enable the MergeFilterScan rule.
-      You don't need to handle it to get a perfect score in project 3 / project 4 in Spring 2023.
+      You don't need to handle it to get a perfect score in project 3 in Spring 2023.
   */
   AbstractExpressionRef filter_predicate_;
 
