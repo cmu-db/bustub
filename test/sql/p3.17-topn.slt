@@ -1,4 +1,4 @@
-# 6 pts
+# 7 pts
 
 query +ensure:topn
 select * from test_simple_seq_2 order by col1 desc limit 5;
