@@ -25,7 +25,7 @@ bool BPlusTreeLockBenchmarkCall(size_t num_threads, int leaf_node_size, bool wit
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
   auto *disk_manager = new DiskManagerMemory(256 << 10);  // 1GB
-  auto *bpm = new BufferPoolManager(64, disk_manager);
+  auto *bpm = new BufferPoolManager(512, disk_manager);
 
   // create and fetch header_page
   page_id_t page_id;
@@ -98,7 +98,7 @@ TEST(BPlusTreeContentionTest, BPlusTreeContentionBenchmark) {  // NOLINT
     }
   }
 
-  std::cout << "<<< BEGIN" << std::endl;
+  std::cout << "<<< BEGIN3" << std::endl;
   std::cout << "Normal Access Time: ";
   double ratio_1 = 0;
   double ratio_2 = 0;
@@ -115,7 +115,7 @@ TEST(BPlusTreeContentionTest, BPlusTreeContentionBenchmark) {  // NOLINT
   }
   std::cout << std::endl;
   std::cout << "Ratio: " << ratio_1 / ratio_2 << std::endl;
-  std::cout << ">>> END" << std::endl;
+  std::cout << ">>> END3" << std::endl;
   std::cout << "If your above data is an outlier in all submissions (based on statistics and probably some "
                "machine-learning), TAs will manually inspect your code to ensure you are implementing lock crabbing "
                "correctly."
@@ -144,7 +144,7 @@ TEST(BPlusTreeContentionTest, BPlusTreeContentionBenchmark2) {  // NOLINT
     }
   }
 
-  std::cout << "<<< BEGIN2" << std::endl;
+  std::cout << "<<< BEGIN4" << std::endl;
   std::cout << "Normal Access Time: ";
   double ratio_1 = 0;
   double ratio_2 = 0;
@@ -161,7 +161,7 @@ TEST(BPlusTreeContentionTest, BPlusTreeContentionBenchmark2) {  // NOLINT
   }
   std::cout << std::endl;
   std::cout << "Ratio: " << ratio_1 / ratio_2 << std::endl;
-  std::cout << ">>> END2" << std::endl;
+  std::cout << ">>> END4" << std::endl;
   std::cout << "If your above data is an outlier in all submissions (based on statistics and probably some "
                "machine-learning), TAs will manually inspect your code to ensure you are implementing lock crabbing "
                "correctly."
