@@ -11,12 +11,13 @@
 //===----------------------------------------------------------------------===//
 
 #include "execution/executors/init_check_executor.h"
+#include "execution/plans/abstract_plan.h"
 
 namespace bustub {
 
-InitCheckExecutor::InitCheckExecutor(ExecutorContext *exec_ctx, const InitCheckPlanNode *plan,
+InitCheckExecutor::InitCheckExecutor(ExecutorContext *exec_ctx, const AbstractPlanNodeRef &plan,
                                      std::unique_ptr<AbstractExecutor> &&child_executor)
-    : AbstractExecutor{exec_ctx}, child_executor_{std::move(child_executor)} {}
+    : AbstractExecutor{exec_ctx}, plan_{plan}, child_executor_{std::move(child_executor)} {}
 
 void InitCheckExecutor::Init() {
   if (!child_executor_) {
