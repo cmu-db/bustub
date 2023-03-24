@@ -17,6 +17,8 @@
 
 namespace bustub {
 
+#define B_PLUS_TREE_INTERNAL_PAGE_TYPE BPlusTreeInternalPage<KeyType, ValueType, KeyComparator>
+
 constexpr const auto INTERNAL_PAGE_HEADER_SIZE = 12;
 
 /**

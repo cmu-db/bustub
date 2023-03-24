@@ -18,6 +18,8 @@
 
 namespace bustub {
 
+#define B_PLUS_TREE_LEAF_PAGE_TYPE BPlusTreeLeafPage<KeyType, ValueType, KeyComparator>
+
 constexpr const auto LEAF_PAGE_HEADER_SIZE = 16;
 
 /**

@@ -56,6 +56,8 @@ class Context {
   auto IsRootPage(page_id_t page_id) -> bool { return page_id == root_page_id_; }
 };
 
+#define BPLUSTREE_TYPE BPlusTree<KeyType, ValueType, KeyComparator>
+
 // Main class providing the API for the Interactive B+ Tree.
 INDEX_TEMPLATE_ARGUMENTS
 class BPlusTree {
@@ -137,9 +139,6 @@ class BPlusTree {
   int internal_max_size_;
   page_id_t header_page_id_;
 };
-
-template <typename KeyType, typename ValueType, typename KeyComparator>
-using BPLUSTREE_TYPE = BPlusTree<KeyType, ValueType, KeyComparator>;
 
 /**
  * @brief for test only. PrintableBPlusTree is a printalbe B+ tree.
