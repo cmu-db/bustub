@@ -9,10 +9,8 @@
 namespace bustub {
 
 INDEX_TEMPLATE_ARGUMENTS
-BPlusTree<KeyType, ValueType, KeyComparator>::BPlusTree(std::string name, page_id_t header_page_id,
-                                                        BufferPoolManager *buffer_pool_manager,
-                                                        const KeyComparator &comparator, int leaf_max_size,
-                                                        int internal_max_size)
+BPLUSTREE_TYPE::BPlusTree(std::string name, page_id_t header_page_id, BufferPoolManager *buffer_pool_manager,
+                          const KeyComparator &comparator, int leaf_max_size, int internal_max_size)
     : index_name_(std::move(name)),
       bpm_(buffer_pool_manager),
       comparator_(std::move(comparator)),
@@ -28,7 +26,7 @@ BPlusTree<KeyType, ValueType, KeyComparator>::BPlusTree(std::string name, page_i
  * Helper function to decide whether current b+tree is empty
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto BPlusTree<KeyType, ValueType, KeyComparator>::IsEmpty() const -> bool { return true; }
+auto BPLUSTREE_TYPE::IsEmpty() const -> bool { return true; }
 /*****************************************************************************
  * SEARCH
  *****************************************************************************/
@@ -38,8 +36,7 @@ auto BPlusTree<KeyType, ValueType, KeyComparator>::IsEmpty() const -> bool { ret
  * @return : true means key exists
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto BPlusTree<KeyType, ValueType, KeyComparator>::GetValue(const KeyType &key, std::vector<ValueType> *result,
-                                                            Transaction *txn) -> bool {
+auto BPLUSTREE_TYPE::GetValue(const KeyType &key, std::vector<ValueType> *result, Transaction *txn) -> bool {
   // Declaration of context instance.
   Context ctx;
   (void)ctx;
@@ -57,8 +54,7 @@ auto BPlusTree<KeyType, ValueType, KeyComparator>::GetValue(const KeyType &key, 
  * keys return false, otherwise return true.
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto BPlusTree<KeyType, ValueType, KeyComparator>::Insert(const KeyType &key, const ValueType &value, Transaction *txn)
-    -> bool {
+auto BPLUSTREE_TYPE::Insert(const KeyType &key, const ValueType &value, Transaction *txn) -> bool {
   // Declaration of context instance.
   Context ctx;
   (void)ctx;
@@ -76,7 +72,7 @@ auto BPlusTree<KeyType, ValueType, KeyComparator>::Insert(const KeyType &key, co
  * necessary.
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPlusTree<KeyType, ValueType, KeyComparator>::Remove(const KeyType &key, Transaction *txn) {
+void BPLUSTREE_TYPE::Remove(const KeyType &key, Transaction *txn) {
   // Declaration of context instance.
   Context ctx;
   (void)ctx;
@@ -91,7 +87,7 @@ void BPlusTree<KeyType, ValueType, KeyComparator>::Remove(const KeyType &key, Tr
  * @return : index iterator
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto BPlusTree<KeyType, ValueType, KeyComparator>::Begin() -> INDEXITERATOR_TYPE { return INDEXITERATOR_TYPE(); }
+auto BPLUSTREE_TYPE::Begin() -> INDEXITERATOR_TYPE { return INDEXITERATOR_TYPE(); }
 
 /*
  * Input parameter is low key, find the leaf page that contains the input key
@@ -99,9 +95,7 @@ auto BPlusTree<KeyType, ValueType, KeyComparator>::Begin() -> INDEXITERATOR_TYPE
  * @return : index iterator
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto BPlusTree<KeyType, ValueType, KeyComparator>::Begin(const KeyType &key) -> INDEXITERATOR_TYPE {
-  return INDEXITERATOR_TYPE();
-}
+auto BPLUSTREE_TYPE::Begin(const KeyType &key) -> INDEXITERATOR_TYPE { return INDEXITERATOR_TYPE(); }
 
 /*
  * Input parameter is void, construct an index iterator representing the end
@@ -109,13 +103,13 @@ auto BPlusTree<KeyType, ValueType, KeyComparator>::Begin(const KeyType &key) -> 
  * @return : index iterator
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto BPlusTree<KeyType, ValueType, KeyComparator>::End() -> INDEXITERATOR_TYPE { return INDEXITERATOR_TYPE(); }
+auto BPLUSTREE_TYPE::End() -> INDEXITERATOR_TYPE { return INDEXITERATOR_TYPE(); }
 
 /**
  * @return Page id of the root of this tree
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto BPlusTree<KeyType, ValueType, KeyComparator>::GetRootPageId() -> page_id_t { return 0; }
+auto BPLUSTREE_TYPE::GetRootPageId() -> page_id_t { return 0; }
 
 /*****************************************************************************
  * UTILITIES AND DEBUG
@@ -126,7 +120,7 @@ auto BPlusTree<KeyType, ValueType, KeyComparator>::GetRootPageId() -> page_id_t 
  * Read data from file and insert one by one
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPlusTree<KeyType, ValueType, KeyComparator>::InsertFromFile(const std::string &file_name, Transaction *txn) {
+void BPLUSTREE_TYPE::InsertFromFile(const std::string &file_name, Transaction *txn) {
   int64_t key;
   std::ifstream input(file_name);
   while (input) {
@@ -143,7 +137,7 @@ void BPlusTree<KeyType, ValueType, KeyComparator>::InsertFromFile(const std::str
  * Read data from file and remove one by one
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPlusTree<KeyType, ValueType, KeyComparator>::RemoveFromFile(const std::string &file_name, Transaction *txn) {
+void BPLUSTREE_TYPE::RemoveFromFile(const std::string &file_name, Transaction *txn) {
   int64_t key;
   std::ifstream input(file_name);
   while (input) {
@@ -155,14 +149,14 @@ void BPlusTree<KeyType, ValueType, KeyComparator>::RemoveFromFile(const std::str
 }
 
 INDEX_TEMPLATE_ARGUMENTS
-void BPlusTree<KeyType, ValueType, KeyComparator>::Print(BufferPoolManager *bpm) {
+void BPLUSTREE_TYPE::Print(BufferPoolManager *bpm) {
   auto root_page_id = GetRootPageId();
   auto guard = bpm->FetchPageBasic(root_page_id);
   PrintTree(guard.PageId(), guard.template As<BPlusTreePage>());
 }
 
 INDEX_TEMPLATE_ARGUMENTS
-void BPlusTree<KeyType, ValueType, KeyComparator>::PrintTree(page_id_t page_id, const BPlusTreePage *page) {
+void BPLUSTREE_TYPE::PrintTree(page_id_t page_id, const BPlusTreePage *page) {
   if (page->IsLeafPage()) {
     auto *leaf = reinterpret_cast<const LeafPage *>(page);
     std::cout << "Leaf Page: " << page_id << "\tNext: " << leaf->GetNextPageId() << std::endl;
@@ -203,7 +197,7 @@ void BPlusTree<KeyType, ValueType, KeyComparator>::PrintTree(page_id_t page_id, 
  * This method is used for debug only, You don't need to modify
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPlusTree<KeyType, ValueType, KeyComparator>::Draw(BufferPoolManager *bpm, const std::string &outf) {
+void BPLUSTREE_TYPE::Draw(BufferPoolManager *bpm, const std::string &outf) {
   if (IsEmpty()) {
     LOG_WARN("Drawing an empty tree");
     return;
@@ -222,8 +216,7 @@ void BPlusTree<KeyType, ValueType, KeyComparator>::Draw(BufferPoolManager *bpm, 
  * This method is used for debug only, You don't need to modify
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPlusTree<KeyType, ValueType, KeyComparator>::ToGraph(page_id_t page_id, const BPlusTreePage *page,
-                                                           std::ofstream &out) {
+void BPLUSTREE_TYPE::ToGraph(page_id_t page_id, const BPlusTreePage *page, std::ofstream &out) {
   std::string leaf_prefix("LEAF_");
   std::string internal_prefix("INT_");
   if (page->IsLeafPage()) {
@@ -301,7 +294,7 @@ void BPlusTree<KeyType, ValueType, KeyComparator>::ToGraph(page_id_t page_id, co
 }
 
 INDEX_TEMPLATE_ARGUMENTS
-auto BPlusTree<KeyType, ValueType, KeyComparator>::DrawBPlusTree() -> std::string {
+auto BPLUSTREE_TYPE::DrawBPlusTree() -> std::string {
   if (IsEmpty()) {
     return "()";
   }
@@ -314,7 +307,7 @@ auto BPlusTree<KeyType, ValueType, KeyComparator>::DrawBPlusTree() -> std::strin
 }
 
 INDEX_TEMPLATE_ARGUMENTS
-auto BPlusTree<KeyType, ValueType, KeyComparator>::ToPrintableBPlusTree(page_id_t root_id) -> PrintableBPlusTree {
+auto BPLUSTREE_TYPE::ToPrintableBPlusTree(page_id_t root_id) -> PrintableBPlusTree {
   auto root_page_guard = bpm_->FetchPageBasic(root_id);
   auto root_page = root_page_guard.template As<BPlusTreePage>();
   PrintableBPlusTree proot;
