@@ -21,6 +21,9 @@ namespace bustub {
 
 INDEX_TEMPLATE_ARGUMENTS
 class IndexIterator {
+  using LeafPage = BPlusTreeLeafPage<KeyType, ValueType, KeyComparator>;
+  using MappingType = typename LeafPage::MappingType;
+
  public:
   // you may define your own constructor based on your member variables
   IndexIterator();

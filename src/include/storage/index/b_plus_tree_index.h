@@ -22,8 +22,6 @@
 
 namespace bustub {
 
-#define BPLUSTREE_INDEX_TYPE BPlusTreeIndex<KeyType, ValueType, KeyComparator>
-
 INDEX_TEMPLATE_ARGUMENTS
 class BPlusTreeIndex : public Index {
  public:

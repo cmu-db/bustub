@@ -18,9 +18,7 @@
 
 namespace bustub {
 
-#define B_PLUS_TREE_LEAF_PAGE_TYPE BPlusTreeLeafPage<KeyType, ValueType, KeyComparator>
-#define LEAF_PAGE_HEADER_SIZE 16
-#define LEAF_PAGE_SIZE ((BUSTUB_PAGE_SIZE - LEAF_PAGE_HEADER_SIZE) / sizeof(MappingType))
+constexpr const auto LEAF_PAGE_HEADER_SIZE = 16;
 
 /**
  * Store indexed key and record id(record id = page id combined with slot id,
@@ -43,6 +41,10 @@ namespace bustub {
 INDEX_TEMPLATE_ARGUMENTS
 class BPlusTreeLeafPage : public BPlusTreePage {
  public:
+  using MappingType = MappingType_<KeyType, ValueType>;
+
+  constexpr static const auto LEAF_PAGE_SIZE = ((BUSTUB_PAGE_SIZE - LEAF_PAGE_HEADER_SIZE) / sizeof(MappingType));
+
   // Delete all constructor / destructor to ensure memory safety
   BPlusTreeLeafPage() = delete;
   BPlusTreeLeafPage(const BPlusTreeLeafPage &other) = delete;
