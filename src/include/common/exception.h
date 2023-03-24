@@ -104,8 +104,9 @@ class Exception : public std::runtime_error {
     if (strings != nullptr) {
       size_t len = 256;
       char *demangled = demangle ? static_cast<char *>(::malloc(len)) : nullptr;
-      for (int i = 1; i < nptrs; ++i)  // skipping the 0-th, which is this function
-      {
+
+      // skipping the 0-th, which is this function
+      for (int i = 1; i < nptrs; ++i) {
         if (demangle) {
           // https://panthema.net/2008/0901-stacktrace-demangled/
           char *left_par = nullptr;
