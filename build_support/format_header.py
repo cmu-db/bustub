@@ -1,18 +1,6 @@
 #!/usr/bin/env python3
 # encoding: utf-8
-''' template
-//===----------------------------------------------------------------------===//
-//
-//                         BusTub
-//
-// rid.h
-//
-// Identification: src/include/common/rid.h
-//
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
-//
-//===----------------------------------------------------------------------===//
-'''
+
 # ref: https://github.com/cmu-db/bustub/blob/master/script/formatting/formatter.py
 
 '''
