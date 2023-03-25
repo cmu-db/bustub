@@ -13,6 +13,11 @@
  * For range scan of b+ tree
  */
 #pragma once
+
+#include <map>
+#include <utility>
+
+#include "storage/index/stl_comparator_wrapper.h"
 #include "storage/page/b_plus_tree_leaf_page.h"
 
 namespace bustub {
@@ -22,22 +27,33 @@ namespace bustub {
 INDEX_TEMPLATE_ARGUMENTS
 class IndexIterator {
  public:
-  // you may define your own constructor based on your member variables
-  IndexIterator();
-  ~IndexIterator();  // NOLINT
+  IndexIterator(
+      const std::map<KeyType, ValueType, StlComparatorWrapper<KeyType, KeyComparator>> *map,
+      typename std::map<KeyType, ValueType, StlComparatorWrapper<KeyType, KeyComparator>>::const_iterator iter)
+      : map_(map), iter_(std::move(iter)) {}
 
-  auto IsEnd() -> bool;
+  ~IndexIterator() = default;
 
-  auto operator*() -> const MappingType &;
+  auto IsEnd() -> bool { return iter_ != map_->cend(); }
 
-  auto operator++() -> IndexIterator &;
+  auto operator*() -> const MappingType & {
+    ret_val_ = *iter_;
+    return ret_val_;
+  }
 
-  auto operator==(const IndexIterator &itr) const -> bool { throw std::runtime_error("unimplemented"); }
+  auto operator++() -> IndexIterator & {
+    iter_++;
+    return *this;
+  }
 
-  auto operator!=(const IndexIterator &itr) const -> bool { throw std::runtime_error("unimplemented"); }
+  inline auto operator==(const IndexIterator &itr) const -> bool { return itr.iter_ == iter_; }
+
+  inline auto operator!=(const IndexIterator &itr) const -> bool { return !(*this == itr); }
 
  private:
-  // add your own private member variables here
+  const std::map<KeyType, ValueType, StlComparatorWrapper<KeyType, KeyComparator>> *map_;
+  typename std::map<KeyType, ValueType, StlComparatorWrapper<KeyType, KeyComparator>>::const_iterator iter_;
+  std::pair<KeyType, ValueType> ret_val_;
 };
 
 }  // namespace bustub

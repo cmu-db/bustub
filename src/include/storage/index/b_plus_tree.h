@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <deque>
 #include <iostream>
+#include <map>
 #include <optional>
 #include <queue>
 #include <shared_mutex>
@@ -23,6 +24,7 @@
 #include "common/macros.h"
 #include "concurrency/transaction.h"
 #include "storage/index/index_iterator.h"
+#include "storage/index/stl_comparator_wrapper.h"
 #include "storage/page/b_plus_tree_header_page.h"
 #include "storage/page/b_plus_tree_internal_page.h"
 #include "storage/page/b_plus_tree_leaf_page.h"
@@ -82,7 +84,7 @@ class BPlusTree {
   auto GetValue(const KeyType &key, std::vector<ValueType> *result, Transaction *txn = nullptr) -> bool;
 
   // Return the page id of the root node
-  auto GetRootPageId() -> page_id_t;
+  auto GetRootPageId() -> page_id_t { return INVALID_PAGE_ID; }
 
   // Index iterator
   auto Begin() -> INDEXITERATOR_TYPE;
@@ -92,10 +94,10 @@ class BPlusTree {
   auto Begin(const KeyType &key) -> INDEXITERATOR_TYPE;
 
   // Print the B+ tree
-  void Print(BufferPoolManager *bpm);
+  void Print(BufferPoolManager *bpm) { UNREACHABLE("not implemented"); }
 
   // Draw the B+ tree
-  void Draw(BufferPoolManager *bpm, const std::string &outf);
+  void Draw(BufferPoolManager *bpm, const std::string &outf) { UNREACHABLE("not implemented"); }
 
   /**
    * @brief draw a B+ tree, below is a printed
@@ -108,7 +110,7 @@ class BPlusTree {
    *
    * @return std::string
    */
-  auto DrawBPlusTree() -> std::string;
+  auto DrawBPlusTree() -> std::string { UNREACHABLE("not implemented"); }
 
   // read data from file and insert one by one
   void InsertFromFile(const std::string &file_name, Transaction *txn = nullptr);
@@ -133,11 +135,14 @@ class BPlusTree {
   // member variable
   std::string index_name_;
   BufferPoolManager *bpm_;
-  KeyComparator comparator_;
   std::vector<std::string> log;  // NOLINT
   int leaf_max_size_;
   int internal_max_size_;
   page_id_t header_page_id_;
+
+  std::mutex lock_;
+  StlComparatorWrapper<KeyType, KeyComparator> comparator_;
+  std::map<KeyType, ValueType, StlComparatorWrapper<KeyType, KeyComparator>> data_;
 };
 
 /**
