@@ -123,7 +123,7 @@ class BPlusTree {
    * 
    *                            (5)                  
    *                 (3)                (7)         
-   *            (1,2)    (3,4)    (5,6)    (7,10,30) // The output tree example
+   *            (1,2)    (3,4)    (5,6)    (7,10,30) //  The output tree example
    */
   void BatchOpsFromFile(const std::string &file_name, Transaction *txn = nullptr);
 
