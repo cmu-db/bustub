@@ -72,8 +72,11 @@ class TableHeap {
    */
   auto GetTupleMeta(RID rid) -> TupleMeta;
 
-  /** @return the iterator of this table */
+  /** @return the iterator of this table, use this for project 3 */
   auto MakeIterator() -> TableIterator;
+
+  /** @return the iterator of this table, use this for project 4 except updates */
+  auto MakeEagerIterator() -> TableIterator;
 
   /** @return the id of the first page of this table */
   inline auto GetFirstPageId() const -> page_id_t { return first_page_id_; }

@@ -105,6 +105,8 @@ auto TableHeap::MakeIterator() -> TableIterator {
   return {this, {first_page_id_, 0}, {last_page_id, page->GetNumTuples()}};
 }
 
+auto TableHeap::MakeEagerIterator() -> TableIterator { return {this, {first_page_id_, 0}, {INVALID_PAGE_ID, 0}}; }
+
 void TableHeap::UpdateTupleInPlaceUnsafe(const TupleMeta &meta, const Tuple &tuple, RID rid) {
   auto page_guard = bpm_->FetchPageWrite(rid.GetPageId());
   auto page = page_guard.AsMut<TablePage>();
