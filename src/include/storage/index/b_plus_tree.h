@@ -121,8 +121,8 @@ class BPlusTree {
    * insert some keys and delete 8, 9 from the tree with one step.
    * { i1 i2 i3 i4 i5 i6 i7 i8 i9 i10 i30 d8 d9 } //  batch.txt
    * B+ Tree(4 max leaf, 4 max internal) after processing:
-   *                            (5)                  
-   *                 (3)                (7)         
+   *                            (5)
+   *                 (3)                (7)
    *            (1,2)    (3,4)    (5,6)    (7,10,30) //  The output tree example
    */
   void BatchOpsFromFile(const std::string &file_name, Transaction *txn = nullptr);
