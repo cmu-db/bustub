@@ -57,6 +57,8 @@ auto Binder::BindStatement(duckdb_libpgquery::PGNode *stmt) -> std::unique_ptr<B
       return BindCreate(reinterpret_cast<duckdb_libpgquery::PGCreateStmt *>(stmt));
     case duckdb_libpgquery::T_PGInsertStmt:
       return BindInsert(reinterpret_cast<duckdb_libpgquery::PGInsertStmt *>(stmt));
+    case duckdb_libpgquery::T_PGCopyStmt:
+      return BindCopy(reinterpret_cast<duckdb_libpgquery::PGCopyStmt *>(stmt));
     case duckdb_libpgquery::T_PGSelectStmt:
       return BindSelect(reinterpret_cast<duckdb_libpgquery::PGSelectStmt *>(stmt));
     case duckdb_libpgquery::T_PGExplainStmt:

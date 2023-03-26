@@ -94,6 +94,16 @@ TEST(BinderTest, BindSelectExpr) {
   PrintStatements(statements);
 }
 
+TEST(BinderTest, BindCopyFrom) {
+  auto statements = TryBind("copy y from 'test.csv'");
+  PrintStatements(statements);
+}
+
+TEST(BinderTest, DISABLED_BindCopyTo) {
+  auto statements = TryBind("copy a to 'b.csv'");
+  PrintStatements(statements);
+}
+
 TEST(BinderTest, BindAgg) {
   auto statements = TryBind("select z, max(a), min(b), first(c) from y group by z having max(a) > 0");
   PrintStatements(statements);

@@ -26,6 +26,7 @@ enum class StatementType : uint8_t {
   INSERT_STATEMENT,         // insert statement type
   UPDATE_STATEMENT,         // update statement type
   CREATE_STATEMENT,         // create statement type
+  COPY_STATEMENT,           // copy statement type
   DELETE_STATEMENT,         // delete statement type
   EXPLAIN_STATEMENT,        // explain statement type
   DROP_STATEMENT,           // drop statement type
@@ -50,6 +51,9 @@ struct fmt::formatter<bustub::StatementType> : formatter<string_view> {
         break;
       case bustub::StatementType::INSERT_STATEMENT:
         name = "Insert";
+        break;
+      case bustub::StatementType::COPY_STATEMENT:
+        name = "Copy";
         break;
       case bustub::StatementType::UPDATE_STATEMENT:
         name = "Update";

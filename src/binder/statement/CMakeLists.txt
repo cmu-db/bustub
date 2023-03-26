@@ -2,6 +2,7 @@ add_library(
   bustub_statement
   OBJECT
   create_statement.cpp
+  copy_statement.cpp
   delete_statement.cpp
   explain_statement.cpp
   index_statement.cpp

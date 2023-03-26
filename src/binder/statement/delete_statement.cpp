@@ -7,7 +7,7 @@ DeleteStatement::DeleteStatement(std::unique_ptr<BoundBaseTableRef> table, std::
     : BoundStatement(StatementType::DELETE_STATEMENT), table_(std::move(table)), expr_(std::move(expr)) {}
 
 auto DeleteStatement::ToString() const -> std::string {
-  return fmt::format("Delete {{ table={}, expr={} }}", *table_, *expr_);
+  return fmt::format("BoundDelete {{ table={}, expr={} }}", *table_, *expr_);
 }
 
 }  // namespace bustub

@@ -3,6 +3,7 @@
 #include <unordered_map>
 
 #include "binder/bound_expression.h"
+#include "binder/statement/copy_statement.h"
 #include "binder/statement/delete_statement.h"
 #include "binder/statement/insert_statement.h"
 #include "binder/statement/select_statement.h"
@@ -37,6 +38,12 @@ auto Planner::PlanInsert(const InsertStatement &statement) -> AbstractPlanNodeRe
   auto insert_schema = std::make_shared<Schema>(std::vector{Column("__bustub_internal.insert_rows", TypeId::INTEGER)});
 
   return std::make_shared<InsertPlanNode>(std::move(insert_schema), std::move(select), statement.table_->oid_);
+}
+
+auto Planner::PlanCopy(const CopyStatement &statement) -> AbstractPlanNodeRef {
+  auto table = PlanTableRef(*statement.table_);
+
+  return nullptr;
 }
 
 auto Planner::PlanDelete(const DeleteStatement &statement) -> AbstractPlanNodeRef {

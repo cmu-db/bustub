@@ -19,6 +19,7 @@ namespace bustub {
 
 class BoundStatement;
 class SelectStatement;
+class CopyStatement;
 class DeleteStatement;
 class AbstractPlanNode;
 class InsertStatement;
@@ -147,6 +148,8 @@ class Planner {
   auto PlanDelete(const DeleteStatement &statement) -> AbstractPlanNodeRef;
 
   auto PlanUpdate(const UpdateStatement &statement) -> AbstractPlanNodeRef;
+
+  auto PlanCopy(const CopyStatement &statement) -> AbstractPlanNodeRef;
 
   /** the root plan node of the plan tree */
   AbstractPlanNodeRef plan_;

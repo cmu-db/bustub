@@ -37,6 +37,7 @@
 #include <string>
 
 #include "binder/simplified_token.h"
+#include "binder/statement/copy_statement.h"
 #include "binder/statement/select_statement.h"
 #include "binder/statement/set_show_statement.h"
 #include "binder/tokens.h"
@@ -183,6 +184,12 @@ class Binder {
                                        const std::vector<std::string> &col_name) -> std::unique_ptr<BoundColumnRef>;
 
   auto BindInsert(duckdb_libpgquery::PGInsertStmt *pg_stmt) -> std::unique_ptr<InsertStatement>;
+
+  auto BindCopy(duckdb_libpgquery::PGCopyStmt *pg_stmt) -> std::unique_ptr<CopyStatement>;
+
+  auto BindCopyFrom(duckdb_libpgquery::PGCopyStmt *pg_stmt) -> std::unique_ptr<CopyStatement>;
+
+  auto BindCopyTo(duckdb_libpgquery::PGCopyStmt *pg_stmt) -> std::unique_ptr<CopyStatement>;
 
   auto BindValuesList(duckdb_libpgquery::PGList *list) -> std::unique_ptr<BoundExpressionListRef>;
 

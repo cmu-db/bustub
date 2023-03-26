@@ -49,7 +49,7 @@ enum class PlanType {
   TopN,
   MockScan,
   InitCheck,
-  PhysicalCopyFile,
+  CopyFrom,
 };
 
 class AbstractPlanNode;
