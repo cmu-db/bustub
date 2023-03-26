@@ -116,6 +116,14 @@ class BPlusTree {
   // read data from file and remove one by one
   void RemoveFromFile(const std::string &file_name, Transaction *txn = nullptr);
 
+  /**
+   * @brief Read batch operations from input file, below is a sample file format
+   * insert 1 ~ 10 and delete 6, 9 from the tree with one step.
+   * 
+   * { i1 i2 i3 i4 i5 i6 i7 i8 i9 i10 d6 d9 } // batch.txt
+   */
+  void BatchOpsFromFile(const std::string &file_name, Transaction *txn = nullptr);
+
  private:
   /* Debug Routines for FREE!! */
   void ToGraph(page_id_t page_id, const BPlusTreePage *page, std::ofstream &out);
