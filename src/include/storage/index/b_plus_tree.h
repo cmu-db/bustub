@@ -119,8 +119,11 @@ class BPlusTree {
   /**
    * @brief Read batch operations from input file, below is a sample file format
    * insert 1 ~ 10 and delete 6, 9 from the tree with one step.
+   * { i1 i2 i3 i4 i5 i6 i7 i8 i9 i10 d6 d9 } //  batch.txt
    * 
-   * { i1 i2 i3 i4 i5 i6 i7 i8 i9 i10 d6 d9 } // batch.txt
+   *                            (5)                  
+   *                 (3)                (7)         
+   *            (1,2)    (3,4)    (5,6)    (7,10,30) // The output tree example
    */
   void BatchOpsFromFile(const std::string &file_name, Transaction *txn = nullptr);
 

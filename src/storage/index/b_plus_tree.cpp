@@ -159,11 +159,11 @@ void BPLUSTREE_TYPE::BatchOpsFromFile(const std::string &file_name, Transaction 
   std::ifstream input(file_name);
   while (input) {
     input >> instruction >> key;
+    RID rid(key);
     KeyType index_key;
     index_key.SetFromInteger(key);
     switch (instruction) {
       case 'i':
-        RID rid(key);
         Insert(index_key, rid, txn);
         break;
       case 'd':
