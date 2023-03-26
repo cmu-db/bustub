@@ -4,6 +4,7 @@ add_library(
   bustub_instance.cpp
   bustub_ddl.cpp
   config.cpp
+  macros.cpp
   util/string_util.cpp)
 
 set(ALL_OBJECT_FILES

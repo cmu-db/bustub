@@ -88,7 +88,7 @@ class Exception : public std::runtime_error {
    * try{
    *
    *  }catch (const Exception& ex){
-   *  std::cerr << "reason: " << ex.what();
+   *  std::cerr << "reason: " << ex.what()<< "\n";
    *  std::cerr << "stack trace: " << ex.PrintStackTrace();
    *  std::abort();
    * }
@@ -187,6 +187,15 @@ class ExecutionException : public Exception {
  public:
   ExecutionException() = delete;
   explicit ExecutionException(const std::string &msg) : Exception(ExceptionType::EXECUTION, msg) {}
+};
+
+class InternalException : public Exception {
+ public:
+  InternalException() = delete;
+  explicit InternalException(const std::string &msg) : Exception(ExceptionType::INVALID, msg) {
+    std::cerr << "stack trace: " << PrintStackTrace();
+    std::abort();
+  }
 };
 
 }  // namespace bustub

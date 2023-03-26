@@ -20,6 +20,7 @@
 #include "execution/expressions/abstract_expression.h"
 #include "fmt/format.h"
 #include "storage/table/tuple.h"
+#include "type/type.h"
 #include "type/value_factory.h"
 
 namespace bustub {
@@ -75,6 +76,7 @@ class ComparisonExpression : public AbstractExpression {
         return lhs.CompareGreaterThanEquals(rhs);
       default:
         BUSTUB_ASSERT(false, "Unsupported comparison type.");
+        return CmpBool::CmpFalse;
     }
   }
 };

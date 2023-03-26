@@ -19,6 +19,14 @@ namespace bustub {
 
 #define BUSTUB_ASSERT(expr, message) assert((expr) && (message))
 
+#ifdef NDEBUG
+#define D_ASSERT(expr) assert((false) && ("Not implemented"))
+void BustubAssertInternal(bool condition, const char *condition_name, const char *file, int line);
+#else
+void BustubAssertInternal(bool condition, const char *condition_name, const char *file, int line);
+#define D_ASSERT(expr) BustubAssertInternal(bool(expr), #expr, __FILE__, __LINE__)
+#endif
+
 #define UNIMPLEMENTED(message) throw std::logic_error(message)
 
 #define BUSTUB_ENSURE(expr, message) \
