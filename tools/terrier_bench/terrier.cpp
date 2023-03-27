@@ -415,8 +415,33 @@ auto main(int argc, char **argv) -> int {
             exit(1);
           }
         }
-        bustub->txn_manager_->Commit(txn);
-        metrics.TxnCommitted();
+
+        // query again, check repeatable read
+        std::string query = "SELECT * FROM nft";
+        std::string prev_result = ss.str();
+
+        std::stringstream ss;
+        auto writer = bustub::SimpleStreamWriter(ss, true);
+        if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
+          txn_success = false;
+        }
+
+        if (ss.str() != prev_result) {
+          fmt::print("ERROR: non repeatable read!\n");
+          if (BUSTUB_NFT_NUM < 100) {
+            fmt::print("This is everything in your database:\n--- previous query ---\n{}\n--- this query ---\n{}\n",
+                       prev_result, ss.str());
+          }
+          exit(1);
+        }
+
+        if (txn_success) {
+          bustub->txn_manager_->Commit(txn);
+          metrics.TxnCommitted();
+        } else {
+          bustub->txn_manager_->Abort(txn);
+          metrics.TxnAborted();
+        }
       } else {
         bustub->txn_manager_->Abort(txn);
         metrics.TxnAborted();
