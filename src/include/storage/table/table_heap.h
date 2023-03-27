@@ -18,6 +18,8 @@
 
 #include "buffer/buffer_pool_manager.h"
 #include "common/config.h"
+#include "concurrency/lock_manager.h"
+#include "concurrency/transaction.h"
 #include "recovery/log_manager.h"
 #include "storage/page/table_page.h"
 #include "storage/table/table_iterator.h"
@@ -48,7 +50,8 @@ class TableHeap {
    * @param tuple tuple to insert
    * @return rid of the inserted tuple
    */
-  auto InsertTuple(const TupleMeta &meta, const Tuple &tuple) -> std::optional<RID>;
+  auto InsertTuple(const TupleMeta &meta, const Tuple &tuple, LockManager *lock_mgr = nullptr,
+                   Transaction *txn = nullptr, table_oid_t oid = 0) -> std::optional<RID>;
 
   /**
    * Insert a tuple into the table. If the tuple is too large (>= page_size), return false.

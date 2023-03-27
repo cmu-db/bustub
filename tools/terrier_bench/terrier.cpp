@@ -216,7 +216,8 @@ auto main(int argc, char **argv) -> int {
     std::stringstream ss;
     auto writer = bustub::SimpleStreamWriter(ss, true);
     auto txn = bustub->txn_manager_->Begin(nullptr, bustub::IsolationLevel::REPEATABLE_READ);
-    bustub->ExecuteSqlTxn(query, writer, txn);
+    auto success = bustub->ExecuteSqlTxn(query, writer, txn);
+    BUSTUB_ENSURE(success, "txn not success");
     bustub->txn_manager_->Commit(txn);
     delete txn;
     if (ss.str() != fmt::format("{}\t\n", BUSTUB_NFT_NUM)) {

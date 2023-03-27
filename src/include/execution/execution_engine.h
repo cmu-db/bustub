@@ -66,9 +66,6 @@ class ExecutionEngine {
       PollExecutor(executor.get(), plan, result_set);
       PerformChecks(exec_ctx);
     } catch (const ExecutionException &ex) {
-#ifndef NDEBUG
-      LOG_ERROR("Error Encountered in Executor Execution: %s", ex.what());
-#endif
       executor_succeeded = false;
       if (result_set != nullptr) {
         result_set->clear();

@@ -40,8 +40,13 @@ class ExecutorContext {
    * @param lock_mgr The lock manager that the executor uses
    */
   ExecutorContext(Transaction *transaction, Catalog *catalog, BufferPoolManager *bpm, TransactionManager *txn_mgr,
-                  LockManager *lock_mgr)
-      : transaction_(transaction), catalog_{catalog}, bpm_{bpm}, txn_mgr_(txn_mgr), lock_mgr_(lock_mgr) {
+                  LockManager *lock_mgr, bool is_delete)
+      : transaction_(transaction),
+        catalog_{catalog},
+        bpm_{bpm},
+        txn_mgr_(txn_mgr),
+        lock_mgr_(lock_mgr),
+        is_delete_(is_delete) {
     nlj_check_exec_set_ = std::deque<std::pair<AbstractExecutor *, AbstractExecutor *>>(
         std::deque<std::pair<AbstractExecutor *, AbstractExecutor *>>{});
     check_options_ = std::make_shared<CheckOptions>();
@@ -86,6 +91,8 @@ class ExecutorContext {
     check_options_ = std::move(check_options);
   }
 
+  auto IsDelete() const -> bool { return is_delete_; }
+
  private:
   /** The transaction context associated with this executor context */
   Transaction *transaction_;
@@ -101,6 +108,7 @@ class ExecutorContext {
   std::deque<std::pair<AbstractExecutor *, AbstractExecutor *>> nlj_check_exec_set_;
   /** The set of check options associated with this executor context */
   std::shared_ptr<CheckOptions> check_options_;
+  bool is_delete_;
 };
 
 }  // namespace bustub
