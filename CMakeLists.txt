@@ -138,6 +138,7 @@ set(BUSTUB_THIRD_PARTY_INCLUDE_DIR
         ${PROJECT_SOURCE_DIR}/third_party/libpg_query/include
         ${PROJECT_SOURCE_DIR}/third_party/argparse/include
         ${PROJECT_SOURCE_DIR}/third_party/cpp_random_distributions
+        ${PROJECT_SOURCE_DIR}/third_party/csv2/include
 )
 
 include_directories(${BUSTUB_SRC_INCLUDE_DIR} ${BUSTUB_TEST_INCLUDE_DIR} ${BUSTUB_THIRD_PARTY_INCLUDE_DIR})
@@ -311,7 +312,6 @@ add_custom_target(submit-p2
 )
 
 set(P3_FILES
-        "src/include/execution/executors/copy_file_executor.h"
         "src/include/execution/executors/aggregation_executor.h"
         "src/include/execution/executors/delete_executor.h"
         "src/include/execution/executors/filter_executor.h"

@@ -15,6 +15,7 @@
 #include "execution/expressions/abstract_expression.h"
 #include "execution/expressions/column_value_expression.h"
 #include "execution/plans/abstract_plan.h"
+#include "execution/plans/copy_from_plan.h"
 #include "execution/plans/delete_plan.h"
 #include "execution/plans/filter_plan.h"
 #include "execution/plans/insert_plan.h"
@@ -41,9 +42,10 @@ auto Planner::PlanInsert(const InsertStatement &statement) -> AbstractPlanNodeRe
 }
 
 auto Planner::PlanCopy(const CopyStatement &statement) -> AbstractPlanNodeRef {
-  auto table = PlanTableRef(*statement.table_);
-
-  return nullptr;
+  // copy from csv
+  std::string file_path = statement.file_path_;
+  auto copy_schema = std::make_shared<Schema>(std::vector{Column("__bustub_internal.copy_rows", TypeId::INTEGER)});
+  return std::make_shared<CopyFromPlanNode>(copy_schema, statement.table_->oid_, 1);
 }
 
 auto Planner::PlanDelete(const DeleteStatement &statement) -> AbstractPlanNodeRef {

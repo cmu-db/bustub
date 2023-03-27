@@ -52,6 +52,7 @@ set(BUSTUB_SLT_SOURCES
         "${PROJECT_SOURCE_DIR}/test/sql/p0.01-lower-upper.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p0.02-function-error.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p0.03-string-scan.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p0.04-copy-from.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.01-seqscan.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.02-insert.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.03-update.slt"

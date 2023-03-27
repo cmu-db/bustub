@@ -2,6 +2,7 @@ add_library(
         bustub_execution
         OBJECT
         aggregation_executor.cpp
+        copy_from_executor.cpp
         delete_executor.cpp
         executor_factory.cpp
         filter_executor.cpp

@@ -20,18 +20,18 @@ enum class CopyFileFormat : uint8_t {
 
 class CopyStatement : public BoundStatement {
  public:
-  explicit CopyStatement(std::unique_ptr<BoundBaseTableRef> table,
-                         std::vector<std::unique_ptr<BoundColumnRef>> columns);
+  explicit CopyStatement(std::unique_ptr<BoundBaseTableRef> table, std::vector<std::unique_ptr<BoundColumnRef>> columns,
+                         std::string file_path, bool is_from);
 
   void SetCSVFormat() { format_ = CopyFileFormat::CSV; }
 
   std::unique_ptr<BoundBaseTableRef> table_;
 
+  std::vector<std::unique_ptr<BoundColumnRef>> columns_;
+
   std::string file_path_;
 
   bool is_from_;
-
-  std::vector<std::unique_ptr<BoundColumnRef>> columns_;
 
   CopyFileFormat format_{CopyFileFormat::NONE};
 

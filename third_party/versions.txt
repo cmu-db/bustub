@@ -64,3 +64,8 @@
 # tag: v2.7.0
 # commit hash: 8ca6144c85c165987cb1c5d8395c7314e13d4cd7
 # commit hash date: Dec 16 2021
+
+# csv2
+# url: https://github.com/p-ranav/csv2
+# commit hash: 7a2de1aec083d82e43fe9539bb59b3c619c93221
+# commit hash date: Mar 26 2023

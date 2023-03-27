@@ -17,6 +17,7 @@
 
 #include "execution/executors/abstract_executor.h"
 #include "execution/executors/aggregation_executor.h"
+#include "execution/executors/copy_from_executor.h"
 #include "execution/executors/delete_executor.h"
 #include "execution/executors/filter_executor.h"
 #include "execution/executors/hash_join_executor.h"
@@ -34,6 +35,7 @@
 #include "execution/executors/topn_executor.h"
 #include "execution/executors/update_executor.h"
 #include "execution/executors/values_executor.h"
+#include "execution/plans/copy_from_plan.h"
 #include "execution/plans/filter_plan.h"
 #include "execution/plans/mock_scan_plan.h"
 #include "execution/plans/projection_plan.h"
@@ -56,6 +58,11 @@ auto ExecutorFactory::CreateExecutor(ExecutorContext *exec_ctx, const AbstractPl
     // Create a new index scan executor
     case PlanType::IndexScan: {
       return std::make_unique<IndexScanExecutor>(exec_ctx, dynamic_cast<const IndexScanPlanNode *>(plan.get()));
+    }
+
+    // Create a new copyfrom executor
+    case PlanType::CopyFrom: {
+      return std::make_unique<CopyFromExecutor>(exec_ctx, dynamic_cast<const CopyFromPlanNode *>(plan.get()));
     }
 
     // Create a new insert executor

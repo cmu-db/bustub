@@ -43,13 +43,7 @@ auto Binder::BindCopyFrom(duckdb_libpgquery::PGCopyStmt *pg_stmt) -> std::unique
       }
     }
   }
-  auto res = std::make_unique<CopyStatement>(std::move(table), std::move(exprs));
-  res->is_from_ = true;
-  if (StringUtil::EndsWith(pg_stmt->filename, ".csv")) {
-    res->SetCSVFormat();
-  }
-  res->file_path_ = pg_stmt->filename;
-  return res;
+  return std::make_unique<CopyStatement>(std::move(table), std::move(exprs), pg_stmt->filename, true);
 }
 
 auto Binder::BindCopyTo(duckdb_libpgquery::PGCopyStmt *pg_stmt) -> std::unique_ptr<CopyStatement> {
