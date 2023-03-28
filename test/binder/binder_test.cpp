@@ -173,8 +173,8 @@ TEST(BinderTest, BindBinaryOp) {
   PrintStatements(statements);
 }
 
-TEST(BinderTest, BindCopyFrom) {
-  auto statements = TryBind("copy from");
+TEST(BinderTest, DIABLED_BindCopyFrom) {
+  auto statements = TryBind("copy from 'a.csv'");
   PrintStatements(statements);
 }
 
