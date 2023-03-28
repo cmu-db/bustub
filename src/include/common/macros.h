@@ -24,7 +24,7 @@ namespace bustub {
 void BustubAssertInternal(bool condition, const char *condition_name, const char *file, int line);
 #else
 void BustubAssertInternal(bool condition, const char *condition_name, const char *file, int line);
-#define D_ASSERT(expr) BustubAssertInternal(bool(expr), #expr, __FILE__, __LINE__)
+#define D_ASSERT(expr) BustubAssertInternal(static_cast<bool>(expr), #expr, __FILE__, __LINE__)
 #endif
 
 #define UNIMPLEMENTED(message) throw std::logic_error(message)
