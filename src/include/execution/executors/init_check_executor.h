@@ -63,7 +63,7 @@ class InitCheckExecutor : public AbstractExecutor {
   constexpr static const bool EXECUTOR_EXHAUSTED{false};
 
   /** The init check plan node to be executed */
-  const AbstractPlanNodeRef &plan_;
+  AbstractPlanNodeRef plan_;
 
   /** The child executor from which tuples are obtained */
   std::unique_ptr<AbstractExecutor> child_executor_;
