@@ -173,6 +173,11 @@ TEST(BinderTest, BindBinaryOp) {
   PrintStatements(statements);
 }
 
+TEST(BinderTest, BindCopyFrom) {
+  auto statements = TryBind("copy from");
+  PrintStatements(statements);
+}
+
 // TODO(chi): subquery is not supported yet
 TEST(BinderTest, DISABLED_BindUncorrelatedSubquery) {
   auto statements = TryBind("select * from (select * from a) INNER JOIN (select * from b) ON a.x = b.y");
