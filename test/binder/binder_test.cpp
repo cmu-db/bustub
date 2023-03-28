@@ -173,8 +173,13 @@ TEST(BinderTest, BindBinaryOp) {
   PrintStatements(statements);
 }
 
-TEST(BinderTest, DIABLED_BindCopyFrom) {
+TEST(BinderTest, DISABLED_BindCopyFrom) {
   auto statements = TryBind("copy from 'a.csv'");
+  PrintStatements(statements);
+}
+
+TEST(BinderTest, DISABLED_SelectFromCSV) {
+  auto statements = TryBind("select * from 'a.csv'");
   PrintStatements(statements);
 }
 
