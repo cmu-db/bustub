@@ -71,14 +71,16 @@ auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple, LockManag
   auto page = page_guard.AsMut<TablePage>();
   auto slot_id = *page->InsertTuple(meta, tuple);
 
+
+  // only allow one insertion at a time, otherwise it will deadlock.
+  guard.unlock();
+
+
   if (lock_mgr != nullptr) {
     lock_mgr->LockRow(txn, LockManager::LockMode::EXCLUSIVE, oid, RID{last_page_id, slot_id});
   }
 
   page_guard.Drop();
-
-  // only allow one insertion at a time, otherwise it will deadlock.
-  guard.unlock();
 
   return RID(last_page_id, slot_id);
 }
