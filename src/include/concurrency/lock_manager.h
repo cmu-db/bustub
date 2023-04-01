@@ -298,6 +298,8 @@ class LockManager {
    */
   auto RunCycleDetection() -> void;
 
+  TransactionManager *txn_manager_;
+
  private:
   /** Fall 2022 */
   /** Structure that holds lock requests for a given table oid */
