@@ -59,11 +59,13 @@ class Exception : public std::runtime_error {
    * Construct a new Exception instance.
    * @param message The exception message
    */
-  explicit Exception(const std::string &message)
-      : std::runtime_error(message), type_(ExceptionType::INVALID), stack_trace_info_(StackTrace(true)) {
+  explicit Exception(const std::string &message, bool print = true)
+      : std::runtime_error(message), type_(ExceptionType::INVALID) {
 #ifndef NDEBUG
-    std::string exception_message = "Message :: " + message + "\n";
-    std::cerr << exception_message;
+    if (print) {
+      std::string exception_message = "Message :: " + message + "\n";
+      std::cerr << exception_message;
+    }
 #endif
   }
 
@@ -72,12 +74,14 @@ class Exception : public std::runtime_error {
    * @param exception_type The exception type
    * @param message The exception message
    */
-  Exception(ExceptionType exception_type, const std::string &message)
+  Exception(ExceptionType exception_type, const std::string &message, bool print = true)
       : std::runtime_error(message), type_(exception_type) {
 #ifndef NDEBUG
-    std::string exception_message =
-        "\nException Type :: " + ExceptionTypeToString(type_) + "\nMessage :: " + message + "\n";
-    std::cerr << exception_message;
+    if (print) {
+      std::string exception_message =
+          "\nException Type :: " + ExceptionTypeToString(type_) + "\nMessage :: " + message + "\n";
+      std::cerr << exception_message;
+    }
 #endif
   }
 
@@ -93,7 +97,7 @@ class Exception : public std::runtime_error {
    *  std::abort();
    * }
    */
-  auto PrintStackTrace() const -> std::string { return stack_trace_info_; }
+  auto PrintStackTrace() const -> std::string { return StackTrace(true); }
 
   auto StackTrace(bool demangle) -> std::string {
     std::string stack;
@@ -174,7 +178,6 @@ class Exception : public std::runtime_error {
 
  private:
   ExceptionType type_;
-  std::string stack_trace_info_;
 };
 
 class NotImplementedException : public Exception {
@@ -186,7 +189,7 @@ class NotImplementedException : public Exception {
 class ExecutionException : public Exception {
  public:
   ExecutionException() = delete;
-  explicit ExecutionException(const std::string &msg) : Exception(ExceptionType::EXECUTION, msg) {}
+  explicit ExecutionException(const std::string &msg) : Exception(ExceptionType::EXECUTION, msg, false) {}
 };
 
 class InternalException : public Exception {

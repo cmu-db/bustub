@@ -18,6 +18,7 @@
 #include "common/exception.h"
 #include "common/logger.h"
 #include "common/macros.h"
+#include "concurrency/transaction.h"
 #include "fmt/format.h"
 #include "storage/page/page_guard.h"
 #include "storage/page/table_page.h"
@@ -35,7 +36,8 @@ TableHeap::TableHeap(BufferPoolManager *bpm) : bpm_(bpm) {
   first_page->Init();
 }
 
-auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple) -> std::optional<RID> {
+auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple, LockManager *lock_mgr, Transaction *txn,
+                            table_oid_t oid) -> std::optional<RID> {
   std::unique_lock<std::mutex> guard(latch_);
   auto page_guard = bpm_->FetchPageWrite(last_page_id_);
   while (true) {
@@ -65,10 +67,16 @@ auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple) -> std::o
     page_guard = std::move(next_page_guard);
   }
   auto last_page_id = last_page_id_;
-  guard.unlock();
 
   auto page = page_guard.AsMut<TablePage>();
   auto slot_id = *page->InsertTuple(meta, tuple);
+
+  // only allow one insertion at a time, otherwise it will deadlock.
+  guard.unlock();
+
+  if (lock_mgr != nullptr) {
+    lock_mgr->LockRow(txn, LockManager::LockMode::EXCLUSIVE, oid, RID{last_page_id, slot_id});
+  }
 
   page_guard.Drop();
 
@@ -104,6 +112,8 @@ auto TableHeap::MakeIterator() -> TableIterator {
   auto page = page_guard.As<TablePage>();
   return {this, {first_page_id_, 0}, {last_page_id, page->GetNumTuples()}};
 }
+
+auto TableHeap::MakeEagerIterator() -> TableIterator { return {this, {first_page_id_, 0}, {INVALID_PAGE_ID, 0}}; }
 
 void TableHeap::UpdateTupleInPlaceUnsafe(const TupleMeta &meta, const Tuple &tuple, RID rid) {
   auto page_guard = bpm_->FetchPageWrite(rid.GetPageId());
