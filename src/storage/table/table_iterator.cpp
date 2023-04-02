@@ -42,11 +42,13 @@ auto TableIterator::operator++() -> TableIterator & {
   auto page = page_guard.As<TablePage>();
   auto next_tuple_id = rid_.GetSlotNum() + 1;
 
-  BUSTUB_ASSERT(
-      /* case 1: cursor before the page of the stop tuple */ rid_.GetPageId() < stop_at_rid_.GetPageId() ||
-          /* case 2: cursor at the page before the tuple */
-          (rid_.GetPageId() == stop_at_rid_.GetPageId() && next_tuple_id <= stop_at_rid_.GetSlotNum()),
-      "iterate out of bound");
+  if (stop_at_rid_.GetPageId() != INVALID_PAGE_ID) {
+    BUSTUB_ASSERT(
+        /* case 1: cursor before the page of the stop tuple */ rid_.GetPageId() < stop_at_rid_.GetPageId() ||
+            /* case 2: cursor at the page before the tuple */
+            (rid_.GetPageId() == stop_at_rid_.GetPageId() && next_tuple_id <= stop_at_rid_.GetSlotNum()),
+        "iterate out of bound");
+  }
 
   rid_ = RID{rid_.GetPageId(), next_tuple_id};
 
