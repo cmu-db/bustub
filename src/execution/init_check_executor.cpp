@@ -29,13 +29,12 @@ void InitCheckExecutor::Init() {
 }
 
 auto InitCheckExecutor::Next(Tuple *tuple, RID *rid) -> bool {
-  if (!child_executor_) {
-    return EXECUTOR_EXHAUSTED;
-  }
-
   // Emit the next tuple
-  n_next_++;
-  return child_executor_->Next(tuple, rid);
+  auto result = child_executor_->Next(tuple, rid);
+  if (result) {
+    n_next_++;
+  }
+  return result;
 }
 
 }  // namespace bustub
