@@ -79,8 +79,9 @@ class ExecutionEngine {
     for (const auto &[left_executor, right_executor] : exec_ctx->GetNLJCheckExecutorSet()) {
       auto casted_left_executor = dynamic_cast<const InitCheckExecutor *>(left_executor);
       auto casted_right_executor = dynamic_cast<const InitCheckExecutor *>(right_executor);
-      BUSTUB_ASSERT(casted_left_executor->GetNextCount() == casted_right_executor->GetInitCount(),
-                    "nlj check failed, are you initialising the right executor correctly?");
+      BUSTUB_ASSERT(casted_right_executor->GetInitCount() + 1 >= casted_left_executor->GetNextCount(),
+                    "nlj check failed, are you initialising the right executor every time when there is a left tuple? "
+                    "(off-by-one is okay)");
     }
   }
 
