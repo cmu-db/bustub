@@ -12,8 +12,6 @@
 
 #pragma once
 
-#include <cxxabi.h>
-#include <execinfo.h>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -60,7 +58,7 @@ class Exception : public std::runtime_error {
    * @param message The exception message
    */
   explicit Exception(const std::string &message, bool print = true)
-      : std::runtime_error(message), type_(ExceptionType::INVALID), stack_trace_info_(StackTrace(true)) {
+      : std::runtime_error(message), type_(ExceptionType::INVALID) {
 #ifndef NDEBUG
     if (print) {
       std::string exception_message = "Message :: " + message + "\n";
@@ -87,66 +85,6 @@ class Exception : public std::runtime_error {
 
   /** @return The type of the exception */
   auto GetType() const -> ExceptionType { return type_; }
-
-  /* example:
-   * try{
-   *
-   *  }catch (const Exception& ex){
-   *  std::cerr << "reason: " << ex.what();
-   *  std::cerr << "stack trace: " << ex.PrintStackTrace();
-   *  std::abort();
-   * }
-   */
-  auto PrintStackTrace() const -> std::string { return stack_trace_info_; }
-
-  auto StackTrace(bool demangle) -> std::string {
-    std::string stack;
-    const int max_frames = 200;
-    void *frame[max_frames];
-    int nptrs = ::backtrace(frame, max_frames);
-    char **strings = ::backtrace_symbols(frame, nptrs);
-    if (strings != nullptr) {
-      size_t len = 256;
-      char *demangled = demangle ? static_cast<char *>(::malloc(len)) : nullptr;
-
-      // skipping the 0-th, which is this function
-      for (int i = 1; i < nptrs; ++i) {
-        if (demangle) {
-          // https://panthema.net/2008/0901-stacktrace-demangled/
-          char *left_par = nullptr;
-          char *plus = nullptr;
-          for (char *p = strings[i]; *p != 0; ++p) {
-            if (*p == '(') {
-              left_par = p;
-            } else if (*p == '+') {
-              plus = p;
-            }
-          }
-
-          if ((left_par != nullptr) && (plus != nullptr)) {
-            *plus = '\0';
-            int status = 0;
-            char *ret = abi::__cxa_demangle(left_par + 1, demangled, &len, &status);
-            *plus = '+';
-            if (status == 0) {
-              demangled = ret;  // ret could be realloc()
-              stack.append(strings[i], left_par + 1);
-              stack += demangled;
-              stack += plus;
-              stack += '\n';
-              continue;
-            }
-          }
-        }
-        // Fallback to mangled names
-        stack += strings[i];
-        stack += '\n';
-      }
-      free(demangled);
-      free(strings);
-    }
-    return stack;
-  }
 
   /** @return A human-readable string for the specified exception type */
   static auto ExceptionTypeToString(ExceptionType type) -> std::string {
@@ -178,7 +116,6 @@ class Exception : public std::runtime_error {
 
  private:
   ExceptionType type_;
-  std::string stack_trace_info_;
 };
 
 class NotImplementedException : public Exception {
