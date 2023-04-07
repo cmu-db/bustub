@@ -76,7 +76,10 @@ class LockManager {
   /**
    * Creates a new lock manager configured for the deadlock detection policy.
    */
-  LockManager() {
+  LockManager() = default;
+
+  void StartDeadlockDetection() {
+    BUSTUB_ENSURE(txn_manager_ != nullptr, "txn_manager_ is not set.")
     enable_cycle_detection_ = true;
     cycle_detection_thread_ = new std::thread(&LockManager::RunCycleDetection, this);
   }
@@ -313,7 +316,7 @@ class LockManager {
   std::mutex row_lock_map_latch_;
 
   std::atomic<bool> enable_cycle_detection_;
-  std::thread *cycle_detection_thread_;
+  std::thread *cycle_detection_thread_{nullptr};
   /** Waits-for graph representation. */
   std::unordered_map<txn_id_t, std::vector<txn_id_t>> waits_for_;
   std::mutex waits_for_latch_;
