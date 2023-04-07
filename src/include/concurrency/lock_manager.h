@@ -323,3 +323,30 @@ class LockManager {
 };
 
 }  // namespace bustub
+
+template <>
+struct fmt::formatter<bustub::LockManager::LockMode> : formatter<std::string_view> {
+  // parse is inherited from formatter<string_view>.
+  template <typename FormatContext>
+  auto format(bustub::LockManager::LockMode x, FormatContext &ctx) const {
+    string_view name = "unknown";
+    switch (x) {
+      case bustub::LockManager::LockMode::EXCLUSIVE:
+        name = "EXCLUSIVE";
+        break;
+      case bustub::LockManager::LockMode::INTENTION_EXCLUSIVE:
+        name = "INTENTION_EXCLUSIVE";
+        break;
+      case bustub::LockManager::LockMode::SHARED:
+        name = "SHARED";
+        break;
+      case bustub::LockManager::LockMode::INTENTION_SHARED:
+        name = "INTENTION_SHARED";
+        break;
+      case bustub::LockManager::LockMode::SHARED_INTENTION_EXCLUSIVE:
+        name = "SHARED_INTENTION_EXCLUSIVE";
+        break;
+    }
+    return formatter<string_view>::format(name, ctx);
+  }
+};
