@@ -53,15 +53,16 @@ auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple, LockManag
     auto npg = bpm_->NewPage(&next_page_id);
     BUSTUB_ENSURE(next_page_id != INVALID_PAGE_ID, "cannot allocate page");
 
-    // Don't do lock crabbing here: TSAN reports, also as last_page_id_ is only updated
-    // later, this page won't be accessed.
     page->SetNextPageId(next_page_id);
+
+    auto next_page = reinterpret_cast<TablePage *>(npg->GetData());
+    next_page->Init();
+
     page_guard.Drop();
 
+    // acquire latch here as TSAN complains. Given we only have one insertion thread, this is fine.
     npg->WLatch();
     auto next_page_guard = WritePageGuard{bpm_, npg};
-    auto next_page = next_page_guard.AsMut<TablePage>();
-    next_page->Init();
 
     last_page_id_ = next_page_id;
     page_guard = std::move(next_page_guard);

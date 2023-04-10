@@ -62,15 +62,15 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
 
   // Transaction (txn) related.
 
-#ifdef __EMSCRIPTEN__
-  lock_manager_ = new LockManager(false);
-#else
   lock_manager_ = new LockManager();
-#endif
 
   txn_manager_ = new TransactionManager(lock_manager_, log_manager_);
 
   lock_manager_->txn_manager_ = txn_manager_;
+
+#ifndef __EMSCRIPTEN__
+  lock_manager_->StartDeadlockDetection();
+#endif
 
   // Checkpoint related.
   checkpoint_manager_ = new CheckpointManager(txn_manager_, log_manager_, buffer_pool_manager_);
@@ -102,15 +102,15 @@ BustubInstance::BustubInstance() {
 
   // Transaction (txn) related.
 
-#ifdef __EMSCRIPTEN__
-  lock_manager_ = new LockManager(false);
-#else
   lock_manager_ = new LockManager();
-#endif
 
   txn_manager_ = new TransactionManager(lock_manager_, log_manager_);
 
   lock_manager_->txn_manager_ = txn_manager_;
+
+#ifndef __EMSCRIPTEN__
+  lock_manager_->StartDeadlockDetection();
+#endif
 
   // Checkpoint related.
   checkpoint_manager_ = new CheckpointManager(txn_manager_, log_manager_, buffer_pool_manager_);
@@ -230,10 +230,11 @@ auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
   binder.ParseAndSave(sql);
   l.unlock();
 
-  bool is_delete = false;
-
   for (auto *stmt : binder.statement_nodes_) {
     auto statement = binder.BindStatement(stmt);
+
+    bool is_delete = false;
+
     switch (statement->type_) {
       case StatementType::CREATE_STATEMENT: {
         const auto &create_stmt = dynamic_cast<const CreateStatement &>(*statement);
@@ -261,6 +262,7 @@ auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
         continue;
       }
       case StatementType::DELETE_STATEMENT:
+      case StatementType::UPDATE_STATEMENT:
         is_delete = true;
       default:
         break;

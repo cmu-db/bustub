@@ -30,6 +30,10 @@ auto LockManager::UnlockRow(Transaction *txn, const table_oid_t &oid, const RID 
   return true;
 }
 
+void LockManager::UnlockAll() {
+  // You probably want to unlock all table and txn locks here.
+}
+
 void LockManager::AddEdge(txn_id_t t1, txn_id_t t2) {}
 
 void LockManager::RemoveEdge(txn_id_t t1, txn_id_t t2) {}
