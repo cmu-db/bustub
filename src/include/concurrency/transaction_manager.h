@@ -22,10 +22,6 @@
 #include "concurrency/transaction.h"
 #include "recovery/log_manager.h"
 
-// Okay please ignore this. We want to keep the header of refsol and the public repo the
-// same and therefore we have to sync it here...
-#define BUSTUB_REFSOL_HACK_TXN_MANAGER_IMPLEMENTED
-
 namespace bustub {
 class LockManager;
 
