@@ -230,10 +230,11 @@ auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
   binder.ParseAndSave(sql);
   l.unlock();
 
-  bool is_delete = false;
-
   for (auto *stmt : binder.statement_nodes_) {
     auto statement = binder.BindStatement(stmt);
+
+    bool is_delete = false;
+
     switch (statement->type_) {
       case StatementType::CREATE_STATEMENT: {
         const auto &create_stmt = dynamic_cast<const CreateStatement &>(*statement);
@@ -261,6 +262,7 @@ auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
         continue;
       }
       case StatementType::DELETE_STATEMENT:
+      case StatementType::UPDATE_STATEMENT:
         is_delete = true;
       default:
         break;

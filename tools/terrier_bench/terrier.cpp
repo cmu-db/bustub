@@ -27,7 +27,6 @@ auto ClockMs() -> uint64_t {
   return static_cast<uint64_t>(tm.tv_sec * 1000) + static_cast<uint64_t>(tm.tv_usec / 1000);
 }
 
-static const size_t BUSTUB_NFT_NUM = 10;
 static const size_t BUSTUB_TERRIER_THREAD = 2;
 static const size_t BUSTUB_TERRIER_CNT = 100;
 
@@ -140,6 +139,9 @@ auto main(int argc, char **argv) -> int {
   program.add_argument("--duration").help("run terrier bench for n milliseconds");
   program.add_argument("--force-create-index").help("create index in terrier bench");
   program.add_argument("--force-enable-update").help("use update statement in terrier bench");
+  program.add_argument("--nft").help("number of NFTs in the bench");
+
+  size_t bustub_nft_num = 100;
 
   try {
     program.parse_args(argc, argv);
@@ -167,6 +169,10 @@ auto main(int argc, char **argv) -> int {
 
   if (program.present("--force-create-index")) {
     enable_index = ParseBool(program.get("--force-create-index"));
+  }
+
+  if (program.present("--nft")) {
+    bustub_nft_num = std::stoi(program.get("--nft"));
   }
 
   if (enable_index) {
@@ -199,13 +205,14 @@ auto main(int argc, char **argv) -> int {
   }
 
   std::cerr << "x: benchmark for " << duration_ms << "ms" << std::endl;
+  std::cerr << "x: nft_num=" << bustub_nft_num << std::endl;
 
   // initialize data
   std::cerr << "x: initialize data" << std::endl;
   std::string query = "INSERT INTO nft VALUES ";
-  for (size_t i = 0; i < BUSTUB_NFT_NUM; i++) {
+  for (size_t i = 0; i < bustub_nft_num; i++) {
     query += fmt::format("({}, {})", i, 0);
-    if (i != BUSTUB_NFT_NUM - 1) {
+    if (i != bustub_nft_num - 1) {
       query += ", ";
     } else {
       query += ";";
@@ -220,7 +227,7 @@ auto main(int argc, char **argv) -> int {
     BUSTUB_ENSURE(success, "txn not success");
     bustub->txn_manager_->Commit(txn);
     delete txn;
-    if (ss.str() != fmt::format("{}\t\n", BUSTUB_NFT_NUM)) {
+    if (ss.str() != fmt::format("{}\t\n", bustub_nft_num)) {
       fmt::print("unexpected result \"{}\" when insert\n", ss.str());
       exit(1);
     }
@@ -236,97 +243,98 @@ auto main(int argc, char **argv) -> int {
   total_metrics.Begin();
 
   for (size_t thread_id = 0; thread_id < BUSTUB_TERRIER_THREAD; thread_id++) {
-    threads.emplace_back(std::thread([verbose, thread_id, &bustub, enable_update, duration_ms, &total_metrics] {
-      const size_t nft_range_size = BUSTUB_NFT_NUM / BUSTUB_TERRIER_THREAD;
-      const size_t nft_range_begin = thread_id * nft_range_size;
-      const size_t nft_range_end = (thread_id + 1) * nft_range_size;
-      std::random_device r;
-      std::default_random_engine gen(r());
-      std::uniform_int_distribution<int> nft_uniform_dist(nft_range_begin, nft_range_end - 1);
-      std::uniform_int_distribution<int> terrier_uniform_dist(0, BUSTUB_TERRIER_CNT - 1);
+    threads.emplace_back(
+        std::thread([verbose, thread_id, &bustub, enable_update, duration_ms, &total_metrics, bustub_nft_num] {
+          const size_t nft_range_size = bustub_nft_num / BUSTUB_TERRIER_THREAD;
+          const size_t nft_range_begin = thread_id * nft_range_size;
+          const size_t nft_range_end = (thread_id + 1) * nft_range_size;
+          std::random_device r;
+          std::default_random_engine gen(r());
+          std::uniform_int_distribution<int> nft_uniform_dist(nft_range_begin, nft_range_end - 1);
+          std::uniform_int_distribution<int> terrier_uniform_dist(0, BUSTUB_TERRIER_CNT - 1);
 
-      TerrierMetrics metrics(fmt::format("Update {}", thread_id), duration_ms);
-      metrics.Begin();
+          TerrierMetrics metrics(fmt::format("Update {}", thread_id), duration_ms);
+          metrics.Begin();
 
-      while (!metrics.ShouldFinish()) {
-        std::stringstream ss;
-        auto writer = bustub::SimpleStreamWriter(ss, true);
-        auto nft_id = nft_uniform_dist(gen);
-        auto terrier_id = terrier_uniform_dist(gen);
-        bool txn_success = true;
+          while (!metrics.ShouldFinish()) {
+            std::stringstream ss;
+            auto writer = bustub::SimpleStreamWriter(ss, true);
+            auto nft_id = nft_uniform_dist(gen);
+            auto terrier_id = terrier_uniform_dist(gen);
+            bool txn_success = true;
 
-        if (verbose) {
-          fmt::print("begin: thread {} update nft {} to terrier {}\n", thread_id, nft_id, terrier_id);
-        }
-
-        if (enable_update) {
-          auto txn = bustub->txn_manager_->Begin(nullptr, bustub::IsolationLevel::REPEATABLE_READ);
-          std::string query = fmt::format("UPDATE nft SET terrier = {} WHERE id = {}", terrier_id, nft_id);
-          if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
-            txn_success = false;
-          }
-
-          if (txn_success && ss.str() != "1\t\n") {
-            fmt::print("unexpected result \"{}\",\n", ss.str());
-            exit(1);
-          }
-
-          if (txn_success) {
-            bustub->txn_manager_->Commit(txn);
-            metrics.TxnCommitted();
-          } else {
-            bustub->txn_manager_->Abort(txn);
-            metrics.TxnAborted();
-          }
-          delete txn;
-        } else {
-          auto txn = bustub->txn_manager_->Begin(nullptr, bustub::IsolationLevel::REPEATABLE_READ);
-
-          std::string query = fmt::format("DELETE FROM nft WHERE id = {}", nft_id);
-          if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
-            txn_success = false;
-          }
-
-          if (txn_success && ss.str() != "1\t\n") {
-            fmt::print("unexpected result \"{}\",\n", ss.str());
-            exit(1);
-          }
-
-          if (!txn_success) {
-            bustub->txn_manager_->Abort(txn);
-            metrics.TxnAborted();
-            delete txn;
-          } else {
-            query = fmt::format("INSERT INTO nft VALUES ({}, {})", nft_id, terrier_id);
-            if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
-              txn_success = false;
+            if (verbose) {
+              fmt::print("begin: thread {} update nft {} to terrier {}\n", thread_id, nft_id, terrier_id);
             }
 
-            if (txn_success && ss.str() != "1\t\n1\t\n") {
-              fmt::print("unexpected result \"{}\",\n", ss.str());
-              exit(1);
-            }
+            if (enable_update) {
+              auto txn = bustub->txn_manager_->Begin(nullptr, bustub::IsolationLevel::REPEATABLE_READ);
+              std::string query = fmt::format("UPDATE nft SET terrier = {} WHERE id = {}", terrier_id, nft_id);
+              if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
+                txn_success = false;
+              }
 
-            if (!txn_success) {
-              bustub->txn_manager_->Abort(txn);
-              metrics.TxnAborted();
+              if (txn_success && ss.str() != "1\t\n") {
+                fmt::print("unexpected result \"{}\",\n", ss.str());
+                exit(1);
+              }
+
+              if (txn_success) {
+                bustub->txn_manager_->Commit(txn);
+                metrics.TxnCommitted();
+              } else {
+                bustub->txn_manager_->Abort(txn);
+                metrics.TxnAborted();
+              }
+              delete txn;
             } else {
-              bustub->txn_manager_->Commit(txn);
-              metrics.TxnCommitted();
+              auto txn = bustub->txn_manager_->Begin(nullptr, bustub::IsolationLevel::REPEATABLE_READ);
+
+              std::string query = fmt::format("DELETE FROM nft WHERE id = {}", nft_id);
+              if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
+                txn_success = false;
+              }
+
+              if (txn_success && ss.str() != "1\t\n") {
+                fmt::print("unexpected result \"{}\",\n", ss.str());
+                exit(1);
+              }
+
+              if (!txn_success) {
+                bustub->txn_manager_->Abort(txn);
+                metrics.TxnAborted();
+                delete txn;
+              } else {
+                query = fmt::format("INSERT INTO nft VALUES ({}, {})", nft_id, terrier_id);
+                if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
+                  txn_success = false;
+                }
+
+                if (txn_success && ss.str() != "1\t\n1\t\n") {
+                  fmt::print("unexpected result \"{}\",\n", ss.str());
+                  exit(1);
+                }
+
+                if (!txn_success) {
+                  bustub->txn_manager_->Abort(txn);
+                  metrics.TxnAborted();
+                } else {
+                  bustub->txn_manager_->Commit(txn);
+                  metrics.TxnCommitted();
+                }
+                delete txn;
+              }
             }
-            delete txn;
+
+            if (verbose) {
+              fmt::print("end  : thread {} update nft {} to terrier {}\n", thread_id, nft_id, terrier_id);
+            }
+
+            metrics.Report();
           }
-        }
 
-        if (verbose) {
-          fmt::print("end  : thread {} update nft {} to terrier {}\n", thread_id, nft_id, terrier_id);
-        }
-
-        metrics.Report();
-      }
-
-      total_metrics.ReportUpdate(metrics.aborted_txn_cnt_, metrics.committed_txn_cnt_);
-    }));
+          total_metrics.ReportUpdate(metrics.aborted_txn_cnt_, metrics.committed_txn_cnt_);
+        }));
   }
 
   for (size_t thread_id = 0; thread_id < BUSTUB_TERRIER_THREAD; thread_id++) {
@@ -367,7 +375,7 @@ auto main(int argc, char **argv) -> int {
     }));
   }
 
-  threads.emplace_back(std::thread([&bustub, duration_ms, &total_metrics] {
+  threads.emplace_back(std::thread([&bustub, duration_ms, &total_metrics, bustub_nft_num] {
     std::random_device r;
     std::default_random_engine gen(r());
     std::uniform_int_distribution<int> terrier_uniform_dist(0, BUSTUB_TERRIER_CNT - 1);
@@ -397,20 +405,20 @@ auto main(int argc, char **argv) -> int {
           all_nfts_integer.push_back(std::stoi(nft));
         }
         std::sort(all_nfts_integer.begin(), all_nfts_integer.end());
-        // Due to how BusTub works for now, it is impossible to get more than BUSTUB_NFT_NUM rows, but it is possible to
+        // Due to how BusTub works for now, it is impossible to get more than bustub_nft_num rows, but it is possible to
         // get fewer than that number.
-        if (all_nfts_integer.size() != BUSTUB_NFT_NUM) {
+        if (all_nfts_integer.size() != bustub_nft_num) {
           fmt::print("unexpected result when verifying length. scan result: {}, total rows: {}.\n",
-                     all_nfts_integer.size(), BUSTUB_NFT_NUM);
-          if (BUSTUB_NFT_NUM < 100) {
+                     all_nfts_integer.size(), bustub_nft_num);
+          if (bustub_nft_num < 100) {
             fmt::print("This is everything in your database:\n{}", ss.str());
           }
           exit(1);
         }
-        for (int i = 0; i < static_cast<int>(BUSTUB_NFT_NUM); i++) {
+        for (int i = 0; i < static_cast<int>(bustub_nft_num); i++) {
           if (all_nfts_integer[i] != i) {
             fmt::print("unexpected result when verifying \"{} == {}\",\n", i, all_nfts_integer[i]);
-            if (BUSTUB_NFT_NUM < 100) {
+            if (bustub_nft_num < 100) {
               fmt::print("This is everything in your database:\n{}", ss.str());
             }
             exit(1);
@@ -429,7 +437,7 @@ auto main(int argc, char **argv) -> int {
 
         if (ss.str() != prev_result) {
           fmt::print("ERROR: non repeatable read!\n");
-          if (BUSTUB_NFT_NUM < 100) {
+          if (bustub_nft_num < 100) {
             fmt::print("This is everything in your database:\n--- previous query ---\n{}\n--- this query ---\n{}\n",
                        prev_result, ss.str());
           }
@@ -466,7 +474,7 @@ auto main(int argc, char **argv) -> int {
     bustub->ExecuteSqlTxn("SELECT count(*) FROM nft", writer, txn);
     bustub->txn_manager_->Commit(txn);
     delete txn;
-    if (ss.str() != fmt::format("{}\t\n", BUSTUB_NFT_NUM)) {
+    if (ss.str() != fmt::format("{}\t\n", bustub_nft_num)) {
       fmt::print("unexpected result \"{}\" when verifying total nft count\n", ss.str());
       exit(1);
     }
@@ -474,7 +482,7 @@ auto main(int argc, char **argv) -> int {
 
   {
     auto txn = bustub->txn_manager_->Begin(nullptr, bustub::IsolationLevel::REPEATABLE_READ);
-    auto cnt = 0;
+    size_t cnt = 0;
     for (int i = 0; i < static_cast<int>(BUSTUB_TERRIER_CNT); i++) {
       std::stringstream ss;
       auto writer = bustub::SimpleStreamWriter(ss, true);
@@ -484,8 +492,8 @@ auto main(int argc, char **argv) -> int {
     }
     bustub->txn_manager_->Commit(txn);
     delete txn;
-    if (cnt != BUSTUB_NFT_NUM) {
-      fmt::print("unexpected result \"{} != {}\" when verifying split nft count\n", cnt, BUSTUB_NFT_NUM);
+    if (cnt != bustub_nft_num) {
+      fmt::print("unexpected result \"{} != {}\" when verifying split nft count\n", cnt, bustub_nft_num);
       exit(1);
     }
   }
