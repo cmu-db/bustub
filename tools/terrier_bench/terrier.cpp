@@ -429,16 +429,15 @@ auto main(int argc, char **argv) -> int {
           txn_success = false;
         }
 
-        if (ss.str() != prev_result) {
-          fmt::print("ERROR: non repeatable read!\n");
-          if (bustub_nft_num <= 100) {
-            fmt::print("This is everything in your database:\n--- previous query ---\n{}\n--- this query ---\n{}\n",
-                       prev_result, ss.str());
-          }
-          exit(1);
-        }
-
         if (txn_success) {
+          if (ss.str() != prev_result) {
+            fmt::print("ERROR: non repeatable read!\n");
+            if (bustub_nft_num <= 100) {
+              fmt::print("This is everything in your database:\n--- previous query ---\n{}\n--- this query ---\n{}\n",
+                         prev_result, ss.str());
+            }
+            exit(1);
+          }
           bustub->txn_manager_->Commit(txn);
           metrics.TxnCommitted();
         } else {
