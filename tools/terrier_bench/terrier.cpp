@@ -69,16 +69,10 @@ struct TerrierTotalMetrics {
 
     fmt::print("<<< BEGIN\n");
 
-    if (verify_txn_per_sec > 3) {
-      // ensure the verifying thread is not blocked
-      fmt::print("update: {}\n", update_txn_per_sec);
-      fmt::print("count: {}\n", count_txn_per_sec);
-      fmt::print("verify: {}\n", verify_txn_per_sec);
-    } else {
-      fmt::print("update: {}\n", 0);
-      fmt::print("count: {}\n", 0);
-      fmt::print("verify: {}\n", verify_txn_per_sec);
-    }
+    // ensure the verifying thread is not blocked
+    fmt::print("update: {}\n", update_txn_per_sec);
+    fmt::print("count: {}\n", count_txn_per_sec);
+    fmt::print("verify: {}\n", verify_txn_per_sec);
 
     fmt::print(">>> END\n");
   }
@@ -141,7 +135,7 @@ auto main(int argc, char **argv) -> int {
   program.add_argument("--force-enable-update").help("use update statement in terrier bench");
   program.add_argument("--nft").help("number of NFTs in the bench");
 
-  size_t bustub_nft_num = 100;
+  size_t bustub_nft_num = 10;
 
   try {
     program.parse_args(argc, argv);
@@ -410,7 +404,7 @@ auto main(int argc, char **argv) -> int {
         if (all_nfts_integer.size() != bustub_nft_num) {
           fmt::print("unexpected result when verifying length. scan result: {}, total rows: {}.\n",
                      all_nfts_integer.size(), bustub_nft_num);
-          if (bustub_nft_num < 100) {
+          if (bustub_nft_num <= 100) {
             fmt::print("This is everything in your database:\n{}", ss.str());
           }
           exit(1);
@@ -418,7 +412,7 @@ auto main(int argc, char **argv) -> int {
         for (int i = 0; i < static_cast<int>(bustub_nft_num); i++) {
           if (all_nfts_integer[i] != i) {
             fmt::print("unexpected result when verifying \"{} == {}\",\n", i, all_nfts_integer[i]);
-            if (bustub_nft_num < 100) {
+            if (bustub_nft_num <= 100) {
               fmt::print("This is everything in your database:\n{}", ss.str());
             }
             exit(1);
@@ -435,16 +429,15 @@ auto main(int argc, char **argv) -> int {
           txn_success = false;
         }
 
-        if (ss.str() != prev_result) {
-          fmt::print("ERROR: non repeatable read!\n");
-          if (bustub_nft_num < 100) {
-            fmt::print("This is everything in your database:\n--- previous query ---\n{}\n--- this query ---\n{}\n",
-                       prev_result, ss.str());
-          }
-          exit(1);
-        }
-
         if (txn_success) {
+          if (ss.str() != prev_result) {
+            fmt::print("ERROR: non repeatable read!\n");
+            if (bustub_nft_num <= 100) {
+              fmt::print("This is everything in your database:\n--- previous query ---\n{}\n--- this query ---\n{}\n",
+                         prev_result, ss.str());
+            }
+            exit(1);
+          }
           bustub->txn_manager_->Commit(txn);
           metrics.TxnCommitted();
         } else {
@@ -499,6 +492,12 @@ auto main(int argc, char **argv) -> int {
   }
 
   total_metrics.Report();
+
+  if (total_metrics.committed_verify_txn_cnt_ <= 3 || total_metrics.committed_update_txn_cnt_ < 3 ||
+      total_metrics.committed_count_txn_cnt_ < 3) {
+    fmt::print("too many txn are aborted");
+    exit(1);
+  }
 
   return 0;
 }
