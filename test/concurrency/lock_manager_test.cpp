@@ -2,13 +2,14 @@
  * lock_manager_test.cpp
  */
 
-#include "concurrency/lock_manager.h"
-
 #include <random>
 #include <thread>  // NOLINT
 
 #include "common/config.h"
+#include "common_checker.h"  // NOLINT
+#include "concurrency/lock_manager.h"
 #include "concurrency/transaction_manager.h"
+
 #include "gtest/gtest.h"
 
 namespace bustub {
@@ -240,5 +241,67 @@ void TwoPLTest1() {
 }
 
 TEST(LockManagerTest, DISABLED_TwoPLTest1) { TwoPLTest1(); }  // NOLINT
+
+void AbortTest1() {
+  fmt::print(stderr, "AbortTest1: multiple X should block\n");
+
+  LockManager lock_mgr{};
+  TransactionManager txn_mgr{&lock_mgr};
+
+  table_oid_t oid = 0;
+  RID rid{0, 0};
+
+  auto txn1 = txn_mgr.Begin();
+  auto txn2 = txn_mgr.Begin();
+  auto txn3 = txn_mgr.Begin();
+
+  /** All takes IX lock on table */
+  EXPECT_EQ(true, lock_mgr.LockTable(txn1, LockManager::LockMode::INTENTION_EXCLUSIVE, oid));
+  CheckTableLockSizes(txn1, 0, 0, 0, 1, 0);
+  EXPECT_EQ(true, lock_mgr.LockTable(txn2, LockManager::LockMode::INTENTION_EXCLUSIVE, oid));
+  CheckTableLockSizes(txn2, 0, 0, 0, 1, 0);
+  EXPECT_EQ(true, lock_mgr.LockTable(txn3, LockManager::LockMode::INTENTION_EXCLUSIVE, oid));
+  CheckTableLockSizes(txn3, 0, 0, 0, 1, 0);
+
+  /** txn1 takes X lock on row */
+  EXPECT_EQ(true, lock_mgr.LockRow(txn1, LockManager::LockMode::EXCLUSIVE, oid, rid));
+  CheckTxnRowLockSize(txn1, oid, 0, 1);
+
+  /** txn2 attempts X lock on table but should be blocked */
+  auto txn2_task = std::thread{[&]() { lock_mgr.LockRow(txn2, LockManager::LockMode::EXCLUSIVE, oid, rid); }};
+
+  /** Sleep for a bit */
+  std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  /** txn2 shouldn't have been granted the lock */
+  CheckTxnRowLockSize(txn2, oid, 0, 0);
+
+  /** txn3 attempts X lock on row but should be blocked */
+  auto txn3_task = std::thread{[&]() { lock_mgr.LockRow(txn3, LockManager::LockMode::EXCLUSIVE, oid, rid); }};
+  /** Sleep for a bit */
+  std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  /** txn3 shouldn't have been granted the lock */
+  CheckTxnRowLockSize(txn3, oid, 0, 0);
+
+  /** Abort txn2 */
+  txn_mgr.Abort(txn2);
+
+  /** txn1 releases lock */
+  EXPECT_EQ(true, lock_mgr.UnlockRow(txn1, oid, rid));
+  CheckTxnRowLockSize(txn1, oid, 0, 0);
+
+  txn2_task.join();
+  txn3_task.join();
+  /** txn2 shouldn't have any row locks */
+  CheckTxnRowLockSize(txn2, oid, 0, 0);
+  CheckTableLockSizes(txn2, 0, 0, 0, 0, 0);
+  /** txn3 should have the row lock */
+  CheckTxnRowLockSize(txn3, oid, 0, 1);
+
+  delete txn1;
+  delete txn2;
+  delete txn3;
+}
+
+TEST(LockManagerTest, DISABLED_RowAbortTest1) { AbortTest1(); }  // NOLINT
 
 }  // namespace bustub
