@@ -75,7 +75,7 @@ void TableLockTest1() {
     EXPECT_EQ(i, txns[i]->GetTransactionId());
   }
 
-  /** Each transaction takes an S lock on every table and then unlocks */
+  /** Each transaction takes an X lock on every table and then unlocks */
   auto task = [&](int txn_id) {
     bool res;
     for (const table_oid_t &oid : oids) {
