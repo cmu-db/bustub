@@ -171,8 +171,6 @@ class Transaction {
         thread_id_(std::this_thread::get_id()),
         txn_id_(txn_id),
         prev_lsn_(INVALID_LSN),
-        shared_lock_set_{new std::unordered_set<RID>},
-        exclusive_lock_set_{new std::unordered_set<RID>},
         s_table_lock_set_{new std::unordered_set<table_oid_t>},
         x_table_lock_set_{new std::unordered_set<table_oid_t>},
         is_table_lock_set_{new std::unordered_set<table_oid_t>},
@@ -240,16 +238,10 @@ class Transaction {
    */
   inline void AddIntoDeletedPageSet(page_id_t page_id) { deleted_page_set_->insert(page_id); }
 
-  /** @return the set of resources under a shared lock */
-  inline auto GetSharedLockSet() -> std::shared_ptr<std::unordered_set<RID>> { return shared_lock_set_; }
-
   /** @return the set of rows under a shared lock */
   inline auto GetSharedRowLockSet() -> std::shared_ptr<std::unordered_map<table_oid_t, std::unordered_set<RID>>> {
     return s_row_lock_set_;
   }
-
-  /** @return the set of resources under an exclusive lock */
-  inline auto GetExclusiveLockSet() -> std::shared_ptr<std::unordered_set<RID>> { return exclusive_lock_set_; }
 
   /** @return the set of rows in under an exclusive lock */
   inline auto GetExclusiveRowLockSet() -> std::shared_ptr<std::unordered_map<table_oid_t, std::unordered_set<RID>>> {
@@ -354,11 +346,6 @@ class Transaction {
   std::shared_ptr<std::deque<Page *>> page_set_;
   /** Concurrent index: the page IDs that were deleted during index operation.*/
   std::shared_ptr<std::unordered_set<page_id_t>> deleted_page_set_;
-
-  /** LockManager: the set of shared-locked tuples held by this transaction. */
-  std::shared_ptr<std::unordered_set<RID>> shared_lock_set_;
-  /** LockManager: the set of exclusive-locked tuples held by this transaction. */
-  std::shared_ptr<std::unordered_set<RID>> exclusive_lock_set_;
 
   /** LockManager: the set of table locks held by this transaction. */
   std::shared_ptr<std::unordered_set<table_oid_t>> s_table_lock_set_;
