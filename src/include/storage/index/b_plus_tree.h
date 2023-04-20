@@ -123,7 +123,7 @@ class BPlusTree {
   void PrintTree(page_id_t page_id, const BPlusTreePage *page);
 
   /**
-   * @brief Convert A B+ tree into a Printable B+ tree
+   * @brief Convert a B+ tree into a Printable B+ tree
    *
    * @param root_id
    * @return PrintableNode
@@ -141,7 +141,7 @@ class BPlusTree {
 };
 
 /**
- * @brief for test only. PrintableBPlusTree is a printalbe B+ tree.
+ * @brief for test only. PrintableBPlusTree is a printable B+ tree.
  * We first convert B+ tree into a printable B+ tree and the print it.
  */
 struct PrintableBPlusTree {
@@ -150,7 +150,7 @@ struct PrintableBPlusTree {
   std::vector<PrintableBPlusTree> children_;
 
   /**
-   * @brief BFS traverse a printable B+ tree and print it into
+   * @brief BFS traverse a printable B+ tree and print it
    * into out_buf
    *
    * @param out_buf
