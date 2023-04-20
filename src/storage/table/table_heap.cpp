@@ -76,7 +76,8 @@ auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple, LockManag
   guard.unlock();
 
   if (lock_mgr != nullptr) {
-    lock_mgr->LockRow(txn, LockManager::LockMode::EXCLUSIVE, oid, RID{last_page_id, slot_id});
+    BUSTUB_ENSURE(lock_mgr->LockRow(txn, LockManager::LockMode::EXCLUSIVE, oid, RID{last_page_id, slot_id}),
+                  "failed to lock when inserting new tuple");
   }
 
   page_guard.Drop();
