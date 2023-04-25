@@ -462,6 +462,11 @@ auto main(int argc, char **argv) -> int {
       delete txn;
 
       metrics.Report();
+
+      if (bustub_nft_num > 1000) {
+        // if NFT num is large, sleep this thread to avoid lock contention
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+      }
     }
 
     total_metrics.ReportVerify(metrics.aborted_txn_cnt_, metrics.committed_txn_cnt_);
