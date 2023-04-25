@@ -462,6 +462,11 @@ auto main(int argc, char **argv) -> int {
       delete txn;
 
       metrics.Report();
+
+      if (bustub_nft_num > 1000) {
+        // if NFT num is large, sleep this thread to avoid lock contention
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+      }
     }
 
     total_metrics.ReportVerify(metrics.aborted_txn_cnt_, metrics.committed_txn_cnt_);
@@ -494,6 +499,14 @@ auto main(int argc, char **argv) -> int {
       bustub->ExecuteSqlTxn(sql, writer, txn);
       cnt += std::stoi(ss.str());
     }
+
+    {
+      auto writer = bustub::SimpleStreamWriter(std::cout, true);
+      auto sql = "SELECT count(*) FROM nft WHERE terrier = 0";
+      std::cout << "SELECT count(*) FROM nft WHERE terrier = 0: ";
+      bustub->ExecuteSqlTxn(sql, writer, txn);
+    }
+
     bustub->txn_manager_->Commit(txn);
     delete txn;
     if (cnt != bustub_nft_num) {
