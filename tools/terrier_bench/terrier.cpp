@@ -499,6 +499,14 @@ auto main(int argc, char **argv) -> int {
       bustub->ExecuteSqlTxn(sql, writer, txn);
       cnt += std::stoi(ss.str());
     }
+
+    {
+      auto writer = bustub::SimpleStreamWriter(std::cout, true);
+      auto sql = "SELECT count(*) FROM nft WHERE terrier = 0";
+      std::cout << "SELECT count(*) FROM nft WHERE terrier = 0: ";
+      bustub->ExecuteSqlTxn(sql, writer, txn);
+    }
+
     bustub->txn_manager_->Commit(txn);
     delete txn;
     if (cnt != bustub_nft_num) {
