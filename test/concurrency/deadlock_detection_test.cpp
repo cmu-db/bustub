@@ -16,7 +16,6 @@ TEST(LockManagerDeadlockDetectionTest, DISABLED_EdgeTest) {
   LockManager lock_mgr{};
   TransactionManager txn_mgr{&lock_mgr};
   lock_mgr.txn_manager_ = &txn_mgr;
-  lock_mgr.StartDeadlockDetection();
 
   const int num_nodes = 100;
   const int num_edges = num_nodes / 2;
