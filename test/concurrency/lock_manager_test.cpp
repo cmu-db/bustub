@@ -29,8 +29,15 @@ void CheckAborted(Transaction *txn) { EXPECT_EQ(txn->GetState(), TransactionStat
 void CheckCommitted(Transaction *txn) { EXPECT_EQ(txn->GetState(), TransactionState::COMMITTED); }
 
 void CheckTxnRowLockSize(Transaction *txn, table_oid_t oid, size_t shared_size, size_t exclusive_size) {
-  EXPECT_EQ((*(txn->GetSharedRowLockSet()))[oid].size(), shared_size);
-  EXPECT_EQ((*(txn->GetExclusiveRowLockSet()))[oid].size(), exclusive_size);
+  bool correct = true;
+  correct = correct && (*txn->GetSharedRowLockSet())[oid].size() == shared_size;
+  correct = correct && (*txn->GetExclusiveRowLockSet())[oid].size() == exclusive_size;
+  if (!correct) {
+    fmt::print("row lock size incorrect for txn={} oid={}: expected (S={} X={}), actual (S={} X={})\n",
+               txn->GetTransactionId(), oid, shared_size, exclusive_size, (*txn->GetSharedRowLockSet())[oid].size(),
+               (*txn->GetExclusiveRowLockSet())[oid].size());
+  }
+  EXPECT_TRUE(correct);
 }
 
 int GetTxnTableLockSize(Transaction *txn, LockManager::LockMode lock_mode) {
@@ -52,11 +59,22 @@ int GetTxnTableLockSize(Transaction *txn, LockManager::LockMode lock_mode) {
 
 void CheckTableLockSizes(Transaction *txn, size_t s_size, size_t x_size, size_t is_size, size_t ix_size,
                          size_t six_size) {
-  EXPECT_EQ(s_size, txn->GetSharedTableLockSet()->size());
-  EXPECT_EQ(x_size, txn->GetExclusiveTableLockSet()->size());
-  EXPECT_EQ(is_size, txn->GetIntentionSharedTableLockSet()->size());
-  EXPECT_EQ(ix_size, txn->GetIntentionExclusiveTableLockSet()->size());
-  EXPECT_EQ(six_size, txn->GetSharedIntentionExclusiveTableLockSet()->size());
+  bool correct = true;
+  correct = correct && s_size == txn->GetSharedTableLockSet()->size();
+  correct = correct && x_size == txn->GetExclusiveTableLockSet()->size();
+  correct = correct && is_size == txn->GetIntentionSharedTableLockSet()->size();
+  correct = correct && ix_size == txn->GetIntentionExclusiveTableLockSet()->size();
+  correct = correct && six_size == txn->GetSharedIntentionExclusiveTableLockSet()->size();
+  if (!correct) {
+    fmt::print(
+        "table lock size incorrect for txn={}: expected (S={} X={}, IS={}, IX={}, SIX={}), actual (S={} X={}, IS={}, "
+        "IX={}, "
+        "SIX={})\n",
+        txn->GetTransactionId(), s_size, x_size, is_size, ix_size, six_size, txn->GetSharedTableLockSet()->size(),
+        txn->GetExclusiveTableLockSet()->size(), txn->GetIntentionSharedTableLockSet()->size(),
+        txn->GetIntentionExclusiveTableLockSet()->size(), txn->GetSharedIntentionExclusiveTableLockSet()->size());
+  }
+  EXPECT_TRUE(correct);
 }
 
 void TableLockTest1() {
