@@ -60,6 +60,11 @@ class TrieNode {
   // Note: if you want to convert `unique_ptr` into `shared_ptr`, you can use `std::shared_ptr<T>(std::move(ptr))`.
   virtual auto Clone() const -> std::unique_ptr<TrieNode> { return std::make_unique<TrieNode>(children_); }
 
+  virtual auto CloneWithMap(std::map<char, std::shared_ptr<const TrieNode>> children) const
+      -> std::shared_ptr<TrieNode> {
+    return std::make_shared<TrieNode>(std::move(children));
+  }
+
   // A map of children, where the key is the next character in the key, and the value is the next TrieNode.
   std::map<char, std::shared_ptr<const TrieNode>> children_;
 
@@ -88,6 +93,11 @@ class TrieNodeWithValue : public TrieNode {
   // Note: if you want to convert `unique_ptr` into `shared_ptr`, you can use `std::shared_ptr<T>(std::move(ptr))`.
   auto Clone() const -> std::unique_ptr<TrieNode> override {
     return std::make_unique<TrieNodeWithValue<T>>(children_, value_);
+  }
+
+  auto CloneWithMap(std::map<char, std::shared_ptr<const TrieNode>> children) const
+      -> std::shared_ptr<TrieNode> override {
+    return std::make_shared<TrieNodeWithValue>(children, value_);
   }
 
   // The value associated with this trie node.

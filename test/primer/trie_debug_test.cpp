@@ -18,11 +18,24 @@ TEST(TrieDebugger, TestCase) {
   std::mt19937_64 gen(2333);
   std::uniform_int_distribution<uint32_t> dis(0, 100);
 
+  std::vector<std::pair<std::string, uint32_t>> clt;
+
   auto trie = Trie();
   for (uint32_t i = 0; i < 10; i++) {
     std::string key = fmt::format("{}", dis(gen));
     auto value = dis(gen);
     trie = trie.Put<uint32_t>(key, value);
+    clt.emplace_back(key, value);
+  }
+
+  for (auto& [k, v] : clt) {
+    std::cout << ">>> " << k << ":" << v << std::endl;
+    auto ptr = trie.Get<uint32_t>(k);
+  if (ptr == nullptr) {
+    std::cout << "nullptr" << std::endl;
+  } else {
+    std::cout << *ptr << std::endl;
+  }
   }
 
   // Put a breakpoint here.
@@ -34,6 +47,7 @@ TEST(TrieDebugger, TestCase) {
   }
 
   // (2) How many children nodes are there on the node of prefix `9`?
+
   // Replace `CASE_2_YOUR_ANSWER` in `trie_answer.h` with the correct answer.
   if (CASE_2_YOUR_ANSWER != Case2CorrectAnswer()) {
     ASSERT_TRUE(false);
