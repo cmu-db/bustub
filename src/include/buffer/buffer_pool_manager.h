@@ -124,8 +124,7 @@ class BufferPoolManager {
   /**
    * TODO(P1): Add implementation
    *
-   * @brief Unpin the target page from the buffer pool. If page_id is not in the buffer pool or its pin count is already
-   * 0, return false.
+   * @brief Unpin the target page from the buffer pool. If its pin count is already 0, return false.
    *
    * Decrement the pin count of a page. If the pin count reaches 0, the frame should be evictable by the replacer.
    * Also, set the dirty flag on the page to indicate if the page was modified.
@@ -133,7 +132,7 @@ class BufferPoolManager {
    * @param page_id id of page to be unpinned
    * @param is_dirty true if the page should be marked as dirty, false otherwise
    * @param access_type type of access to the page, only needed for leaderboard tests.
-   * @return false if the page is not in the page table or its pin count is <= 0 before this call, true otherwise
+   * @return false if its pin count is <= 0 before this call, true otherwise
    */
   auto UnpinPage(page_id_t page_id, bool is_dirty, AccessType access_type = AccessType::Unknown) -> bool;
 
