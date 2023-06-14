@@ -118,7 +118,7 @@ class Index {
  public:
   /**
    * Construct a new Index instance.
-   * @param metdata An owning pointer to the index metadata
+   * @param metadata An owning pointer to the index metadata
    */
   explicit Index(std::unique_ptr<IndexMetadata> &&metadata) : metadata_{std::move(metadata)} {}
 

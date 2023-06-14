@@ -77,7 +77,7 @@ auto Planner::PlanSelectAgg(const SelectStatement &statement, AbstractPlanNodeRe
    * - That's all!
    */
 
-  // Create a new context which allows aggrecation call.
+  // Create a new context which allows aggregation call.
   auto guard = NewContext();
   ctx_.allow_aggregation_ = true;
 

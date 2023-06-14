@@ -159,7 +159,7 @@ class LockManager {
    *      - 2. Drop the current lock, reserve the upgrade position
    *      - 3. Wait to get the new lock granted
    *
-   *    A lock request being upgraded should be prioritised over other waiting lock requests on the same resource.
+   *    A lock request being upgraded should be prioritized over other waiting lock requests on the same resource.
    *
    *    While upgrading, only the following transitions should be allowed:
    *        IS -> [S, X, IX, SIX]
