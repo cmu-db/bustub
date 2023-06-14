@@ -30,9 +30,9 @@ class UpdatePlanNode : public AbstractPlanNode {
  public:
   /**
    * Construct a new UpdatePlanNode instance.
-   * @param child the child plan to obtain tuple from
-   * @param table_oid the identifier of the table that should be updated
-   * @param target_expressions the target expressions for new tuples
+   * @param child The child plan to obtain tuple from
+   * @param table_oid The identifier of the table that should be updated
+   * @param target_expressions The target expressions for new tuples
    */
   UpdatePlanNode(SchemaRef output, AbstractPlanNodeRef child, table_oid_t table_oid,
                  std::vector<AbstractExpressionRef> target_expressions)

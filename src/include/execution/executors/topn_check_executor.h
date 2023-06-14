@@ -22,7 +22,7 @@
 namespace bustub {
 
 /**
- * TopNCheckExecutor checks the number of items in topn executor container
+ * TopNCheckExecutor checks the number of items in TopN executor container
  */
 class TopNCheckExecutor : public AbstractExecutor {
  public:
@@ -30,7 +30,7 @@ class TopNCheckExecutor : public AbstractExecutor {
    * Construct a new TopNCheckExecutor instance.
    * @param exec_ctx The executor context
    * @param plan The TopN plan to be executed
-   * @param child_executor The topn child executor
+   * @param child_executor The TopN child executor
    */
   TopNCheckExecutor(ExecutorContext *exec_ctx, const TopNPlanNode *plan,
                     std::unique_ptr<AbstractExecutor> &&child_executor, TopNExecutor *topn_executor);
