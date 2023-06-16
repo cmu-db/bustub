@@ -157,7 +157,7 @@ class AggregationExecutor : public AbstractExecutor {
    * @param child_executor The child executor from which inserted tuples are pulled (may be `nullptr`)
    */
   AggregationExecutor(ExecutorContext *exec_ctx, const AggregationPlanNode *plan,
-                      std::unique_ptr<AbstractExecutor> &&child);
+                      std::unique_ptr<AbstractExecutor> &&child_executor);
 
   /** Initialize the aggregation */
   void Init() override;
@@ -199,7 +199,7 @@ class AggregationExecutor : public AbstractExecutor {
   /** The aggregation plan node */
   const AggregationPlanNode *plan_;
   /** The child executor that produces tuples over which the aggregation is computed */
-  std::unique_ptr<AbstractExecutor> child_;
+  std::unique_ptr<AbstractExecutor> child_executor_;
   /** Simple aggregation hash table */
   // TODO(Student): Uncomment SimpleAggregationHashTable aht_;
   /** Simple aggregation hash table iterator */
