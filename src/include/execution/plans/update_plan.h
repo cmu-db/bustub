@@ -44,7 +44,7 @@ class UpdatePlanNode : public AbstractPlanNode {
   auto GetType() const -> PlanType override { return PlanType::Update; }
 
   /** @return The identifier of the table that should be updated */
-  auto TableOid() const -> table_oid_t { return table_oid_; }
+  auto GetTableOid() const -> table_oid_t { return table_oid_; }
 
   /** @return The child plan providing tuples to be inserted */
   auto GetChildPlan() const -> AbstractPlanNodeRef {

@@ -41,7 +41,7 @@ class DeletePlanNode : public AbstractPlanNode {
   auto GetType() const -> PlanType override { return PlanType::Delete; }
 
   /** @return The identifier of the table from which tuples are deleted*/
-  auto TableOid() const -> table_oid_t { return table_oid_; }
+  auto GetTableOid() const -> table_oid_t { return table_oid_; }
 
   /** @return The child plan providing tuples to be deleted */
   auto GetChildPlan() const -> AbstractPlanNodeRef {

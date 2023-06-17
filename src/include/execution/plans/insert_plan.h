@@ -41,7 +41,7 @@ class InsertPlanNode : public AbstractPlanNode {
   auto GetType() const -> PlanType override { return PlanType::Insert; }
 
   /** @return The identifier of the table into which tuples are inserted */
-  auto TableOid() const -> table_oid_t { return table_oid_; }
+  auto GetTableOid() const -> table_oid_t { return table_oid_; }
 
   /** @return the child plan providing tuples to be inserted */
   auto GetChildPlan() const -> AbstractPlanNodeRef {
