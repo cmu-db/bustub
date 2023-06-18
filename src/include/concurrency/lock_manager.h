@@ -177,6 +177,9 @@ class LockManager {
    * BOOK KEEPING:
    *    If a lock is granted to a transaction, lock manager should update its
    *    lock sets appropriately (check transaction.h)
+   *
+   *    You probably want to consider which type of lock to directly apply on table
+   *    when implementing executor later
    */
 
   /**
