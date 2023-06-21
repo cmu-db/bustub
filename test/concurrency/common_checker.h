@@ -121,11 +121,13 @@ auto Delete(Transaction *txn, BustubInstance &instance, const std::vector<int> &
   auto writer = bustub::SimpleStreamWriter(ss, true, ",");
 
   for (const auto &v1 : d_vec) {
-    fmt::print(stderr, "delete data with v1 = {} in txn {} {}\n", v1, txn->GetTransactionId(), txn->GetIsolationLevel());
+    fmt::print(stderr, "delete data with v1 = {} in txn {} {}\n", v1, txn->GetTransactionId(),
+               txn->GetIsolationLevel());
     std::string sql = fmt::format("DELETE FROM t1 WHERE v1 = {}", v1);
     bool res = instance.ExecuteSqlTxn(sql, writer, txn);
     if (!res) {
-      fmt::print(stderr, "Failed to delete data with v1 = {} in txn {} {}\n", v1, txn->GetTransactionId(), txn->GetIsolationLevel());
+      fmt::print(stderr, "Failed to delete data with v1 = {} in txn {} {}\n", v1, txn->GetTransactionId(),
+                 txn->GetIsolationLevel());
     }
   }
 
