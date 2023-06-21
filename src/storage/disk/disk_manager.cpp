@@ -13,7 +13,9 @@
 #include <sys/stat.h>
 #include <cassert>
 #include <cstring>
+#include <future>
 #include <iostream>
+#include <memory>
 #include <mutex>  // NOLINT
 #include <string>
 #include <thread>  // NOLINT
@@ -65,9 +67,11 @@ DiskManager::DiskManager(const std::string &db_file) : file_name_(db_file) {
 
 /**
  * Close all file streams
+ * Note: ShutDown should now be aware of none-terminated future flush
  */
 void DiskManager::ShutDown() {
   has_shut_down_ = true;
+  // Close the fstream, to prevent memory leak
   {
     std::scoped_lock scoped_db_io_latch(db_io_latch_);
     std::scoped_lock scoped_log_io_latch(log_io_latch_);
@@ -76,6 +80,12 @@ void DiskManager::ShutDown() {
   }
   // Not for production code, only to check the state under DEBUG mode
   assert(!db_io_.is_open() && !log_io_.is_open());
+
+  // Wait for the ever existing flushing operation to finish
+  if (HasFlushLogFuture()) {
+    // Same problem as in DiskManager::WriteLog(), may crash the program
+    assert(flush_log_f_->wait_for(std::chrono::seconds(10)) == std::future_status::ready);
+  }
 }
 
 /**
@@ -129,6 +139,7 @@ void DiskManager::ReadPage(page_id_t page_id, char *page_data) {
 /**
  * Write the contents of the log into disk file
  * Only return when sync is done, and only perform sequence write
+ * Note: The flush operation will be executed asynchronously
  */
 void DiskManager::WriteLog(char *log_data, int size) {
   std::scoped_lock scoped_log_io_latch(log_io_latch_);
@@ -141,26 +152,35 @@ void DiskManager::WriteLog(char *log_data, int size) {
   }
 
   if (HasFlushLogFuture()) {
-    // used for checking non-blocking flushing
+    // Used for checking non-blocking flushing, the default (and expected) time for a logging thread is 10s
+    // TODO(Zihao): Now the program will crash if the flush is still persisting after 10s,
+    // Should it be handled more softly (e.g, Print a warning and terminate just that thread by resetting the ptr?)
     assert(flush_log_f_->wait_for(std::chrono::seconds(10)) == std::future_status::ready);
+    // No need to do anything, since std::unique_ptr will be reset and the previous resource will be released automatically
   }
 
-  // The older log has been flushed, it's time to write new log
+  // The older log has been flushed, set the flush_log_ to true
   flush_log_ = true;
 
   // Increase the num of flush by one
   num_flushes_ += 1;
 
-  // Sequence write
+  // Write the log
   log_io_.write(log_data, size);
 
-  // check for I/O error
+  // Check for I/O error
   if (log_io_.bad()) {
     LOG_DEBUG("I/O error while writing log");
     return;
   }
-  // needs to flush to keep disk file in sync
-  log_io_.flush();
+
+  // The flushing here is done asynchronously
+  flush_log_f_ = std::make_unique<std::future<void>>(std::async(std::launch::async, [&] {
+    // Needs to flush to keep disk file in sync
+    log_io_.flush();
+  }));
+
+  // Set the flush_log_ back to false, since the execution time of this thread is not sure
   flush_log_ = false;
 }
 
@@ -171,12 +191,14 @@ void DiskManager::WriteLog(char *log_data, int size) {
  */
 auto DiskManager::ReadLog(char *log_data, int size, int offset) -> bool {
   std::scoped_lock scoped_log_io_latch(log_io_latch_);
+
   // Perform sanity check here
   if (offset >= GetFileSize(log_name_)) {
     // LOG_DEBUG("end of log file");
     // LOG_DEBUG("file size is %d", GetFileSize(log_name_));
     return false;
   }
+
   log_io_.seekp(offset);
   log_io_.read(log_data, size);
 
@@ -184,6 +206,7 @@ auto DiskManager::ReadLog(char *log_data, int size, int offset) -> bool {
     LOG_DEBUG("I/O error while reading log");
     return false;
   }
+
   // if log file ends before reading "size"
   int read_count = log_io_.gcount();
   if (read_count < size) {

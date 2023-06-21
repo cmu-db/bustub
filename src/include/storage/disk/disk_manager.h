@@ -87,7 +87,7 @@ class DiskManager {
 
   /**
    * @brief Returns true if the log is currently being flushed
-   * @return true iff the in-memory content has not been flushed yet
+   * @return True iff the in-memory content has currently been flushed
    */
   auto GetFlushState() const -> bool { return flush_log_.load(); };
 
