@@ -36,7 +36,7 @@ auto Insert(Transaction *txn, BustubInstance &instance, int v1) -> void {
 /// @param flag When set to `true`, the size of @v1_vec should be exactly one, the default value is `false`
 /// Usage: Insert(txn, instance, {1, 2, 3}, {4, 5, 6}, flag = false);
 /// This overloaded function will then bound each pair from @v1_vec & @v2_vec as a insert value
-/// If flag is set to true, v1_vec should contain exactly one element,
+/// If flag is set to `true`, v1_vec should contain exactly one element,
 /// The insert pair will be {v1_vec[0], v2_vec[0]}, {v1_vec[0], v2_vec[1]} ...
 auto Insert(Transaction *txn, BustubInstance &instance, const std::vector<int> &v1_vec, const std::vector<int> &v2_vec,
             bool flag = false) -> void {
@@ -77,15 +77,19 @@ auto Insert(Transaction *txn, BustubInstance &instance, const std::vector<int> &
   }
 
   // Remove the last comma and space
-  assert(!val_str.empty());
+  assert(!val_str.empty() && val_str.size() >= 2);
   val_str.pop_back();
   val_str.pop_back();
+
+  fmt::print(stderr, "insert data with @v1_vec = {} and @v2_vec = {} in txn {} {}\n", v1_vec, v2_vec,
+             txn->GetTransactionId(), txn->GetIsolationLevel());
 
   std::string sql = "INSERT INTO t1 VALUES " + val_str;
-  instance.ExecuteSqlTxn(sql, writer, txn);
 
-  fmt::print(stderr, "Inserted data with @v1_vec = {} and @v2_vec = {} in txn {} {}\n", v1_vec, v2_vec,
-             txn->GetTransactionId(), txn->GetIsolationLevel());
+  bool res = instance.ExecuteSqlTxn(sql, writer, txn);
+  if (!res) {
+    fmt::print(stderr, "Failed to insert data with @v1_vec = {} and @v2_vec = {} in txn {} {}\n", v1_vec, v2_vec);
+  }
 
   // The final number of inserted elements should be the size of @v2_vec
   ASSERT_EQ(ss.str(), fmt::format("{},\n", v2_vec.size()));
@@ -119,7 +123,10 @@ auto Delete(Transaction *txn, BustubInstance &instance, const std::vector<int> &
   for (const auto &v1 : d_vec) {
     fmt::print(stderr, "delete data with v1 = {} in txn {} {}\n", v1, txn->GetTransactionId(), txn->GetIsolationLevel());
     std::string sql = fmt::format("DELETE FROM t1 WHERE v1 = {}", v1);
-    instance.ExecuteSqlTxn(sql, writer, txn);
+    bool res = instance.ExecuteSqlTxn(sql, writer, txn);
+    if (!res) {
+      fmt::print(stderr, "Failed to delete data with v1 = {} in txn {} {}\n", v1, txn->GetTransactionId(), txn->GetIsolationLevel());
+    }
   }
 
   ASSERT_EQ(ss.str(), fmt::format("{},\n", d_size));
