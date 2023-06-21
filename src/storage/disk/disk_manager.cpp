@@ -156,7 +156,8 @@ void DiskManager::WriteLog(char *log_data, int size) {
     // TODO(Zihao): Now the program will crash if the flush is still persisting after 10s,
     // Should it be handled more softly (e.g, Print a warning and terminate just that thread by resetting the ptr?)
     assert(flush_log_f_->wait_for(std::chrono::seconds(10)) == std::future_status::ready);
-    // No need to do anything, since std::unique_ptr will be reset and the previous resource will be released automatically
+    // No need to do anything, since std::unique_ptr will be reset and the previous resource will be released
+    // automatically
   }
 
   // The older log has been flushed, set the flush_log_ to true
