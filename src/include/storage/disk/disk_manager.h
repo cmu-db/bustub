@@ -101,10 +101,10 @@ class DiskManager {
    * Sets the future which is used to check for non-blocking flushes.
    * @param f the non-blocking flush check
    */
-  inline void SetFlushLogFuture(std::future<void> *f) { flush_log_f_ = f; }
+  inline void SetFlushLogFuture(std::unique_ptr<std::future<void>> f) { flush_log_f_ = std::move(f); }
 
   /** Checks if the non-blocking flush future was set. */
-  inline auto HasFlushLogFuture() -> bool { return flush_log_f_ != nullptr; }
+  inline auto HasFlushLogFuture() -> bool { return flush_log_f_ != nullptr && flush_log_f_->valid(); }
 
  protected:
   auto GetFileSize(const std::string &file_name) -> int;
@@ -122,7 +122,7 @@ class DiskManager {
   std::atomic<bool> flush_log_{false};
   /** Used for Destructor */
   std::atomic<bool> has_shut_down_{false};
-  std::future<void> *flush_log_f_{nullptr};
+  std::unique_ptr<std::future<void>> flush_log_f_{nullptr};
 
   /** With multiple buffer pool instances, need to protect file access */
   std::mutex db_io_latch_;
