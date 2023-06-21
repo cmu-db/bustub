@@ -79,14 +79,23 @@ class DiskManager {
    */
   auto ReadLog(char *log_data, int size, int offset) -> bool;
 
-  /** @return the number of disk flushes */
-  auto GetNumFlushes() const -> int;
+  /**
+   * @brief Returns number of flushes made so far
+   * @return The number of disk flushes
+   */
+  auto GetNumFlushes() const -> int { return num_flushes_; };
 
-  /** @return true iff the in-memory content has not been flushed yet */
-  auto GetFlushState() const -> bool;
+  /**
+   * @brief Returns true if the log is currently being flushed
+   * @return true iff the in-memory content has not been flushed yet
+   */
+  auto GetFlushState() const -> bool { return flush_log_.load(); };
 
-  /** @return the number of disk writes */
-  auto GetNumWrites() const -> int;
+  /**
+   * @brief Returns number of Writes made so far
+   * @return The number of disk writes
+   */
+  auto GetNumWrites() const -> int { return num_writes_; };
 
   /**
    * Sets the future which is used to check for non-blocking flushes.
@@ -99,20 +108,25 @@ class DiskManager {
 
  protected:
   auto GetFileSize(const std::string &file_name) -> int;
+
   /** Stream to write log file */
   std::fstream log_io_;
   std::string log_name_;
+
   /** Stream to write db file */
   std::fstream db_io_;
   std::string file_name_;
+
   int num_flushes_{0};
   int num_writes_{0};
   std::atomic<bool> flush_log_{false};
   /** Used for Destructor */
   std::atomic<bool> has_shut_down_{false};
   std::future<void> *flush_log_f_{nullptr};
+
   /** With multiple buffer pool instances, need to protect file access */
   std::mutex db_io_latch_;
+
   /** Same as above, the log access also needs to be protected, since std::fstream is NOT thread-safe */
   std::mutex log_io_latch_;
 };

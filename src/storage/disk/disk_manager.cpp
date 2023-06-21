@@ -140,15 +140,18 @@ void DiskManager::WriteLog(char *log_data, int size) {
     return;
   }
 
-  flush_log_ = true;
-
-  if (flush_log_f_ != nullptr) {
+  if (HasFlushLogFuture()) {
     // used for checking non-blocking flushing
     assert(flush_log_f_->wait_for(std::chrono::seconds(10)) == std::future_status::ready);
   }
 
+  // The older log has been flushed, it's time to write new log
+  flush_log_ = true;
+
+  // Increase the num of flush by one
   num_flushes_ += 1;
-  // sequence write
+
+  // Sequence write
   log_io_.write(log_data, size);
 
   // check for I/O error
@@ -190,21 +193,6 @@ auto DiskManager::ReadLog(char *log_data, int size, int offset) -> bool {
 
   return true;
 }
-
-/**
- * Returns number of flushes made so far
- */
-auto DiskManager::GetNumFlushes() const -> int { return num_flushes_; }
-
-/**
- * Returns number of Writes made so far
- */
-auto DiskManager::GetNumWrites() const -> int { return num_writes_; }
-
-/**
- * Returns true if the log is currently being flushed
- */
-auto DiskManager::GetFlushState() const -> bool { return flush_log_.load(); }
 
 /**
  * Private helper function to get disk file size
