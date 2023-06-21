@@ -37,7 +37,12 @@ class DiskManager {
   /** FOR TEST / LEADERBOARD ONLY, used by DiskManagerMemory */
   DiskManager() = default;
 
-  virtual ~DiskManager() = default;
+  virtual ~DiskManager() {
+    // If ShutDown() is not manually called, shut it down when DiskManager goes out of scope
+    if (!has_shut_down_.load()) {
+      ShutDown();
+    }
+  }
 
   /**
    * Shut down the disk manager and close all the file resources.
@@ -94,18 +99,22 @@ class DiskManager {
 
  protected:
   auto GetFileSize(const std::string &file_name) -> int;
-  // stream to write log file
+  /** Stream to write log file */
   std::fstream log_io_;
   std::string log_name_;
-  // stream to write db file
+  /** Stream to write db file */
   std::fstream db_io_;
   std::string file_name_;
   int num_flushes_{0};
   int num_writes_{0};
-  bool flush_log_{false};
+  std::atomic<bool> flush_log_{false};
+  /** Used for Destructor */
+  std::atomic<bool> has_shut_down_{false};
   std::future<void> *flush_log_f_{nullptr};
-  // With multiple buffer pool instances, need to protect file access
+  /** With multiple buffer pool instances, need to protect file access */
   std::mutex db_io_latch_;
+  /** Same as above, the log access also needs to be protected, since std::fstream is NOT thread-safe */
+  std::mutex log_io_latch_;
 };
 
 }  // namespace bustub

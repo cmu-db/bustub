@@ -67,11 +67,15 @@ DiskManager::DiskManager(const std::string &db_file) : file_name_(db_file) {
  * Close all file streams
  */
 void DiskManager::ShutDown() {
+  has_shut_down_ = true;
   {
     std::scoped_lock scoped_db_io_latch(db_io_latch_);
+    std::scoped_lock scoped_log_io_latch(log_io_latch_);
     db_io_.close();
+    log_io_.close();
   }
-  log_io_.close();
+  // Not for production code, only to check the state under DEBUG mode
+  assert(!db_io_.is_open() && !log_io_.is_open());
 }
 
 /**
@@ -127,7 +131,8 @@ void DiskManager::ReadPage(page_id_t page_id, char *page_data) {
  * Only return when sync is done, and only perform sequence write
  */
 void DiskManager::WriteLog(char *log_data, int size) {
-  // enforce swap log buffer
+  std::scoped_lock scoped_log_io_latch(log_io_latch_);
+  // Enforce swap log buffer
   assert(log_data != buffer_used);
   buffer_used = log_data;
 
@@ -162,6 +167,8 @@ void DiskManager::WriteLog(char *log_data, int size) {
  * @return: false means already reach the end
  */
 auto DiskManager::ReadLog(char *log_data, int size, int offset) -> bool {
+  std::scoped_lock scoped_log_io_latch(log_io_latch_);
+  // Perform sanity check here
   if (offset >= GetFileSize(log_name_)) {
     // LOG_DEBUG("end of log file");
     // LOG_DEBUG("file size is %d", GetFileSize(log_name_));
@@ -197,7 +204,7 @@ auto DiskManager::GetNumWrites() const -> int { return num_writes_; }
 /**
  * Returns true if the log is currently being flushed
  */
-auto DiskManager::GetFlushState() const -> bool { return flush_log_; }
+auto DiskManager::GetFlushState() const -> bool { return flush_log_.load(); }
 
 /**
  * Private helper function to get disk file size
