@@ -36,6 +36,8 @@ TableHeap::TableHeap(BufferPoolManager *bpm) : bpm_(bpm) {
   first_page->Init();
 }
 
+TableHeap::TableHeap(bool create_table_heap) : bpm_(nullptr) {}
+
 auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple, LockManager *lock_mgr, Transaction *txn,
                             table_oid_t oid) -> std::optional<RID> {
   std::unique_lock<std::mutex> guard(latch_);
