@@ -3,6 +3,24 @@
 
 namespace bustub {
 
+auto BasicPageGuard::UpgradeRead() -> ReadPageGuard {
+  ReadPageGuard rpg(bpm_, page_);
+  // Set the two pointers to nullptr
+  bpm_ = nullptr;
+  page_ = nullptr;
+  // Return the rvalue, will invoke move assignment operator
+  return rpg;
+}
+
+auto BasicPageGuard::UpgradeWrite() -> WritePageGuard {
+  WritePageGuard wpg(bpm_, page_);
+  // Set the two pointers to nullptr
+  bpm_ = nullptr;
+  page_ = nullptr;
+  // Return the rvalue
+  return wpg;
+}
+
 BasicPageGuard::BasicPageGuard(BasicPageGuard &&that) noexcept {}
 
 void BasicPageGuard::Drop() {}

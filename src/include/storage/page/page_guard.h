@@ -5,6 +5,9 @@
 namespace bustub {
 
 class BufferPoolManager;
+// Forward declaration for LockUpgrade in BasicPageGuard
+class ReadPageGuard;
+class WritePageGuard;
 
 class BasicPageGuard {
  public:
@@ -14,6 +17,26 @@ class BasicPageGuard {
 
   BasicPageGuard(const BasicPageGuard &) = delete;
   auto operator=(const BasicPageGuard &) -> BasicPageGuard & = delete;
+
+  /**
+   * @brief Provide guard upgrade functionality, from BasicPageGuard to ReadPageGuard
+   * You can call this function by:
+   *   BasicPageGuard g;
+   *   ReadPageGuard rg = g.UpgradeRead();
+   * Note: You must not use the original BasicPageGuard after calling this function.
+   * @return ReadPageGuard
+   */
+  auto UpgradeRead() -> ReadPageGuard;
+
+  /**
+   * @brief Provide guard upgrade functionality, from BasicPageGuard to WritePageGuard
+   * You can call this function by:
+   *   BasicPageGuard g;
+   *   WritePageGuard rg = g.UpgradeWrite();
+   * Note: You must not use the original BasicPageGuard after calling this function.
+   * @return WritePageGuard
+   */
+  auto UpgradeWrite() -> WritePageGuard;
 
   /** TODO(P1): Add implementation
    *
@@ -78,6 +101,10 @@ class BasicPageGuard {
     return reinterpret_cast<T *>(GetDataMut());
   }
 
+  // Used for GuardUpgradeTest
+  auto GetPage() -> const Page * { return page_; }
+  auto GetBPM() -> const BufferPoolManager * { return bpm_; }
+
  private:
   friend class ReadPageGuard;
   friend class WritePageGuard;
@@ -141,6 +168,10 @@ class ReadPageGuard {
   auto As() -> const T * {
     return guard_.As<T>();
   }
+
+  // Used for GuardUpgradeTest
+  auto GetPage() -> const Page * { return guard_.GetPage(); }
+  auto GetBPM() -> const BufferPoolManager * { return guard_.GetBPM(); }
 
  private:
   // You may choose to get rid of this and add your own private variables.
@@ -208,6 +239,10 @@ class WritePageGuard {
   auto AsMut() -> T * {
     return guard_.AsMut<T>();
   }
+
+  // Used for GuardUpgradeTest
+  auto GetPage() -> const Page * { return guard_.GetPage(); }
+  auto GetBPM() -> const BufferPoolManager * { return guard_.GetBPM(); }
 
  private:
   // You may choose to get rid of this and add your own private variables.

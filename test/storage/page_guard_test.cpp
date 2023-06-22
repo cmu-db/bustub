@@ -23,8 +23,44 @@
 namespace bustub {
 
 // NOLINTNEXTLINE
+TEST(PageGuardTest, DISABLED_GuardUpgradeTest) {
+  auto disk_manager = std::make_shared<DiskManagerUnlimitedMemory>();
+  const size_t buffer_pool_size = 5;
+  const size_t k = 2;
+  auto *bpm = new BufferPoolManager(buffer_pool_size, disk_manager.get(), k);
+
+  // Create two dummy pages
+  Page *dummy_page_1 = new Page();
+  Page *dummy_page_2 = new Page();
+  // Create two dummy BasicPageGuards
+  auto b_pg_1 = BasicPageGuard(bpm, dummy_page_1);
+  auto b_pg_2 = BasicPageGuard(bpm, dummy_page_2);
+
+  // Upgrade the first pg to ReadPageGuard
+  ReadPageGuard rpg = b_pg_1.UpgradeRead();
+
+  // Sanity Check
+  assert(b_pg_1.GetPage() == nullptr && b_pg_1.GetBPM() == nullptr);
+  assert(rpg.GetPage() == dummy_page_1 && rpg.GetBPM() == bpm);
+
+  // Upgrade the second pg to WritePageGuard
+  WritePageGuard wpg = b_pg_2.UpgradeWrite();
+
+  // Sanity Check
+  assert(b_pg_2.GetPage() == nullptr && b_pg_2.GetBPM() == nullptr);
+  assert(wpg.GetPage() == dummy_page_2 && wpg.GetBPM() == bpm);
+
+  // Clean the resource
+  delete dummy_page_2;
+  delete dummy_page_1;
+  delete bpm;
+
+  // Shut down the DiskManager
+  disk_manager->ShutDown();
+}
+
+// NOLINTNEXTLINE
 TEST(PageGuardTest, DISABLED_SampleTest) {
-  const std::string db_name = "test.db";
   const size_t buffer_pool_size = 5;
   const size_t k = 2;
 
