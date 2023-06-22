@@ -152,7 +152,7 @@ class BPlusTree {
 };
 
 /**
- * @brief for test only. PrintableBPlusTree is a printalbe B+ tree.
+ * @brief for test only. PrintableBPlusTree is a printable B+ tree.
  * We first convert B+ tree into a printable B+ tree and the print it.
  */
 struct PrintableBPlusTree {

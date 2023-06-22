@@ -45,7 +45,7 @@ class UpdateExecutor : public AbstractExecutor {
   void Init() override;
 
   /**
-   * Yield the next tuple from the udpate.
+   * Yield the next tuple from the update.
    * @param[out] tuple The next tuple produced by the update
    * @param[out] rid The next tuple RID produced by the update (ignore this)
    * @return `true` if a tuple was produced, `false` if there are no more tuples
@@ -60,8 +60,10 @@ class UpdateExecutor : public AbstractExecutor {
  private:
   /** The update plan node to be executed */
   const UpdatePlanNode *plan_;
+
   /** Metadata identifying the table that should be updated */
   const TableInfo *table_info_;
+
   /** The child executor to obtain value from */
   std::unique_ptr<AbstractExecutor> child_executor_;
 };
