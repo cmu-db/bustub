@@ -35,7 +35,7 @@ class BufferPoolManager {
    * @brief Creates a new BufferPoolManager.
    * @param pool_size the size of the buffer pool
    * @param disk_manager the disk manager
-   * @param replacer_k the lookback constant k for the LRU-K replacer
+   * @param replacer_k the LookBack constant k for the LRU-K replacer
    * @param log_manager the log manager (for testing only: nullptr = disable logging). Please ignore this for P1.
    */
   BufferPoolManager(size_t pool_size, DiskManager *disk_manager, size_t replacer_k = LRUK_REPLACER_K,

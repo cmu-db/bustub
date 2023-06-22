@@ -68,7 +68,7 @@ class TableHeap {
   auto GetTuple(RID rid) -> std::pair<TupleMeta, Tuple>;
 
   /**
-   * Read a tuple meta from the table. Note: if you want to get tuple and meta together, use `GetTuple` insead
+   * Read a tuple meta from the table. Note: if you want to get tuple and meta together, use `GetTuple` instead
    * to ensure atomicity.
    * @param rid rid of the tuple to read
    * @return the meta

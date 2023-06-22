@@ -27,8 +27,8 @@ class IndexScanPlanNode : public AbstractPlanNode {
  public:
   /**
    * Creates a new index scan plan node.
-   * @param output the output format of this scan plan node
-   * @param table_oid the identifier of table to be scanned
+   * @param output The output format of this scan plan node
+   * @param table_oid The identifier of table to be scanned
    */
   IndexScanPlanNode(SchemaRef output, index_oid_t index_oid)
       : AbstractPlanNode(std::move(output), {}), index_oid_(index_oid) {}
