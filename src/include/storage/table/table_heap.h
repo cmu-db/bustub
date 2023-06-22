@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <memory>
 #include <mutex>  // NOLINT
 #include <optional>
 #include <utility>
