@@ -13,11 +13,7 @@
 #include <sys/stat.h>
 #include <cassert>
 #include <cstring>
-#include <future>
 #include <iostream>
-#include <memory>
-#include <mutex>  // NOLINT
-#include <string>
 #include <thread>  // NOLINT
 
 #include "common/exception.h"
