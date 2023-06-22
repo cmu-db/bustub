@@ -40,7 +40,7 @@ class TrieStore {
   void Remove(std::string_view key);
 
  private:
-  // This mutex protects the root. Everytime you want to access the trie root or modify it, you
+  // This mutex protects the root. Every time you want to access the trie root or modify it, you
   // will need to take this lock.
   std::mutex root_lock_;
 

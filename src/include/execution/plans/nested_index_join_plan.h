@@ -47,22 +47,22 @@ class NestedIndexJoinPlanNode : public AbstractPlanNode {
 
   auto GetType() const -> PlanType override { return PlanType::NestedIndexJoin; }
 
-  /** @return the predicate to be used to extract the join key from the child */
+  /** @return The predicate to be used to extract the join key from the child */
   auto KeyPredicate() const -> const AbstractExpressionRef & { return key_predicate_; }
 
   /** @return The join type used in the nested index join */
   auto GetJoinType() const -> JoinType { return join_type_; };
 
-  /** @return the plan node for the outer table of the nested index join */
+  /** @return The plan node for the outer table of the nested index join */
   auto GetChildPlan() const -> AbstractPlanNodeRef { return GetChildAt(0); }
 
-  /** @return the table oid for the inner table of the nested index join */
+  /** @return The table oid for the inner table of the nested index join */
   auto GetInnerTableOid() const -> table_oid_t { return inner_table_oid_; }
 
-  /** @return the index associated with the nested index join */
+  /** @return The index associated with the nested index join */
   auto GetIndexName() const -> std::string { return index_name_; }
 
-  /** @return the index oid associated with the nested index join */
+  /** @return The index oid associated with the nested index join */
   auto GetIndexOid() const -> index_oid_t { return index_oid_; }
 
   /** @return Schema with needed columns in from the inner table */

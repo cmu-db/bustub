@@ -285,7 +285,7 @@ void AbortTest1() {
   EXPECT_EQ(true, lock_mgr.LockRow(txn1, LockManager::LockMode::EXCLUSIVE, oid, rid));
   CheckTxnRowLockSize(txn1, oid, 0, 1);
 
-  /** txn2 attempts X lock on table but should be blocked */
+  /** txn2 attempts X lock on row but should be blocked */
   auto txn2_task = std::thread{[&]() { lock_mgr.LockRow(txn2, LockManager::LockMode::EXCLUSIVE, oid, rid); }};
 
   /** Sleep for a bit */

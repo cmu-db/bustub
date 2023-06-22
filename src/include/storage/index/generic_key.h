@@ -30,7 +30,7 @@ template <size_t KeySize>
 class GenericKey {
  public:
   inline void SetFromKey(const Tuple &tuple) {
-    // intialize to 0
+    // initialize to 0
     memset(data_, 0, KeySize);
     memcpy(data_, tuple.GetData(), tuple.GetLength());
   }
