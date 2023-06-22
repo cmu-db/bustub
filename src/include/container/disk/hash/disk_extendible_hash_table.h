@@ -90,7 +90,7 @@ class DiskExtendibleHashTable {
    * for extendible hashing.
    *
    * @param key the key to hash
-   * @return the downcasted 32-bit hash
+   * @return the down-casted 32-bit hash
    */
   inline auto Hash(KeyType key) -> uint32_t;
 

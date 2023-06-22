@@ -30,9 +30,9 @@ class UpdatePlanNode : public AbstractPlanNode {
  public:
   /**
    * Construct a new UpdatePlanNode instance.
-   * @param child the child plan to obtain tuple from
-   * @param table_oid the identifier of the table that should be updated
-   * @param target_expressions the target expressions for new tuples
+   * @param child The child plan to obtain tuple from
+   * @param table_oid The identifier of the table that should be updated
+   * @param target_expressions The target expressions for new tuples
    */
   UpdatePlanNode(SchemaRef output, AbstractPlanNodeRef child, table_oid_t table_oid,
                  std::vector<AbstractExpressionRef> target_expressions)
@@ -44,7 +44,7 @@ class UpdatePlanNode : public AbstractPlanNode {
   auto GetType() const -> PlanType override { return PlanType::Update; }
 
   /** @return The identifier of the table that should be updated */
-  auto TableOid() const -> table_oid_t { return table_oid_; }
+  auto GetTableOid() const -> table_oid_t { return table_oid_; }
 
   /** @return The child plan providing tuples to be inserted */
   auto GetChildPlan() const -> AbstractPlanNodeRef {
