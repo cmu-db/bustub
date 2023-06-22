@@ -145,7 +145,7 @@ void DiskManager::WriteLog(char *log_data, int size) {
   assert(log_data != buffer_used);
   buffer_used = log_data;
 
-  if (size == 0) {    // no effect on num_flushes_ if log buffer is empty
+  if (size == 0) {  // no effect on num_flushes_ if log buffer is empty
     return;
   }
 
@@ -177,9 +177,9 @@ void DiskManager::WriteLog(char *log_data, int size) {
 
 /**
  * @brief A non-blocking, asynchronous version of WriteLog
- * 
- * @param log_data 
- * @param size 
+ *
+ * @param log_data
+ * @param size
  */
 void DiskManager::WriteLogAsync(char *log_data, int size) {
   auto curr_write_f = std::make_unique<std::future<void>>(std::async(std::launch::async, [&] {

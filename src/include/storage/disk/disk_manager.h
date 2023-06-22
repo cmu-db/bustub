@@ -13,6 +13,7 @@
 #pragma once
 
 #include <atomic>
+#include <deque>
 #include <fstream>
 #include <future>  // NOLINT
 #include <memory>
@@ -74,8 +75,8 @@ class DiskManager {
 
   /**
    * The non-blocking, asynchronous version of WriteLog()
-   * @param log_data 
-   * @param size 
+   * @param log_data
+   * @param size
    */
   void WriteLogAsync(char *log_data, int size);
 
