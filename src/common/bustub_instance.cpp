@@ -38,8 +38,8 @@
 
 namespace bustub {
 
-auto BustubInstance::MakeExecutorContext(Transaction *txn) -> std::unique_ptr<ExecutorContext> {
-  return std::make_unique<ExecutorContext>(txn, catalog_, buffer_pool_manager_, txn_manager_, lock_manager_);
+auto BustubInstance::MakeExecutorContext(Transaction *txn, bool is_modify) -> std::unique_ptr<ExecutorContext> {
+  return std::make_unique<ExecutorContext>(txn, catalog_, buffer_pool_manager_, txn_manager_, lock_manager_, is_modify);
 }
 
 BustubInstance::BustubInstance(const std::string &db_file_name) {
@@ -62,13 +62,15 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
 
   // Transaction (txn) related.
 
-#ifdef __EMSCRIPTEN__
-  lock_manager_ = new LockManager(false);
-#else
   lock_manager_ = new LockManager();
-#endif
 
   txn_manager_ = new TransactionManager(lock_manager_, log_manager_);
+
+  lock_manager_->txn_manager_ = txn_manager_;
+
+#ifndef __EMSCRIPTEN__
+  lock_manager_->StartDeadlockDetection();
+#endif
 
   // Checkpoint related.
   checkpoint_manager_ = new CheckpointManager(txn_manager_, log_manager_, buffer_pool_manager_);
@@ -100,13 +102,15 @@ BustubInstance::BustubInstance() {
 
   // Transaction (txn) related.
 
-#ifdef __EMSCRIPTEN__
-  lock_manager_ = new LockManager(false);
-#else
   lock_manager_ = new LockManager();
-#endif
 
   txn_manager_ = new TransactionManager(lock_manager_, log_manager_);
+
+  lock_manager_->txn_manager_ = txn_manager_;
+
+#ifndef __EMSCRIPTEN__
+  lock_manager_->StartDeadlockDetection();
+#endif
 
   // Checkpoint related.
   checkpoint_manager_ = new CheckpointManager(txn_manager_, log_manager_, buffer_pool_manager_);
@@ -228,6 +232,9 @@ auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
 
   for (auto *stmt : binder.statement_nodes_) {
     auto statement = binder.BindStatement(stmt);
+
+    bool is_delete = false;
+
     switch (statement->type_) {
       case StatementType::CREATE_STATEMENT: {
         const auto &create_stmt = dynamic_cast<const CreateStatement &>(*statement);
@@ -254,6 +261,9 @@ auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
         HandleExplainStatement(txn, explain_stmt, writer);
         continue;
       }
+      case StatementType::DELETE_STATEMENT:
+      case StatementType::UPDATE_STATEMENT:
+        is_delete = true;
       default:
         break;
     }
@@ -271,7 +281,7 @@ auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
     l.unlock();
 
     // Execute the query.
-    auto exec_ctx = MakeExecutorContext(txn);
+    auto exec_ctx = MakeExecutorContext(txn, is_delete);
     if (check_options != nullptr) {
       exec_ctx->InitCheckOptions(std::move(check_options));
     }
@@ -310,7 +320,7 @@ auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
  */
 void BustubInstance::GenerateTestTable() {
   auto txn = txn_manager_->Begin();
-  auto exec_ctx = MakeExecutorContext(txn);
+  auto exec_ctx = MakeExecutorContext(txn, false);
   TableGenerator gen{exec_ctx.get()};
 
   std::shared_lock<std::shared_mutex> l(catalog_lock_);

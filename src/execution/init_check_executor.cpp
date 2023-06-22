@@ -15,9 +15,9 @@
 
 namespace bustub {
 
-InitCheckExecutor::InitCheckExecutor(ExecutorContext *exec_ctx, const AbstractPlanNodeRef &plan,
+InitCheckExecutor::InitCheckExecutor(ExecutorContext *exec_ctx, AbstractPlanNodeRef plan,
                                      std::unique_ptr<AbstractExecutor> &&child_executor)
-    : AbstractExecutor{exec_ctx}, plan_{plan}, child_executor_{std::move(child_executor)} {}
+    : AbstractExecutor{exec_ctx}, plan_{std::move(plan)}, child_executor_{std::move(child_executor)} {}
 
 void InitCheckExecutor::Init() {
   if (!child_executor_) {
@@ -29,13 +29,12 @@ void InitCheckExecutor::Init() {
 }
 
 auto InitCheckExecutor::Next(Tuple *tuple, RID *rid) -> bool {
-  if (!child_executor_) {
-    return EXECUTOR_EXHAUSTED;
-  }
-
   // Emit the next tuple
-  n_next_++;
-  return child_executor_->Next(tuple, rid);
+  auto result = child_executor_->Next(tuple, rid);
+  if (result) {
+    n_next_++;
+  }
+  return result;
 }
 
 }  // namespace bustub

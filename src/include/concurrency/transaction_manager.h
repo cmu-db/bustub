@@ -42,7 +42,21 @@ class TransactionManager {
    * @return an initialized transaction
    */
   auto Begin(Transaction *txn = nullptr, IsolationLevel isolation_level = IsolationLevel::REPEATABLE_READ)
-      -> Transaction *;
+      -> Transaction * {
+    if (txn == nullptr) {
+      txn = new Transaction(next_txn_id_++, isolation_level);
+    }
+
+    if (enable_logging) {
+      LogRecord record = LogRecord(txn->GetTransactionId(), txn->GetPrevLSN(), LogRecordType::BEGIN);
+      lsn_t lsn = log_manager_->AppendLogRecord(&record);
+      txn->SetPrevLSN(lsn);
+    }
+
+    std::unique_lock<std::shared_mutex> l(txn_map_mutex_);
+    txn_map_[txn->GetTransactionId()] = txn;
+    return txn;
+  }
 
   /**
    * Commits a transaction.
@@ -61,18 +75,18 @@ class TransactionManager {
    */
 
   /** The transaction map is a global list of all the running transactions in the system. */
-  static std::unordered_map<txn_id_t, Transaction *> txn_map;
-  static std::shared_mutex txn_map_mutex;
+  std::unordered_map<txn_id_t, Transaction *> txn_map_;
+  std::shared_mutex txn_map_mutex_;
 
   /**
    * Locates and returns the transaction with the given transaction ID.
    * @param txn_id the id of the transaction to be found, it must exist!
    * @return the transaction with the given transaction id
    */
-  static auto GetTransaction(txn_id_t txn_id) -> Transaction * {
-    std::shared_lock<std::shared_mutex> l(TransactionManager::txn_map_mutex);
-    assert(TransactionManager::txn_map.find(txn_id) != TransactionManager::txn_map.end());
-    auto *res = TransactionManager::txn_map[txn_id];
+  auto GetTransaction(txn_id_t txn_id) -> Transaction * {
+    std::shared_lock<std::shared_mutex> l(txn_map_mutex_);
+    assert(txn_map_.find(txn_id) != txn_map_.end());
+    auto *res = txn_map_[txn_id];
     assert(res != nullptr);
     return res;
   }
@@ -137,9 +151,6 @@ class TransactionManager {
   std::atomic<txn_id_t> next_txn_id_{0};
   LockManager *lock_manager_ __attribute__((__unused__));
   LogManager *log_manager_ __attribute__((__unused__));
-
-  /** The global transaction latch is used for checkpointing. */
-  ReaderWriterLatch global_txn_latch_;
 };
 
 }  // namespace bustub

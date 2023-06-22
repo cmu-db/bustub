@@ -32,7 +32,7 @@ class InitCheckExecutor : public AbstractExecutor {
    * @param plan The init check plan to be executed
    * @param child_executor The child executor from which init calls are counted
    */
-  InitCheckExecutor(ExecutorContext *exec_ctx, const AbstractPlanNodeRef &plan,
+  InitCheckExecutor(ExecutorContext *exec_ctx, AbstractPlanNodeRef plan,
                     std::unique_ptr<AbstractExecutor> &&child_executor);
 
   /** Initialize the InitCheck */
@@ -63,7 +63,7 @@ class InitCheckExecutor : public AbstractExecutor {
   constexpr static const bool EXECUTOR_EXHAUSTED{false};
 
   /** The init check plan node to be executed */
-  const AbstractPlanNodeRef &plan_;
+  AbstractPlanNodeRef plan_;
 
   /** The child executor from which tuples are obtained */
   std::unique_ptr<AbstractExecutor> child_executor_;
