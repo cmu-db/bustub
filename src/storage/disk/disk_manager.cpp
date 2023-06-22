@@ -11,7 +11,6 @@
 //===----------------------------------------------------------------------===//
 
 #include <sys/stat.h>
-#include <cassert>
 #include <cstring>
 #include <iostream>
 #include <thread>  // NOLINT
