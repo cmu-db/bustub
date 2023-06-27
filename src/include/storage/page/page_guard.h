@@ -32,7 +32,7 @@ class BasicPageGuard {
    * @brief Provide guard upgrade functionality, from BasicPageGuard to WritePageGuard
    * You can call this function by:
    *   BasicPageGuard g;
-   *   WritePageGuard rg = g.UpgradeWrite();
+   *   WritePageGuard wg = g.UpgradeWrite();
    * Note: You must not use the original BasicPageGuard after calling this function.
    * @return WritePageGuard
    */

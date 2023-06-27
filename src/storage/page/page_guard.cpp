@@ -4,21 +4,27 @@
 namespace bustub {
 
 auto BasicPageGuard::UpgradeRead() -> ReadPageGuard {
-  ReadPageGuard rpg(bpm_, page_);
-  // Set the two pointers to nullptr
-  bpm_ = nullptr;
-  page_ = nullptr;
+  // Save the current page id & bpm (This is because calling Drop() will set these to invalid)
+  auto *bpm = bpm_;
+  auto cur_pid = page_->GetPageId();
+  // First drop the current page
+  this->Drop();
+  // Fetch a new ReadPageGuard from the previously saved BPM
+  auto ret_pg = bpm->FetchPageRead(cur_pid);
   // Return the rvalue, will invoke move assignment operator
-  return rpg;
+  return ret_pg;
 }
 
 auto BasicPageGuard::UpgradeWrite() -> WritePageGuard {
-  WritePageGuard wpg(bpm_, page_);
-  // Set the two pointers to nullptr
-  bpm_ = nullptr;
-  page_ = nullptr;
+  // Save the current page id & bpm (Same as read)
+  auto *bpm = bpm_;
+  auto cur_pid = page_->GetPageId();
+  // First drop the current page guard
+  this->Drop();
+  // Fetch a new WritePageGuard from the previously saved BPM
+  auto ret_pg = bpm->FetchPageWrite(cur_pid);
   // Return the rvalue
-  return wpg;
+  return ret_pg;
 }
 
 BasicPageGuard::BasicPageGuard(BasicPageGuard &&that) noexcept {}
