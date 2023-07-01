@@ -107,9 +107,16 @@ class BasicPageGuard {
     return reinterpret_cast<T *>(GetDataMut());
   }
 
-  // Used for GuardUpgradeTest
-  auto GetPage() -> const Page * { return page_; }
-  auto GetBPM() -> const BufferPoolManager * { return bpm_; }
+  /** Getter Methods */
+  auto GetPage() const -> Page * { return page_; }
+
+  auto GetBPM() const -> BufferPoolManager * { return bpm_; }
+
+  /** Set the local variables to NULL */
+  void SetNull() noexcept {
+    page_ = nullptr;
+    bpm_ = nullptr;
+  }
 
  private:
   friend class ReadPageGuard;
@@ -188,9 +195,13 @@ class ReadPageGuard {
     return guard_.As<T>();
   }
 
-  // Used for GuardUpgradeTest
-  auto GetPage() -> const Page * { return guard_.GetPage(); }
-  auto GetBPM() -> const BufferPoolManager * { return guard_.GetBPM(); }
+  /** Getter Methods */
+  auto GetPage() const -> Page * { return guard_.GetPage(); }
+
+  auto GetBPM() const -> BufferPoolManager * { return guard_.GetBPM(); }
+
+  /** Set the guard_'s local variables to NULL */
+  void SetNull() noexcept { guard_.SetNull(); }
 
  private:
   // You may choose to get rid of this and add your own private variables.
@@ -259,9 +270,13 @@ class WritePageGuard {
     return guard_.AsMut<T>();
   }
 
-  // Used for GuardUpgradeTest
-  auto GetPage() -> const Page * { return guard_.GetPage(); }
-  auto GetBPM() -> const BufferPoolManager * { return guard_.GetBPM(); }
+  /** Getter Methods */
+  auto GetPage() const -> Page * { return guard_.GetPage(); }
+
+  auto GetBPM() const -> BufferPoolManager * { return guard_.GetBPM(); }
+
+  /** Set the guard_'s local variables to NULL */
+  void SetNull() noexcept { guard_.SetNull(); }
 
  private:
   // You may choose to get rid of this and add your own private variables.

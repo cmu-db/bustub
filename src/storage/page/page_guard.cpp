@@ -11,19 +11,19 @@ auto BasicPageGuard::UpgradeRead() -> ReadPageGuard {
   // Construct the newly returned `ReadPageGuard`
   ReadPageGuard ret_rpg = ReadPageGuard{bpm_, page_};
   // Set the local variables to null
-  bpm_ = nullptr;
-  page_ = nullptr;
+  SetNull();
   // Return the rvalue, will invoke move assignment operator
   return ret_rpg;
 }
 
 auto BasicPageGuard::UpgradeWrite() -> WritePageGuard {
   // TODO(p1): Your WritePageGuard upgrade logic here
+  return {nullptr, nullptr};
 }
 
 auto ReadPageGuard::UpgradeWrite() -> WritePageGuard {
   // Get the underlying page from guard_
-  auto cur_page = guard_->GetPage();
+  Page *cur_page = guard_.GetPage();
   // Perform sanity check
   BUSTUB_ENSURE((cur_page != nullptr), "The Page in the guard_ must not be NULL");
   // Release the current read lock (Since the pin count is not changed, the current page will not be evicted)
@@ -32,14 +32,13 @@ auto ReadPageGuard::UpgradeWrite() -> WritePageGuard {
   // also some read operations may happen concurrently, causing potential blocking
   // P.S. The std::shared_mutex doesn't officially support atomic lock upgrade :(
   // Boost Lib has some of the functionalities(atomic mutex upgrade), but it's not allowed here though
-  cur_page->RUnlock();
+  cur_page->RUnlatch();
   // Acquire new write lock
   cur_page->WLatch();
   // Construct a newly returned `WritePageGuard`
-  WritePageGuard ret_wpg = WritePageGuard{bpm_, page_};
+  WritePageGuard ret_wpg = WritePageGuard{guard_.GetBPM(), guard_.GetPage()};
   // Set the local variables to null
-  bpm_ = nullptr;
-  page_ = nullptr;
+  guard_.SetNull();
   // Return the rvalue
   return ret_wpg;
 }
