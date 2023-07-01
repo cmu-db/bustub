@@ -14,7 +14,6 @@
 #include <memory>
 #include <random>
 #include <string>
-#include <thread>
 
 #include "buffer/buffer_pool_manager.h"
 #include "storage/disk/disk_manager_memory.h"
@@ -143,9 +142,7 @@ TEST(PageGuardTest, DISABLED_GuardUpgradeConcurrentTest1) {
   // Launch ten threads, performing the upgrade
   for (int i = 0; i < 10; ++i) {
     // Capture i by value here, to avoid potential race condition
-    t_g.emplace_back([i, &bpg_g, &rpg_g]() {
-      rpg_g.emplace_back(bpg_g[i].UpgradeRead(), i);
-    });
+    t_g.emplace_back([i, &bpg_g, &rpg_g]() { rpg_g.emplace_back(bpg_g[i].UpgradeRead(), i); });
   }
 
   // Wait til all the upgrades are finished
