@@ -18,22 +18,28 @@ class BasicPageGuard {
   BasicPageGuard(const BasicPageGuard &) = delete;
   auto operator=(const BasicPageGuard &) -> BasicPageGuard & = delete;
 
-  /**
+  /** TODO(P1): Add implementation
+   *
    * @brief Provide guard upgrade functionality, from BasicPageGuard to ReadPageGuard
+   *
    * You can call this function by:
    *   BasicPageGuard g;
    *   ReadPageGuard rg = g.UpgradeRead();
    * Note: You must not use the original BasicPageGuard after calling this function.
+   *
    * @return ReadPageGuard
    */
   auto UpgradeRead() -> ReadPageGuard;
 
-  /**
+  /** TODO(P1): Add implementation
+   *
    * @brief Provide guard upgrade functionality, from BasicPageGuard to WritePageGuard
+   *
    * You can call this function by:
    *   BasicPageGuard g;
    *   WritePageGuard wg = g.UpgradeWrite();
    * Note: You must not use the original BasicPageGuard after calling this function.
+   *
    * @return WritePageGuard
    */
   auto UpgradeWrite() -> WritePageGuard;
@@ -120,6 +126,19 @@ class ReadPageGuard {
   ReadPageGuard(BufferPoolManager *bpm, Page *page) : guard_(bpm, page) {}
   ReadPageGuard(const ReadPageGuard &) = delete;
   auto operator=(const ReadPageGuard &) -> ReadPageGuard & = delete;
+
+  /** TODO(P1): Add implementation
+   *
+   * @brief Provide guard upgrade functionality, from ReadPageGuard to WritePageGuard
+   *
+   * You can call this function by:
+   *   ReadPageGuard rg;
+   *   WritePageGuard wg = rg.UpgradeWrite();
+   * Note: You must not use the original ReadPageGuard after calling this function.
+   *
+   * @return WritePageGuard
+   */
+  auto UpgradeWrite() -> WritePageGuard;
 
   /** TODO(P1): Add implementation
    *
