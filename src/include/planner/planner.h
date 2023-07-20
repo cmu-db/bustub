@@ -62,7 +62,7 @@ class PlannerContext {
 
   /**
    * In the second phase of aggregation planning, we plan agg calls from `aggregations_`, and generate
-   * an aggregation plan node. The expressions in thie vector should be used over the output from the
+   * an aggregation plan node. The expressions in the vector should be used over the output from the
    * aggregation plan node.
    */
   std::vector<AbstractExpressionRef> expr_in_agg_;
