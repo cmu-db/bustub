@@ -30,19 +30,26 @@ namespace bustub {
 
 /**
  * Transaction states for 2PL:
+ * Running transactions could be aborted during either `GROWING` or `SHRINKING` stage.
  *
  *     _________________________
+ *    |                         |
  *    |                         v
  * GROWING -> SHRINKING -> COMMITTED   ABORTED
- *    |__________|________________________^
+ *    |           |                        ^
+ *    |___________|________________________|
  *
  * Transaction states for Non-2PL:
+ * Running transactions could only be aborted during `GROWING` stage, since there is no `SHRINKING` stage.
+ *
  *     __________
+ *    |          |
  *    |          v
  * GROWING  -> COMMITTED     ABORTED
- *    |_________________________^
+ *    |                         ^
+ *    |_________________________|
  *
- **/
+ */
 enum class TransactionState { GROWING, SHRINKING, COMMITTED, ABORTED };
 
 /**
@@ -126,14 +133,17 @@ enum class AbortReason {
  * TransactionAbortException is thrown when state of a transaction is changed to ABORTED
  */
 class TransactionAbortException : public std::exception {
-  txn_id_t txn_id_;
-  AbortReason abort_reason_;
-
  public:
   explicit TransactionAbortException(txn_id_t txn_id, AbortReason abort_reason)
       : txn_id_(txn_id), abort_reason_(abort_reason) {}
+
+  /** @return this transaction id */
   auto GetTransactionId() -> txn_id_t { return txn_id_; }
+
+  /** @return the abort reason for this transaction */
   auto GetAbortReason() -> AbortReason { return abort_reason_; }
+
+  /** @return the detailed information of abort reason */
   auto GetInfo() -> std::string {
     switch (abort_reason_) {
       case AbortReason::LOCK_ON_SHRINKING:
@@ -155,10 +165,17 @@ class TransactionAbortException : public std::exception {
         return "Transaction " + std::to_string(txn_id_) + " aborted because attempted lock upgrade is incompatible\n";
       case AbortReason::ATTEMPTED_UNLOCK_BUT_NO_LOCK_HELD:
         return "Transaction " + std::to_string(txn_id_) + " aborted because attempted to unlock but no lock held \n";
+      default:
+        // Unknown AbortReason
+        throw bustub::Exception("Unknown abort reason for transaction " + std::to_string(txn_id_));
     }
-    // Todo: Should fail with unreachable.
-    return "";
+    // This is impossible
+    assert(false);
   }
+
+ private:
+  txn_id_t txn_id_;
+  AbortReason abort_reason_;
 };
 
 /**
@@ -248,22 +265,30 @@ class Transaction {
     return x_row_lock_set_;
   }
 
-  /** @return the set of resources under a shared lock */
+  /** @return the set of table resources under a shared lock */
   inline auto GetSharedTableLockSet() -> std::shared_ptr<std::unordered_set<table_oid_t>> { return s_table_lock_set_; }
+
+  /** @return the set of table resources under a exclusive lock */
   inline auto GetExclusiveTableLockSet() -> std::shared_ptr<std::unordered_set<table_oid_t>> {
     return x_table_lock_set_;
   }
+
+  /** @return the set of table resources under a intention shared lock */
   inline auto GetIntentionSharedTableLockSet() -> std::shared_ptr<std::unordered_set<table_oid_t>> {
     return is_table_lock_set_;
   }
+
+  /** @return the set of table resources under a intention exclusive lock */
   inline auto GetIntentionExclusiveTableLockSet() -> std::shared_ptr<std::unordered_set<table_oid_t>> {
     return ix_table_lock_set_;
   }
+
+  /** @return the set of table resources under a shared intention exclusive lock */
   inline auto GetSharedIntentionExclusiveTableLockSet() -> std::shared_ptr<std::unordered_set<table_oid_t>> {
     return six_table_lock_set_;
   }
 
-  /** @return true if rid (belong to table oid) is shared locked by this transaction */
+  /** @return true if the specified row (belong to table oid) is shared locked by this transaction */
   auto IsRowSharedLocked(const table_oid_t &oid, const RID &rid) -> bool {
     auto row_lock_set = s_row_lock_set_->find(oid);
     if (row_lock_set == s_row_lock_set_->end()) {
@@ -272,7 +297,7 @@ class Transaction {
     return row_lock_set->second.find(rid) != row_lock_set->second.end();
   }
 
-  /** @return true if rid (belong to table oid) is exclusive locked by this transaction */
+  /** @return true if the specified row (belong to table oid) is exclusive locked by this transaction */
   auto IsRowExclusiveLocked(const table_oid_t &oid, const RID &rid) -> bool {
     auto row_lock_set = x_row_lock_set_->find(oid);
     if (row_lock_set == x_row_lock_set_->end()) {
@@ -281,22 +306,27 @@ class Transaction {
     return row_lock_set->second.find(rid) != row_lock_set->second.end();
   }
 
+  /** @return true if the table (specified by oid) is intention shared locked by this transaction */
   auto IsTableIntentionSharedLocked(const table_oid_t &oid) -> bool {
     return is_table_lock_set_->find(oid) != is_table_lock_set_->end();
   }
 
+  /** @return true if the table (specified by oid) is shared locked by this transaction */
   auto IsTableSharedLocked(const table_oid_t &oid) -> bool {
     return s_table_lock_set_->find(oid) != s_table_lock_set_->end();
   }
 
+  /** @return true if the table (specified by oid) is intention exclusive locked by this transaction */
   auto IsTableIntentionExclusiveLocked(const table_oid_t &oid) -> bool {
     return ix_table_lock_set_->find(oid) != ix_table_lock_set_->end();
   }
 
+  /** @return true if the table (specified by oid) is exclusive locked by this transaction */
   auto IsTableExclusiveLocked(const table_oid_t &oid) -> bool {
     return x_table_lock_set_->find(oid) != x_table_lock_set_->end();
   }
 
+  /** @return true if the table (specified by oid) is shared intention exclusive locked by this transaction */
   auto IsTableSharedIntentionExclusiveLocked(const table_oid_t &oid) -> bool {
     return six_table_lock_set_->find(oid) != six_table_lock_set_->end();
   }
@@ -340,6 +370,7 @@ class Transaction {
   /** The LSN of the last record written by the transaction. */
   lsn_t prev_lsn_;
 
+  /** The latch for this transaction */
   std::mutex latch_;
 
   /** Concurrent index: the pages that were latched during index operation. */
