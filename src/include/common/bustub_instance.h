@@ -250,17 +250,18 @@ class BustubInstance {
    */
   void GenerateMockTable();
 
-  // TODO(chi): change to unique_ptr. Currently they're directly referenced by recovery test, so
+  // Currently the followings are directly referenced by recovery test, so
   // we cannot do anything on them until someone decides to refactor the recovery test.
 
-  DiskManager *disk_manager_;
-  BufferPoolManager *buffer_pool_manager_;
-  LockManager *lock_manager_;
-  TransactionManager *txn_manager_;
-  LogManager *log_manager_;
-  CheckpointManager *checkpoint_manager_;
-  Catalog *catalog_;
-  ExecutionEngine *execution_engine_;
+  std::unique_ptr<DiskManager> disk_manager_;
+  std::unique_ptr<BufferPoolManager> buffer_pool_manager_;
+  std::unique_ptr<LockManager> lock_manager_;
+  std::unique_ptr<TransactionManager> txn_manager_;
+  std::unique_ptr<LogManager> log_manager_;
+  std::unique_ptr<CheckpointManager> checkpoint_manager_;
+  std::unique_ptr<Catalog> catalog_;
+  std::unique_ptr<ExecutionEngine> execution_engine_;
+  /** Coordination for catalog */
   std::shared_mutex catalog_lock_;
 
   auto GetSessionVariable(const std::string &key) -> std::string {
