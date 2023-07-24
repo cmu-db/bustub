@@ -37,10 +37,17 @@ TEST(PageGuardTest, DISABLED_GuardUpgradeBasicTest1) {
   page_id_t p_2 = -1;
   Page *dummy_page_1 = bpm->NewPage(&p_1);
   Page *dummy_page_2 = bpm->NewPage(&p_2);
+  // Now the pin counts should both be 1
   EXPECT_EQ(dummy_page_1->GetPinCount(), 1);
   EXPECT_EQ(dummy_page_2->GetPinCount(), 1);
-  assert(p_1 != -1 && p_2 != -1);
-  assert(dummy_page_1 && dummy_page_2);
+  EXPECT_NE(p_1, -1);
+  EXPECT_NE(p_2, -1);
+  EXPECT_NE(dummy_page_1, nullptr);
+  EXPECT_NE(dummy_page_2, nullptr);
+
+  // Unpin the two pages
+  bpm->UnpinPage(p_1, false);
+  bpm->UnpinPage(p_2, false);
 
   // Create two dummy BasicPageGuards
   auto b_pg_1 = bpm->FetchPageBasic(p_1);
@@ -50,16 +57,29 @@ TEST(PageGuardTest, DISABLED_GuardUpgradeBasicTest1) {
   ReadPageGuard rpg = b_pg_1.UpgradeRead();
 
   // Sanity Check
+  EXPECT_EQ(dummy_page_1->GetPinCount(), 1);
   EXPECT_EQ(b_pg_1.GetPage(), nullptr);
   EXPECT_EQ(b_pg_1.GetBPM(), nullptr);
-  assert(rpg.GetPage() == dummy_page_1 && rpg.GetBPM() == bpm.get());
+  EXPECT_EQ(rpg.GetPage(), dummy_page_1);
+  EXPECT_EQ(rpg.GetBPM(), bpm.get());
+
+  // Drop the first ReadPageGuard
+  rpg.Drop();
+  EXPECT_EQ(dummy_page_1->GetPinCount(), 0);
 
   // Upgrade the second PageGuard to WritePageGuard
   WritePageGuard wpg = b_pg_2.UpgradeWrite();
 
   // Sanity Check
-  assert(b_pg_2.GetPage() == nullptr && b_pg_2.GetBPM() == nullptr);
-  assert(wpg.GetPage() == dummy_page_2 && wpg.GetBPM() == bpm.get());
+  EXPECT_EQ(dummy_page_2->GetPinCount(), 1);
+  EXPECT_EQ(b_pg_2.GetPage(), nullptr);
+  EXPECT_EQ(b_pg_2.GetBPM(), nullptr);
+  EXPECT_EQ(wpg.GetPage(), dummy_page_2);
+  EXPECT_EQ(wpg.GetBPM(), bpm.get());
+
+  // Drop the second WritePageGuard
+  wpg.Drop();
+  EXPECT_EQ(dummy_page_2->GetPinCount(), 0);
 
   // Shut down the DiskManager
   disk_manager->ShutDown();
@@ -71,31 +91,45 @@ TEST(PageGuardTest, DISABLED_GuardUpgradeBasicTest2) {
   const size_t k = 2;
 
   auto disk_manager = std::make_shared<DiskManagerUnlimitedMemory>();
-  auto *bpm = new BufferPoolManager(buffer_pool_size, disk_manager.get(), k);
+  auto bpm = std::make_shared<BufferPoolManager>(buffer_pool_size, disk_manager.get(), k);
 
   // Create one dummy pages
-  Page *dummy_page = new Page();
+  page_id_t p_id = -1;
+  Page *dummy_page = bpm->NewPage(&p_id);
+  // The pin count should be 1
+  EXPECT_EQ(dummy_page->GetPinCount(), 1);
+  EXPECT_NE(p_id, -1);
+  EXPECT_NE(dummy_page, nullptr);
+
+  // Unpin the page
+  bpm->UnpinPage(p_id, false);
 
   // Create one dummy BasicPageGuard
-  auto b_pg = BasicPageGuard{bpm, dummy_page};
+  auto bpg = bpm->FetchPageBasic(p_id);
 
   // Upgrade the PageGuard to ReadPageGuard
-  ReadPageGuard rpg = b_pg.UpgradeRead();
+  ReadPageGuard rpg = bpg.UpgradeRead();
 
   // Sanity Check
-  assert(b_pg.GetPage() == nullptr && b_pg.GetBPM() == nullptr);
-  assert(rpg.GetPage() == dummy_page && rpg.GetBPM() == bpm);
+  EXPECT_EQ(dummy_page->GetPinCount(), 1);
+  EXPECT_EQ(bpg.GetPage(), nullptr);
+  EXPECT_EQ(bpg.GetBPM(), nullptr);
+  EXPECT_EQ(rpg.GetPage(), dummy_page);
+  EXPECT_EQ(rpg.GetBPM(), bpm.get());
 
   // Upgrade the rpg to WritePageGuard
   WritePageGuard wpg = rpg.UpgradeWrite();
 
   // Sanity Check
-  assert(rpg.GetPage() == nullptr && rpg.GetBPM() == nullptr);
-  assert(wpg.GetPage() == dummy_page && wpg.GetBPM() == bpm);
+  EXPECT_EQ(dummy_page->GetPinCount(), 1);
+  EXPECT_EQ(rpg.GetPage(), nullptr);
+  EXPECT_EQ(rpg.GetBPM(), nullptr);
+  EXPECT_EQ(wpg.GetPage(), dummy_page);
+  EXPECT_EQ(wpg.GetBPM(), bpm.get());
 
-  // Clean the resource
-  delete dummy_page;
-  delete bpm;
+  // Drop the WritePageGuard
+  wpg.Drop();
+  EXPECT_EQ(dummy_page->GetPinCount(), 0);
 
   // Shut down the DiskManager
   disk_manager->ShutDown();
@@ -104,21 +138,29 @@ TEST(PageGuardTest, DISABLED_GuardUpgradeBasicTest2) {
 // NOLINTNEXTLINE
 TEST(PageGuardTest, DISABLED_GuardUpgradeConcurrentTest1) {
   // This test should not block
-  const size_t buffer_pool_size = 5;
+  const size_t buffer_pool_size = 20;
   const size_t k = 2;
 
   auto disk_manager = std::make_shared<DiskManagerUnlimitedMemory>();
-  auto *bpm = new BufferPoolManager(buffer_pool_size, disk_manager.get(), k);
+  auto bpm = std::make_shared<BufferPoolManager>(buffer_pool_size, disk_manager.get(), k);
 
   // Create ten dummy pages, construct a page group
-  std::vector<std::shared_ptr<Page>> p_g;
+  std::vector<page_id_t> p_g;
+  std::vector<Page *> p_vec;
 
   // Reserve space for p_g, since clang-tidy complains
   p_g.reserve(10);
 
   // Initialize the page group
   for (int i = 0; i < 10; ++i) {
-    p_g.push_back(std::make_shared<Page>());
+    page_id_t tmp_pid = -1;
+    Page *tmp_page = bpm->NewPage(&tmp_pid);
+    EXPECT_EQ(tmp_page->GetPinCount(), 1);
+    EXPECT_NE(tmp_pid, -1);
+    // Unpin the page
+    bpm->UnpinPage(tmp_pid, false);
+    p_g.push_back(tmp_pid);
+    p_vec.push_back(tmp_page);
   }
 
   // Create a bpg group
@@ -133,7 +175,8 @@ TEST(PageGuardTest, DISABLED_GuardUpgradeConcurrentTest1) {
 
   // Initialize bpg_g
   for (int i = 0; i < 10; ++i) {
-    bpg_g.emplace_back(bpm, p_g[i].get());
+    bpg_g.push_back(bpm->FetchPageBasic(p_g[i]));
+    EXPECT_EQ(bpg_g.back().GetPage()->GetPinCount(), 1);
   }
 
   // Create the thread vector
@@ -154,13 +197,17 @@ TEST(PageGuardTest, DISABLED_GuardUpgradeConcurrentTest1) {
   }
 
   // Sanity check
-  for (const auto &[rpg, index] : rpg_g) {
-    assert(bpg_g[index].GetPage() == nullptr && bpg_g[index].GetBPM() == nullptr);
-    assert(rpg.GetPage() == p_g[index].get() && rpg.GetBPM() == bpm);
+  for (auto &[rpg, index] : rpg_g) {
+    EXPECT_EQ(bpg_g[index].GetPage(), nullptr);
+    EXPECT_EQ(bpg_g[index].GetBPM(), nullptr);
+    EXPECT_EQ(rpg.GetPage(), p_vec[index]);
+    EXPECT_EQ(rpg.GetBPM(), bpm.get());
+    // The pin count should be 1 for each page
+    EXPECT_EQ(rpg.GetPage()->GetPinCount(), 1);
+    // Drop the ReadPageGuard
+    rpg.Drop();
+    EXPECT_EQ(p_vec[index]->GetPinCount(), 0);
   }
-
-  // Clean the resource
-  delete bpm;
 
   // Shutdown the Disk Manager
   disk_manager->ShutDown();
@@ -171,9 +218,45 @@ TEST(PageGuardTest, DISABLED_GuardUpgradeConcurrentTest2) {
   const size_t k = 2;
 
   auto disk_manager = std::make_shared<DiskManagerUnlimitedMemory>();
-  auto *bpm = new BufferPoolManager(buffer_pool_size, disk_manager.get(), k);
+  auto bpm = std::make_shared<BufferPoolManager>(buffer_pool_size, disk_manager.get(), k);
 
-  
+  // Create one dummy page
+  page_id_t p_id = -1;
+  Page *dummy_page = bpm->NewPage(&p_id);
+
+  // Unpin the page
+  bpm->UnpinPage(p_id, false);
+
+  // Fetch a ReadPageGuard
+  ReadPageGuard rpg_1 = bpm->FetchPageRead(p_id);
+
+  // Fetch a second time, assumes this is from another thread
+  ReadPageGuard rpg_2 = bpm->FetchPageRead(p_id);
+
+  // Current pin count should be 1
+  EXPECT_EQ(dummy_page->GetPinCount(), 2);
+
+  // Update the first ReadPageGuard to WritePageGuard in a background thread
+  // Which should block at present
+  std::thread t([&]() {
+    WritePageGuard wpg = rpg_1.UpgradeWrite();
+    EXPECT_EQ(wpg.GetPage(), dummy_page);
+    EXPECT_EQ(dummy_page->GetPinCount(), 1);
+
+    // Drop the WritePageGuard
+    wpg.Drop();
+    EXPECT_EQ(dummy_page->GetPinCount(), 0);
+  });
+
+  // Drop the second ReadPageGuard
+  rpg_2.Drop();
+  EXPECT_EQ(rpg_2.GetPage(), nullptr);
+
+  // This should not block
+  t.join();
+
+  // Sanity check
+  EXPECT_EQ(dummy_page->GetPinCount(), 0);
 }
 
 // NOLINTNEXTLINE
