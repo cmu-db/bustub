@@ -16,6 +16,7 @@
 #include <string>
 
 #include "buffer/buffer_pool_manager.h"
+#include "common/config.h"
 #include "storage/disk/disk_manager_memory.h"
 #include "storage/page/page_guard.h"
 
@@ -29,34 +30,36 @@ TEST(PageGuardTest, DISABLED_GuardUpgradeBasicTest1) {
   const size_t k = 2;
 
   auto disk_manager = std::make_shared<DiskManagerUnlimitedMemory>();
-  auto *bpm = new BufferPoolManager(buffer_pool_size, disk_manager.get(), k);
+  auto bpm = std::make_shared<BufferPoolManager>(buffer_pool_size, disk_manager.get(), k);
 
-  // Create two dummy pages
-  Page *dummy_page_1 = new Page();
-  Page *dummy_page_2 = new Page();
+  // Create two dummy pages from BPM
+  page_id_t p_1 = -1;
+  page_id_t p_2 = -1;
+  Page *dummy_page_1 = bpm->NewPage(&p_1);
+  Page *dummy_page_2 = bpm->NewPage(&p_2);
+  EXPECT_EQ(dummy_page_1->GetPinCount(), 1);
+  EXPECT_EQ(dummy_page_2->GetPinCount(), 1);
+  assert(p_1 != -1 && p_2 != -1);
+  assert(dummy_page_1 && dummy_page_2);
 
   // Create two dummy BasicPageGuards
-  auto b_pg_1 = BasicPageGuard{bpm, dummy_page_1};
-  auto b_pg_2 = BasicPageGuard{bpm, dummy_page_2};
+  auto b_pg_1 = bpm->FetchPageBasic(p_1);
+  auto b_pg_2 = bpm->FetchPageBasic(p_2);
 
-  // Upgrade the first pg to ReadPageGuard
+  // Upgrade the first PageGuard to ReadPageGuard
   ReadPageGuard rpg = b_pg_1.UpgradeRead();
 
   // Sanity Check
-  assert(b_pg_1.GetPage() == nullptr && b_pg_1.GetBPM() == nullptr);
-  assert(rpg.GetPage() == dummy_page_1 && rpg.GetBPM() == bpm);
+  EXPECT_EQ(b_pg_1.GetPage(), nullptr);
+  EXPECT_EQ(b_pg_1.GetBPM(), nullptr);
+  assert(rpg.GetPage() == dummy_page_1 && rpg.GetBPM() == bpm.get());
 
-  // Upgrade the second pg to WritePageGuard
+  // Upgrade the second PageGuard to WritePageGuard
   WritePageGuard wpg = b_pg_2.UpgradeWrite();
 
   // Sanity Check
   assert(b_pg_2.GetPage() == nullptr && b_pg_2.GetBPM() == nullptr);
-  assert(wpg.GetPage() == dummy_page_2 && wpg.GetBPM() == bpm);
-
-  // Clean the resource
-  delete dummy_page_2;
-  delete dummy_page_1;
-  delete bpm;
+  assert(wpg.GetPage() == dummy_page_2 && wpg.GetBPM() == bpm.get());
 
   // Shut down the DiskManager
   disk_manager->ShutDown();
@@ -76,7 +79,7 @@ TEST(PageGuardTest, DISABLED_GuardUpgradeBasicTest2) {
   // Create one dummy BasicPageGuard
   auto b_pg = BasicPageGuard{bpm, dummy_page};
 
-  // Upgrade the pg to ReadPageGuard
+  // Upgrade the PageGuard to ReadPageGuard
   ReadPageGuard rpg = b_pg.UpgradeRead();
 
   // Sanity Check
@@ -161,6 +164,16 @@ TEST(PageGuardTest, DISABLED_GuardUpgradeConcurrentTest1) {
 
   // Shutdown the Disk Manager
   disk_manager->ShutDown();
+}
+
+TEST(PageGuardTest, DISABLED_GuardUpgradeConcurrentTest2) {
+  const size_t buffer_pool_size = 5;
+  const size_t k = 2;
+
+  auto disk_manager = std::make_shared<DiskManagerUnlimitedMemory>();
+  auto *bpm = new BufferPoolManager(buffer_pool_size, disk_manager.get(), k);
+
+  
 }
 
 // NOLINTNEXTLINE
