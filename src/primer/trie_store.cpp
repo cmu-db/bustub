@@ -35,12 +35,13 @@ void TrieStore::Put(std::string_view key, T value) {
   // You will need to ensure there is only one writer at a time. Think of how you can achieve this.
   // The logic should be somehow similar to `TrieStore::Get`.
   //throw NotImplementedException("TrieStore::Put is not implemented.");
+  std::unique_lock<std::mutex> writeLock(write_lock_);
   std::unique_lock<std::mutex> rootLock(root_lock_);  // Take the root lock
   auto currentRoot = root_;  // Copy the current root
   rootLock.unlock();  // Release the root lock
 
   // Lock for concurrent writes
-  std::unique_lock<std::mutex> writeLock(write_lock_);
+
 
   // Update the copy of the trie root
   root_ =  currentRoot.Put<T>(key, std::move(value));
@@ -55,13 +56,13 @@ void TrieStore::Remove(std::string_view key) {
   // You will need to ensure there is only one writer at a time. Think of how you can achieve this.
   // The logic should be somehow similar to `TrieStore::Get`.
   //throw NotImplementedException("TrieStore::Remove is not implemented.");
-
+  std::unique_lock<std::mutex> writeLock(write_lock_);
   std::unique_lock<std::mutex> rootLock(root_lock_);  // Take the root lock
   auto currentRoot = root_;  // Copy the current root
   rootLock.unlock();  // Release the root lock
 
   // Lock for concurrent writes
-  std::unique_lock<std::mutex> writeLock(write_lock_);
+
 
   // Update the copy of the trie root
   root_ =  currentRoot.Remove(key);
