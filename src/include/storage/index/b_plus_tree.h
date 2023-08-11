@@ -66,8 +66,8 @@ class BPlusTree {
 
  public:
   explicit BPlusTree(std::string name, page_id_t header_page_id, BufferPoolManager *buffer_pool_manager,
-                     const KeyComparator &comparator, int leaf_max_size = LEAF_PAGE_SIZE,
-                     int internal_max_size = INTERNAL_PAGE_SIZE);
+                     const KeyComparator &comparator, int leaf_max_size = LeafPage::LEAF_PAGE_SIZE,
+                     int internal_max_size = InternalPage::INTERNAL_PAGE_SIZE);
 
   // Returns true if this B+ tree has no keys and values.
   auto IsEmpty() const -> bool;
