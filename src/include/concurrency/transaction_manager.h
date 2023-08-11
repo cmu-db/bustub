@@ -71,11 +71,10 @@ class TransactionManager {
   void Abort(Transaction *txn);
 
   /**
-   * Global list of running transactions
+   * The transaction map is a global list of all the running transactions in the system.
    */
-
-  /** The transaction map is a global list of all the running transactions in the system. */
   std::unordered_map<txn_id_t, Transaction *> txn_map_;
+  /** Coordination for the transaction map */
   std::shared_mutex txn_map_mutex_;
 
   /**

@@ -1,3 +1,4 @@
+#include <memory>
 #include <optional>
 #include <shared_mutex>
 #include <string>
@@ -15,7 +16,6 @@
 #include "catalog/schema.h"
 #include "catalog/table_generator.h"
 #include "common/bustub_instance.h"
-#include "common/enums/statement_type.h"
 #include "common/exception.h"
 #include "common/util/string_util.h"
 #include "concurrency/lock_manager.h"
@@ -39,87 +39,90 @@
 namespace bustub {
 
 auto BustubInstance::MakeExecutorContext(Transaction *txn, bool is_modify) -> std::unique_ptr<ExecutorContext> {
-  return std::make_unique<ExecutorContext>(txn, catalog_, buffer_pool_manager_, txn_manager_, lock_manager_, is_modify);
+  return std::make_unique<ExecutorContext>(txn, catalog_.get(), buffer_pool_manager_.get(), txn_manager_.get(),
+                                           lock_manager_.get(), is_modify);
 }
 
 BustubInstance::BustubInstance(const std::string &db_file_name) {
   enable_logging = false;
 
   // Storage related.
-  disk_manager_ = new DiskManager(db_file_name);
+  disk_manager_ = std::make_unique<DiskManager>(db_file_name);
 
   // Log related.
-  log_manager_ = new LogManager(disk_manager_);
+  log_manager_ = std::make_unique<LogManager>(disk_manager_.get());
 
   // We need more frames for GenerateTestTable to work. Therefore, we use 128 instead of the default
   // buffer pool size specified in `config.h`.
   try {
-    buffer_pool_manager_ = new BufferPoolManager(128, disk_manager_, LRUK_REPLACER_K, log_manager_);
+    buffer_pool_manager_ =
+        std::make_unique<BufferPoolManager>(128, disk_manager_.get(), LRUK_REPLACER_K, log_manager_.get());
   } catch (NotImplementedException &e) {
     std::cerr << "BufferPoolManager is not implemented, only mock tables are supported." << std::endl;
     buffer_pool_manager_ = nullptr;
   }
 
   // Transaction (txn) related.
+  lock_manager_ = std::make_unique<LockManager>();
 
-  lock_manager_ = new LockManager();
+  txn_manager_ = std::make_unique<TransactionManager>(lock_manager_.get(), log_manager_.get());
 
-  txn_manager_ = new TransactionManager(lock_manager_, log_manager_);
-
-  lock_manager_->txn_manager_ = txn_manager_;
+  lock_manager_->txn_manager_ = txn_manager_.get();
 
 #ifndef __EMSCRIPTEN__
   lock_manager_->StartDeadlockDetection();
 #endif
 
   // Checkpoint related.
-  checkpoint_manager_ = new CheckpointManager(txn_manager_, log_manager_, buffer_pool_manager_);
+  checkpoint_manager_ =
+      std::make_unique<CheckpointManager>(txn_manager_.get(), log_manager_.get(), buffer_pool_manager_.get());
 
-  // Catalog.
-  catalog_ = new Catalog(buffer_pool_manager_, lock_manager_, log_manager_);
+  // Catalog related.
+  catalog_ = std::make_unique<Catalog>(buffer_pool_manager_.get(), lock_manager_.get(), log_manager_.get());
 
-  // Execution engine.
-  execution_engine_ = new ExecutionEngine(buffer_pool_manager_, txn_manager_, catalog_);
+  // Execution engine related.
+  execution_engine_ = std::make_unique<ExecutionEngine>(buffer_pool_manager_.get(), txn_manager_.get(), catalog_.get());
 }
 
 BustubInstance::BustubInstance() {
   enable_logging = false;
 
   // Storage related.
-  disk_manager_ = new DiskManagerUnlimitedMemory();
+  disk_manager_ = std::make_unique<DiskManagerUnlimitedMemory>();
 
   // Log related.
-  log_manager_ = new LogManager(disk_manager_);
+  log_manager_ = std::make_unique<LogManager>(disk_manager_.get());
 
   // We need more frames for GenerateTestTable to work. Therefore, we use 128 instead of the default
   // buffer pool size specified in `config.h`.
   try {
-    buffer_pool_manager_ = new BufferPoolManager(128, disk_manager_, LRUK_REPLACER_K, log_manager_);
+    buffer_pool_manager_ =
+        std::make_unique<BufferPoolManager>(128, disk_manager_.get(), LRUK_REPLACER_K, log_manager_.get());
   } catch (NotImplementedException &e) {
     std::cerr << "BufferPoolManager is not implemented, only mock tables are supported." << std::endl;
     buffer_pool_manager_ = nullptr;
   }
 
   // Transaction (txn) related.
+  lock_manager_ = std::make_unique<LockManager>();
 
-  lock_manager_ = new LockManager();
+  txn_manager_ = std::make_unique<TransactionManager>(lock_manager_.get(), log_manager_.get());
 
-  txn_manager_ = new TransactionManager(lock_manager_, log_manager_);
-
-  lock_manager_->txn_manager_ = txn_manager_;
+  lock_manager_->txn_manager_ = txn_manager_.get();
 
 #ifndef __EMSCRIPTEN__
   lock_manager_->StartDeadlockDetection();
 #endif
 
   // Checkpoint related.
-  checkpoint_manager_ = new CheckpointManager(txn_manager_, log_manager_, buffer_pool_manager_);
+  checkpoint_manager_ =
+      std::make_unique<CheckpointManager>(txn_manager_.get(), log_manager_.get(), buffer_pool_manager_.get());
 
-  // Catalog.
-  catalog_ = new Catalog(buffer_pool_manager_, lock_manager_, log_manager_);
+  // Catalog related.
+  catalog_ = std::make_unique<Catalog>(buffer_pool_manager_.get(), lock_manager_.get(), log_manager_.get());
 
-  // Execution engine.
-  execution_engine_ = new ExecutionEngine(buffer_pool_manager_, txn_manager_, catalog_);
+  // Execution engine related.
+  execution_engine_ = std::make_unique<ExecutionEngine>(buffer_pool_manager_.get(), txn_manager_.get(), catalog_.get());
 }
 
 void BustubInstance::CmdDisplayTables(ResultWriter &writer) {
@@ -354,14 +357,6 @@ BustubInstance::~BustubInstance() {
   if (enable_logging) {
     log_manager_->StopFlushThread();
   }
-  delete execution_engine_;
-  delete catalog_;
-  delete checkpoint_manager_;
-  delete log_manager_;
-  delete buffer_pool_manager_;
-  delete lock_manager_;
-  delete txn_manager_;
-  delete disk_manager_;
 }
 
 }  // namespace bustub
