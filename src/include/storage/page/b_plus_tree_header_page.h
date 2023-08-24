@@ -4,6 +4,10 @@
 
 namespace bustub {
 
+/**
+ * The header page is just used to retrieve the root page,
+ * preventing potential race condition under concurrent environment.
+ */
 class BPlusTreeHeaderPage {
  public:
   // Delete all constructor / destructor to ensure memory safety
