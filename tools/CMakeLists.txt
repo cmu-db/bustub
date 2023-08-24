@@ -6,3 +6,8 @@ add_subdirectory(wasm-bpt-printer)
 add_subdirectory(terrier_bench)
 add_subdirectory(bpm_bench)
 add_subdirectory(btree_bench)
+
+add_backward(shell)
+add_backward(sqllogictest)
+add_backward(terrier-bench)
+add_backward(b_plus_tree_printer)

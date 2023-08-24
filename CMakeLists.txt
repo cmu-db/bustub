@@ -138,6 +138,7 @@ set(BUSTUB_THIRD_PARTY_INCLUDE_DIR
         ${PROJECT_SOURCE_DIR}/third_party/libpg_query/include
         ${PROJECT_SOURCE_DIR}/third_party/argparse/include
         ${PROJECT_SOURCE_DIR}/third_party/cpp_random_distributions
+        ${PROJECT_SOURCE_DIR}/third_party/backward-cpp/include
 )
 
 include_directories(${BUSTUB_SRC_INCLUDE_DIR} ${BUSTUB_TEST_INCLUDE_DIR} ${BUSTUB_THIRD_PARTY_INCLUDE_DIR})
@@ -151,9 +152,13 @@ endfunction()
 # Other CMake modules
 # MUST BE ADDED AFTER CONFIGURING COMPILER PARAMETERS
 # #####################################################################################################################
+set(CMAKE_MODULE_PATH "${BUSTUB_BUILD_SUPPORT_DIR}/cmake;${CMAKE_MODULE_PATH}")
+find_package(LibElf)
+find_package(LibDwarf)
+
+add_subdirectory(third_party)
 add_subdirectory(src)
 add_subdirectory(test)
-add_subdirectory(third_party)
 add_subdirectory(tools)
 
 # #####################################################################################################################
