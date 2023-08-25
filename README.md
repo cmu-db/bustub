@@ -109,5 +109,5 @@ $ make -j`nproc`
 ```
 
 There are some differences between macOS and Linux (i.e., mutex behavior) that might cause test cases
-to produce difference results in different platforms. We recommend students to use a Linux VM for running
+to produce different results in different platforms. We recommend students to use a Linux VM for running
 test cases and reproducing errors whenever possible.
