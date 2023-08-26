@@ -37,9 +37,9 @@
 using testing::internal::AlwaysFalse;
 using testing::internal::AlwaysTrue;
 
-#if GTEST_HAS_DEATH_TEST
+#ifdef GTEST_HAS_DEATH_TEST
 
-#if GTEST_OS_WINDOWS
+#ifdef GTEST_OS_WINDOWS
 #include <direct.h>  // For chdir().
 #include <fcntl.h>   // For O_BINARY
 #include <io.h>
@@ -52,7 +52,10 @@ using testing::internal::AlwaysTrue;
 #include <signal.h>
 #include <stdio.h>
 
-#if GTEST_OS_LINUX
+#include <string>
+#include <vector>
+
+#ifdef GTEST_OS_LINUX
 #include <sys/time.h>
 #endif  // GTEST_OS_LINUX
 
@@ -200,7 +203,7 @@ int DieInDebugElse12(int* sideeffect) {
   return 12;
 }
 
-#if GTEST_OS_WINDOWS
+#ifdef GTEST_OS_WINDOWS
 
 // Death in dbg due to Windows CRT assertion failure, not opt.
 int DieInCRTDebugElse12(int* sideeffect) {
@@ -220,7 +223,7 @@ int DieInCRTDebugElse12(int* sideeffect) {
 
 #endif  // GTEST_OS_WINDOWS
 
-#if GTEST_OS_WINDOWS || GTEST_OS_FUCHSIA
+#if defined(GTEST_OS_WINDOWS) || defined(GTEST_OS_FUCHSIA)
 
 // Tests the ExitedWithCode predicate.
 TEST(ExitStatusPredicateTest, ExitedWithCode) {
@@ -327,23 +330,6 @@ TEST_F(TestForDeathTest, SingleStatement) {
 #pragma GCC diagnostic pop
 #endif
 
-#if GTEST_USES_PCRE
-
-void DieWithEmbeddedNul() {
-  fprintf(stderr, "Hello%cmy null world.\n", '\0');
-  fflush(stderr);
-  _exit(1);
-}
-
-// Tests that EXPECT_DEATH and ASSERT_DEATH work when the error
-// message has a NUL character in it.
-TEST_F(TestForDeathTest, EmbeddedNulInMessage) {
-  EXPECT_DEATH(DieWithEmbeddedNul(), "my null world");
-  ASSERT_DEATH(DieWithEmbeddedNul(), "my null world");
-}
-
-#endif  // GTEST_USES_PCRE
-
 // Tests that death test macros expand to code which interacts well with switch
 // statements.
 TEST_F(TestForDeathTest, SwitchStatement) {
@@ -391,7 +377,7 @@ TEST_F(TestForDeathTest, FastDeathTestInChangedDir) {
   ASSERT_DEATH(_exit(1), "");
 }
 
-#if GTEST_OS_LINUX
+#ifdef GTEST_OS_LINUX
 void SigprofAction(int, siginfo_t*, void*) { /* no op */
 }
 
@@ -521,16 +507,12 @@ TEST_F(TestForDeathTest, AcceptsAnythingConvertibleToRE) {
   const testing::internal::RE regex(regex_c_str);
   EXPECT_DEATH(GlobalFunction(), regex);
 
-#if !GTEST_USES_PCRE
-
   const ::std::string regex_std_str(regex_c_str);
   EXPECT_DEATH(GlobalFunction(), regex_std_str);
 
   // This one is tricky; a temporary pointer into another temporary.  Reference
   // lifetime extension of the pointer is not sufficient.
   EXPECT_DEATH(GlobalFunction(), ::std::string(regex_c_str).c_str());
-
-#endif  // !GTEST_USES_PCRE
 }
 
 // Tests that a non-void function can be used in a death test.
@@ -662,7 +644,7 @@ TEST_F(TestForDeathTest, TestExpectDebugDeath) {
 #endif
 }
 
-#if GTEST_OS_WINDOWS
+#ifdef GTEST_OS_WINDOWS
 
 // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/crtsetreportmode
 // In debug mode, the calls to _CrtSetReportMode and _CrtSetReportFile enable
@@ -714,7 +696,7 @@ void ExpectDebugDeathHelper(bool* aborted) {
   *aborted = false;
 }
 
-#if GTEST_OS_WINDOWS
+#ifdef GTEST_OS_WINDOWS
 TEST(PopUpDeathTest, DoesNotShowPopUpOnAbort) {
   printf(
       "This test should be considered failing if it shows "
@@ -826,14 +808,14 @@ static void TestExitMacros() {
   EXPECT_EXIT(_exit(1), testing::ExitedWithCode(1), "");
   ASSERT_EXIT(_exit(42), testing::ExitedWithCode(42), "");
 
-#if GTEST_OS_WINDOWS
+#ifdef GTEST_OS_WINDOWS
 
   // Of all signals effects on the process exit code, only those of SIGABRT
   // are documented on Windows.
   // See https://msdn.microsoft.com/en-us/query-bi/m/dwwzkt4c.
   EXPECT_EXIT(raise(SIGABRT), testing::ExitedWithCode(3), "") << "b_ar";
 
-#elif !GTEST_OS_FUCHSIA
+#elif !defined(GTEST_OS_FUCHSIA)
 
   // Fuchsia has no unix signals.
   EXPECT_EXIT(raise(SIGKILL), testing::KilledBySignal(SIGKILL), "") << "foo";
@@ -1198,7 +1180,7 @@ TEST(GetLastErrnoDescription, GetLastErrnoDescriptionWorks) {
   EXPECT_STREQ("", GetLastErrnoDescription().c_str());
 }
 
-#if GTEST_OS_WINDOWS
+#ifdef GTEST_OS_WINDOWS
 TEST(AutoHandleTest, AutoHandleWorks) {
   HANDLE handle = ::CreateEvent(NULL, FALSE, FALSE, NULL);
   ASSERT_NE(INVALID_HANDLE_VALUE, handle);
@@ -1225,7 +1207,7 @@ TEST(AutoHandleTest, AutoHandleWorks) {
 }
 #endif  // GTEST_OS_WINDOWS
 
-#if GTEST_OS_WINDOWS
+#ifdef GTEST_OS_WINDOWS
 typedef unsigned __int64 BiggestParsable;
 typedef signed __int64 BiggestSignedParsable;
 #else
@@ -1322,7 +1304,7 @@ TEST(ParseNaturalNumberTest, WorksForShorterIntegers) {
   EXPECT_EQ(123, char_result);
 }
 
-#if GTEST_OS_WINDOWS
+#ifdef GTEST_OS_WINDOWS
 TEST(EnvironmentTest, HandleFitsIntoSizeT) {
   ASSERT_TRUE(sizeof(HANDLE) <= sizeof(size_t));
 }
@@ -1374,7 +1356,7 @@ void DieWithMessage(const char* message) {
 TEST(MatcherDeathTest, DoesNotBreakBareRegexMatching) {
   // googletest tests this, of course; here we ensure that including googlemock
   // has not broken it.
-#if GTEST_USES_POSIX_RE
+#ifdef GTEST_USES_POSIX_RE
   EXPECT_DEATH(DieWithMessage("O, I die, Horatio."), "I d[aeiou]e");
 #else
   EXPECT_DEATH(DieWithMessage("O, I die, Horatio."), "I di?e");
