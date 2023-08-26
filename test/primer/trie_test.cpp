@@ -95,11 +95,15 @@ TEST(TrieTest, BasicRemoveTest2) {
   ASSERT_EQ(*trie.Get<uint32_t>("te"), 23);
   trie = trie.Put<uint32_t>("tes", 233);
   ASSERT_EQ(*trie.Get<uint32_t>("tes"), 233);
+  trie = trie.Put<uint32_t>("", 123);
+  ASSERT_EQ(*trie.Get<uint32_t>(""), 123);
   // Delete something
+  trie = trie.Remove("");
   trie = trie.Remove("te");
   trie = trie.Remove("tes");
   trie = trie.Remove("test");
 
+  ASSERT_EQ(trie.Get<uint32_t>(""), nullptr);
   ASSERT_EQ(trie.Get<uint32_t>("te"), nullptr);
   ASSERT_EQ(trie.Get<uint32_t>("tes"), nullptr);
   ASSERT_EQ(trie.Get<uint32_t>("test"), nullptr);
