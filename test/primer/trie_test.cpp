@@ -22,6 +22,22 @@ TEST(TrieTest, BasicPutTest) {
   trie = trie.Put<std::string>("", "empty-key");
 }
 
+TEST(TrieTest, TrieStructureCheck) {
+  auto trie = Trie();
+  // Put something
+  trie = trie.Put<uint32_t>("test", 233);
+  ASSERT_EQ(*trie.Get<uint32_t>("test"), 233);
+  // Ensure the trie is the same representation of the writeup
+  // (Some students were using '\0' as the terminator in previous semesters)
+  auto root = trie.GetRoot();
+  ASSERT_EQ(root->children_.size(), 1);
+  ASSERT_EQ(root->children_.at('t')->children_.size(), 1);
+  ASSERT_EQ(root->children_.at('t')->children_.at('e')->children_.size(), 1);
+  ASSERT_EQ(root->children_.at('t')->children_.at('e')->children_.at('s')->children_.size(), 1);
+  ASSERT_EQ(root->children_.at('t')->children_.at('e')->children_.at('s')->children_.at('t')->children_.size(), 0);
+  ASSERT_TRUE(root->children_.at('t')->children_.at('e')->children_.at('s')->children_.at('t')->is_value_node_);
+}
+
 TEST(TrieTest, BasicPutGetTest) {
   auto trie = Trie();
   // Put something
@@ -87,6 +103,18 @@ TEST(TrieTest, BasicRemoveTest2) {
   ASSERT_EQ(trie.Get<uint32_t>("te"), nullptr);
   ASSERT_EQ(trie.Get<uint32_t>("tes"), nullptr);
   ASSERT_EQ(trie.Get<uint32_t>("test"), nullptr);
+}
+
+TEST(TrieTest, RemoveFreeTest) {
+  auto trie = Trie();
+  trie = trie.Put<uint32_t>("test", 2333);
+  trie = trie.Put<uint32_t>("te", 23);
+  trie = trie.Put<uint32_t>("tes", 233);
+  trie = trie.Remove("tes");
+  trie = trie.Remove("test");
+  ASSERT_EQ(trie.GetRoot()->children_.at('t')->children_.at('e')->children_.size(), 0);
+  trie = trie.Remove("te");
+  ASSERT_EQ(trie.GetRoot(), nullptr);
 }
 
 TEST(TrieTest, MismatchTypeTest) {
