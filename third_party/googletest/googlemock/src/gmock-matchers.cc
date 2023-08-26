@@ -53,7 +53,7 @@ GTEST_API_ std::string FormatMatcherDescription(
     bool negation, const char* matcher_name,
     const std::vector<const char*>& param_names, const Strings& param_values) {
   std::string result = ConvertIdentifierNameToWords(matcher_name);
-  if (param_values.size() >= 1) {
+  if (!param_values.empty()) {
     result += " " + JoinAsKeyValueTuple(param_names, param_values);
   }
   return negation ? "not (" + result + ")" : result;
@@ -370,6 +370,23 @@ void UnorderedElementsAreMatcherImplBase::DescribeNegationToImpl(
 bool UnorderedElementsAreMatcherImplBase::VerifyMatchMatrix(
     const ::std::vector<std::string>& element_printouts,
     const MatchMatrix& matrix, MatchResultListener* listener) const {
+  if (matrix.LhsSize() == 0 && matrix.RhsSize() == 0) {
+    return true;
+  }
+
+  if (match_flags() == UnorderedMatcherRequire::ExactMatch) {
+    if (matrix.LhsSize() != matrix.RhsSize()) {
+      // The element count doesn't match.  If the container is empty,
+      // there's no need to explain anything as Google Mock already
+      // prints the empty container. Otherwise we just need to show
+      // how many elements there actually are.
+      if (matrix.LhsSize() != 0 && listener->IsInterested()) {
+        *listener << "which has " << Elements(matrix.LhsSize());
+      }
+      return false;
+    }
+  }
+
   bool result = true;
   ::std::vector<char> element_matched(matrix.LhsSize(), 0);
   ::std::vector<char> matcher_matched(matrix.RhsSize(), 0);
