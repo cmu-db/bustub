@@ -7,7 +7,7 @@ API Reference
 The {fmt} library API consists of the following parts:
 
 * :ref:`fmt/core.h <core-api>`: the core API providing main formatting functions
-  for ``char``/UTF-8 with compile-time checks and minimal dependencies
+  for ``char``/UTF-8 with C++20 compile-time checks and minimal dependencies
 * :ref:`fmt/format.h <format-api>`: the full format API providing additional
   formatting functions and locale support
 * :ref:`fmt/ranges.h <ranges-api>`: formatting of ranges and tuples
@@ -17,6 +17,7 @@ The {fmt} library API consists of the following parts:
 * :ref:`fmt/color.h <color-api>`: terminal color and text style
 * :ref:`fmt/os.h <os-api>`: system APIs
 * :ref:`fmt/ostream.h <ostream-api>`: ``std::ostream`` support
+* :ref:`fmt/args.h <args-api>`: dynamic argument lists
 * :ref:`fmt/printf.h <printf-api>`: ``printf`` formatting
 * :ref:`fmt/xchar.h <xchar-api>`: optional ``wchar_t`` support 
 
@@ -28,10 +29,11 @@ macros have prefix ``FMT_``.
 Core API
 ========
 
-``fmt/core.h`` defines the core API which provides main formatting functions for
-``char``/UTF-8 with compile-time checks. It has minimal include dependencies for
-better compile times. This header is only beneficial when using {fmt} as a
-library and not in the header-only mode.
+``fmt/core.h`` defines the core API which provides main formatting functions
+for ``char``/UTF-8 with C++20 compile-time checks. It has minimal include
+dependencies for better compile times. This header is only beneficial when
+using {fmt} as a library (the default) and not in the header-only mode.
+It also provides ``formatter`` specializations for built-in and string types.
 
 The following functions use :ref:`format string syntax <syntax>`
 similar to that of Python's `str.format
@@ -70,113 +72,18 @@ checked at compile time in C++20. To pass a runtime format string wrap it in
 Compile-Time Format String Checks
 ---------------------------------
 
-Compile-time checks are enabled when using ``FMT_STRING``. They support built-in
-and string types as well as user-defined types with ``constexpr`` ``parse``
-functions in their ``formatter`` specializations.
-Requires C++14 and is a no-op in C++11.
+Compile-time format string checks are enabled by default on compilers
+that support C++20 ``consteval``. On older compilers you can use the
+:ref:`FMT_STRING <legacy-checks>`: macro defined in ``fmt/format.h`` instead.
 
-.. doxygendefine:: FMT_STRING
-
-To force the use of compile-time checks, define the preprocessor variable
-``FMT_ENFORCE_COMPILE_STRING``. When set, functions accepting ``FMT_STRING``
-will fail to compile with regular strings. Runtime-checked
-formatting is still possible using ``fmt::vformat``, ``fmt::vprint``, etc.
+Unused arguments are allowed as in Python's `str.format` and ordinary functions.
 
 .. doxygenclass:: fmt::basic_format_string
    :members:
 
 .. doxygentypedef:: fmt::format_string
 
-.. doxygenfunction:: fmt::runtime(const S&)
-
-Named Arguments
----------------
-
-.. doxygenfunction:: fmt::arg(const S&, const T&)
-
-Named arguments are not supported in compile-time checks at the moment.
-
-Argument Lists
---------------
-
-You can create your own formatting function with compile-time checks and small
-binary footprint, for example (https://godbolt.org/z/oba4Mc):
-
-.. code:: c++
-
-    #include <fmt/format.h>
-
-    void vlog(const char* file, int line, fmt::string_view format,
-              fmt::format_args args) {
-      fmt::print("{}: {}: ", file, line);
-      fmt::vprint(format, args);
-    }
-
-    template <typename S, typename... Args>
-    void log(const char* file, int line, const S& format, Args&&... args) {
-      vlog(file, line, format, fmt::make_format_args(args...));
-    }
-
-    #define MY_LOG(format, ...) \
-      log(__FILE__, __LINE__, FMT_STRING(format), __VA_ARGS__)
-
-    MY_LOG("invalid squishiness: {}", 42);
-
-Note that ``vlog`` is not parameterized on argument types which improves compile
-times and reduces binary code size compared to a fully parameterized version.
-
-.. doxygenfunction:: fmt::make_format_args(const Args&...)
-
-.. doxygenclass:: fmt::format_arg_store
-   :members:
-
-.. doxygenclass:: fmt::dynamic_format_arg_store
-   :members:
-
-.. doxygenclass:: fmt::basic_format_args
-   :members:
-
-.. doxygentypedef:: fmt::format_args
-
-.. doxygenclass:: fmt::basic_format_arg
-   :members:
-
-.. doxygenclass:: fmt::basic_format_parse_context
-   :members:
-
-.. doxygenclass:: fmt::basic_format_context
-   :members:
-
-.. doxygentypedef:: fmt::format_context
-
-Compatibility
--------------
-
-.. doxygenclass:: fmt::basic_string_view
-   :members:
-
-.. doxygentypedef:: fmt::string_view
-
-Locale
-------
-
-All formatting is locale-independent by default. Use the ``'L'`` format
-specifier to insert the appropriate number separator characters from the
-locale::
-
-  #include <fmt/core.h>
-  #include <locale>
-
-  std::locale::global(std::locale("en_US.UTF-8"));
-  auto s = fmt::format("{:L}", 1000000);  // s == "1,000,000"
-
-.. _format-api:
-
-Format API
-==========
-
-``fmt/format.h`` defines the full format API providing additional formatting
-functions and locale support.
+.. doxygenfunction:: fmt::runtime(string_view) -> runtime_format_string<>
 
 .. _udt:
 
@@ -186,13 +93,38 @@ Formatting User-Defined Types
 The {fmt} library provides formatters for many standard C++ types.
 See :ref:`fmt/ranges.h <ranges-api>` for ranges and tuples including standard
 containers such as ``std::vector``, :ref:`fmt/chrono.h <chrono-api>` for date
-and time formatting and :ref:`fmt/std.h <std-api>` for path and variant 
-formatting.
+and time formatting and :ref:`fmt/std.h <std-api>` for other standard library
+types.
 
-To make a user-defined type formattable, specialize the ``formatter<T>`` struct
-template and implement ``parse`` and ``format`` methods::
+There are two ways to make a user-defined type formattable: providing a
+``format_as`` function or specializing the ``formatter`` struct template.
+
+Use ``format_as`` if you want to make your type formattable as some other type
+with the same format specifiers. The ``format_as`` function should take an
+object of your type and return an object of a formattable type. It should be
+defined in the same namespace as your type.
+
+Example (https://godbolt.org/z/r7vvGE1v7)::
 
   #include <fmt/format.h>
+
+  namespace kevin_namespacy {
+  enum class film {
+    house_of_cards, american_beauty, se7en = 7
+  };
+  auto format_as(film f) { return fmt::underlying(f); }
+  }
+
+  int main() {
+    fmt::print("{}\n", kevin_namespacy::film::se7en); // prints "7"
+  }
+
+Using the specialization API is more complex but gives you full control over
+parsing and formatting. To use this method specialize the ``formatter`` struct
+template for your type and implement ``parse`` and ``format`` methods.
+For example::
+
+  #include <fmt/core.h>
 
   struct point {
     double x, y;
@@ -203,7 +135,7 @@ template and implement ``parse`` and ``format`` methods::
     char presentation = 'f';
 
     // Parses format specifications of the form ['f' | 'e'].
-    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
+    constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
       // [ctx.begin(), ctx.end()) is a character range that contains a part of
       // the format string starting from the format specifications to be parsed,
       // e.g. in
@@ -224,7 +156,7 @@ template and implement ``parse`` and ``format`` methods::
       if (it != end && (*it == 'f' || *it == 'e')) presentation = *it++;
 
       // Check if reached the end of the range:
-      if (it != end && *it != '}') throw format_error("invalid format");
+      if (it != end && *it != '}') throw_format_error("invalid format");
 
       // Return an iterator past the end of the parsed range:
       return it;
@@ -232,8 +164,7 @@ template and implement ``parse`` and ``format`` methods::
 
     // Formats the point p using the parsed format specification (presentation)
     // stored in this formatter.
-    template <typename FormatContext>
-    auto format(const point& p, FormatContext& ctx) const -> decltype(ctx.out()) {
+    auto format(const point& p, format_context& ctx) const -> format_context::iterator {
       // ctx.out() is an output iterator to write to.
       return presentation == 'f'
                 ? fmt::format_to(ctx.out(), "({:.1f}, {:.1f})", p.x, p.y)
@@ -250,22 +181,33 @@ Then you can pass objects of type ``point`` to any formatting function::
 You can also reuse existing formatters via inheritance or composition, for
 example::
 
+  // color.h:
+  #include <fmt/core.h>
+
   enum class color {red, green, blue};
 
   template <> struct fmt::formatter<color>: formatter<string_view> {
     // parse is inherited from formatter<string_view>.
-    template <typename FormatContext>
-    auto format(color c, FormatContext& ctx) const {
-      string_view name = "unknown";
-      switch (c) {
-      case color::red:   name = "red"; break;
-      case color::green: name = "green"; break;
-      case color::blue:  name = "blue"; break;
-      }
-      return formatter<string_view>::format(name, ctx);
-    }
+
+    auto format(color c, format_context& ctx) const;
   };
 
+  // color.cc:
+  #include "color.h"
+  #include <fmt/format.h>
+
+  auto fmt::formatter<color>::format(color c, format_context& ctx) const {
+    string_view name = "unknown";
+    switch (c) {
+    case color::red:   name = "red"; break;
+    case color::green: name = "green"; break;
+    case color::blue:  name = "blue"; break;
+    }
+    return formatter<string_view>::format(name, ctx);
+  }
+
+Note that ``formatter<string_view>::format`` is defined in ``fmt/format.h`` so
+it has to be included in the source file.
 Since ``parse`` is inherited from ``formatter<string_view>`` it will recognize
 all string format specifications, for example
 
@@ -277,8 +219,9 @@ will return ``"      blue"``.
 
 You can also write a formatter for a hierarchy of classes::
 
+  // demo.h:
   #include <type_traits>
-  #include <fmt/format.h>
+  #include <fmt/core.h>
 
   struct A {
     virtual ~A() {}
@@ -292,11 +235,14 @@ You can also write a formatter for a hierarchy of classes::
   template <typename T>
   struct fmt::formatter<T, std::enable_if_t<std::is_base_of<A, T>::value, char>> :
       fmt::formatter<std::string> {
-    template <typename FormatCtx>
-    auto format(const A& a, FormatCtx& ctx) const {
+    auto format(const A& a, format_context& ctx) const {
       return fmt::formatter<std::string>::format(a.name(), ctx);
     }
   };
+
+  // demo.cc:
+  #include "demo.h"
+  #include <fmt/format.h>
 
   int main() {
     B b;
@@ -304,29 +250,91 @@ You can also write a formatter for a hierarchy of classes::
     fmt::print("{}", a); // prints "B"
   }
 
-If a type provides both a ``formatter`` specialization and an implicit
-conversion to a formattable type, the specialization takes precedence over the
-conversion.
+Providing both a ``formatter`` specialization and a ``format_as`` overload is
+disallowed.
 
-For enums {fmt} also provides the ``format_as`` extension API. To format an enum
-via this API define ``format_as`` that takes this enum and converts it to the
-underlying type. ``format_as`` should be defined in the same namespace as the
-enum.
+Named Arguments
+---------------
 
-Example (https://godbolt.org/z/r7vvGE1v7)::
+.. doxygenfunction:: fmt::arg(const S&, const T&)
 
-  #include <fmt/format.h>
+Named arguments are not supported in compile-time checks at the moment.
 
-  namespace kevin_namespacy {
-  enum class film {
-    house_of_cards, american_beauty, se7en = 7
-  };
-  auto format_as(film f) { return fmt::underlying(f); }
-  }
+Argument Lists
+--------------
 
-  int main() {
-    fmt::print("{}\n", kevin_namespacy::film::se7en); // prints "7"
-  }
+You can create your own formatting function with compile-time checks and small
+binary footprint, for example (https://godbolt.org/z/vajfWEG4b):
+
+.. code:: c++
+
+    #include <fmt/core.h>
+
+    void vlog(const char* file, int line, fmt::string_view format,
+              fmt::format_args args) {
+      fmt::print("{}: {}: ", file, line);
+      fmt::vprint(format, args);
+    }
+
+    template <typename... T>
+    void log(const char* file, int line, fmt::format_string<T...> format, T&&... args) {
+      vlog(file, line, format, fmt::make_format_args(args...));
+    }
+
+    #define MY_LOG(format, ...) log(__FILE__, __LINE__, format, __VA_ARGS__)
+
+    MY_LOG("invalid squishiness: {}", 42);
+
+Note that ``vlog`` is not parameterized on argument types which improves compile
+times and reduces binary code size compared to a fully parameterized version.
+
+.. doxygenfunction:: fmt::make_format_args(const Args&...)
+
+.. doxygenclass:: fmt::format_arg_store
+   :members:
+
+.. doxygenclass:: fmt::basic_format_args
+   :members:
+
+.. doxygentypedef:: fmt::format_args
+
+.. doxygenclass:: fmt::basic_format_arg
+   :members:
+
+.. doxygenclass:: fmt::basic_format_parse_context
+   :members:
+
+.. doxygenclass:: fmt::basic_format_context
+   :members:
+
+.. doxygentypedef:: fmt::format_context
+
+.. _args-api:
+
+Dynamic Argument Lists
+----------------------
+
+The header ``fmt/args.h`` provides ``dynamic_format_arg_store``, a builder-like
+API that can be used to construct format argument lists dynamically.
+
+.. doxygenclass:: fmt::dynamic_format_arg_store
+   :members:
+
+Compatibility
+-------------
+
+.. doxygenclass:: fmt::basic_string_view
+   :members:
+
+.. doxygentypedef:: fmt::string_view
+
+.. _format-api:
+
+Format API
+==========
+
+``fmt/format.h`` defines the full format API providing additional formatting
+functions and locale support.
 
 Literal-Based API
 -----------------
@@ -339,7 +347,7 @@ Utilities
 ---------
 
 .. doxygenfunction:: fmt::ptr(T p) -> const void*
-.. doxygenfunction:: fmt::ptr(const std::unique_ptr<T> &p) -> const void*
+.. doxygenfunction:: fmt::ptr(const std::unique_ptr<T, Deleter> &p) -> const void*
 .. doxygenfunction:: fmt::ptr(const std::shared_ptr<T> &p) -> const void*
 
 .. doxygenfunction:: fmt::underlying(Enum e) -> typename std::underlying_type<Enum>::type
@@ -404,6 +412,41 @@ The allocator will be used for the output container only. Formatting functions
 normally don't do any allocations for built-in and string types except for
 non-default floating-point formatting that occasionally falls back on
 ``sprintf``.
+
+Locale
+------
+
+All formatting is locale-independent by default. Use the ``'L'`` format
+specifier to insert the appropriate number separator characters from the
+locale::
+
+  #include <fmt/core.h>
+  #include <locale>
+
+  std::locale::global(std::locale("en_US.UTF-8"));
+  auto s = fmt::format("{:L}", 1000000);  // s == "1,000,000"
+
+``fmt/format.h`` provides the following overloads of formatting functions that
+take ``std::locale`` as a parameter. The locale type is a template parameter to
+avoid the expensive ``<locale>`` include.
+
+.. doxygenfunction:: format(const Locale& loc, format_string<T...> fmt, T&&... args) -> std::string
+.. doxygenfunction:: format_to(OutputIt out, const Locale& loc, format_string<T...> fmt, T&&... args) -> OutputIt
+.. doxygenfunction:: formatted_size(const Locale& loc, format_string<T...> fmt, T&&... args) -> size_t
+
+.. _legacy-checks:
+
+Legacy Compile-Time Format String Checks
+----------------------------------------
+
+``FMT_STRING`` enables compile-time checks on older compilers. It requires C++14
+or later and is a no-op in C++11.
+
+.. doxygendefine:: FMT_STRING
+
+To force the use of legacy compile-time checks, define the preprocessor variable
+``FMT_ENFORCE_COMPILE_STRING``. When set, functions accepting ``FMT_STRING``
+will fail to compile with regular strings.
 
 .. _ranges-api:
 
@@ -474,10 +517,11 @@ Standard Library Types Formatting
 
 ``fmt/std.h`` provides formatters for:
 
-* `std::filesystem::path <std::filesystem::path>`_
+* `std::filesystem::path <https://en.cppreference.com/w/cpp/filesystem/path>`_
 * `std::thread::id <https://en.cppreference.com/w/cpp/thread/thread/id>`_
 * `std::monostate <https://en.cppreference.com/w/cpp/utility/variant/monostate>`_
 * `std::variant <https://en.cppreference.com/w/cpp/utility/variant/variant>`_
+* `std::optional <https://en.cppreference.com/w/cpp/utility/optional>`_
 
 Formatting Variants
 -------------------
@@ -505,10 +549,20 @@ Format String Compilation
 ``FMT_COMPILE`` macro or the ``_cf`` user-defined literal. Format strings
 marked with ``FMT_COMPILE`` or ``_cf`` are parsed, checked and converted into
 efficient formatting code at compile-time. This supports arguments of built-in
-and string types as well as user-defined types with ``constexpr`` ``parse``
-functions in their ``formatter`` specializations. Format string compilation can
-generate more binary code compared to the default API and is only recommended in
-places where formatting is a performance bottleneck.
+and string types as well as user-defined types with ``format`` functions taking
+the format context type as a template parameter in their ``formatter``
+specializations. For example::
+
+  template <> struct fmt::formatter<point> {
+    constexpr auto parse(format_parse_context& ctx);
+
+    template <typename FormatContext>
+    auto format(const point& p, FormatContext& ctx) const;
+  };
+
+Format string compilation can generate more binary code compared to the default
+API and is only recommended in places where formatting is a performance
+bottleneck.
 
 .. doxygendefine:: FMT_COMPILE
 
@@ -581,7 +635,7 @@ the POSIX extension for positional arguments. Unlike their standard
 counterparts, the ``fmt`` functions are type-safe and throw an exception if an
 argument type doesn't match its format specification.
 
-.. doxygenfunction:: printf(const S &format_str, const T&... args)
+.. doxygenfunction:: printf(string_view fmt, const T&... args) -> int
 
 .. doxygenfunction:: fprintf(std::FILE *f, const S &fmt, const T&... args) -> int
 
