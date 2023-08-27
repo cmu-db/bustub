@@ -1,0 +1,84 @@
+# BusTub Non-CMU Gradescope
+
+To create a fair learning environment for all students and avoid potential
+Academic Integrity Violations within CMU, we ask you to AVOID making your
+BusTub repository public on GitHub. If you are not a student from CMU, you will
+need to sign this document before submitting to Gradescope.
+
+Please sign this document by filling your information in the form and include
+this file along with your submission. Firstly, run the following command to copy
+this file:
+
+```
+cp GRADESCOPE.md.template GRADESCOPE.md
+```
+
+Then, please read the following agreement and fill in the signature below.
+
+```plain
+I hereby agree to the terms outlined in this agreement ("Agreement"). By
+signing this Agreement, I acknowledge that I have read, understood, and will
+comply with the following terms and conditions:
+
+1. Respect for System Security: I understand and acknowledge that the Gradescope
+   system, which is used for the submission and grading of assignments, projects,
+   and examinations, is a secure platform. I agree to respect the security measures
+   implemented by Gradescope and will not engage in any activities that could
+   compromise the integrity, functionality, or security of the system.
+
+   TL;DR: DO NOT try to retrieve private test cases from the autograder. They are
+   not meant to be used by students in their local development environment.
+
+2. Academic Integrity: I affirm that the work I submit for assessment,
+   including assignments, projects, and examinations, is my original work. I
+   understand that cheating, plagiarism, or any form of academic dishonesty is
+   strictly prohibited by the School/Organization's policies, and any violation
+   will result in appropriate disciplinary action, which may include academic
+   penalties and sanctions.
+
+   TL;DR: DO submit your own work.
+
+3. Prohibition on Publishing: I agree not to publish, upload, or otherwise make
+   available any solutions, code, assignments, projects, or related materials
+   provided by the School/Organization that are designated as confidential or
+   proprietary to any public repositories on GitHub or any other online
+   platforms accessible to the public. This includes but is not limited to
+   personal repositories, organizational repositories, public gists, and forums.
+
+   TL;DR: DO NOT publish your project solution anywhere. You may publish blog
+   posts on your general approach and ideas about the project, but DO NOT
+   publish it before the CMU deadline for that project, and DO NOT publish code.
+
+4. No Official Help: I understand and acknowledge that the School/Organization
+   does not offer official assistance or support for technical, academic, or
+   non-academic matters. This includes, but is not limited to, help with
+   assignments, projects, technical troubleshooting, academic advising, and
+   administrative inquiries.
+
+   TL;DR: This is an unofficial Gradescope for 15-445/645 course. DO NOT submit
+   issues to the BusTub repo regarding Gradescope issues. There is an
+   unofficial Discord server, but neither TAs or professors will actively
+   monitor it. See the course FAQ for the Discord link.
+
+===BEGIN SIGNATURE===
+Student's GitHub ID:
+Student's Legal Name:
+Student's Organization/School Name:
+Student's Email:
+Date:
+=== END SIGNATURE ===
+```
+
+* Note: Your email should be the same as your Gradescope email. Please use the email
+  from your academic affiliation if possible.
+* Note: If you do not have a GitHub account, please fill in N/A.
+* Note: If you are not affiliated with any organization, you can fill in
+  the third line with N/A.
+
+The `make submit-pX` command will automatically include this file (TBD) and the
+grader will grade your submission. Thank you for your interest in the BusTub
+project, and thank you for helping us create a fair learning environment.
+
+[id]: bustub-non-cmu-gradescope-23333
+
+<!-- Hopefully GitHub can index the above slug and we can easily find BusTub repos with GitHub search. -->
