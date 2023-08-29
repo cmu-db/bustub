@@ -9,7 +9,7 @@
     
     <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Usage &mdash; fmt 9.0.0 documentation</title>
+    <title>Usage &mdash; fmt 10.1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -18,7 +18,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '9.0.0',
+        VERSION:     '10.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         LINK_SUFFIX: '.html',
@@ -70,15 +70,15 @@
           <ul class="nav navbar-nav">
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                 role="button" aria-expanded="false">9.0.0
+                 role="button" aria-expanded="false">10.1.0
                 <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
                 
-                <li><a href="https://fmt.dev/9.0.0">9.0.0</a></li>
+                <li><a href="https://fmt.dev/10.1.0">10.1.0</a></li>
                 
-                <li><a href="https://fmt.dev/8.1.1">8.1.1</a></li>
+                <li><a href="https://fmt.dev/10.0.0">10.0.0</a></li>
                 
-                <li><a href="https://fmt.dev/8.1.0">8.1.0</a></li>
+                <li><a href="https://fmt.dev/9.1.0">9.1.0</a></li>
                 
               </ul>
             </li>
@@ -162,13 +162,13 @@ using Visual Studio or msbuild.</p>
 <p>On Mac OS X with Xcode installed, an <code class="file docutils literal notranslate"><span class="pre">.xcodeproj</span></code> file will be generated.</p>
 <p>To build a <a class="reference external" href="https://en.wikipedia.org/wiki/Library_%28computing%29#Shared_libraries">shared library</a> set the <code class="docutils literal notranslate"><span class="pre">BUILD_SHARED_LIBS</span></code> CMake variable to
 <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span><span class="w"> </span><span class="o">-</span><span class="n">DBUILD_SHARED_LIBS</span><span class="o">=</span><span class="n">TRUE</span><span class="w"> </span><span class="p">...</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span><span class="w"> </span><span class="o">-</span><span class="n">DBUILD_SHARED_LIBS</span><span class="o">=</span><span class="n">TRUE</span><span class="w"> </span><span class="p">...</span>
 </pre></div>
 </div>
 <p>To build a <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">static</span> <span class="pre">library</span></code> with position independent code (required if the main
 consumer of the fmt library is a shared library i.e. a Python extension) set the
 <code class="docutils literal notranslate"><span class="pre">CMAKE_POSITION_INDEPENDENT_CODE</span></code> CMake variable to <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span><span class="w"> </span><span class="o">-</span><span class="n">DCMAKE_POSITION_INDEPENDENT_CODE</span><span class="o">=</span><span class="n">TRUE</span><span class="w"> </span><span class="p">...</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span><span class="w"> </span><span class="o">-</span><span class="n">DCMAKE_POSITION_INDEPENDENT_CODE</span><span class="o">=</span><span class="n">TRUE</span><span class="w"> </span><span class="p">...</span>
 </pre></div>
 </div>
 </section>
@@ -181,21 +181,21 @@ consumer of the fmt library is a shared library i.e. a Python extension) set the
 <h2>Usage with CMake<a class="headerlink" href="#usage-with-cmake" title="Permalink to this headline">¶</a></h2>
 <p>You can add the <code class="docutils literal notranslate"><span class="pre">fmt</span></code> library directory into your project and include it in
 your <code class="docutils literal notranslate"><span class="pre">CMakeLists.txt</span></code> file:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">add_subdirectory</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">add_subdirectory</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>or</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">add_subdirectory</span><span class="p">(</span><span class="n">fmt</span><span class="w"> </span><span class="n">EXCLUDE_FROM_ALL</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">add_subdirectory</span><span class="p">(</span><span class="n">fmt</span><span class="w"> </span><span class="n">EXCLUDE_FROM_ALL</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>to exclude it from <code class="docutils literal notranslate"><span class="pre">make</span></code>, <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">all</span></code>, or <code class="docutils literal notranslate"><span class="pre">cmake</span> <span class="pre">--build</span> <span class="pre">.</span></code>.</p>
 <p>You can detect and use an installed version of {fmt} as follows:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">find_package</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span><span class="w"></span>
-<span class="n">target_link_libraries</span><span class="p">(</span><span class="o">&lt;</span><span class="n">your</span><span class="o">-</span><span class="n">target</span><span class="o">&gt;</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">fmt</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">find_package</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+<span class="n">target_link_libraries</span><span class="p">(</span><span class="o">&lt;</span><span class="n">your</span><span class="o">-</span><span class="n">target</span><span class="o">&gt;</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">fmt</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Setting up your target to use a header-only version of <code class="docutils literal notranslate"><span class="pre">fmt</span></code> is equally easy:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">target_link_libraries</span><span class="p">(</span><span class="o">&lt;</span><span class="n">your</span><span class="o">-</span><span class="n">target</span><span class="o">&gt;</span><span class="w"> </span><span class="n">PRIVATE</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">fmt</span><span class="o">-</span><span class="n">header</span><span class="o">-</span><span class="n">only</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">target_link_libraries</span><span class="p">(</span><span class="o">&lt;</span><span class="n">your</span><span class="o">-</span><span class="n">target</span><span class="o">&gt;</span><span class="w"> </span><span class="n">PRIVATE</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">fmt</span><span class="o">-</span><span class="n">header</span><span class="o">-</span><span class="n">only</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -218,22 +218,22 @@ for unreleased or custom revisions of <code class="docutils literal notranslate"
 <ul>
 <li><p>Add one of the repositories to your configurations, or in your
 <code class="docutils literal notranslate"><span class="pre">repositories.manifest</span></code>, if not already there:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="o">:</span><span class="w"></span>
-<span class="nl">role</span><span class="p">:</span><span class="w"> </span><span class="n">prerequisite</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="o">:</span>
+<span class="nl">role</span><span class="p">:</span><span class="w"> </span><span class="n">prerequisite</span>
 <span class="nl">location</span><span class="p">:</span><span class="w"> </span><span class="n">https</span><span class="o">:</span><span class="c1">//pkg.cppget.org/1/stable</span>
 </pre></div>
 </div>
 </li>
 <li><p>Add this package as a dependency to your <code class="docutils literal notranslate"><span class="pre">./manifest</span></code> file
 (example for <code class="docutils literal notranslate"><span class="pre">v7.0.x</span></code>):</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="nl">depends</span><span class="p">:</span><span class="w"> </span><span class="n">fmt</span><span class="w"> </span><span class="o">~</span><span class="mf">7.0.0</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="nl">depends</span><span class="p">:</span><span class="w"> </span><span class="n">fmt</span><span class="w"> </span><span class="o">~</span><span class="mf">7.0.0</span>
 </pre></div>
 </div>
 </li>
 <li><p>Import the target and use it as a prerequisite to your own target
 using <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">fmt</span></code> in the appropriate <code class="docutils literal notranslate"><span class="pre">buildfile</span></code>:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="n">fmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fmt</span><span class="o">%</span><span class="n">lib</span><span class="p">{</span><span class="n">fmt</span><span class="p">}</span><span class="w"></span>
-<span class="n">lib</span><span class="p">{</span><span class="n">mylib</span><span class="p">}</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">cxx</span><span class="p">{</span><span class="o">**</span><span class="p">}</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="n">$fmt</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="n">fmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fmt</span><span class="o">%</span><span class="n">lib</span><span class="p">{</span><span class="n">fmt</span><span class="p">}</span>
+<span class="n">lib</span><span class="p">{</span><span class="n">mylib</span><span class="p">}</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">cxx</span><span class="p">{</span><span class="o">**</span><span class="p">}</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="n">$fmt</span>
 </pre></div>
 </div>
 </li>
@@ -253,14 +253,14 @@ system:</p>
 <li><p><a class="reference external" href="http://lesscss.org/">Less</a> with <code class="docutils literal notranslate"><span class="pre">less-plugin-clean-css</span></code>.
 Ubuntu doesn’t package the <code class="docutils literal notranslate"><span class="pre">clean-css</span></code> plugin so you should use <code class="docutils literal notranslate"><span class="pre">npm</span></code>
 instead of <code class="docutils literal notranslate"><span class="pre">apt</span></code> to install both <code class="docutils literal notranslate"><span class="pre">less</span></code> and the plugin:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span><span class="w"> </span><span class="n">npm</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="o">-</span><span class="n">g</span><span class="w"> </span><span class="n">less</span><span class="w"> </span><span class="n">less</span><span class="o">-</span><span class="n">plugin</span><span class="o">-</span><span class="n">clean</span><span class="o">-</span><span class="n">css</span><span class="p">.</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span><span class="w"> </span><span class="n">npm</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="o">-</span><span class="n">g</span><span class="w"> </span><span class="n">less</span><span class="w"> </span><span class="n">less</span><span class="o">-</span><span class="n">plugin</span><span class="o">-</span><span class="n">clean</span><span class="o">-</span><span class="n">css</span><span class="p">.</span>
 </pre></div>
 </div>
 </li>
 </ul>
 <p>First generate makefiles or project files using CMake as described in
 the previous section. Then compile the <code class="docutils literal notranslate"><span class="pre">doc</span></code> target/project, for example:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">make</span><span class="w"> </span><span class="n">doc</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">make</span><span class="w"> </span><span class="n">doc</span>
 </pre></div>
 </div>
 <p>This will generate the HTML documentation in <code class="docutils literal notranslate"><span class="pre">doc/html</span></code>.</p>
@@ -271,7 +271,7 @@ the previous section. Then compile the <code class="docutils literal notranslate
 <a class="reference external" href="https://docs.conda.io/en/latest/">Conda</a>, using its
 <a class="reference external" href="https://conda-forge.org">conda-forge</a>
 <a class="reference external" href="https://github.com/conda-forge/fmt-feedstock">package</a>, as follows:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="o">-</span><span class="n">c</span><span class="w"> </span><span class="n">conda</span><span class="o">-</span><span class="n">forge</span><span class="w"> </span><span class="n">fmt</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="o">-</span><span class="n">c</span><span class="w"> </span><span class="n">conda</span><span class="o">-</span><span class="n">forge</span><span class="w"> </span><span class="n">fmt</span>
 </pre></div>
 </div>
 </section>
@@ -279,10 +279,10 @@ the previous section. Then compile the <code class="docutils literal notranslate
 <h2>Vcpkg<a class="headerlink" href="#vcpkg" title="Permalink to this headline">¶</a></h2>
 <p>You can download and install fmt using the <a class="reference external" href="https://github.com/Microsoft/vcpkg">vcpkg</a> dependency manager:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">git</span><span class="w"> </span><span class="n">clone</span><span class="w"> </span><span class="n">https</span><span class="o">:</span><span class="c1">//github.com/Microsoft/vcpkg.git</span>
-<span class="n">cd</span><span class="w"> </span><span class="n">vcpkg</span><span class="w"></span>
-<span class="p">.</span><span class="o">/</span><span class="n">bootstrap</span><span class="o">-</span><span class="n">vcpkg</span><span class="p">.</span><span class="n">sh</span><span class="w"></span>
-<span class="p">.</span><span class="o">/</span><span class="n">vcpkg</span><span class="w"> </span><span class="n">integrate</span><span class="w"> </span><span class="n">install</span><span class="w"></span>
-<span class="p">.</span><span class="o">/</span><span class="n">vcpkg</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="n">fmt</span><span class="w"></span>
+<span class="n">cd</span><span class="w"> </span><span class="n">vcpkg</span>
+<span class="p">.</span><span class="o">/</span><span class="n">bootstrap</span><span class="o">-</span><span class="n">vcpkg</span><span class="p">.</span><span class="n">sh</span>
+<span class="p">.</span><span class="o">/</span><span class="n">vcpkg</span><span class="w"> </span><span class="n">integrate</span><span class="w"> </span><span class="n">install</span>
+<span class="p">.</span><span class="o">/</span><span class="n">vcpkg</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="n">fmt</span>
 </pre></div>
 </div>
 <p>The fmt port in vcpkg is kept up to date by Microsoft team members and community
@@ -293,8 +293,8 @@ request</a> on the vcpkg repository.</p>
 <h2>LHelper<a class="headerlink" href="#lhelper" title="Permalink to this headline">¶</a></h2>
 <p>You can download and install fmt using
 <a class="reference external" href="https://github.com/franko/lhelper">lhelper</a> dependency manager:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">lhelper</span><span class="w"> </span><span class="n">activate</span><span class="w"> </span><span class="o">&lt;</span><span class="n">some</span><span class="o">-</span><span class="n">environment</span><span class="o">&gt;</span><span class="w"></span>
-<span class="n">lhelper</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="n">fmt</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">lhelper</span><span class="w"> </span><span class="n">activate</span><span class="w"> </span><span class="o">&lt;</span><span class="n">some</span><span class="o">-</span><span class="n">environment</span><span class="o">&gt;</span>
+<span class="n">lhelper</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="n">fmt</span>
 </pre></div>
 </div>
 <p>All the recipes for lhelper are kept in the
@@ -311,7 +311,7 @@ repository.</p>
 <section id="homebrew">
 <h2>Homebrew<a class="headerlink" href="#homebrew" title="Permalink to this headline">¶</a></h2>
 <p>fmt can be installed on OS X using <a class="reference external" href="https://brew.sh/">Homebrew</a>:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">brew</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="n">fmt</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">brew</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="n">fmt</span>
 </pre></div>
 </div>
 </section>

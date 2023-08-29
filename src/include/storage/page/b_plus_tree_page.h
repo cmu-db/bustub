@@ -34,9 +34,9 @@ enum class IndexPageType { INVALID_INDEX_PAGE = 0, LEAF_PAGE, INTERNAL_PAGE };
  * contains information shared by both leaf page and internal page.
  *
  * Header format (size in byte, 12 bytes in total):
- * ----------------------------------------------------------------------------
- * | PageType (4) | CurrentSize (4) | MaxSize (4) |
- * ----------------------------------------------------------------------------
+ * ---------------------------------------------------------
+ * | PageType (4) | CurrentSize (4) | MaxSize (4) |  ...   |
+ * ---------------------------------------------------------
  */
 class BPlusTreePage {
  public:
@@ -57,7 +57,7 @@ class BPlusTreePage {
   auto GetMinSize() const -> int;
 
  private:
-  // member variable, attributes that both internal and leaf page share
+  // Member variables, attributes that both internal and leaf page share
   IndexPageType page_type_ __attribute__((__unused__));
   int size_ __attribute__((__unused__));
   int max_size_ __attribute__((__unused__));

@@ -24,7 +24,8 @@ foreach (bustub_test_source ${BUSTUB_TEST_SOURCES})
     string(REPLACE ".cpp" "" bustub_test_name ${bustub_test_filename})
 
     # Add the test target separately and as part of "make check-tests".
-    add_executable(${bustub_test_name} EXCLUDE_FROM_ALL ${bustub_test_source})
+    add_executable(${bustub_test_name} EXCLUDE_FROM_ALL ${bustub_test_source} "${PROJECT_SOURCE_DIR}/tools/backtrace.cpp")
+    add_backward(${bustub_test_name})
     add_dependencies(build-tests ${bustub_test_name})
     add_dependencies(check-tests ${bustub_test_name})
 

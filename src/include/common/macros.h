@@ -13,6 +13,7 @@
 #pragma once
 
 #include <cassert>
+#include <exception>
 #include <stdexcept>
 
 namespace bustub {
@@ -23,7 +24,7 @@ namespace bustub {
 
 #define BUSTUB_ENSURE(expr, message) \
   if (!(expr)) {                     \
-    throw std::logic_error(message); \
+    std::terminate();                \
   }
 
 #define UNREACHABLE(message) throw std::logic_error(message)
