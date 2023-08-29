@@ -40,6 +40,7 @@ auto UsageMessage() -> std::string {
       "\tg <filename>.dot  -- Output the tree in graph format to a dot file\n"
       "\tp -- Print the B+ tree.\n"
       "\tq -- Quit. (Or use Ctl-D.)\n"
+      "\ts -- Save and visualize the tree(macos).\n"
       "\t? -- Print this help message.\n\n"
       "Please Enter Leaf node max size and Internal node max size:\n"
       "Example: 5 5\n"
