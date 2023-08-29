@@ -1,4 +1,5 @@
 #include <fmt/format.h>
+#include <atomic>
 #include <functional>
 #include <memory>
 #include <numeric>
@@ -108,7 +109,28 @@ TEST(TrieStoreTest, MixedConcurrentTest) {
     threads.push_back(std::move(t));
   }
 
+  std::vector<std::thread> read_threads;
+  std::shared_ptr<std::atomic_bool> stop = std::make_shared<std::atomic_bool>(false);
+
+  for (int tid = 0; tid < 4; tid++) {
+    std::thread t([&store, tid, stop] {
+      uint32_t i = 0;
+      while (!stop->load()) {
+        std::string key = fmt::format("{:#05}", i * 4 + tid);
+        store.Get<std::string>(key);
+        i = (i + 1) % keys_per_thread;
+      }
+    });
+    read_threads.push_back(std::move(t));
+  }
+
   for (auto &t : threads) {
+    t.join();
+  }
+
+  stop->store(true);
+
+  for (auto &t : read_threads) {
     t.join();
   }
 
