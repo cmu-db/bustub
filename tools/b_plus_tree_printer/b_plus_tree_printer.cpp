@@ -123,6 +123,15 @@ auto main(int argc, char **argv) -> int {
         std::cin >> filename;
         tree.Draw(bpm, filename);
         break;
+
+      case 's':
+        //std::cin >> filename;
+        tree.Draw(bpm, filename);
+        filename="my-tree.dot";
+        system((std::string("dot -Tpng -O ")+filename).c_str());
+        system((std::string("open -a preview ./")+filename+std::string(".png")).c_str());
+        break;
+
       case '?':
         std::cout << UsageMessage();
         break;
