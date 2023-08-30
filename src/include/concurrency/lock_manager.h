@@ -103,7 +103,6 @@ class LockManager {
    *    Both LockTable() and LockRow() are blocking methods; they should wait till the lock is granted and then return.
    *    If the transaction was aborted in the meantime, do not grant the lock and return false.
    *
-   *
    * MULTIPLE TRANSACTIONS:
    *    LockManager should maintain a queue for each resource; locks should be granted to transactions in a FIFO manner.
    *    If there are multiple compatible lock requests, all should be granted at the same time
@@ -113,7 +112,6 @@ class LockManager {
    *    Table locking should support all lock modes.
    *    Row locking should not support Intention locks. Attempting this should set the TransactionState as
    *    ABORTED and throw a TransactionAbortException (ATTEMPTED_INTENTION_LOCK_ON_ROW)
-   *
    *
    * ISOLATION LEVEL:
    *    Depending on the ISOLATION LEVEL, a transaction should attempt to take locks:
@@ -134,20 +132,18 @@ class LockManager {
    *    READ_COMMITTED:
    *        The transaction is required to take all locks.
    *        All locks are allowed in the GROWING state
-   *        Only IS, S locks are allowed in the SHRINKING state
+   *        Only [IS, S] locks are allowed in the SHRINKING state
    *
    *    READ_UNCOMMITTED:
-   *        The transaction is required to take only IX, X locks.
-   *        X, IX locks are allowed in the GROWING state.
-   *        S, IS, SIX locks are never allowed
-   *
+   *        The transaction is required to take only [IX, X] locks.
+   *        [X, IX] locks are allowed in the GROWING state.
+   *        [S, IS, SIX] locks are never allowed
    *
    * MULTILEVEL LOCKING:
    *    While locking rows, Lock() should ensure that the transaction has an appropriate lock on the table which the row
    *    belongs to. For instance, if an exclusive lock is attempted on a row, the transaction must hold either
    *    X, IX, or SIX on the table. If such a lock does not exist on the table, Lock() should set the TransactionState
    *    as ABORTED and throw a TransactionAbortException (TABLE_LOCK_NOT_PRESENT)
-   *
    *
    * LOCK UPGRADE:
    *    Calling Lock() on a resource that is already locked should have the following behaviour:
@@ -162,21 +158,24 @@ class LockManager {
    *    A lock request being upgraded should be prioritized over other waiting lock requests on the same resource.
    *
    *    While upgrading, only the following transitions should be allowed:
-   *        IS -> [S, X, IX, SIX]
-   *        S -> [X, SIX]
-   *        IX -> [X, SIX]
+   *        IS  -> [S, X, IX, SIX]
+   *        S   -> [X, SIX]
+   *        IX  -> [X, SIX]
    *        SIX -> [X]
    *    Any other upgrade is considered incompatible, and such an attempt should set the TransactionState as ABORTED
    *    and throw a TransactionAbortException (INCOMPATIBLE_UPGRADE)
+   *
+   *    Please note that we will not test the cases such as trying to acquire IS lock while holding IX lock.
+   *    i.e., An insertion followed by a sequential scan on the same table within the same transaction under RR.
+   *    Thus you will want to directly follow the instructions listed above for certain cases like this.
    *
    *    Furthermore, only one transaction should be allowed to upgrade its lock on a given resource.
    *    Multiple concurrent lock upgrades on the same resource should set the TransactionState as
    *    ABORTED and throw a TransactionAbortException (UPGRADE_CONFLICT).
    *
-   *
    * BOOK KEEPING:
    *    If a lock is granted to a transaction, lock manager should update its
-   *    lock sets appropriately (check transaction.h)
+   *    lock sets appropriately (check `transaction.h`)
    *
    *    You probably want to consider which type of lock to directly apply on table
    *    when implementing executor later
@@ -197,7 +196,7 @@ class LockManager {
    *
    *    Finally, unlocking a resource should also grant any new lock requests for the resource (if possible).
    *
-   * TRANSACTION STATE UPDATE
+   * TRANSACTION STATE UPDATE:
    *    Unlock should update the transaction state appropriately (depending upon the ISOLATION LEVEL)
    *    Only unlocking S or X locks changes transaction state.
    *
@@ -211,8 +210,7 @@ class LockManager {
    *   READ_UNCOMMITTED:
    *        Unlocking X locks should set the transaction state to SHRINKING.
    *        S locks are not permitted under READ_UNCOMMITTED.
-   *            The behaviour upon unlocking an S lock under this isolation level is undefined.
-   *
+   *        The behaviour upon unlocking an S lock under this isolation level is undefined.
    *
    * BOOK KEEPING:
    *    After a resource is unlocked, lock manager should update the transaction's lock sets
