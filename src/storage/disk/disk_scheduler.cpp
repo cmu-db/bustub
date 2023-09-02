@@ -27,7 +27,7 @@ DiskScheduler::DiskScheduler(DiskManager *disk_manager) : disk_manager_(disk_man
 }
 
 DiskScheduler::~DiskScheduler() {
-  // Put an empty message in the queue to signal to exit the loop
+  // Put a `std::nullopt` in the queue to signal to exit the loop
   request_queue_.Put(std::nullopt);
   if (background_thread_.has_value()) {
     background_thread_->join();
