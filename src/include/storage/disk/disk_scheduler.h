@@ -12,9 +12,9 @@
 
 #pragma once
 
-#include <future>
+#include <future>  // NOLINT
 #include <optional>
-#include <thread>
+#include <thread>  // NOLINT
 
 #include "common/channel.h"
 #include "storage/disk/disk_manager.h"
