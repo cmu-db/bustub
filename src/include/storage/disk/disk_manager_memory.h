@@ -10,7 +10,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <array>
-#include <chrono>
+#include <chrono>  // NOLINT
 #include <cstring>
 #include <fstream>
 #include <future>  // NOLINT
