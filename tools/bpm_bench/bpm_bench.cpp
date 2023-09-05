@@ -117,9 +117,10 @@ auto CheckPageConsistentNoSeed(const char *data, size_t page_idx) -> void {
     fmt::println(stderr, "page header not consistent: page_id_={} page_idx={}", pg->page_id_, page_idx);
     std::terminate();
   }
-  if (static_cast<unsigned int>(pg->data_[pg->seed_ % 4000]) != static_cast<unsigned int>(pg->seed_ % 256)) {
-    fmt::println(stderr, "page content not consistent: data_[{}]={} seed_ % 256={}", pg->seed_ % 4000,
-                 pg->data_[pg->seed_ % 4000], pg->seed_ % 256);
+  auto left = static_cast<unsigned int>(pg->data_[pg->seed_ % 4000]);
+  auto right = static_cast<unsigned int>(pg->seed_ % 256);
+  if (left != right) {
+    fmt::println(stderr, "page content not consistent: data_[{}]={} seed_ % 256={}", pg->seed_ % 4000, left, right);
     std::terminate();
   }
 }
