@@ -112,7 +112,7 @@ auto ModifyPage(char *data, size_t page_idx, uint64_t seed) -> void {
 
 /// Check the page and verify the data inside
 auto CheckPageConsistentNoSeed(const char *data, size_t page_idx) -> void {
-  auto pg = reinterpret_cast<const BustubBenchPageHeader *>(data);
+  const auto *pg = reinterpret_cast<const BustubBenchPageHeader *>(data);
   if (pg->page_id_ != page_idx) {
     fmt::println(stderr, "page header not consistent: page_id_={} page_idx={}", pg->page_id_, page_idx);
     std::terminate();
