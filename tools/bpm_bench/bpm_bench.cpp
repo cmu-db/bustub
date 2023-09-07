@@ -1,4 +1,5 @@
 #include <chrono>
+#include <exception>
 #include <iostream>
 #include <memory>
 #include <mutex>  // NOLINT
@@ -6,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <thread>
+#include <unordered_map>
 #include <vector>
 
 #include <cpp_random_distributions/zipfian_int_distribution.h>
@@ -28,12 +30,6 @@ auto ClockMs() -> uint64_t {
   gettimeofday(&tm, nullptr);
   return static_cast<uint64_t>(tm.tv_sec * 1000) + static_cast<uint64_t>(tm.tv_usec / 1000);
 }
-
-static const size_t BUSTUB_SCAN_THREAD = 8;
-static const size_t BUSTUB_GET_THREAD = 8;
-static const size_t LRU_K_SIZE = 16;
-static const size_t BUSTUB_PAGE_CNT = 6400;
-static const size_t BUSTUB_BPM_SIZE = 64;
 
 struct BpmTotalMetrics {
   uint64_t scan_cnt_{0};
@@ -100,6 +96,45 @@ struct BpmMetrics {
   }
 };
 
+struct BustubBenchPageHeader {
+  uint64_t seed_;
+  uint64_t page_id_;
+  char data_[0];
+};
+
+/// Modify the page and save some data inside
+auto ModifyPage(char *data, size_t page_idx, uint64_t seed) -> void {
+  auto *pg = reinterpret_cast<BustubBenchPageHeader *>(data);
+  pg->seed_ = seed;
+  pg->page_id_ = page_idx;
+  pg->data_[pg->seed_ % 4000] = pg->seed_ % 256;
+}
+
+/// Check the page and verify the data inside
+auto CheckPageConsistentNoSeed(const char *data, size_t page_idx) -> void {
+  const auto *pg = reinterpret_cast<const BustubBenchPageHeader *>(data);
+  if (pg->page_id_ != page_idx) {
+    fmt::println(stderr, "page header not consistent: page_id_={} page_idx={}", pg->page_id_, page_idx);
+    std::terminate();
+  }
+  auto left = static_cast<unsigned int>(static_cast<unsigned char>(pg->data_[pg->seed_ % 4000]));
+  auto right = static_cast<unsigned int>(pg->seed_ % 256);
+  if (left != right) {
+    fmt::println(stderr, "page content not consistent: data_[{}]={} seed_ % 256={}", pg->seed_ % 4000, left, right);
+    std::terminate();
+  }
+}
+
+/// Check the page and verify the data inside
+auto CheckPageConsistent(const char *data, size_t page_idx, uint64_t seed) -> void {
+  const auto *pg = reinterpret_cast<const BustubBenchPageHeader *>(data);
+  if (pg->seed_ != seed) {
+    fmt::println(stderr, "page seed not consistent: seed_={} seed={}", pg->seed_, seed);
+    std::terminate();
+  }
+  CheckPageConsistentNoSeed(data, page_idx);
+}
+
 // NOLINTNEXTLINE
 auto main(int argc, char **argv) -> int {
   using bustub::AccessType;
@@ -109,7 +144,12 @@ auto main(int argc, char **argv) -> int {
 
   argparse::ArgumentParser program("bustub-bpm-bench");
   program.add_argument("--duration").help("run bpm bench for n milliseconds");
-  program.add_argument("--latency").help("set disk latency to n milliseconds");
+  program.add_argument("--latency").help("enable disk latency");
+  program.add_argument("--scan-thread-n").help("number of scan threads");
+  program.add_argument("--get-thread-n").help("number of lookup threads");
+  program.add_argument("--bpm-size").help("buffer pool size");
+  program.add_argument("--db-size").help("number of pages");
+  program.add_argument("--lru-k-size").help("lru-k size");
 
   try {
     program.parse_args(argc, argv);
@@ -124,33 +164,60 @@ auto main(int argc, char **argv) -> int {
     duration_ms = std::stoi(program.get("--duration"));
   }
 
-  uint64_t latency_ms = 0;
+  uint64_t enable_latency = 0;
   if (program.present("--latency")) {
-    latency_ms = std::stoi(program.get("--latency"));
+    enable_latency = std::stoi(program.get("--latency"));
+  }
+
+  uint64_t scan_thread_n = 8;
+  if (program.present("--scan-thread-n")) {
+    scan_thread_n = std::stoi(program.get("--scan-thread-n"));
+  }
+
+  uint64_t get_thread_n = 8;
+  if (program.present("--get-thread-n")) {
+    get_thread_n = std::stoi(program.get("--get-thread-n"));
+  }
+
+  uint64_t bustub_page_cnt = 6400;
+  if (program.present("--db-size")) {
+    bustub_page_cnt = std::stoi(program.get("--db-size"));
+  }
+
+  uint64_t bustub_bpm_size = 64;
+  if (program.present("--bpm-size")) {
+    bustub_bpm_size = std::stoi(program.get("--bpm-size"));
+  }
+
+  uint64_t lru_k_size = 16;
+  if (program.present("--lru-k-size")) {
+    bustub_page_cnt = std::stoi(program.get("--lru-k-size"));
   }
 
   auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
-  auto bpm = std::make_unique<BufferPoolManager>(BUSTUB_BPM_SIZE, disk_manager.get(), LRU_K_SIZE);
+  auto bpm = std::make_unique<BufferPoolManager>(bustub_bpm_size, disk_manager.get(), lru_k_size);
   std::vector<page_id_t> page_ids;
 
-  fmt::print(stderr, "[info] total_page={}, duration_ms={}, latency_ms={}, lru_k_size={}, bpm_size={}\n",
-             BUSTUB_PAGE_CNT, duration_ms, latency_ms, LRU_K_SIZE, BUSTUB_BPM_SIZE);
+  fmt::print(stderr,
+             "[info] total_page={}, duration_ms={}, latency={}, lru_k_size={}, bpm_size={}, scan_thread_cnt={}, "
+             "get_thread_cnt={}\n",
+             bustub_page_cnt, duration_ms, enable_latency, lru_k_size, bustub_bpm_size, scan_thread_n, get_thread_n);
 
-  for (size_t i = 0; i < BUSTUB_PAGE_CNT; i++) {
+  for (size_t i = 0; i < bustub_page_cnt; i++) {
     page_id_t page_id;
     auto *page = bpm->NewPage(&page_id);
     if (page == nullptr) {
       throw std::runtime_error("new page failed");
     }
-    char &ch = page->GetData()[i % 1024];
-    ch = 1;
+
+    ModifyPage(page->GetData(), i, 0);
 
     bpm->UnpinPage(page_id, true);
     page_ids.push_back(page_id);
   }
 
   // enable disk latency after creating all pages
-  disk_manager->SetLatency(latency_ms);
+  disk_manager->EnableLatencySimulator(enable_latency != 0);
 
   fmt::print(stderr, "[info] benchmark start\n");
 
@@ -158,13 +225,18 @@ auto main(int argc, char **argv) -> int {
   total_metrics.Begin();
 
   std::vector<std::thread> threads;
+  using ModifyRecord = std::unordered_map<page_id_t, uint64_t>;
 
-  for (size_t thread_id = 0; thread_id < BUSTUB_SCAN_THREAD; thread_id++) {
-    threads.emplace_back(std::thread([thread_id, &page_ids, &bpm, duration_ms, &total_metrics] {
+  for (size_t thread_id = 0; thread_id < scan_thread_n; thread_id++) {
+    threads.emplace_back([bustub_page_cnt, scan_thread_n, thread_id, &page_ids, &bpm, duration_ms, &total_metrics] {
+      ModifyRecord records;
+
       BpmMetrics metrics(fmt::format("scan {:>2}", thread_id), duration_ms);
       metrics.Begin();
 
-      size_t page_idx = BUSTUB_PAGE_CNT * thread_id / BUSTUB_SCAN_THREAD;
+      size_t page_idx_start = bustub_page_cnt * thread_id / scan_thread_n;
+      size_t page_idx_end = bustub_page_cnt * (thread_id + 1) / scan_thread_n;
+      size_t page_idx = page_idx_start;
 
       while (!metrics.ShouldFinish()) {
         auto *page = bpm->FetchPage(page_ids[page_idx], AccessType::Scan);
@@ -172,54 +244,53 @@ auto main(int argc, char **argv) -> int {
           continue;
         }
 
-        char &ch = page->GetData()[page_idx % 1024];
         page->WLatch();
-        ch += 1;
-        if (ch == 0) {
-          ch = 1;
-        }
+        auto &seed = records[page_idx];
+        CheckPageConsistent(page->GetData(), page_idx, seed);
+        seed = seed + 1;
+        ModifyPage(page->GetData(), page_idx, seed);
         page->WUnlatch();
 
         bpm->UnpinPage(page->GetPageId(), true, AccessType::Scan);
-        page_idx = (page_idx + 1) % BUSTUB_PAGE_CNT;
+        page_idx += 1;
+        if (page_idx >= page_idx_end) {
+          page_idx = page_idx_start;
+        }
         metrics.Tick();
         metrics.Report();
       }
 
       total_metrics.ReportScan(metrics.cnt_);
-    }));
+    });
   }
 
-  for (size_t thread_id = 0; thread_id < BUSTUB_GET_THREAD; thread_id++) {
-    threads.emplace_back(std::thread([thread_id, &page_ids, &bpm, duration_ms, &total_metrics] {
+  for (size_t thread_id = 0; thread_id < get_thread_n; thread_id++) {
+    threads.emplace_back([thread_id, &page_ids, &bpm, bustub_page_cnt, duration_ms, &total_metrics] {
       std::random_device r;
       std::default_random_engine gen(r());
-      zipfian_int_distribution<size_t> dist(0, BUSTUB_PAGE_CNT - 1, 0.8);
+      zipfian_int_distribution<size_t> dist(0, bustub_page_cnt - 1, 0.8);
 
       BpmMetrics metrics(fmt::format("get  {:>2}", thread_id), duration_ms);
       metrics.Begin();
 
       while (!metrics.ShouldFinish()) {
         auto page_idx = dist(gen);
-        auto *page = bpm->FetchPage(page_ids[page_idx], AccessType::Get);
+        auto *page = bpm->FetchPage(page_ids[page_idx], AccessType::Lookup);
         if (page == nullptr) {
           continue;
         }
 
         page->RLatch();
-        char ch = page->GetData()[page_idx % 1024];
+        CheckPageConsistentNoSeed(page->GetData(), page_idx);
         page->RUnlatch();
-        if (ch == 0) {
-          throw std::runtime_error("invalid data");
-        }
 
-        bpm->UnpinPage(page->GetPageId(), false, AccessType::Get);
+        bpm->UnpinPage(page->GetPageId(), false, AccessType::Lookup);
         metrics.Tick();
         metrics.Report();
       }
 
       total_metrics.ReportGet(metrics.cnt_);
-    }));
+    });
   }
 
   for (auto &thread : threads) {

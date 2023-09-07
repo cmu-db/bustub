@@ -10,6 +10,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <array>
+#include <chrono>  // NOLINT
 #include <cstring>
 #include <fstream>
 #include <future>  // NOLINT
@@ -25,6 +26,7 @@
 #include "common/config.h"
 #include "common/exception.h"
 #include "common/logger.h"
+#include "fmt/core.h"
 #include "storage/disk/disk_manager.h"
 
 namespace bustub {
@@ -63,7 +65,7 @@ class DiskManagerMemory : public DiskManager {
  */
 class DiskManagerUnlimitedMemory : public DiskManager {
  public:
-  DiskManagerUnlimitedMemory() = default;
+  DiskManagerUnlimitedMemory() { std::fill(recent_access_.begin(), recent_access_.end(), -1); }
 
   /**
    * Write a page to the database file.
@@ -71,9 +73,7 @@ class DiskManagerUnlimitedMemory : public DiskManager {
    * @param page_data raw page data
    */
   void WritePage(page_id_t page_id, const char *page_data) override {
-    if (latency_ > 0) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(latency_));
-    }
+    ProcessLatency(page_id);
 
     std::unique_lock<std::mutex> l(mutex_);
     if (page_id >= static_cast<int>(data_.size())) {
@@ -87,6 +87,8 @@ class DiskManagerUnlimitedMemory : public DiskManager {
     l.unlock();
 
     memcpy(ptr->first.data(), page_data, BUSTUB_PAGE_SIZE);
+
+    PostProcessLatency(page_id);
   }
 
   /**
@@ -95,17 +97,17 @@ class DiskManagerUnlimitedMemory : public DiskManager {
    * @param[out] page_data output buffer
    */
   void ReadPage(page_id_t page_id, char *page_data) override {
-    if (latency_ > 0) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(latency_));
-    }
+    ProcessLatency(page_id);
 
     std::unique_lock<std::mutex> l(mutex_);
     if (page_id >= static_cast<int>(data_.size()) || page_id < 0) {
-      LOG_WARN("page not exist");
+      fmt::println(stderr, "page {} not in range", page_id);
+      std::terminate();
       return;
     }
     if (data_[page_id] == nullptr) {
-      LOG_WARN("page not exist");
+      fmt::println(stderr, "page {} not exist", page_id);
+      std::terminate();
       return;
     }
     std::shared_ptr<ProtectedPage> ptr = data_[page_id];
@@ -113,16 +115,51 @@ class DiskManagerUnlimitedMemory : public DiskManager {
     l.unlock();
 
     memcpy(page_data, ptr->first.data(), BUSTUB_PAGE_SIZE);
+
+    PostProcessLatency(page_id);
   }
 
-  void SetLatency(size_t latency_ms) { latency_ = latency_ms; }
+  void ProcessLatency(page_id_t page_id) {
+    uint64_t sleep_micro_sec = 1000;  // for random access, 1ms latency
+    if (latency_simulator_enabled_) {
+      std::unique_lock<std::mutex> lck(latency_processor_mutex_);
+      for (auto &recent_page_id : recent_access_) {
+        if ((recent_page_id & (~0x3)) == (page_id & (~0x3))) {
+          sleep_micro_sec = 100;  // for access in the same "block", 0.1ms latency
+          break;
+        }
+        if (page_id >= recent_page_id && page_id <= recent_page_id + 3) {
+          sleep_micro_sec = 100;  // for sequential access, 0.1ms latency
+          break;
+        }
+      }
+      lck.unlock();
+      std::this_thread::sleep_for(std::chrono::microseconds(sleep_micro_sec));
+    }
+  }
+
+  void PostProcessLatency(page_id_t page_id) {
+    if (latency_simulator_enabled_) {
+      std::scoped_lock<std::mutex> lck(latency_processor_mutex_);
+      recent_access_[access_ptr_] = page_id;
+      access_ptr_ = (access_ptr_ + 1) % recent_access_.size();
+    }
+  }
+
+  void EnableLatencySimulator(bool enabled) { latency_simulator_enabled_ = enabled; }
 
  private:
-  std::mutex mutex_;
+  bool latency_simulator_enabled_{false};
+
+  std::mutex latency_processor_mutex_;
+  std::array<page_id_t, 4> recent_access_;
+  uint64_t access_ptr_{0};
+
   using Page = std::array<char, BUSTUB_PAGE_SIZE>;
   using ProtectedPage = std::pair<Page, std::shared_mutex>;
+
+  std::mutex mutex_;
   std::vector<std::shared_ptr<ProtectedPage>> data_;
-  size_t latency_{0};
 };
 
 }  // namespace bustub
