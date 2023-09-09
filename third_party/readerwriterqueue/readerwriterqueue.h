@@ -282,7 +282,7 @@ public:
 	// returns false instead. If the queue has at least one element,
 	// moves front to result using operator=, then returns true.
 	template<typename U>
-	bool try_dequeue(U& result) AE_NO_TSAN
+	bool try_dequeue(U&& result) AE_NO_TSAN
 	{
 #ifndef NDEBUG
 		ReentrantGuard guard(this->dequeuing);

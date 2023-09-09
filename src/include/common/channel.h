@@ -16,12 +16,11 @@
 #include <mutex>               // NOLINT
 #include <queue>
 #include <utility>
-#include "readerwriterqueue/readerwriterqueue.h"
 
 namespace bustub {
 
 /**
- * Channels allow for safe sharing of data between threads.
+ * Channels allow for safe sharing of data between threads. This is a multi-producer multi-consumer channel.
  */
 template <class T>
 class Channel {
@@ -34,18 +33,27 @@ class Channel {
    *
    * @param element The element to be inserted.
    */
-  void Put(T element) { q_.enqueue(std::move(element)); }
+  void Put(T element) {
+    std::unique_lock<std::mutex> lk(m_);
+    q_.push(std::move(element));
+    lk.unlock();
+    cv_.notify_all();
+  }
 
   /**
    * @brief Gets an element from the shared queue. If the queue is empty, blocks until an element is available.
    */
   auto Get() -> T {
-    T x;
-    q_.wait_dequeue(x);
-    return x;
+    std::unique_lock<std::mutex> lk(m_);
+    cv_.wait(lk, [&]() { return !q_.empty(); });
+    T element = std::move(q_.front());
+    q_.pop();
+    return element;
   }
 
  private:
-  moodycamel::BlockingReaderWriterQueue<T> q_;
+  std::mutex m_;
+  std::condition_variable cv_;
+  std::queue<T> q_;
 };
 }  // namespace bustub

@@ -191,7 +191,7 @@ auto main(int argc, char **argv) -> int {
 
   uint64_t lru_k_size = 16;
   if (program.present("--lru-k-size")) {
-    bustub_page_cnt = std::stoi(program.get("--lru-k-size"));
+    lru_k_size = std::stoi(program.get("--lru-k-size"));
   }
 
   auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
