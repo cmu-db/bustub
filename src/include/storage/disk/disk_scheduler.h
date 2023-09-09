@@ -73,6 +73,16 @@ class DiskScheduler {
    */
   void StartWorkerThread();
 
+  using DiskSchedulerPromise = std::promise<bool>;
+
+  /**
+   * @brief Create a Promise object. If you want to implement your own version of promise, you can change this function
+   * so that our test cases can use your promise implementation.
+   *
+   * @return std::promise<bool>
+   */
+  auto CreatePromise() -> DiskSchedulerPromise { return {}; };
+
  private:
   /** Pointer to the disk manager. */
   DiskManager *disk_manager_ __attribute__((__unused__));

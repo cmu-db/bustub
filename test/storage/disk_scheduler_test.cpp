@@ -33,9 +33,9 @@ TEST(DiskSchedulerTest, DISABLED_ScheduleWriteReadPageTest) {
 
   std::strncpy(data, "A test string.", sizeof(data));
 
-  std::promise<bool> promise1;
+  auto promise1 = disk_scheduler->CreatePromise();
   auto future1 = promise1.get_future();
-  std::promise<bool> promise2;
+  auto promise2 = disk_scheduler->CreatePromise();
   auto future2 = promise2.get_future();
 
   disk_scheduler->Schedule({/*is_write=*/true, reinterpret_cast<char *>(&data), /*page_id=*/0, promise1});
