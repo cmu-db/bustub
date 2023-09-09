@@ -16,6 +16,7 @@
 #include <mutex>               // NOLINT
 #include <queue>
 #include <utility>
+#include "readerwriterqueue/readerwriterqueue.h"
 
 namespace bustub {
 
@@ -33,27 +34,18 @@ class Channel {
    *
    * @param element The element to be inserted.
    */
-  void Put(T element) {
-    std::unique_lock<std::mutex> lk(m_);
-    q_.push(std::move(element));
-    lk.unlock();
-    cv_.notify_all();
-  }
+  void Put(T element) { q_.enqueue(std::move(element)); }
 
   /**
    * @brief Gets an element from the shared queue. If the queue is empty, blocks until an element is available.
    */
   auto Get() -> T {
-    std::unique_lock<std::mutex> lk(m_);
-    cv_.wait(lk, [&]() { return !q_.empty(); });
-    T element = std::move(q_.front());
-    q_.pop();
-    return element;
+    T x;
+    q_.wait_dequeue(x);
+    return x;
   }
 
  private:
-  std::mutex m_;
-  std::condition_variable cv_;
-  std::queue<T> q_;
+  moodycamel::BlockingReaderWriterQueue<T> q_;
 };
 }  // namespace bustub

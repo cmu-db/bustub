@@ -64,3 +64,9 @@
 # tag: v2.7.0
 # commit hash: 8ca6144c85c165987cb1c5d8395c7314e13d4cd7
 # commit hash date: Dec 16 2021
+
+# readerwriterqueue
+# url: https://github.com/cameron314/readerwriterqueue
+# branch: master
+# commit hash: 2dee33ae3edd1e454ac34fea0a27017613355eff
+# commit hash date: Mar 5 2023
