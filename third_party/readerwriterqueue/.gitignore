@@ -1,0 +1,26 @@
+*.ipch
+*.suo
+*.user
+*.sdf
+*.opensdf
+*.exe
+*.VC.db
+.vs/
+tests/stabtest/msvc*/Debug/
+tests/stabtest/msvc*/Release/
+tests/stabtest/msvc*/obj/
+tests/stabtest/msvc*/log.txt
+tests/stabtest/log.txt
+tests/unittests/msvc*/Debug/
+tests/unittests/msvc*/Release/
+tests/unittests/msvc*/obj/
+tests/CDSChecker/model-checker/
+benchmarks/msvc*/Debug/
+benchmarks/msvc*/Release/
+benchmarks/msvc*/obj/
+test/
+# Linux binaries
+benchmarks/benchmarks
+tests/stabtest/stabtest
+tests/unittests/unittests
+
