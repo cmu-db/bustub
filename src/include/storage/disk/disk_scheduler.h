@@ -39,7 +39,7 @@ struct DiskRequest {
   page_id_t page_id_;
 
   /** Callback used to signal to the request issuer when the request has been completed. */
-  std::promise<bool> &callback_;
+  std::promise<bool> callback_;
 };
 
 /**
