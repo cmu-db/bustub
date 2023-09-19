@@ -23,6 +23,7 @@
  */
 #pragma once
 
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -55,8 +56,16 @@ class ExtendibleHTableBucketPage {
    * method to set default values
    * @param max_size Max size of the bucket array
    */
-  void Init(int max_size = HTableBucketArraySize(sizeof(MappingType)));
+  void Init(uint32_t max_size = HTableBucketArraySize(sizeof(MappingType)));
 
+  /**
+   * Lookup a key
+   *
+   * @param key key to lookup
+   * @param[out] value value to set
+   * @param cmp the comparator
+   * @return true if the key and value are present, false if not found.
+   */
   auto Lookup(const KeyType &key, ValueType &value, const KeyComparator &cmp) const -> bool;
 
   /**
@@ -64,16 +73,16 @@ class ExtendibleHTableBucketPage {
    *
    * @param key key to insert
    * @param value value to insert
-   * @return true if inserted, false if duplicate KV pair or bucket is full
+   * @return true if inserted, false if bucket is full or the same key is already present
    */
-  auto Insert(KeyType key, ValueType value, const KeyComparator &cmp) -> bool;
+  auto Insert(const KeyType &key, const ValueType &value, const KeyComparator &cmp) -> bool;
 
   /**
    * Removes a key and value.
    *
    * @return true if removed, false if not found
    */
-  auto Remove(KeyType key, ValueType value, const KeyComparator &cmp) -> bool;
+  auto Remove(const KeyType &key, const KeyComparator &cmp) -> bool;
 
   /**
    * Gets the key at an index in the bucket.
@@ -90,11 +99,6 @@ class ExtendibleHTableBucketPage {
    * @return value at index bucket_idx of the bucket
    */
   auto ValueAt(uint32_t bucket_idx) const -> ValueType;
-
-  /**
-   * Remove the KV pair at bucket_idx
-   */
-  void RemoveAt(uint32_t bucket_idx);
 
   /**
    * @return whether the bucket is full
