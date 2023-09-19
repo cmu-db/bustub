@@ -13,7 +13,7 @@
 /**
  * Directory page format:
  *  --------------------------------------------------------------------------------------
- * | MaxSize (4) | GlobalDepth (4) | LocalDepths (512) | BucketPageIds(2048) | Free(1528)
+ * | MaxDepth (4) | GlobalDepth (4) | LocalDepths (512) | BucketPageIds(2048) | Free(1528)
  *  --------------------------------------------------------------------------------------
  */
 
@@ -39,7 +39,8 @@ static constexpr uint64_t HTABLE_DIRECTORY_PAGE_METADATA_SIZE = sizeof(uint32_t)
  * Extending the directory implementation to span multiple pages would be a meaningful improvement to the
  * implementation.
  */
-static constexpr uint64_t HTABLE_DIRECTORY_ARRAY_SIZE = 512;
+static constexpr uint64_t HTABLE_DIRECTORY_MAX_DEPTH = 9;
+static constexpr uint64_t HTABLE_DIRECTORY_ARRAY_SIZE = 1 << HTABLE_DIRECTORY_MAX_DEPTH;
 
 /**
  * Directory Page for extendible hash table.
@@ -53,17 +54,17 @@ class ExtendibleHTableDirectoryPage {
   /**
    * After creating a new directory page from buffer pool, must call initialize
    * method to set default values
-   * @param max_size Max size of the array in the directory page
+   * @param max_depth Max depth in the directory page
    */
-  void Init(int max_size = HTABLE_DIRECTORY_ARRAY_SIZE);
+  void Init(uint32_t max_depth = HTABLE_DIRECTORY_MAX_DEPTH);
 
   /**
-   * Get the bucket page id that the key is hashed to
+   * Get the bucket index that the key is hashed to
    *
    * @param hash the hash of the key
-   * @return bucket page_id current key is hashed to
+   * @return bucket index current key is hashed to
    */
-  auto HashToBucketPageId(uint32_t hash) -> page_id_t;
+  auto HashToBucketIndex(uint32_t hash) -> uint32_t;
 
   /**
    * Lookup a bucket page using a directory index
@@ -88,31 +89,6 @@ class ExtendibleHTableDirectoryPage {
    * @return the directory index of the split image
    **/
   auto GetSplitImageIndex(uint32_t bucket_idx) -> uint32_t;
-
-  /**
-   * GetGlobalDepthMask - returns a mask of global_depth 1's and the rest 0's.
-   *
-   * In Extendible Hashing we map a key to a directory index
-   * using the following hash + mask function.
-   *
-   * DirectoryIndex = Hash(key) & GLOBAL_DEPTH_MASK
-   *
-   * where GLOBAL_DEPTH_MASK is a mask with exactly GLOBAL_DEPTH 1's from LSB
-   * upwards.  For example, global depth 3 corresponds to 0x00000007 in a 32-bit
-   * representation.
-   *
-   * @return mask of global_depth 1's and the rest 0's (with 1's from LSB upwards)
-   */
-  auto GetGlobalDepthMask() -> uint32_t;
-
-  /**
-   * GetLocalDepthMask - same as global depth mask, except it
-   * uses the local depth of the bucket located at bucket_idx
-   *
-   * @param bucket_idx the index to use for looking up local depth
-   * @return mask of local 1's and the rest 0's (with 1's from LSB upwards)
-   */
-  auto GetLocalDepthMask(uint32_t bucket_idx) -> uint32_t;
 
   /**
    * Get the global depth of the hash table directory
@@ -170,16 +146,6 @@ class ExtendibleHTableDirectoryPage {
   void DecrLocalDepth(uint32_t bucket_idx);
 
   /**
-   * Gets the high bit corresponding to the bucket's local depth.
-   * This is not the same as the bucket index itself.  This method
-   * is helpful for finding the pair, or "split image", of a bucket.
-   *
-   * @param bucket_idx bucket index to lookup
-   * @return the high bit corresponding to the bucket's local depth
-   */
-  auto GetLocalHighBit(uint32_t bucket_idx) -> uint32_t;
-
-  /**
    * VerifyIntegrity
    *
    * Verify the following invariants:
@@ -195,7 +161,7 @@ class ExtendibleHTableDirectoryPage {
   void PrintDirectory();
 
  private:
-  uint32_t max_size_;
+  uint32_t max_depth_ __attribute__((__unused__));
   uint32_t global_depth_;
   uint8_t local_depths_[HTABLE_DIRECTORY_ARRAY_SIZE];
   page_id_t bucket_page_ids_[HTABLE_DIRECTORY_ARRAY_SIZE];
