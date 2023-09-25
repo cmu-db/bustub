@@ -4,34 +4,51 @@
 //
 // disk_extendible_hash_table.cpp
 //
-// Identification: src/container/hash/extendible_hash_table.cpp
+// Identification: src/container/disk/hash/disk_extendible_hash_table.cpp
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2023, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
+
+#include "container/disk/hash/disk_extendible_hash_table.h"
 
 #include <iostream>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "common/config.h"
 #include "common/exception.h"
 #include "common/logger.h"
+#include "common/macros.h"
 #include "common/rid.h"
-#include "container/disk/hash/disk_extendible_hash_table.h"
+#include "common/util/hash_util.h"
+#include "storage/index/hash_comparator.h"
+#include "storage/page/extendible_htable_bucket_page.h"
+#include "storage/page/extendible_htable_directory_page.h"
+#include "storage/page/extendible_htable_header_page.h"
+#include "storage/page/page_guard.h"
 
 namespace bustub {
 
-template <typename KeyType, typename ValueType, typename KeyComparator>
-HASH_TABLE_TYPE::DiskExtendibleHashTable(const std::string &name, BufferPoolManager *buffer_pool_manager,
-                                         const KeyComparator &comparator, HashFunction<KeyType> hash_fn)
-    : buffer_pool_manager_(buffer_pool_manager), comparator_(comparator), hash_fn_(std::move(hash_fn)) {
-  //  implement me!
+template <typename K, typename V, typename KC>
+DiskExtendibleHashTable<K, V, KC>::DiskExtendibleHashTable(const std::string &name, BufferPoolManager *bpm,
+                                                           const KC &cmp, HashFunction<K> hash_fn,
+                                                           uint32_t header_max_depth, uint32_t directory_max_depth,
+                                                           uint32_t bucket_max_size)
+    : bpm_(bpm),
+      cmp_(cmp),
+      hash_fn_(std::move(hash_fn)),
+      header_max_depth_(header_max_depth),
+      directory_max_depth_(directory_max_depth),
+      bucket_max_size_(bucket_max_size) {
+  throw NotImplementedException("DiskExtendibleHashTable is not implemented");
 }
 
 /*****************************************************************************
  * HELPERS
  *****************************************************************************/
+
 /**
  * Hash - simple helper to downcast MurmurHash's 64-bit hash to 32-bit
  * for extendible hashing.
@@ -39,96 +56,96 @@ HASH_TABLE_TYPE::DiskExtendibleHashTable(const std::string &name, BufferPoolMana
  * @param key the key to hash
  * @return the downcasted 32-bit hash
  */
-template <typename KeyType, typename ValueType, typename KeyComparator>
-auto HASH_TABLE_TYPE::Hash(KeyType key) -> uint32_t {
+template <typename K, typename V, typename KC>
+inline auto DiskExtendibleHashTable<K, V, KC>::Hash(K key) const -> uint32_t {
   return static_cast<uint32_t>(hash_fn_.GetHash(key));
-}
-
-template <typename KeyType, typename ValueType, typename KeyComparator>
-inline auto HASH_TABLE_TYPE::KeyToDirectoryIndex(KeyType key, HashTableDirectoryPage *dir_page) -> uint32_t {
-  return 0;
-}
-
-template <typename KeyType, typename ValueType, typename KeyComparator>
-inline auto HASH_TABLE_TYPE::KeyToPageId(KeyType key, HashTableDirectoryPage *dir_page) -> page_id_t {
-  return 0;
-}
-
-template <typename KeyType, typename ValueType, typename KeyComparator>
-auto HASH_TABLE_TYPE::FetchDirectoryPage() -> HashTableDirectoryPage * {
-  return nullptr;
-}
-
-template <typename KeyType, typename ValueType, typename KeyComparator>
-auto HASH_TABLE_TYPE::FetchBucketPage(page_id_t bucket_page_id) -> HASH_TABLE_BUCKET_TYPE * {
-  return nullptr;
 }
 
 /*****************************************************************************
  * SEARCH
  *****************************************************************************/
-template <typename KeyType, typename ValueType, typename KeyComparator>
-auto HASH_TABLE_TYPE::GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result) -> bool {
+template <typename K, typename V, typename KC>
+auto DiskExtendibleHashTable<K, V, KC>::GetValue(const K &key, std::vector<V> *result, Transaction *transaction) const
+    -> bool {
   return false;
 }
 
 /*****************************************************************************
  * INSERTION
  *****************************************************************************/
-template <typename KeyType, typename ValueType, typename KeyComparator>
-auto HASH_TABLE_TYPE::Insert(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool {
+
+template <typename K, typename V, typename KC>
+auto DiskExtendibleHashTable<K, V, KC>::Insert(const K &key, const V &value, Transaction *transaction) -> bool {
   return false;
 }
 
-template <typename KeyType, typename ValueType, typename KeyComparator>
-auto HASH_TABLE_TYPE::SplitInsert(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool {
+template <typename K, typename V, typename KC>
+auto DiskExtendibleHashTable<K, V, KC>::InsertToNewDirectory(ExtendibleHTableHeaderPage *header, uint32_t directory_idx,
+                                                             uint32_t hash, const K &key, const V &value) -> bool {
   return false;
+}
+
+template <typename K, typename V, typename KC>
+auto DiskExtendibleHashTable<K, V, KC>::InsertToNewBucket(ExtendibleHTableDirectoryPage *directory, uint32_t bucket_idx,
+                                                          const K &key, const V &value) -> bool {
+  return false;
+}
+
+template <typename K, typename V, typename KC>
+void DiskExtendibleHashTable<K, V, KC>::UpdateDirectoryMapping(ExtendibleHTableDirectoryPage *directory,
+                                                               uint32_t new_bucket_idx, page_id_t new_bucket_page_id,
+                                                               uint32_t new_local_depth, uint32_t local_depth_mask) {
+  throw NotImplementedException("DiskExtendibleHashTable is not implemented");
 }
 
 /*****************************************************************************
  * REMOVE
  *****************************************************************************/
-template <typename KeyType, typename ValueType, typename KeyComparator>
-auto HASH_TABLE_TYPE::Remove(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool {
+template <typename K, typename V, typename KC>
+auto DiskExtendibleHashTable<K, V, KC>::Remove(const K &key, Transaction *transaction) -> bool {
   return false;
 }
 
-/*****************************************************************************
- * MERGE
- *****************************************************************************/
-template <typename KeyType, typename ValueType, typename KeyComparator>
-void HASH_TABLE_TYPE::Merge(Transaction *transaction, const KeyType &key, const ValueType &value) {}
-
-/*****************************************************************************
- * GETGLOBALDEPTH - DO NOT TOUCH
- *****************************************************************************/
-template <typename KeyType, typename ValueType, typename KeyComparator>
-auto HASH_TABLE_TYPE::GetGlobalDepth() -> uint32_t {
-  table_latch_.RLock();
-  HashTableDirectoryPage *dir_page = FetchDirectoryPage();
-  uint32_t global_depth = dir_page->GetGlobalDepth();
-  assert(buffer_pool_manager_->UnpinPage(directory_page_id_, false));
-  table_latch_.RUnlock();
-  return global_depth;
+template <typename K, typename V, typename KC>
+void DiskExtendibleHashTable<K, V, KC>::VerifyIntegrity() const {
+  throw NotImplementedException("DiskExtendibleHashTable is not implemented");
 }
 
-/*****************************************************************************
- * VERIFY INTEGRITY - DO NOT TOUCH
- *****************************************************************************/
-template <typename KeyType, typename ValueType, typename KeyComparator>
-void HASH_TABLE_TYPE::VerifyIntegrity() {
-  table_latch_.RLock();
-  HashTableDirectoryPage *dir_page = FetchDirectoryPage();
-  dir_page->VerifyIntegrity();
-  assert(buffer_pool_manager_->UnpinPage(directory_page_id_, false));
-  table_latch_.RUnlock();
+template <typename K, typename V, typename KC>
+void DiskExtendibleHashTable<K, V, KC>::PrintHT() const {
+  std::cout << "\n";
+  std::cout << "==================== PRINT! ====================\n";
+  BasicPageGuard header_guard = bpm_->FetchPageBasic(header_page_id_);
+  auto *header = header_guard.As<ExtendibleHTableHeaderPage>();
+
+  header->PrintHeader();
+
+  for (uint32_t idx = 0; idx < header->MaxSize(); idx++) {
+    page_id_t directory_page_id = header->GetDirectoryPageId(idx);
+    if (directory_page_id == INVALID_PAGE_ID) {
+      std::cout << "Directory " << idx << ", page id: " << directory_page_id << "\n";
+      continue;
+    }
+    BasicPageGuard directory_guard = bpm_->FetchPageBasic(directory_page_id);
+    auto *directory = directory_guard.As<ExtendibleHTableDirectoryPage>();
+
+    std::cout << "Directory " << idx << ", page id: " << directory_page_id << "\n";
+    directory->PrintDirectory();
+
+    for (uint32_t idx2 = 0; idx2 < directory->Size(); idx2++) {
+      page_id_t bucket_page_id = directory->GetBucketPageId(idx2);
+      BasicPageGuard bucket_guard = bpm_->FetchPageBasic(bucket_page_id);
+      auto *bucket = bucket_guard.As<ExtendibleHTableBucketPage<K, V, KC>>();
+
+      std::cout << "Bucket " << idx2 << ", page id: " << bucket_page_id << "\n";
+      bucket->PrintBucket();
+    }
+  }
+  std::cout << "==================== END OF PRINT! ====================\n";
+  std::cout << "\n";
 }
 
-/*****************************************************************************
- * TEMPLATE DEFINITIONS - DO NOT TOUCH
- *****************************************************************************/
 template class DiskExtendibleHashTable<int, int, IntComparator>;
-
 template class DiskExtendibleHashTable<GenericKey<4>, RID, GenericComparator<4>>;
 template class DiskExtendibleHashTable<GenericKey<8>, RID, GenericComparator<8>>;
 template class DiskExtendibleHashTable<GenericKey<16>, RID, GenericComparator<16>>;

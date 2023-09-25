@@ -84,7 +84,9 @@ class ExtendibleHTableBucketPage {
    */
   auto Remove(const KeyType &key, const KeyComparator &cmp) -> bool;
 
-  /**
+  void RemoveAt(uint32_t bucket_idx);
+
+  /*
    * Gets the key at an index in the bucket.
    *
    * @param bucket_idx the index in the bucket to get the key at
@@ -100,20 +102,27 @@ class ExtendibleHTableBucketPage {
    */
   auto ValueAt(uint32_t bucket_idx) const -> ValueType;
 
+  auto EntryAt(uint32_t bucket_idx) const -> const std::pair<KeyType, ValueType> &;
+
+  /**
+   * @return number of entries in the bucket
+   */
+  auto Size() const -> uint32_t;
+
   /**
    * @return whether the bucket is full
    */
-  auto IsFull() -> bool;
+  auto IsFull() const -> bool;
 
   /**
    * @return whether the bucket is empty
    */
-  auto IsEmpty() -> bool;
+  auto IsEmpty() const -> bool;
 
   /**
    * Prints the bucket's occupancy information
    */
-  void PrintBucket();
+  void PrintBucket() const;
 
  private:
   uint32_t size_;

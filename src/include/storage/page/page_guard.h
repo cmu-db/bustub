@@ -5,6 +5,8 @@
 namespace bustub {
 
 class BufferPoolManager;
+class ReadPageGuard;
+class WritePageGuard;
 
 class BasicPageGuard {
  public:
@@ -58,6 +60,20 @@ class BasicPageGuard {
    * the page guard was dropped.
    */
   ~BasicPageGuard();
+
+  /**
+   * @brief Upgrade a BasicPageGuard to a ReadPageGuard
+   *
+   * @return an upgraded ReadPageGuard
+   */
+  auto UpgradeRead() -> ReadPageGuard;
+
+  /**
+   * @brief Upgrade a BasicPageGuard to a WritePageGuard
+   *
+   * @return an upgraded WritePageGuard
+   */
+  auto UpgradeWrite() -> WritePageGuard;
 
   auto PageId() -> page_id_t { return page_->GetPageId(); }
 

@@ -29,6 +29,8 @@ void ExtendibleHTableHeaderPage::SetDirectoryPageId(uint32_t directory_idx, page
   throw NotImplementedException("ExtendibleHTableHeaderPage is not implemented");
 }
 
+auto ExtendibleHTableHeaderPage::MaxSize() const -> uint32_t { return 0; }
+
 void ExtendibleHTableHeaderPage::PrintHeader() const {
   LOG_DEBUG("======== HEADER (max_depth_: %u) ========", max_depth_);
   LOG_DEBUG("| directory_idx | page_id |");
