@@ -277,7 +277,8 @@ auto main(int argc, char **argv) -> int {
         auto page_idx = dist(gen);
         auto *page = bpm->FetchPage(page_ids[page_idx], AccessType::Lookup);
         if (page == nullptr) {
-          continue;
+          fmt::println(stderr, "cannot fetch page");
+          std::terminate();
         }
 
         page->RLatch();
