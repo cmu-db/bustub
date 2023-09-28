@@ -31,7 +31,7 @@
 #include "common/macros.h"
 #include "storage/index/int_comparator.h"
 #include "storage/page/b_plus_tree_page.h"
-#include "storage/page/hash_table_page_defs.h"
+#include "type/value.h"
 
 namespace bustub {
 
@@ -73,6 +73,7 @@ class ExtendibleHTableBucketPage {
    *
    * @param key key to insert
    * @param value value to insert
+   * @param cmp the comparator to use
    * @return true if inserted, false if bucket is full or the same key is already present
    */
   auto Insert(const KeyType &key, const ValueType &value, const KeyComparator &cmp) -> bool;
@@ -86,8 +87,8 @@ class ExtendibleHTableBucketPage {
 
   void RemoveAt(uint32_t bucket_idx);
 
-  /*
-   * Gets the key at an index in the bucket.
+  /**
+   * @brief Gets the key at an index in the bucket.
    *
    * @param bucket_idx the index in the bucket to get the key at
    * @return key at index bucket_idx of the bucket
@@ -102,6 +103,12 @@ class ExtendibleHTableBucketPage {
    */
   auto ValueAt(uint32_t bucket_idx) const -> ValueType;
 
+  /**
+   * Gets the entry at an index in the bucket.
+   *
+   * @param bucket_idx the index in the bucket to get the entry at
+   * @return entry at index bucket_idx of the bucket
+   */
   auto EntryAt(uint32_t bucket_idx) const -> const std::pair<KeyType, ValueType> &;
 
   /**

@@ -61,6 +61,14 @@ inline auto DiskExtendibleHashTable<K, V, KC>::Hash(K key) const -> uint32_t {
   return static_cast<uint32_t>(hash_fn_.GetHash(key));
 }
 
+/**
+ * @brief Identity Hash for testing purposes. DO NOT REMOVE.
+ */
+template <>
+inline auto DiskExtendibleHashTable<int, int, IntComparator>::Hash(int key) const -> uint32_t {
+  return static_cast<uint32_t>(key);
+}
+
 /*****************************************************************************
  * SEARCH
  *****************************************************************************/

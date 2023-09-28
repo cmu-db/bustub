@@ -53,7 +53,7 @@ class DiskExtendibleHashTable {
                                    uint32_t directory_max_depth = HTABLE_DIRECTORY_MAX_DEPTH,
                                    uint32_t bucket_max_size = HTableBucketArraySize(sizeof(std::pair<K, V>)));
 
-  /**
+  /** TODO(P2): Add implementation
    * Inserts a key-value pair into the hash table.
    *
    * @param key the key to create
@@ -63,7 +63,7 @@ class DiskExtendibleHashTable {
    */
   auto Insert(const K &key, const V &value, Transaction *transaction = nullptr) -> bool;
 
-  /**
+  /** TODO(P2): Add implementation
    * Removes a key-value pair from the hash table.
    *
    * @param key the key to delete
@@ -73,7 +73,7 @@ class DiskExtendibleHashTable {
    */
   auto Remove(const K &key, Transaction *transaction = nullptr) -> bool;
 
-  /**
+  /** TODO(P2): Add implementation
    * Get the value associated with a given key in the hash table.
    *
    * Note(fall2023): This semester you will only need to support unique key-value pairs.
