@@ -65,7 +65,8 @@ class BasicPageGuard {
    *
    * @brief Upgrade a BasicPageGuard to a ReadPageGuard
    *
-   * The protected page is not evicted from the buffer pool during the upgrade.
+   * The protected page is not evicted from the buffer pool during the upgrade,
+   * and the basic page guard should be made invalid after calling this function.
    *
    * @return an upgraded ReadPageGuard
    */
@@ -75,7 +76,8 @@ class BasicPageGuard {
    *
    * @brief Upgrade a BasicPageGuard to a WritePageGuard
    *
-   * The protected page is not evicted from the buffer pool during the upgrade.
+   * The protected page is not evicted from the buffer pool during the upgrade,
+   * and the basic page guard should be made invalid after calling this function.
    *
    * @return an upgraded WritePageGuard
    */

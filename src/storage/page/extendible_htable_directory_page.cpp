@@ -62,9 +62,4 @@ void ExtendibleHTableDirectoryPage::DecrLocalDepth(uint32_t bucket_idx) {
   throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
 }
 
-void ExtendibleHTableDirectoryPage::VerifyIntegrity() const {
-  // write your own verification function.
-  throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
-}
-
 }  // namespace bustub
