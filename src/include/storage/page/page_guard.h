@@ -19,32 +19,6 @@ class BasicPageGuard {
 
   /** TODO(P2): Add implementation
    *
-   * @brief Provide guard upgrade functionality, from BasicPageGuard to ReadPageGuard
-   *
-   * You can call this function by:
-   *   BasicPageGuard g;
-   *   ReadPageGuard rg = g.UpgradeRead();
-   * Note: You must not use the original BasicPageGuard after calling this function.
-   *
-   * @return ReadPageGuard
-   */
-  auto UpgradeRead() -> ReadPageGuard;
-
-  /** TODO(P1): Add implementation
-   *
-   * @brief Provide guard upgrade functionality, from BasicPageGuard to WritePageGuard
-   *
-   * You can call this function by:
-   *   BasicPageGuard g;
-   *   WritePageGuard wg = g.UpgradeWrite();
-   * Note: You must not use the original BasicPageGuard after calling this function.
-   *
-   * @return WritePageGuard
-   */
-  auto UpgradeWrite() -> WritePageGuard;
-
-  /** TODO(P1): Add implementation
-   *
    * @brief Move constructor for BasicPageGuard
    *
    * When you call BasicPageGuard(std::move(other_guard)), you
@@ -128,12 +102,12 @@ class BasicPageGuard {
     return reinterpret_cast<T *>(GetDataMut());
   }
 
-  /** Getter Methods */
+  /** The following methods are mainly used for testing */
+
   auto GetPage() const -> Page * { return page_; }
 
   auto GetBPM() const -> BufferPoolManager * { return bpm_; }
 
-  /** Set the local variables to NULL */
   void SetNull() noexcept {
     page_ = nullptr;
     bpm_ = nullptr;
@@ -168,7 +142,7 @@ class ReadPageGuard {
    */
   auto UpgradeWrite() -> WritePageGuard;
 
-  /** TODO(P1): Add implementation
+  /** TODO(P2): Add implementation
    *
    * @brief Move constructor for ReadPageGuard
    *
@@ -216,12 +190,12 @@ class ReadPageGuard {
     return guard_.As<T>();
   }
 
-  /** Getter Methods */
+  /** The following methods are mainly used for testing */
+
   auto GetPage() const -> Page * { return guard_.GetPage(); }
 
   auto GetBPM() const -> BufferPoolManager * { return guard_.GetBPM(); }
 
-  /** Set the guard_'s local variables to NULL */
   void SetNull() noexcept { guard_.SetNull(); }
 
  private:
@@ -291,12 +265,12 @@ class WritePageGuard {
     return guard_.AsMut<T>();
   }
 
-  /** Getter Methods */
+  /** The following methods are mainly used for testing */
+
   auto GetPage() const -> Page * { return guard_.GetPage(); }
 
   auto GetBPM() const -> BufferPoolManager * { return guard_.GetBPM(); }
 
-  /** Set the guard_'s local variables to NULL */
   void SetNull() noexcept { guard_.SetNull(); }
 
  private:
