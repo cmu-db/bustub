@@ -49,7 +49,7 @@ class DiskExtendibleHashTable {
    * @param bucket_max_size the max size allowed for the bucket page array
    */
   explicit DiskExtendibleHashTable(const std::string &name, BufferPoolManager *bpm, const KC &cmp,
-                                   HashFunction<K> hash_fn, uint32_t header_max_depth = HTABLE_HEADER_MAX_DEPTH,
+                                   const HashFunction<K> &hash_fn, uint32_t header_max_depth = HTABLE_HEADER_MAX_DEPTH,
                                    uint32_t directory_max_depth = HTABLE_DIRECTORY_MAX_DEPTH,
                                    uint32_t bucket_max_size = HTableBucketArraySize(sizeof(std::pair<K, V>)));
 
@@ -100,7 +100,7 @@ class DiskExtendibleHashTable {
    * @param key the key to hash
    * @return the down-casted 32-bit hash
    */
-  inline auto Hash(K key) const -> uint32_t;
+  auto Hash(K key) const -> uint32_t;
 
   auto InsertToNewDirectory(ExtendibleHTableHeaderPage *header, uint32_t directory_idx, uint32_t hash, const K &key,
                             const V &value) -> bool;

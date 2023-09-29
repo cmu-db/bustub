@@ -10,10 +10,11 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "storage/page/extendible_htable_bucket_page.h"
 #include <optional>
 #include <utility>
+
 #include "common/exception.h"
+#include "storage/page/extendible_htable_bucket_page.h"
 
 namespace bustub {
 
@@ -72,27 +73,11 @@ auto ExtendibleHTableBucketPage<K, V, KC>::IsEmpty() const -> bool {
   return false;
 }
 
-template <typename K, typename V, typename KC>
-void ExtendibleHTableBucketPage<K, V, KC>::PrintBucket() const {
-  std::cout << "======== BUCKET (size_: " << size_ << " | max_size_: " << max_size_ << ") ========\n";
-  std::cout << ("| i | k | v |\n");
-  for (uint32_t idx = 0; idx < size_; idx++) {
-    std::cout << "| " << idx << " | " << KeyAt(idx) << " | " << ValueAt(idx) << " |\n";
-  }
-  std::cout << "================ END BUCKET ================\n";
-  std::cout << "\n";
-}
-
 template class ExtendibleHTableBucketPage<int, int, IntComparator>;
-
 template class ExtendibleHTableBucketPage<GenericKey<4>, RID, GenericComparator<4>>;
-
 template class ExtendibleHTableBucketPage<GenericKey<8>, RID, GenericComparator<8>>;
-
 template class ExtendibleHTableBucketPage<GenericKey<16>, RID, GenericComparator<16>>;
-
 template class ExtendibleHTableBucketPage<GenericKey<32>, RID, GenericComparator<32>>;
-
 template class ExtendibleHTableBucketPage<GenericKey<64>, RID, GenericComparator<64>>;
 
 }  // namespace bustub

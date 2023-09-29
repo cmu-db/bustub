@@ -67,13 +67,4 @@ void ExtendibleHTableDirectoryPage::VerifyIntegrity() const {
   throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
 }
 
-void ExtendibleHTableDirectoryPage::PrintDirectory() const {
-  LOG_DEBUG("======== DIRECTORY (global_depth_: %u) ========", global_depth_);
-  LOG_DEBUG("| bucket_idx | page_id | local_depth |");
-  for (uint32_t idx = 0; idx < static_cast<uint32_t>(0x1 << global_depth_); idx++) {
-    LOG_DEBUG("|    %u    |    %u    |    %u    |", idx, bucket_page_ids_[idx], local_depths_[idx]);
-  }
-  LOG_DEBUG("================ END DIRECTORY ================");
-}
-
 }  // namespace bustub

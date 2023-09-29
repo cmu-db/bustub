@@ -10,8 +10,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "container/disk/hash/disk_extendible_hash_table.h"
-
 #include <iostream>
 #include <string>
 #include <utility>
@@ -23,6 +21,7 @@
 #include "common/macros.h"
 #include "common/rid.h"
 #include "common/util/hash_util.h"
+#include "container/disk/hash/disk_extendible_hash_table.h"
 #include "storage/index/hash_comparator.h"
 #include "storage/page/extendible_htable_bucket_page.h"
 #include "storage/page/extendible_htable_directory_page.h"
@@ -33,7 +32,7 @@ namespace bustub {
 
 template <typename K, typename V, typename KC>
 DiskExtendibleHashTable<K, V, KC>::DiskExtendibleHashTable(const std::string &name, BufferPoolManager *bpm,
-                                                           const KC &cmp, HashFunction<K> hash_fn,
+                                                           const KC &cmp, const HashFunction<K> &hash_fn,
                                                            uint32_t header_max_depth, uint32_t directory_max_depth,
                                                            uint32_t bucket_max_size)
     : bpm_(bpm),
@@ -43,30 +42,6 @@ DiskExtendibleHashTable<K, V, KC>::DiskExtendibleHashTable(const std::string &na
       directory_max_depth_(directory_max_depth),
       bucket_max_size_(bucket_max_size) {
   throw NotImplementedException("DiskExtendibleHashTable is not implemented");
-}
-
-/*****************************************************************************
- * HELPERS
- *****************************************************************************/
-
-/**
- * Hash - simple helper to downcast MurmurHash's 64-bit hash to 32-bit
- * for extendible hashing.
- *
- * @param key the key to hash
- * @return the downcasted 32-bit hash
- */
-template <typename K, typename V, typename KC>
-inline auto DiskExtendibleHashTable<K, V, KC>::Hash(K key) const -> uint32_t {
-  return static_cast<uint32_t>(hash_fn_.GetHash(key));
-}
-
-/**
- * @brief Identity Hash for testing purposes. DO NOT REMOVE.
- */
-template <>
-inline auto DiskExtendibleHashTable<int, int, IntComparator>::Hash(int key) const -> uint32_t {
-  return static_cast<uint32_t>(key);
 }
 
 /*****************************************************************************
@@ -114,50 +89,10 @@ auto DiskExtendibleHashTable<K, V, KC>::Remove(const K &key, Transaction *transa
   return false;
 }
 
-template <typename K, typename V, typename KC>
-void DiskExtendibleHashTable<K, V, KC>::VerifyIntegrity() const {
-  throw NotImplementedException("DiskExtendibleHashTable is not implemented");
-}
-
-template <typename K, typename V, typename KC>
-void DiskExtendibleHashTable<K, V, KC>::PrintHT() const {
-  std::cout << "\n";
-  std::cout << "==================== PRINT! ====================\n";
-  BasicPageGuard header_guard = bpm_->FetchPageBasic(header_page_id_);
-  auto *header = header_guard.As<ExtendibleHTableHeaderPage>();
-
-  header->PrintHeader();
-
-  for (uint32_t idx = 0; idx < header->MaxSize(); idx++) {
-    page_id_t directory_page_id = header->GetDirectoryPageId(idx);
-    if (directory_page_id == INVALID_PAGE_ID) {
-      std::cout << "Directory " << idx << ", page id: " << directory_page_id << "\n";
-      continue;
-    }
-    BasicPageGuard directory_guard = bpm_->FetchPageBasic(directory_page_id);
-    auto *directory = directory_guard.As<ExtendibleHTableDirectoryPage>();
-
-    std::cout << "Directory " << idx << ", page id: " << directory_page_id << "\n";
-    directory->PrintDirectory();
-
-    for (uint32_t idx2 = 0; idx2 < directory->Size(); idx2++) {
-      page_id_t bucket_page_id = directory->GetBucketPageId(idx2);
-      BasicPageGuard bucket_guard = bpm_->FetchPageBasic(bucket_page_id);
-      auto *bucket = bucket_guard.As<ExtendibleHTableBucketPage<K, V, KC>>();
-
-      std::cout << "Bucket " << idx2 << ", page id: " << bucket_page_id << "\n";
-      bucket->PrintBucket();
-    }
-  }
-  std::cout << "==================== END OF PRINT! ====================\n";
-  std::cout << "\n";
-}
-
 template class DiskExtendibleHashTable<int, int, IntComparator>;
 template class DiskExtendibleHashTable<GenericKey<4>, RID, GenericComparator<4>>;
 template class DiskExtendibleHashTable<GenericKey<8>, RID, GenericComparator<8>>;
 template class DiskExtendibleHashTable<GenericKey<16>, RID, GenericComparator<16>>;
 template class DiskExtendibleHashTable<GenericKey<32>, RID, GenericComparator<32>>;
 template class DiskExtendibleHashTable<GenericKey<64>, RID, GenericComparator<64>>;
-
 }  // namespace bustub
