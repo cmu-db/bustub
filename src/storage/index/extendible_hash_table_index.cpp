@@ -20,7 +20,7 @@ auto HASH_TABLE_INDEX_TYPE::InsertEntry(const Tuple &key, RID rid, Transaction *
   KeyType index_key;
   index_key.SetFromKey(key);
 
-  return container_.Insert(transaction, index_key, rid);
+  return container_.Insert(index_key, rid, transaction);
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
@@ -29,7 +29,7 @@ void HASH_TABLE_INDEX_TYPE::DeleteEntry(const Tuple &key, RID rid, Transaction *
   KeyType index_key;
   index_key.SetFromKey(key);
 
-  container_.Remove(transaction, index_key, rid);
+  container_.Remove(index_key, transaction);
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
@@ -38,7 +38,7 @@ void HASH_TABLE_INDEX_TYPE::ScanKey(const Tuple &key, std::vector<RID> *result, 
   KeyType index_key;
   index_key.SetFromKey(key);
 
-  container_.GetValue(transaction, index_key, result);
+  container_.GetValue(index_key, result, transaction);
 }
 template class ExtendibleHashTableIndex<GenericKey<4>, RID, GenericComparator<4>>;
 template class ExtendibleHashTableIndex<GenericKey<8>, RID, GenericComparator<8>>;

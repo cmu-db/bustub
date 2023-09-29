@@ -15,3 +15,5 @@ add_subdirectory(argparse)
 add_subdirectory(utf8proc)
 
 add_subdirectory(backward-cpp)
+
+add_subdirectory(readerwriterqueue)
