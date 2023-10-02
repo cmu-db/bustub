@@ -90,6 +90,14 @@ class DiskExtendibleHashTable {
    */
   void VerifyIntegrity() const;
 
+  /**
+   * Helper function to expose the header page id.
+   */
+  auto GetHeaderPageId() const -> page_id_t;
+
+  /**
+   * Helper function to print out the HashTable.
+   */
   void PrintHT() const;
 
  private:
