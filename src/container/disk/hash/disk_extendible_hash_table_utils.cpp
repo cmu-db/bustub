@@ -91,6 +91,11 @@ void DiskExtendibleHashTable<K, V, KC>::VerifyIntegrity() const {
   }
 }
 
+template <typename K, typename V, typename KC>
+auto DiskExtendibleHashTable<K, V, KC>::GetHeaderPageId() const -> page_id_t {
+  return header_page_id_;
+}
+
 template class DiskExtendibleHashTable<int, int, IntComparator>;
 template class DiskExtendibleHashTable<GenericKey<4>, RID, GenericComparator<4>>;
 template class DiskExtendibleHashTable<GenericKey<8>, RID, GenericComparator<8>>;
