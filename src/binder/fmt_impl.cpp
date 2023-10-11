@@ -1,6 +1,10 @@
+#include "binder/binder.h"
+#include "binder/bound_expression.h"
 #include "binder/bound_order_by.h"
 #include "binder/expressions/bound_agg_call.h"
+#include "binder/expressions/bound_constant.h"
 #include "binder/expressions/bound_func_call.h"
+#include "binder/expressions/bound_window.h"
 #include "binder/statement/select_statement.h"
 #include "binder/table_ref/bound_cte_ref.h"
 #include "binder/table_ref/bound_expression_list_ref.h"
@@ -16,6 +20,9 @@ auto BoundFuncCall::ToString() const -> std::string { return fmt::format("{}({})
 auto BoundAggCall::ToString() const -> std::string {
   if (is_distinct_) {
     return fmt::format("{}_distinct({})", func_name_, args_);
+  }
+  if (window_.has_value()) {
+    return fmt::format("{}({}) OVER {}", func_name_, args_, (*window_)->ToString());
   }
   return fmt::format("{}({})", func_name_, args_);
 }
@@ -35,6 +42,39 @@ auto BoundSubqueryRef::ToString() const -> std::string {
   }
   return fmt::format("BoundSubqueryRef {{\n  alias={},\n  subquery={},\n  columns={},\n}}", alias_,
                      StringUtil::IndentAllLines(subquery_->ToString(), 2, true), columns);
+}
+
+auto BoundWindow::ToString() const -> std::string {
+  std::vector<std::string> partition_by;
+  for (const auto &expr : partition_by_) {
+    partition_by.push_back(expr->ToString());
+  }
+
+  std::vector<std::string> order_bys;
+  for (const auto &expr : order_bys_) {
+    order_bys.push_back(expr->ToString());
+  }
+
+  std::string start_offset = "None";
+  if (start_offset_.has_value()) {
+    start_offset = (*start_offset_)->ToString();
+  }
+
+  std::string end_offset = "None";
+  if (end_offset_.has_value()) {
+    end_offset = (*end_offset_)->ToString();
+  }
+
+  std::string start_mode = Binder::WindowBoundaryToString(start_);
+  std::string end_mode = Binder::WindowBoundaryToString(end_);
+
+  // TODO(avery): add frame
+  return fmt::format(
+      "BoundWindow {{\n  partition_by={},\n  order_by={},\n  start_offset={},  end_offset={},\n  start_mode={},  "
+      "end_mode={}\n}}",
+      StringUtil::IndentAllLines(fmt::format("[{}]", fmt::join(partition_by, ", ")), 2, true),
+      StringUtil::IndentAllLines(fmt::format("[{}]", fmt::join(order_bys, ", ")), 2, true), start_offset, end_offset,
+      start_mode, end_mode);
 }
 
 }  // namespace bustub

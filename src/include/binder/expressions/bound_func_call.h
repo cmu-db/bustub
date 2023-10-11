@@ -1,11 +1,13 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "binder/bound_expression.h"
+#include "binder/expressions/bound_window.h"
 
 namespace bustub {
 
@@ -14,8 +16,12 @@ namespace bustub {
  */
 class BoundFuncCall : public BoundExpression {
  public:
-  explicit BoundFuncCall(std::string func_name, std::vector<std::unique_ptr<BoundExpression>> args)
-      : BoundExpression(ExpressionType::FUNC_CALL), func_name_(std::move(func_name)), args_(std::move(args)) {}
+  explicit BoundFuncCall(std::string func_name, std::vector<std::unique_ptr<BoundExpression>> args,
+                         std::optional<std::unique_ptr<BoundWindow>> window)
+      : BoundExpression(ExpressionType::FUNC_CALL),
+        func_name_(std::move(func_name)),
+        args_(std::move(args)),
+        window_(std::move(window)) {}
 
   auto ToString() const -> std::string override;
 
@@ -26,5 +32,7 @@ class BoundFuncCall : public BoundExpression {
 
   /** Arguments of the func call. */
   std::vector<std::unique_ptr<BoundExpression>> args_;
+
+  std::optional<std::unique_ptr<BoundWindow>> window_;
 };
 }  // namespace bustub

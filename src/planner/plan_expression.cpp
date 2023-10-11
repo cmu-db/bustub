@@ -1,4 +1,5 @@
 #include <memory>
+#include <optional>
 #include <tuple>
 #include "binder/bound_expression.h"
 #include "binder/bound_statement.h"
@@ -9,6 +10,7 @@
 #include "binder/expressions/bound_constant.h"
 #include "binder/expressions/bound_func_call.h"
 #include "binder/expressions/bound_unary_op.h"
+#include "binder/expressions/bound_window.h"
 #include "binder/statement/select_statement.h"
 #include "common/exception.h"
 #include "common/macros.h"
@@ -106,7 +108,8 @@ void Planner::AddAggCallToContext(BoundExpression &expr) {
       auto &agg_call_expr = dynamic_cast<BoundAggCall &>(expr);
       auto agg_name = fmt::format("__pseudo_agg#{}", ctx_.aggregations_.size());
       auto agg_call =
-          BoundAggCall(agg_name, agg_call_expr.is_distinct_, std::vector<std::unique_ptr<BoundExpression>>{});
+          BoundAggCall(agg_name, agg_call_expr.is_distinct_, std::vector<std::unique_ptr<BoundExpression>>{},
+                       std::optional<std::unique_ptr<BoundWindow>>{});
       // Replace the agg call in the original bound expression with a pseudo one, add agg call to the context.
       ctx_.AddAggregation(std::make_unique<BoundAggCall>(std::exchange(agg_call_expr, std::move(agg_call))));
       return;

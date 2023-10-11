@@ -22,6 +22,7 @@ enum class ExpressionType : uint8_t {
   BINARY_OP = 9,  /**< Binary expression type. */
   ALIAS = 10,     /**< Alias expression type. */
   FUNC_CALL = 11, /**< Function call expression type. */
+  WINDOW = 12,    /**< Window Aggregation expression type. */
 };
 
 /**
@@ -101,6 +102,9 @@ struct fmt::formatter<bustub::ExpressionType> : formatter<string_view> {
         break;
       case bustub::ExpressionType::FUNC_CALL:
         name = "FuncCall";
+        break;
+      case bustub::ExpressionType::WINDOW:
+        name = "Window";
         break;
     }
     return formatter<string_view>::format(name, ctx);

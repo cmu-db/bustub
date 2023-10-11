@@ -16,6 +16,7 @@
 #include "binder/expressions/bound_func_call.h"
 #include "binder/expressions/bound_star.h"
 #include "binder/expressions/bound_unary_op.h"
+#include "binder/expressions/bound_window.h"
 #include "binder/statement/explain_statement.h"
 #include "binder/statement/select_statement.h"
 #include "binder/table_ref/bound_base_table_ref.h"
@@ -206,6 +207,8 @@ auto Binder::BindSelect(duckdb_libpgquery::PGSelectStmt *pg_stmt) -> std::unique
   if (pg_stmt->sortClause != nullptr) {
     sort = BindSort(pg_stmt->sortClause);
   }
+
+  // TODO(avery): disallow group by, having with window functions. It should check here and throw errors
 
   // TODO(chi): If there are any extra args (e.g. group by, having) not supported by the binder,
   // we should have thrown an exception. However, this is too tedious to implement (need to check
@@ -508,6 +511,33 @@ auto Binder::BindStar(duckdb_libpgquery::PGAStar *node) -> std::unique_ptr<Bound
   return std::make_unique<BoundStar>();
 }
 
+auto Binder::BindWindowExpression(duckdb_libpgquery::PGWindowDef *node) -> std::unique_ptr<BoundWindow> {
+  BUSTUB_ASSERT(node, "nullptr");
+  auto partition_by = std::vector<std::unique_ptr<BoundExpression>>{};
+  if (node->partitionClause != nullptr) {
+    partition_by = BindExpressionList(node->partitionClause);
+  }
+
+  auto sort = std::vector<std::unique_ptr<BoundOrderBy>>{};
+  if (node->orderClause != nullptr) {
+    sort = BindSort(node->orderClause);
+  }
+
+  std::optional<std::unique_ptr<BoundExpression>> start_offset;
+  if (node->startOffset != nullptr) {
+    start_offset = std::make_optional(BindExpression(node->startOffset));
+  }
+  std::optional<std::unique_ptr<BoundExpression>> end_offset;
+  if (node->endOffset != nullptr) {
+    end_offset = std::make_optional(BindExpression(node->endOffset));
+  }
+
+  auto window = std::make_unique<BoundWindow>(std::move(partition_by), std::move(sort), std::move(start_offset),
+                                              std::move(end_offset));
+  window = BindWindowFrame(node, std::move(window));
+  return window;
+}
+
 auto Binder::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_ptr<BoundExpression> {
   BUSTUB_ASSERT(root, "nullptr");
   auto name = root->funcname;
@@ -522,6 +552,11 @@ auto Binder::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_pt
     }
   }
 
+  std::optional<std::unique_ptr<BoundWindow>> window;
+  if (root->over != nullptr) {
+    window = std::make_optional(BindWindowExpression(root->over));
+  }
+
   if (function_name == "min" || function_name == "max" || function_name == "first" || function_name == "last" ||
       function_name == "sum" || function_name == "count") {
     // Rewrite count(*) to count_star().
@@ -529,12 +564,16 @@ auto Binder::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_pt
       function_name = "count_star";
     }
 
+    if (root->agg_distinct && window.has_value()) {
+      throw bustub::Exception(fmt::format("Disallow distinct over Window Frame"));
+    }
+
     // Bind function as agg call.
-    return std::make_unique<BoundAggCall>(function_name, root->agg_distinct, std::move(children));
+    return std::make_unique<BoundAggCall>(function_name, root->agg_distinct, std::move(children), std::move(window));
   }
 
   // In other cases, bind as func call.
-  return std::make_unique<BoundFuncCall>(function_name, std::move(children));
+  return std::make_unique<BoundFuncCall>(function_name, std::move(children), std::move(window));
 }
 
 /**
