@@ -21,9 +21,6 @@ auto BoundAggCall::ToString() const -> std::string {
   if (is_distinct_) {
     return fmt::format("{}_distinct({})", func_name_, args_);
   }
-  if (window_.has_value()) {
-    return fmt::format("{}({}) OVER {}", func_name_, args_, (*window_)->ToString());
-  }
   return fmt::format("{}({})", func_name_, args_);
 }
 
@@ -70,9 +67,9 @@ auto BoundWindow::ToString() const -> std::string {
 
   // TODO(avery): add frame
   return fmt::format(
-      "BoundWindow {{\n  partition_by={},\n  order_by={},\n  start_offset={},  end_offset={},\n  start_mode={},  "
+      "{}({}) Over {{\n  partition_by={},\n  order_by={},\n  start_offset={},  end_offset={},\n  start_mode={},  "
       "end_mode={}\n}}",
-      StringUtil::IndentAllLines(fmt::format("[{}]", fmt::join(partition_by, ", ")), 2, true),
+      func_name_, args_, StringUtil::IndentAllLines(fmt::format("[{}]", fmt::join(partition_by, ", ")), 2, true),
       StringUtil::IndentAllLines(fmt::format("[{}]", fmt::join(order_bys, ", ")), 2, true), start_offset, end_offset,
       start_mode, end_mode);
 }

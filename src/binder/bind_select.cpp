@@ -406,6 +406,8 @@ auto Binder::BindSelectList(duckdb_libpgquery::PGList *list) -> std::vector<std:
   std::vector<std::unique_ptr<BoundExpression>> exprs;
   auto select_list = std::vector<std::unique_ptr<BoundExpression>>{};
   bool is_select_star = false;
+  bool has_agg = false;
+  bool has_window_agg = false;
 
   for (auto node = list->head; node != nullptr; node = lnext(node)) {
     auto target = reinterpret_cast<duckdb_libpgquery::PGNode *>(node->data.ptr_value);
@@ -423,8 +425,18 @@ auto Binder::BindSelectList(duckdb_libpgquery::PGList *list) -> std::vector<std:
       if (is_select_star) {
         throw bustub::Exception("select * cannot have other expressions in list");
       }
+      if (expr->HasAggregation()) {
+        has_agg = true;
+      }
+      if (expr->HasWindowFunction()) {
+        has_window_agg = true;
+      }
       select_list.push_back(std::move(expr));
     }
+  }
+
+  if (has_agg && has_window_agg) {
+    throw bustub::Exception("cannot have both normal agg and window agg in same query");
   }
 
   return select_list;
@@ -511,7 +523,8 @@ auto Binder::BindStar(duckdb_libpgquery::PGAStar *node) -> std::unique_ptr<Bound
   return std::make_unique<BoundStar>();
 }
 
-auto Binder::BindWindowExpression(duckdb_libpgquery::PGWindowDef *node) -> std::unique_ptr<BoundWindow> {
+auto Binder::BindWindowExpression(std::string func_name, std::vector<std::unique_ptr<BoundExpression>> children,
+                                  duckdb_libpgquery::PGWindowDef *node) -> std::unique_ptr<BoundWindow> {
   BUSTUB_ASSERT(node, "nullptr");
   auto partition_by = std::vector<std::unique_ptr<BoundExpression>>{};
   if (node->partitionClause != nullptr) {
@@ -532,8 +545,8 @@ auto Binder::BindWindowExpression(duckdb_libpgquery::PGWindowDef *node) -> std::
     end_offset = std::make_optional(BindExpression(node->endOffset));
   }
 
-  auto window = std::make_unique<BoundWindow>(std::move(partition_by), std::move(sort), std::move(start_offset),
-                                              std::move(end_offset));
+  auto window = std::make_unique<BoundWindow>(std::move(func_name), std::move(children), std::move(partition_by),
+                                              std::move(sort), std::move(start_offset), std::move(end_offset));
   window = BindWindowFrame(node, std::move(window));
   return window;
 }
@@ -552,11 +565,6 @@ auto Binder::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_pt
     }
   }
 
-  std::optional<std::unique_ptr<BoundWindow>> window;
-  if (root->over != nullptr) {
-    window = std::make_optional(BindWindowExpression(root->over));
-  }
-
   if (function_name == "min" || function_name == "max" || function_name == "first" || function_name == "last" ||
       function_name == "sum" || function_name == "count") {
     // Rewrite count(*) to count_star().
@@ -564,16 +572,22 @@ auto Binder::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_pt
       function_name = "count_star";
     }
 
-    if (root->agg_distinct && window.has_value()) {
-      throw bustub::Exception(fmt::format("Disallow distinct over Window Frame"));
+    if (root->over != nullptr) {
+      if (root->agg_distinct) {
+        throw bustub::Exception("DISTINCT is not supported in window functions");
+      }
+
+      auto window = BindWindowExpression(function_name, std::move(children), root->over);
+      std::cout << window->ToString() << std::endl;
+      return window;
     }
 
     // Bind function as agg call.
-    return std::make_unique<BoundAggCall>(function_name, root->agg_distinct, std::move(children), std::move(window));
+    return std::make_unique<BoundAggCall>(function_name, root->agg_distinct, std::move(children));
   }
 
   // In other cases, bind as func call.
-  return std::make_unique<BoundFuncCall>(function_name, std::move(children), std::move(window));
+  return std::make_unique<BoundFuncCall>(function_name, std::move(children));
 }
 
 /**

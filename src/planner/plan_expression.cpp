@@ -1,6 +1,7 @@
 #include <memory>
 #include <optional>
 #include <tuple>
+#include <vector>
 #include "binder/bound_expression.h"
 #include "binder/bound_statement.h"
 #include "binder/expressions/bound_agg_call.h"
@@ -15,11 +16,13 @@
 #include "common/exception.h"
 #include "common/macros.h"
 #include "common/util/string_util.h"
+#include "execution/expressions/abstract_expression.h"
 #include "execution/expressions/column_value_expression.h"
 #include "execution/expressions/constant_value_expression.h"
 #include "execution/plans/abstract_plan.h"
 #include "fmt/format.h"
 #include "planner/planner.h"
+#include "type/value_factory.h"
 
 namespace bustub {
 
@@ -108,8 +111,7 @@ void Planner::AddAggCallToContext(BoundExpression &expr) {
       auto &agg_call_expr = dynamic_cast<BoundAggCall &>(expr);
       auto agg_name = fmt::format("__pseudo_agg#{}", ctx_.aggregations_.size());
       auto agg_call =
-          BoundAggCall(agg_name, agg_call_expr.is_distinct_, std::vector<std::unique_ptr<BoundExpression>>{},
-                       std::optional<std::unique_ptr<BoundWindow>>{});
+          BoundAggCall(agg_name, agg_call_expr.is_distinct_, std::vector<std::unique_ptr<BoundExpression>>{});
       // Replace the agg call in the original bound expression with a pseudo one, add agg call to the context.
       ctx_.AddAggregation(std::make_unique<BoundAggCall>(std::exchange(agg_call_expr, std::move(agg_call))));
       return;
@@ -173,6 +175,9 @@ auto Planner::PlanExpression(const BoundExpression &expr, const std::vector<Abst
       const auto &alias_expr = dynamic_cast<const BoundAlias &>(expr);
       auto [_1, expr] = PlanExpression(*alias_expr.child_, children);
       return std::make_tuple(alias_expr.alias_, std::move(expr));
+    }
+    case ExpressionType::WINDOW: {
+      throw Exception("should not parse window expressions here");
     }
     default:
       break;

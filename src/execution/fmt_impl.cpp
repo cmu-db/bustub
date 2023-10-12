@@ -1,5 +1,6 @@
 #include <type_traits>
 #include "execution/plans/update_plan.h"
+#include "execution/plans/window_plan.h"
 #include "fmt/format.h"
 #include "fmt/ranges.h"
 
@@ -34,6 +35,11 @@ auto AbstractPlanNode::ChildrenToString(int indent, bool with_schema) const -> s
 
 auto AggregationPlanNode::PlanNodeToString() const -> std::string {
   return fmt::format("Agg {{ types={}, aggregates={}, group_by={} }}", agg_types_, aggregates_, group_bys_);
+}
+
+auto WindowAggregationPlanNode::PlanNodeToString() const -> std::string {
+  return fmt::format("WindowAgg {{ partition_by={}, order_by={}, aggregate={}, window_agg_type={} }}", partition_by_,
+                     order_by_, aggregate_, window_agg_type_);
 }
 
 auto HashJoinPlanNode::PlanNodeToString() const -> std::string {

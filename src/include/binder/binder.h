@@ -157,7 +157,8 @@ class Binder {
   auto BindWindowFrame(duckdb_libpgquery::PGWindowDef *window_spec, std::unique_ptr<BoundWindow> expr)
       -> std::unique_ptr<BoundWindow>;
 
-  auto BindWindowExpression(duckdb_libpgquery::PGWindowDef *node) -> std::unique_ptr<BoundWindow>;
+  auto BindWindowExpression(std::string func_name, std::vector<std::unique_ptr<BoundExpression>> children,
+                            duckdb_libpgquery::PGWindowDef *node) -> std::unique_ptr<BoundWindow>;
 
   auto BindAExpr(duckdb_libpgquery::PGAExpr *root) -> std::unique_ptr<BoundExpression>;
 

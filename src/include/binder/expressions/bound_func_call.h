@@ -16,12 +16,8 @@ namespace bustub {
  */
 class BoundFuncCall : public BoundExpression {
  public:
-  explicit BoundFuncCall(std::string func_name, std::vector<std::unique_ptr<BoundExpression>> args,
-                         std::optional<std::unique_ptr<BoundWindow>> window)
-      : BoundExpression(ExpressionType::FUNC_CALL),
-        func_name_(std::move(func_name)),
-        args_(std::move(args)),
-        window_(std::move(window)) {}
+  explicit BoundFuncCall(std::string func_name, std::vector<std::unique_ptr<BoundExpression>> args)
+      : BoundExpression(ExpressionType::FUNC_CALL), func_name_(std::move(func_name)), args_(std::move(args)) {}
 
   auto ToString() const -> std::string override;
 
@@ -32,7 +28,5 @@ class BoundFuncCall : public BoundExpression {
 
   /** Arguments of the func call. */
   std::vector<std::unique_ptr<BoundExpression>> args_;
-
-  std::optional<std::unique_ptr<BoundWindow>> window_;
 };
 }  // namespace bustub
