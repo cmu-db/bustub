@@ -24,7 +24,6 @@ namespace bustub {
 
 // NOLINTNEXTLINE
 TEST(PageGuardTest, DISABLED_SampleTest) {
-  const std::string db_name = "test.db";
   const size_t buffer_pool_size = 5;
   const size_t k = 2;
 
@@ -43,6 +42,12 @@ TEST(PageGuardTest, DISABLED_SampleTest) {
   guarded_page.Drop();
 
   EXPECT_EQ(0, page0->GetPinCount());
+
+  {
+    auto *page2 = bpm->NewPage(&page_id_temp);
+    page2->RLatch();
+    auto guard2 = ReadPageGuard(bpm.get(), page2);
+  }
 
   // Shutdown the disk manager and remove the temporary file we created.
   disk_manager->ShutDown();
