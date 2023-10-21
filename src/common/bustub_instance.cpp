@@ -251,6 +251,50 @@ auto BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer,
   }
 }
 
+auto BustubInstance::ExecutePlan(const AbstractPlanNodeRef &plan, ResultWriter &writer) -> bool {
+  auto txn = txn_manager_->Begin();
+  try {
+    auto result = ExecutePlanTxn(plan, txn, writer);
+    txn_manager_->Commit(txn);
+    delete txn;
+    return result;
+  } catch (bustub::Exception &ex) {
+    txn_manager_->Abort(txn);
+    delete txn;
+    throw ex;
+  }
+}
+
+auto BustubInstance::ExecutePlanTxn(const AbstractPlanNodeRef &plan, Transaction *txn, ResultWriter &writer) -> bool {
+  // Execute the query.
+  auto exec_ctx = MakeExecutorContext(txn, false);
+  std::vector<Tuple> result_set{};
+  auto is_successful = execution_engine_->Execute(plan, &result_set, txn, exec_ctx.get());
+
+  // Return the result set as a vector of string.
+  auto schema = plan->OutputSchema();
+
+  // Generate header for the result set.
+  writer.BeginTable(false);
+  writer.BeginHeader();
+  for (const auto &column : schema.GetColumns()) {
+    writer.WriteHeaderCell(column.GetName());
+  }
+  writer.EndHeader();
+
+  // Transforming result set into strings.
+  for (const auto &tuple : result_set) {
+    writer.BeginRow();
+    for (uint32_t i = 0; i < schema.GetColumnCount(); i++) {
+      writer.WriteCell(tuple.GetValue(&schema, i).ToString());
+    }
+    writer.EndRow();
+  }
+  writer.EndTable();
+
+  return is_successful;
+}
+
 auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn,
                                    std::shared_ptr<CheckOptions> check_options) -> bool {
   if (!sql.empty() && sql[0] == '\\') {

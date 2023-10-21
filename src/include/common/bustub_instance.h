@@ -26,6 +26,7 @@
 #include "common/config.h"
 #include "common/util/string_util.h"
 #include "execution/check_options.h"
+#include "execution/plans/abstract_plan.h"
 #include "libfort/lib/fort.hpp"
 #include "type/value.h"
 
@@ -264,6 +265,9 @@ class BustubInstance {
 
   /** Get the current transaction. */
   auto CurrentManagedTxn() -> Transaction *;
+
+  auto ExecutePlan(const AbstractPlanNodeRef &plan, ResultWriter &writer) -> bool;
+  auto ExecutePlanTxn(const AbstractPlanNodeRef &plan, Transaction *txn, ResultWriter &writer) -> bool;
 
   /**
    * FOR TEST ONLY. Generate test tables in this BusTub instance.
