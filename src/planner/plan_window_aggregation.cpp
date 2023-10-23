@@ -41,7 +41,7 @@ auto Planner::PlanSelectWindow(const SelectStatement &statement, AbstractPlanNod
   std::vector<WindowAggregationType> window_agg_types;
   std::vector<std::vector<AbstractExpressionRef>> partition_by_exprs;
   std::vector<std::vector<std::pair<OrderByType, AbstractExpressionRef>>> order_by_exprs;
-  std::vector<std::vector<AbstractExpressionRef>> arg_exprs;
+  std::vector<AbstractExpressionRef> arg_exprs;
 
   for (uint32_t i = 0; i < statement.select_list_.size(); i++) {
     const auto &item = statement.select_list_[i];
@@ -109,7 +109,7 @@ auto Planner::PlanSelectWindow(const SelectStatement &statement, AbstractPlanNod
     } else {
       clean_arg = std::move(clean_args[0]);
     }
-    arg_exprs.emplace_back(std::move(clean_args));
+    arg_exprs.emplace_back(std::move(clean_arg));
   }
 
   // we don't need window_agg_indexes here because we already use placeholders to infer the window agg column type is

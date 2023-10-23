@@ -22,6 +22,7 @@ add_library(
         topn_check_executor.cpp
         update_executor.cpp
         values_executor.cpp
+        window_aggregate_executor.cpp
 )
 
 set(ALL_OBJECT_FILES
