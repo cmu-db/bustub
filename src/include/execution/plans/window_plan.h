@@ -35,22 +35,41 @@ class WindowAggregationPlanNode : public AbstractPlanNode {
    * Construct a new WindowAggregationPlanNode.
    * @param output_schema The output format of this plan node
    * @param child The child plan to aggregate data over
-   * @param partition_by The partition by clause of the window aggregation
-   * @param order_by The order by clause of the window aggregation
+   * @param window_agg_indexes The indexes of the window aggregation functions
+   * @param columns All columns include the placeholder for window aggregation functions
+   * @param partition_bys The partition by clause of the window aggregations
+   * @param order_bys The order by clause of the window aggregations
    * @param aggregates The expressions that we are aggregating
    * @param window_agg_types The types that we are aggregating
+   *
+   * Window Aggregation is different from normal aggregation as it outputs one row for each inputing rows,
+   * and can be combined with normal selected columns. The columns in WindowAggregationPlanNode contains both
+   * normal selected columns and placeholder columns for window aggregations.
+   *
+   * For example, if we have a query like:
+   *    SELECT 0.1, 0.2, SUM(0.3) OVER (PARTITION BY 0.2 ORDER BY 0.3), SUM(0.4) OVER (PARTITION BY 0.1 ORDER BY
+   * 0.2,0.3) FROM table;
+   *
+   * The WindowAggregationPlanNode should contains following structure:
+   *    columns: std::vector<AbstractExpressionRef>{0.1, 0.2, 0.-1(placeholder), 0.-1(placeholder)}
+   *    partition_bys: std::vector<std::vector<AbstractExpressionRef>>{{0.2}, {0.1}}
+   *    order_bys: std::vector<std::vector<AbstractExpressionRef>>{{0.3}, {0.2,0.3}}
+   *    aggregates: std::vector<AbstractExpressionRef>{0.3, 0.4}
+   *    window_agg_types: std::vector<WindowAggregationType>{SumAggregate, SumAggregate}
    */
-  WindowAggregationPlanNode(SchemaRef output_schema, AbstractPlanNodeRef child, int window_agg_id,
-                            std::vector<AbstractExpressionRef> columns, std::vector<AbstractExpressionRef> partition_by,
-                            std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_by,
-                            AbstractExpressionRef aggregate, WindowAggregationType window_agg_type)
+  WindowAggregationPlanNode(SchemaRef output_schema, AbstractPlanNodeRef child,
+                            std::vector<uint32_t> window_agg_indexes, std::vector<AbstractExpressionRef> columns,
+                            std::vector<std::vector<AbstractExpressionRef>> partition_bys,
+                            std::vector<std::vector<std::pair<OrderByType, AbstractExpressionRef>>> order_bys,
+                            std::vector<AbstractExpressionRef> aggregates,
+                            std::vector<WindowAggregationType> window_agg_types)
       : AbstractPlanNode(std::move(output_schema), {std::move(child)}),
-        window_agg_id_(window_agg_id),
+        window_agg_indexes_(std::move(window_agg_indexes)),
         columns_(std::move(columns)),
-        partition_by_(std::move(partition_by)),
-        order_by_(std::move(order_by)),
-        aggregate_(std::move(aggregate)),
-        window_agg_type_(window_agg_type) {}
+        partition_bys_(std::move(partition_bys)),
+        order_bys_(std::move(order_bys)),
+        aggregates_(std::move(aggregates)),
+        window_agg_types_(std::move(window_agg_types)) {}
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::Window; }
@@ -61,45 +80,39 @@ class WindowAggregationPlanNode : public AbstractPlanNode {
     return GetChildAt(0);
   }
 
-  /** @return The idx'th partition by expression */
-  auto GetPartitionByAt(uint32_t idx) const -> const AbstractExpressionRef & { return partition_by_[idx]; }
-
   /** @return The partition by expressions */
-  auto GetPartitionBys() const -> const std::vector<AbstractExpressionRef> & { return partition_by_; }
-
-  /** @return The idx'th order by expression */
-  auto GetOrderByAt(uint32_t idx) const -> const std::pair<OrderByType, AbstractExpressionRef> & {
-    return order_by_[idx];
-  }
+  auto GetPartitionBys() const -> const std::vector<std::vector<AbstractExpressionRef>> & { return partition_bys_; }
 
   /** @return The order by expressions */
-  auto GetOrderBys() const -> const std::vector<std::pair<OrderByType, AbstractExpressionRef>> & { return order_by_; }
+  auto GetOrderBys() const -> const std::vector<std::vector<std::pair<OrderByType, AbstractExpressionRef>>> & {
+    return order_bys_;
+  }
 
   /** @return The aggregate expression */
-  auto GetAggregate() const -> const AbstractExpressionRef & { return aggregate_; }
+  auto GetAggregates() const -> const std::vector<AbstractExpressionRef> & { return aggregates_; }
 
   /** @return The window aggregate type */
-  auto GetWindowAggregateType() const -> const WindowAggregationType & { return window_agg_type_; }
+  auto GetWindowAggregateTypes() const -> const std::vector<WindowAggregationType> & { return window_agg_types_; }
 
-  static auto InferWindowSchema(const std::vector<AbstractExpressionRef> &columns, int window_agg_id) -> Schema;
+  static auto InferWindowSchema(const std::vector<AbstractExpressionRef> &columns) -> Schema;
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(WindowAggregationPlanNode);
 
   /** The Window Aggregation column index */
-  int window_agg_id_;
+  std::vector<uint32_t> window_agg_indexes_;
 
-  /** all other columns expressions */
+  /** all columns expressions */
   std::vector<AbstractExpressionRef> columns_;
 
   /** The PARTITION BY expressions */
-  std::vector<AbstractExpressionRef> partition_by_;
+  std::vector<std::vector<AbstractExpressionRef>> partition_bys_;
   /** The ORDER BY expressions */
-  std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_by_;
+  std::vector<std::vector<std::pair<OrderByType, AbstractExpressionRef>>> order_bys_;
 
   /** The aggregation expressions */
-  AbstractExpressionRef aggregate_;
-  /** The aggregation type */
-  WindowAggregationType window_agg_type_;
+  std::vector<AbstractExpressionRef> aggregates_;
+  /** The aggregation types */
+  std::vector<WindowAggregationType> window_agg_types_;
 
  protected:
   auto PlanNodeToString() const -> std::string override;

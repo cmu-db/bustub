@@ -860,6 +860,8 @@ auto Binder::WindowBoundaryToString(WindowBoundary wb) -> std::string {
       return "EXPR FOLLOWING RANGE";
     case WindowBoundary::EXPR_PRECEDING_RANGE:
       return "EXPR PRECEDING RANGE";
+    default:
+      return "(UNKNOWN)";
   }
-}
+}  // LCOV_EXCL_STOP
 }  // namespace bustub

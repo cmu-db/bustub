@@ -72,6 +72,12 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> AbstractPlanNodeRe
   }
 
   if (has_window_agg) {
+    if (!statement.having_->IsInvalid()) {
+      throw Exception("HAVING on window function is not supported yet.");
+    }
+    if (!statement.group_by_.empty()) {
+      throw Exception("Group by is not allowed to use with window function.");
+    }
     plan = PlanSelectWindow(statement, std::move(plan));
   } else if (!statement.having_->IsInvalid() || !statement.group_by_.empty() || has_agg) {
     // Plan aggregation

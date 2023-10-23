@@ -208,8 +208,6 @@ auto Binder::BindSelect(duckdb_libpgquery::PGSelectStmt *pg_stmt) -> std::unique
     sort = BindSort(pg_stmt->sortClause);
   }
 
-  // TODO(avery): disallow group by, having with window functions. It should check here and throw errors
-
   // TODO(chi): If there are any extra args (e.g. group by, having) not supported by the binder,
   // we should have thrown an exception. However, this is too tedious to implement (need to check
   // every field manually). Therefore, I'd prefer warning users that the binder is not complete
