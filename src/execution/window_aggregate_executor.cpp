@@ -1,5 +1,4 @@
 #include "execution/executors/window_aggregate_executor.h"
-#include "execution/executors/projection_executor.h"
 #include "execution/plans/window_plan.h"
 #include "storage/table/tuple.h"
 

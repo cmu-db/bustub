@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -63,13 +64,12 @@ class WindowAggregationPlanNode : public AbstractPlanNode {
                             std::vector<std::vector<std::pair<OrderByType, AbstractExpressionRef>>> order_bys,
                             std::vector<AbstractExpressionRef> aggregates,
                             std::vector<WindowAggregationType> window_agg_types)
-      : AbstractPlanNode(std::move(output_schema), {std::move(child)}),
-        window_agg_indexes_(std::move(window_agg_indexes)),
-        columns_(std::move(columns)),
-        partition_bys_(std::move(partition_bys)),
-        order_bys_(std::move(order_bys)),
-        aggregates_(std::move(aggregates)),
-        window_agg_types_(std::move(window_agg_types)) {}
+      : AbstractPlanNode(std::move(output_schema), {std::move(child)}), columns_(std::move(columns)) {
+    for (uint32_t i = 0; i < window_agg_indexes.size(); i++) {
+      window_functions_[window_agg_indexes[i]] =
+          WindowFunction{aggregates[i], window_agg_types[i], partition_bys[i], order_bys[i]};
+    }
+  }
 
   /** @return The type of the plan node */
   auto GetType() const -> PlanType override { return PlanType::Window; }
@@ -80,45 +80,38 @@ class WindowAggregationPlanNode : public AbstractPlanNode {
     return GetChildAt(0);
   }
 
-  /** @return The partition by expressions */
-  auto GetPartitionBys() const -> const std::vector<std::vector<AbstractExpressionRef>> & { return partition_bys_; }
-
-  /** @return The order by expressions */
-  auto GetOrderBys() const -> const std::vector<std::vector<std::pair<OrderByType, AbstractExpressionRef>>> & {
-    return order_bys_;
-  }
-
-  /** @return The aggregate expression */
-  auto GetAggregates() const -> const std::vector<AbstractExpressionRef> & { return aggregates_; }
-
-  /** @return The window aggregate type */
-  auto GetWindowAggregateTypes() const -> const std::vector<WindowAggregationType> & { return window_agg_types_; }
-
   static auto InferWindowSchema(const std::vector<AbstractExpressionRef> &columns) -> Schema;
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(WindowAggregationPlanNode);
 
-  /** The Window Aggregation column index */
-  std::vector<uint32_t> window_agg_indexes_;
+  struct WindowFunction {
+    AbstractExpressionRef aggregate_;
+    WindowAggregationType type_;
+    std::vector<AbstractExpressionRef> partition_by_;
+    std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_by_;
+  };
 
   /** all columns expressions */
   std::vector<AbstractExpressionRef> columns_;
 
-  /** The PARTITION BY expressions */
-  std::vector<std::vector<AbstractExpressionRef>> partition_bys_;
-  /** The ORDER BY expressions */
-  std::vector<std::vector<std::pair<OrderByType, AbstractExpressionRef>>> order_bys_;
-
-  /** The aggregation expressions */
-  std::vector<AbstractExpressionRef> aggregates_;
-  /** The aggregation types */
-  std::vector<WindowAggregationType> window_agg_types_;
+  std::unordered_map<uint32_t, WindowFunction> window_functions_;
 
  protected:
   auto PlanNodeToString() const -> std::string override;
 };
 
 }  // namespace bustub
+
+template <>
+struct fmt::formatter<bustub::WindowAggregationPlanNode::WindowFunction> : formatter<std::string> {
+  template <typename FormatContext>
+  auto format(const bustub::WindowAggregationPlanNode::WindowFunction &x, FormatContext &ctx) const {
+    return formatter<std::string>::format(
+        fmt::format("{{ aggregate = {}, type = {}, partition_by = {}, order_by = {} }}", x.aggregate_, x.type_,
+                    x.partition_by_, x.order_by_),
+        ctx);
+  }
+};
 
 template <>
 struct fmt::formatter<bustub::WindowAggregationType> : formatter<std::string> {

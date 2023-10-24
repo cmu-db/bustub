@@ -38,10 +38,7 @@ auto AggregationPlanNode::PlanNodeToString() const -> std::string {
 }
 
 auto WindowAggregationPlanNode::PlanNodeToString() const -> std::string {
-  return fmt::format(
-      "WindowAgg {{ columns={}, window_agg_columns={}, window_agg_types={}, partition_bys={}, order_bys={}, "
-      "aggregates={} }}",
-      columns_, window_agg_indexes_, window_agg_types_, partition_bys_, order_bys_, aggregates_);
+  return fmt::format("WindowAgg {{ columns={}, window_functions = {} }}", columns_, fmt::join(window_functions_, ", "));
 }
 
 auto HashJoinPlanNode::PlanNodeToString() const -> std::string {

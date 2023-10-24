@@ -33,17 +33,31 @@ namespace bustub {
  *    SELECT 0.1, 0.2, SUM(0.3) OVER (PARTITION BY 0.2 ORDER BY 0.3), SUM(0.4) OVER (PARTITION BY 0.1 ORDER BY 0.2,0.3)
  *      FROM table;
  *
- * The WindowAggregationPlanNode should contains following structure:
+ * The WindowAggregationPlanNode contains following structure:
  *    columns: std::vector<AbstractExpressionRef>{0.1, 0.2, 0.-1(placeholder), 0.-1(placeholder)}
- *    partition_bys: std::vector<std::vector<AbstractExpressionRef>>{{0.2}, {0.1}}
- *    order_bys: std::vector<std::vector<AbstractExpressionRef>>{{0.3}, {0.2,0.3}}
- *    aggregates: std::vector<AbstractExpressionRef>{0.3, 0.4}
- *    window_agg_types: std::vector<WindowAggregationType>{SumAggregate, SumAggregate}
+ *    window_functions_: {
+ *      3: {
+ *        partition_by: std::vector<AbstractExpressionRef>{0.2}
+ *        order_by: std::vector<AbstractExpressionRef>{0.3}
+ *        aggregate: std::vector<AbstractExpressionRef>{0.3}
+ *        window_agg_type: WindowAggregationType::SumAggregate
+ *      }
+ *      4: {
+ *        partition_by: std::vector<AbstractExpressionRef>{0.1}
+ *        order_by: std::vector<AbstractExpressionRef>{0.2,0.3}
+ *        aggregate: std::vector<AbstractExpressionRef>{0.4}
+ *        window_agg_type: WindowAggregationType::SumAggregate
+ *      }
+ *    }
  *
  * Your executor should use child executor and exprs in columns to produce selected columns except for window
  * aggregation columns, and use window_agg_indexes, partition_bys, order_bys, aggregates and window_agg_types to
  * generate window aggregation columns results. Directly use placeholders for window aggregation columns in columns is
  * not allowed, as it contains invalid column id.
+ *
+ * Your windowAggregationExecutor does not need to support specified window frames (eg: 1 preceding and 1 following).
+ * You can assume that all window frames are UNBOUNDED FOLLOWING AND CURRENT ROW when there is ORDER BY clause, and
+ * UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING when there is no ORDER BY clause.
  *
  */
 class WindowAggregationExecutor : public AbstractExecutor {
