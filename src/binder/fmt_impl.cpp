@@ -66,10 +66,9 @@ auto BoundWindow::ToString() const -> std::string {
   std::string end_mode = Binder::WindowBoundaryToString(end_);
 
   // TODO(avery): add frame
-  return fmt::format(
-      "{}({}) Over {{  partition_by={},  order_by={} }}",
-      func_name_, args_, StringUtil::IndentAllLines(fmt::format("[{}]", fmt::join(partition_by, ", ")), 2, true),
-      StringUtil::IndentAllLines(fmt::format("[{}]", fmt::join(order_bys, ", ")), 2, true));
+  return fmt::format("{}({}) Over {{  partition_by={},  order_by={} }}", func_name_, args_,
+                     StringUtil::IndentAllLines(fmt::format("[{}]", fmt::join(partition_by, ", ")), 2, true),
+                     StringUtil::IndentAllLines(fmt::format("[{}]", fmt::join(order_bys, ", ")), 2, true));
 }
 
 }  // namespace bustub
