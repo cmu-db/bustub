@@ -14,6 +14,7 @@
 #include "common/exception.h"
 #include "common/macros.h"
 #include "execution/plans/aggregation_plan.h"
+#include "execution/plans/window_plan.h"
 
 namespace bustub {
 
@@ -130,11 +131,16 @@ class Planner {
 
   auto PlanSelectAgg(const SelectStatement &statement, AbstractPlanNodeRef child) -> AbstractPlanNodeRef;
 
+  auto PlanSelectWindow(const SelectStatement &statement, AbstractPlanNodeRef child) -> AbstractPlanNodeRef;
+
   auto PlanAggCall(const BoundAggCall &agg_call, const std::vector<AbstractPlanNodeRef> &children)
       -> std::tuple<AggregationType, std::vector<AbstractExpressionRef>>;
 
   auto GetAggCallFromFactory(const std::string &func_name, std::vector<AbstractExpressionRef> args)
       -> std::tuple<AggregationType, std::vector<AbstractExpressionRef>>;
+
+  auto GetWindowAggCallFromFactory(const std::string &func_name, std::vector<AbstractExpressionRef> args)
+      -> std::tuple<WindowAggregationType, std::vector<AbstractExpressionRef>>;
 
   auto GetBinaryExpressionFromFactory(const std::string &op_name, AbstractExpressionRef left,
                                       AbstractExpressionRef right) -> AbstractExpressionRef;

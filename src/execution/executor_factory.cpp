@@ -34,12 +34,14 @@
 #include "execution/executors/topn_executor.h"
 #include "execution/executors/update_executor.h"
 #include "execution/executors/values_executor.h"
+#include "execution/executors/window_aggregate_executor.h"
 #include "execution/plans/filter_plan.h"
 #include "execution/plans/mock_scan_plan.h"
 #include "execution/plans/projection_plan.h"
 #include "execution/plans/sort_plan.h"
 #include "execution/plans/topn_plan.h"
 #include "execution/plans/values_plan.h"
+#include "execution/plans/window_plan.h"
 #include "storage/index/generic_key.h"
 
 namespace bustub {
@@ -91,6 +93,12 @@ auto ExecutorFactory::CreateExecutor(ExecutorContext *exec_ctx, const AbstractPl
       auto agg_plan = dynamic_cast<const AggregationPlanNode *>(plan.get());
       auto child_executor = ExecutorFactory::CreateExecutor(exec_ctx, agg_plan->GetChildPlan());
       return std::make_unique<AggregationExecutor>(exec_ctx, agg_plan, std::move(child_executor));
+    }
+
+    case PlanType::Window: {
+      auto window_plan = dynamic_cast<const WindowAggregationPlanNode *>(plan.get());
+      auto child_executor = ExecutorFactory::CreateExecutor(exec_ctx, window_plan->GetChildPlan());
+      return std::make_unique<WindowAggregationExecutor>(exec_ctx, window_plan, std::move(child_executor));
     }
 
     // Create a new nested-loop join executor
