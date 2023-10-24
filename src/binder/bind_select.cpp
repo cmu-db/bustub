@@ -576,7 +576,6 @@ auto Binder::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_pt
       }
 
       auto window = BindWindowExpression(function_name, std::move(children), root->over);
-      std::cout << window->ToString() << std::endl;
       return window;
     }
 
