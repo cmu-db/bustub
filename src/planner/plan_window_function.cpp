@@ -37,8 +37,8 @@ auto Planner::PlanSelectWindow(const SelectStatement &statement, AbstractPlanNod
    */
   std::vector<AbstractExpressionRef> columns;
   std::vector<std::string> column_names;
-  std::vector<uint32_t> window_agg_indexes;
-  std::vector<WindowAggregationType> window_agg_types;
+  std::vector<uint32_t> window_func_indexes;
+  std::vector<WindowFunctionType> window_func_types;
   std::vector<std::vector<AbstractExpressionRef>> partition_by_exprs;
   std::vector<std::vector<std::pair<OrderByType, AbstractExpressionRef>>> order_by_exprs;
   std::vector<AbstractExpressionRef> arg_exprs;
@@ -57,7 +57,7 @@ auto Planner::PlanSelectWindow(const SelectStatement &statement, AbstractPlanNod
     }
 
     // parse window function
-    window_agg_indexes.push_back(i);
+    window_func_indexes.push_back(i);
     // we assign a -1 here as a placeholder
     columns.emplace_back(std::make_shared<ColumnValueExpression>(0, -1, TypeId::INTEGER));
 
@@ -98,14 +98,19 @@ auto Planner::PlanSelectWindow(const SelectStatement &statement, AbstractPlanNod
       auto [_, ret] = PlanExpression(*arg, {child});
       raw_args.emplace_back(std::move(ret));
     }
-    auto [window_agg_type, clean_args] = GetWindowAggCallFromFactory(window_call.func_name_, std::move(raw_args));
-    window_agg_types.emplace_back(window_agg_type);
+    auto [window_func_type, clean_args] = GetWindowAggCallFromFactory(window_call.func_name_, std::move(raw_args));
+    window_func_types.emplace_back(window_func_type);
     if (clean_args.size() > 1) {
       throw bustub::NotImplementedException("only agg call of zero/one arg is supported");
     }
     if (clean_args.empty()) {
-      // Rewrite count(*) into count(1)
-      clean_arg = std::make_shared<ConstantValueExpression>(ValueFactory::GetIntegerValue(1));
+      if (window_func_type == WindowFunctionType::CountStarAggregate) {
+        // Rewrite count(*) into count(1)
+        clean_arg = std::make_shared<ConstantValueExpression>(ValueFactory::GetIntegerValue(1));
+      } else {
+        // rank, arg = nullptr
+        clean_arg = std::shared_ptr<AbstractExpression>(nullptr);
+      }
     } else {
       clean_arg = std::move(clean_args[0]);
     }
@@ -114,11 +119,11 @@ auto Planner::PlanSelectWindow(const SelectStatement &statement, AbstractPlanNod
 
   // we don't need window_agg_indexes here because we already use placeholders to infer the window agg column type is
   // Integer
-  auto window_output_schema = WindowAggregationPlanNode::InferWindowSchema(columns);
+  auto window_output_schema = WindowFunctionPlanNode::InferWindowSchema(columns);
 
-  auto plan = std::make_shared<WindowAggregationPlanNode>(
+  auto plan = std::make_shared<WindowFunctionPlanNode>(
       std::make_shared<Schema>(ProjectionPlanNode::RenameSchema(window_output_schema, column_names)), child,
-      window_agg_indexes, columns, partition_by_exprs, order_by_exprs, arg_exprs, window_agg_types);
+      window_func_indexes, columns, partition_by_exprs, order_by_exprs, arg_exprs, window_func_types);
 
   return plan;
 }
