@@ -166,13 +166,7 @@ void BustubInstance::CmdDisplayIndices(ResultWriter &writer) {
   writer.EndTable();
 }
 
-void BustubInstance::WriteOneCell(const std::string &cell, ResultWriter &writer) {
-  writer.BeginTable(true);
-  writer.BeginRow();
-  writer.WriteCell(cell);
-  writer.EndRow();
-  writer.EndTable();
-}
+void BustubInstance::WriteOneCell(const std::string &cell, ResultWriter &writer) { writer.OneCell(cell); }
 
 void BustubInstance::CmdDisplayHelp(ResultWriter &writer) {
   std::string help = R"(Welcome to the BusTub shell!
