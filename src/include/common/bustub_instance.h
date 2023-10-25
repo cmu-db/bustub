@@ -61,6 +61,13 @@ class ResultWriter {
   virtual void EndRow() = 0;
   virtual void BeginTable(bool simplified_output) = 0;
   virtual void EndTable() = 0;
+  virtual void OneCell(const std::string &cell) {
+    BeginTable(true);
+    BeginRow();
+    WriteCell(cell);
+    EndRow();
+    EndTable();
+  }
 
   bool simplified_output_{false};
 };
@@ -206,6 +213,7 @@ class FortTableWriter : public ResultWriter {
     tables_.emplace_back(table_.to_string());
     table_ = fort::utf8_table{};
   }
+  void OneCell(const std::string &cell) override { tables_.emplace_back(cell); }
   fort::utf8_table table_;
   std::vector<std::string> tables_;
 };

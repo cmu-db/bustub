@@ -38,7 +38,13 @@ auto AggregationPlanNode::PlanNodeToString() const -> std::string {
 }
 
 auto WindowAggregationPlanNode::PlanNodeToString() const -> std::string {
-  return fmt::format("WindowAgg {{ columns={}, window_functions = {} }}", columns_, fmt::join(window_functions_, ", "));
+  std::vector<std::string> map_content;
+  map_content.reserve(window_functions_.size());
+  for (const auto &[k, v] : window_functions_) {
+    map_content.emplace_back(fmt::format("    {}=>{}", k, v));
+  }
+  return fmt::format("WindowAgg {{\n  columns={},\n  window_functions={{\n{}\n  }}\n}}", columns_,
+                     fmt::join(map_content, ",\n"));
 }
 
 auto HashJoinPlanNode::PlanNodeToString() const -> std::string {

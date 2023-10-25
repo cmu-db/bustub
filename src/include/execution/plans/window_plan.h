@@ -106,10 +106,9 @@ template <>
 struct fmt::formatter<bustub::WindowAggregationPlanNode::WindowFunction> : formatter<std::string> {
   template <typename FormatContext>
   auto format(const bustub::WindowAggregationPlanNode::WindowFunction &x, FormatContext &ctx) const {
-    return formatter<std::string>::format(
-        fmt::format("{{ aggregate = {}, type = {}, partition_by = {}, order_by = {} }}", x.aggregate_, x.type_,
-                    x.partition_by_, x.order_by_),
-        ctx);
+    return formatter<std::string>::format(fmt::format("{{ aggregate={}, type={}, partition_by={}, order_by={} }}",
+                                                      x.aggregate_, x.type_, x.partition_by_, x.order_by_),
+                                          ctx);
   }
 };
 
