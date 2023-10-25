@@ -1,4 +1,3 @@
-#include <_types/_uint32_t.h>
 #include <type_traits>
 #include "execution/expressions/column_value_expression.h"
 #include "execution/plans/update_plan.h"
