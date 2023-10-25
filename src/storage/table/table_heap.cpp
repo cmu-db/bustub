@@ -38,6 +38,48 @@ TableHeap::TableHeap(BufferPoolManager *bpm) : bpm_(bpm) {
 
 TableHeap::TableHeap(bool create_table_heap) : bpm_(nullptr) {}
 
+auto TableHeap::InsertTupleDeferredUnlock(const TupleMeta &meta, const Tuple &tuple)
+    -> std::pair<WritePageGuard, std::optional<RID>> {
+  std::unique_lock<std::mutex> guard(latch_);
+  auto page_guard = bpm_->FetchPageWrite(last_page_id_);
+  while (true) {
+    auto page = page_guard.AsMut<TablePage>();
+    if (page->GetNextTupleOffset(meta, tuple) != std::nullopt) {
+      break;
+    }
+
+    // if there's no tuple in the page, and we can't insert the tuple, then this tuple is too large.
+    BUSTUB_ENSURE(page->GetNumTuples() != 0, "tuple is too large, cannot insert");
+
+    page_id_t next_page_id = INVALID_PAGE_ID;
+    auto npg = bpm_->NewPage(&next_page_id);
+    BUSTUB_ENSURE(next_page_id != INVALID_PAGE_ID, "cannot allocate page");
+
+    page->SetNextPageId(next_page_id);
+
+    auto next_page = reinterpret_cast<TablePage *>(npg->GetData());
+    next_page->Init();
+
+    page_guard.Drop();
+
+    // acquire latch here as TSAN complains. Given we only have one insertion thread, this is fine.
+    npg->WLatch();
+    auto next_page_guard = WritePageGuard{bpm_, npg};
+
+    last_page_id_ = next_page_id;
+    page_guard = std::move(next_page_guard);
+  }
+  auto last_page_id = last_page_id_;
+
+  auto page = page_guard.AsMut<TablePage>();
+  auto slot_id = *page->InsertTuple(meta, tuple);
+
+  // only allow one insertion at a time, otherwise it will deadlock.
+  guard.unlock();
+
+  return std::make_pair(std::move(page_guard), RID(last_page_id, slot_id));
+}
+
 auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple, LockManager *lock_mgr, Transaction *txn,
                             table_oid_t oid) -> std::optional<RID> {
   std::unique_lock<std::mutex> guard(latch_);
@@ -77,10 +119,12 @@ auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple, LockManag
   // only allow one insertion at a time, otherwise it will deadlock.
   guard.unlock();
 
+#ifndef DISABLE_LOCK_MANAGER
   if (lock_mgr != nullptr) {
     BUSTUB_ENSURE(lock_mgr->LockRow(txn, LockManager::LockMode::EXCLUSIVE, oid, RID{last_page_id, slot_id}),
                   "failed to lock when inserting new tuple");
   }
+#endif
 
   page_guard.Drop();
 
@@ -119,10 +163,17 @@ auto TableHeap::MakeIterator() -> TableIterator {
 
 auto TableHeap::MakeEagerIterator() -> TableIterator { return {this, {first_page_id_, 0}, {INVALID_PAGE_ID, 0}}; }
 
-void TableHeap::UpdateTupleInPlaceUnsafe(const TupleMeta &meta, const Tuple &tuple, RID rid) {
+auto TableHeap::UpdateTupleInPlace(const TupleMeta &meta, const Tuple &tuple, RID rid,
+                                   std::function<bool(const TupleMeta &meta, const Tuple &table, RID rid)> &&check)
+    -> bool {
   auto page_guard = bpm_->FetchPageWrite(rid.GetPageId());
   auto page = page_guard.AsMut<TablePage>();
-  page->UpdateTupleInPlaceUnsafe(meta, tuple, rid);
+  auto [old_meta, old_tup] = page->GetTuple(rid);
+  if (check(old_meta, old_tup, rid)) {
+    page->UpdateTupleInPlaceUnsafe(meta, tuple, rid);
+    return true;
+  }
+  return false;
 }
 
 }  // namespace bustub

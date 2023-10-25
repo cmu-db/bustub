@@ -22,6 +22,7 @@
 #include "concurrency/lock_manager.h"
 #include "concurrency/transaction.h"
 #include "recovery/log_manager.h"
+#include "storage/page/page_guard.h"
 #include "storage/page/table_page.h"
 #include "storage/table/table_iterator.h"
 #include "storage/table/tuple.h"
@@ -91,7 +92,8 @@ class TableHeap {
    * @param tuple  new tuple
    * @param[out] rid the rid of the tuple to be updated
    */
-  void UpdateTupleInPlaceUnsafe(const TupleMeta &meta, const Tuple &tuple, RID rid);
+  auto UpdateTupleInPlace(const TupleMeta &meta, const Tuple &tuple, RID rid,
+                          std::function<bool(const TupleMeta &meta, const Tuple &table, RID rid)> &&check) -> bool;
 
   /** For binder tests */
   static auto CreateEmptyHeap(bool create_table_heap = false) -> std::unique_ptr<TableHeap> {
@@ -101,6 +103,15 @@ class TableHeap {
   }
 
  private:
+  /**
+   * Insert a tuple into the table. If the tuple is too large (>= page_size), return std::nullopt.
+   * @param meta tuple meta
+   * @param tuple tuple to insert
+   * @return rid of the inserted tuple
+   */
+  auto InsertTupleDeferredUnlock(const TupleMeta &meta, const Tuple &tuple)
+      -> std::pair<WritePageGuard, std::optional<RID>>;
+
   /** Used for binder tests */
   explicit TableHeap(bool create_table_heap = false);
 

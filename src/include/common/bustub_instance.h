@@ -263,6 +263,7 @@ class BustubInstance {
 
   std::unique_ptr<DiskManager> disk_manager_;
   std::unique_ptr<BufferPoolManager> buffer_pool_manager_;
+
   std::unique_ptr<LockManager> lock_manager_;
   std::unique_ptr<TransactionManager> txn_manager_;
   std::unique_ptr<LogManager> log_manager_;

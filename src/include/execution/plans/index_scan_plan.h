@@ -16,6 +16,7 @@
 #include <utility>
 
 #include "catalog/catalog.h"
+#include "concurrency/transaction.h"
 #include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
 
@@ -30,8 +31,8 @@ class IndexScanPlanNode : public AbstractPlanNode {
    * @param output The output format of this scan plan node
    * @param table_oid The identifier of table to be scanned
    */
-  IndexScanPlanNode(SchemaRef output, index_oid_t index_oid)
-      : AbstractPlanNode(std::move(output), {}), index_oid_(index_oid) {}
+  IndexScanPlanNode(SchemaRef output, table_oid_t table_oid, index_oid_t index_oid)
+      : AbstractPlanNode(std::move(output), {}), table_oid_(table_oid), index_oid_(index_oid) {}
 
   auto GetType() const -> PlanType override { return PlanType::IndexScan; }
 
@@ -40,7 +41,10 @@ class IndexScanPlanNode : public AbstractPlanNode {
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(IndexScanPlanNode);
 
-  /** The table whose tuples should be scanned. */
+  /** The table which the index is created on. */
+  table_oid_t table_oid_;
+
+  /** The index whose tuples should be scanned. */
   index_oid_t index_oid_;
 
   // Add anything you want here for index lookup

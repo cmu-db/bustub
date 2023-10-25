@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "catalog/catalog.h"
 #include "common/config.h"
 #include "concurrency/lock_manager.h"
 #include "concurrency/transaction.h"
@@ -95,6 +96,8 @@ class TransactionManager {
 
   /** Resumes all transactions, used for checkpointing. */
   void ResumeTransactions();
+
+  Catalog *catalog_{nullptr};
 
  private:
   /**

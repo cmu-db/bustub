@@ -86,6 +86,7 @@ class LockManager {
   }
 
   ~LockManager() {
+#ifndef DISABLE_LOCK_MANAGER
     UnlockAll();
 
     enable_cycle_detection_ = false;
@@ -94,6 +95,7 @@ class LockManager {
       cycle_detection_thread_->join();
       delete cycle_detection_thread_;
     }
+#endif
   }
 
   /**

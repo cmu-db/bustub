@@ -69,7 +69,8 @@ auto Optimizer::OptimizeOrderByAsIndexScan(const AbstractPlanNodeRef &plan) -> A
             }
           }
           if (valid) {
-            return std::make_shared<IndexScanPlanNode>(optimized_plan->output_schema_, index->index_oid_);
+            return std::make_shared<IndexScanPlanNode>(optimized_plan->output_schema_, table_info->oid_,
+                                                       index->index_oid_);
           }
         }
       }
