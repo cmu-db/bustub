@@ -15,6 +15,7 @@
 #include "binder/statement/select_statement.h"
 #include "binder/statement/set_show_statement.h"
 #include "buffer/buffer_pool_manager.h"
+#include "catalog/catalog.h"
 #include "catalog/schema.h"
 #include "catalog/table_generator.h"
 #include "common/bustub_instance.h"
@@ -43,12 +44,44 @@ namespace bustub {
 void BustubInstance::HandleCreateStatement(Transaction *txn, const CreateStatement &stmt, ResultWriter &writer) {
   std::unique_lock<std::shared_mutex> l(catalog_lock_);
   auto info = catalog_->CreateTable(txn, stmt.table_, Schema(stmt.columns_));
+  IndexInfo *index = nullptr;
+  if (!stmt.primary_key_.empty()) {
+    std::vector<uint32_t> col_ids;
+    for (const auto &col : stmt.primary_key_) {
+      auto idx = info->schema_.GetColIdx(col);
+      col_ids.push_back(idx);
+      if (info->schema_.GetColumn(idx).GetType() != TypeId::INTEGER) {
+        throw NotImplementedException("only support creating index on integer column");
+      }
+    }
+    auto key_schema = Schema::CopySchema(&info->schema_, col_ids);
+
+    // TODO(spring2023): If you want to support composite index key for leaderboard optimization, remove this assertion
+    // and create index with different key type that can hold multiple keys based on number of index columns.
+    //
+    // You can also create clustered index that directly stores value inside the index by modifying the value type.
+
+    if (col_ids.empty() || col_ids.size() > 2) {
+      throw NotImplementedException("only support creating index with exactly one or two columns");
+    }
+
+    index = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
+        txn, stmt.table_ + "_pk", stmt.table_, info->schema_, key_schema, col_ids, TWO_INTEGER_SIZE,
+        IntegerHashFunctionType{}, true);
+  }
   l.unlock();
 
   if (info == nullptr) {
     throw bustub::Exception("Failed to create table");
   }
-  WriteOneCell(fmt::format("Table created with id = {}", info->oid_), writer);
+
+  if (index != nullptr) {
+    WriteOneCell(fmt::format("Table created with id = {}, Primary key index created with id = {}", info->oid_,
+                             index->index_oid_),
+                 writer);
+  } else {
+    WriteOneCell(fmt::format("Table created with id = {}", info->oid_), writer);
+  }
 }
 
 void BustubInstance::HandleIndexStatement(Transaction *txn, const IndexStatement &stmt, ResultWriter &writer) {

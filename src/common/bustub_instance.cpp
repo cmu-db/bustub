@@ -49,8 +49,10 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
   // Storage related.
   disk_manager_ = std::make_unique<DiskManager>(db_file_name);
 
+#ifndef DISABLE_CHECKPOINT_MANAGER
   // Log related.
   log_manager_ = std::make_unique<LogManager>(disk_manager_.get());
+#endif
 
   // We need more frames for GenerateTestTable to work. Therefore, we use 128 instead of the default
   // buffer pool size specified in `config.h`.
@@ -62,23 +64,33 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
     buffer_pool_manager_ = nullptr;
   }
 
-  // Transaction (txn) related.
+// Transaction (txn) related.
+#ifndef DISABLE_LOCK_MANAGER
   lock_manager_ = std::make_unique<LockManager>();
+  txn_manager_ = std::make_unique<TransactionManager>(lock_manager_.get());
+#else
+  txn_manager_ = std::make_unique<TransactionManager>();
+#endif
 
-  txn_manager_ = std::make_unique<TransactionManager>(lock_manager_.get(), log_manager_.get());
-
+#ifndef DISABLE_LOCK_MANAGER
   lock_manager_->txn_manager_ = txn_manager_.get();
 
 #ifndef __EMSCRIPTEN__
   lock_manager_->StartDeadlockDetection();
 #endif
 
+#endif
+
+#ifndef DISABLE_CHECKPOINT_MANAGER
   // Checkpoint related.
   checkpoint_manager_ =
       std::make_unique<CheckpointManager>(txn_manager_.get(), log_manager_.get(), buffer_pool_manager_.get());
+#endif
 
   // Catalog related.
   catalog_ = std::make_unique<Catalog>(buffer_pool_manager_.get(), lock_manager_.get(), log_manager_.get());
+
+  txn_manager_->catalog_ = catalog_.get();
 
   // Execution engine related.
   execution_engine_ = std::make_unique<ExecutionEngine>(buffer_pool_manager_.get(), txn_manager_.get(), catalog_.get());
@@ -90,8 +102,10 @@ BustubInstance::BustubInstance() {
   // Storage related.
   disk_manager_ = std::make_unique<DiskManagerUnlimitedMemory>();
 
+#ifndef DISABLE_CHECKPOINT_MANAGER
   // Log related.
   log_manager_ = std::make_unique<LogManager>(disk_manager_.get());
+#endif
 
   // We need more frames for GenerateTestTable to work. Therefore, we use 128 instead of the default
   // buffer pool size specified in `config.h`.
@@ -103,23 +117,31 @@ BustubInstance::BustubInstance() {
     buffer_pool_manager_ = nullptr;
   }
 
-  // Transaction (txn) related.
+#ifndef DISABLE_LOCK_MANAGER
   lock_manager_ = std::make_unique<LockManager>();
+  txn_manager_ = std::make_unique<TransactionManager>(lock_manager_.get());
+#else
+  txn_manager_ = std::make_unique<TransactionManager>();
+#endif
 
-  txn_manager_ = std::make_unique<TransactionManager>(lock_manager_.get(), log_manager_.get());
-
+#ifndef DISABLE_LOCK_MANAGER
   lock_manager_->txn_manager_ = txn_manager_.get();
 
 #ifndef __EMSCRIPTEN__
   lock_manager_->StartDeadlockDetection();
 #endif
+#endif
 
+#ifndef DISABLE_CHECKPOINT_MANAGER
   // Checkpoint related.
   checkpoint_manager_ =
       std::make_unique<CheckpointManager>(txn_manager_.get(), log_manager_.get(), buffer_pool_manager_.get());
+#endif
 
   // Catalog related.
   catalog_ = std::make_unique<Catalog>(buffer_pool_manager_.get(), lock_manager_.get(), log_manager_.get());
+
+  txn_manager_->catalog_ = catalog_.get();
 
   // Execution engine related.
   execution_engine_ = std::make_unique<ExecutionEngine>(buffer_pool_manager_.get(), txn_manager_.get(), catalog_.get());
@@ -188,7 +210,7 @@ see the execution plan of your query.
 
 auto BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer,
                                 std::shared_ptr<CheckOptions> check_options) -> bool {
-  auto txn = txn_manager_->Begin();
+  auto *txn = txn_manager_->Begin();
   try {
     auto result = ExecuteSqlTxn(sql, writer, txn, std::move(check_options));
     txn_manager_->Commit(txn);
@@ -316,7 +338,7 @@ auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
  * create / drop table and insert for now. Should remove it in the future.
  */
 void BustubInstance::GenerateTestTable() {
-  auto txn = txn_manager_->Begin();
+  auto *txn = txn_manager_->Begin();
   auto exec_ctx = MakeExecutorContext(txn, false);
   TableGenerator gen{exec_ctx.get()};
 
