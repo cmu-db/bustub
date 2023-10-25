@@ -19,6 +19,7 @@ add_library(
         seq_scan_executor.cpp
         sort_executor.cpp
         topn_executor.cpp
+        topn_per_group_executor.cpp
         topn_check_executor.cpp
         update_executor.cpp
         values_executor.cpp

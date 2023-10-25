@@ -47,6 +47,7 @@ enum class PlanType {
   Projection,
   Sort,
   TopN,
+  TopNPerGroup,
   MockScan,
   InitCheck,
   Window
