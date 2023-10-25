@@ -106,10 +106,9 @@ template <>
 struct fmt::formatter<bustub::WindowFunctionPlanNode::WindowFunction> : formatter<std::string> {
   template <typename FormatContext>
   auto format(const bustub::WindowFunctionPlanNode::WindowFunction &x, FormatContext &ctx) const {
-    return formatter<std::string>::format(
-        fmt::format("{{ function_arg={}, type={}, partition_by={}, order_by={} }}", x.function_, x.type_,
-                    x.partition_by_, x.order_by_),
-        ctx);
+    return formatter<std::string>::format(fmt::format("{{ function_arg={}, type={}, partition_by={}, order_by={} }}",
+                                                      x.function_, x.type_, x.partition_by_, x.order_by_),
+                                          ctx);
   }
 };
 
