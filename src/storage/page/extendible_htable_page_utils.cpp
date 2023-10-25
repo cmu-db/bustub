@@ -91,7 +91,7 @@ void ExtendibleHTableDirectoryPage::VerifyIntegrity() const {
     uint32_t required_count = 0x1 << (global_depth_ - curr_ld);
 
     if (curr_count != required_count) {
-      LOG_WARN("Verify Integrity: curr_count: %u, required_count %u, for page_id: %u", curr_ld, required_count,
+      LOG_WARN("Verify Integrity: curr_count: %u, required_count %u, for page_id: %u", curr_count, required_count,
                curr_page_id);
       PrintDirectory();
       BUSTUB_ASSERT(curr_count == required_count, "a bucket does not have precisely 2^(GD - LD) pointers to it");
