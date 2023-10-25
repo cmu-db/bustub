@@ -564,7 +564,7 @@ auto Binder::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_pt
   }
 
   if (function_name == "min" || function_name == "max" || function_name == "first" || function_name == "last" ||
-      function_name == "sum" || function_name == "count") {
+      function_name == "sum" || function_name == "count" || function_name == "rank") {
     // Rewrite count(*) to count_star().
     if (function_name == "count" && children.empty()) {
       function_name = "count_star";

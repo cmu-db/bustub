@@ -80,7 +80,7 @@ auto AggregationPlanNode::InferAggSchema(const std::vector<AbstractExpressionRef
   return Schema(output);
 }
 
-auto WindowAggregationPlanNode::InferWindowSchema(const std::vector<AbstractExpressionRef> &columns) -> Schema {
+auto WindowFunctionPlanNode::InferWindowSchema(const std::vector<AbstractExpressionRef> &columns) -> Schema {
   std::vector<Column> output;
   // TODO(avery): correctly infer window call return type
   for (const auto &column : columns) {

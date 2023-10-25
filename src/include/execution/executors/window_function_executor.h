@@ -2,9 +2,9 @@
 //
 //                         BusTub
 //
-// window_aggregate_executor.h
+// window_function_executor.h
 //
-// Identification: src/include/execution/executors/projection_executor.h
+// Identification: src/include/execution/executors/window_function_executor.h
 //
 // Copyright (c) 2015-2022, Carnegie Mellon University Database Group
 //
@@ -23,52 +23,52 @@
 namespace bustub {
 
 /**
- * The WindowAggregationExecutor executor executes a window aggregation for columns using window function.
+ * The WindowFunctionExecutor executor executes a window function for columns using window function.
  *
- * Window Aggregation is different from normal aggregation as it outputs one row for each inputing rows,
- * and can be combined with normal selected columns. The columns in WindowAggregationPlanNode contains both
- * normal selected columns and placeholder columns for window aggregations.
+ * Window function is different from normal aggregation as it outputs one row for each inputing rows,
+ * and can be combined with normal selected columns. The columns in WindowFunctionPlanNode contains both
+ * normal selected columns and placeholder columns for window functions.
  *
  * For example, if we have a query like:
  *    SELECT 0.1, 0.2, SUM(0.3) OVER (PARTITION BY 0.2 ORDER BY 0.3), SUM(0.4) OVER (PARTITION BY 0.1 ORDER BY 0.2,0.3)
  *      FROM table;
  *
- * The WindowAggregationPlanNode contains following structure:
+ * The WindowFunctionPlanNode contains following structure:
  *    columns: std::vector<AbstractExpressionRef>{0.1, 0.2, 0.-1(placeholder), 0.-1(placeholder)}
  *    window_functions_: {
  *      3: {
  *        partition_by: std::vector<AbstractExpressionRef>{0.2}
  *        order_by: std::vector<AbstractExpressionRef>{0.3}
- *        aggregate: std::vector<AbstractExpressionRef>{0.3}
- *        window_agg_type: WindowAggregationType::SumAggregate
+ *        functions: std::vector<AbstractExpressionRef>{0.3}
+ *        window_func_type: WindowFunctionType::SumAggregate
  *      }
  *      4: {
  *        partition_by: std::vector<AbstractExpressionRef>{0.1}
  *        order_by: std::vector<AbstractExpressionRef>{0.2,0.3}
- *        aggregate: std::vector<AbstractExpressionRef>{0.4}
- *        window_agg_type: WindowAggregationType::SumAggregate
+ *        functions: std::vector<AbstractExpressionRef>{0.4}
+ *        window_func_type: WindowFunctionType::SumAggregate
  *      }
  *    }
  *
  * Your executor should use child executor and exprs in columns to produce selected columns except for window
- * aggregation columns, and use window_agg_indexes, partition_bys, order_bys, aggregates and window_agg_types to
- * generate window aggregation columns results. Directly use placeholders for window aggregation columns in columns is
+ * function columns, and use window_agg_indexes, partition_bys, order_bys, functionss and window_agg_types to
+ * generate window function columns results. Directly use placeholders for window function columns in columns is
  * not allowed, as it contains invalid column id.
  *
- * Your windowAggregationExecutor does not need to support specified window frames (eg: 1 preceding and 1 following).
+ * Your WindowFunctionExecutor does not need to support specified window frames (eg: 1 preceding and 1 following).
  * You can assume that all window frames are UNBOUNDED FOLLOWING AND CURRENT ROW when there is ORDER BY clause, and
  * UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING when there is no ORDER BY clause.
  *
  */
-class WindowAggregationExecutor : public AbstractExecutor {
+class WindowFunctionExecutor : public AbstractExecutor {
  public:
   /**
-   * Construct a new WindowAggregationExecutor instance.
+   * Construct a new WindowFunctionExecutor instance.
    * @param exec_ctx The executor context
    * @param plan The window aggregation plan to be executed
    */
-  WindowAggregationExecutor(ExecutorContext *exec_ctx, const WindowAggregationPlanNode *plan,
-                            std::unique_ptr<AbstractExecutor> &&child_executor);
+  WindowFunctionExecutor(ExecutorContext *exec_ctx, const WindowFunctionPlanNode *plan,
+                         std::unique_ptr<AbstractExecutor> &&child_executor);
 
   /** Initialize the window aggregation */
   void Init() override;
@@ -86,7 +86,7 @@ class WindowAggregationExecutor : public AbstractExecutor {
 
  private:
   /** The window aggregation plan node to be executed */
-  const WindowAggregationPlanNode *plan_;
+  const WindowFunctionPlanNode *plan_;
 
   /** The child executor from which tuples are obtained */
   std::unique_ptr<AbstractExecutor> child_executor_;

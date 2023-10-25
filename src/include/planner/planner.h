@@ -140,7 +140,7 @@ class Planner {
       -> std::tuple<AggregationType, std::vector<AbstractExpressionRef>>;
 
   auto GetWindowAggCallFromFactory(const std::string &func_name, std::vector<AbstractExpressionRef> args)
-      -> std::tuple<WindowAggregationType, std::vector<AbstractExpressionRef>>;
+      -> std::tuple<WindowFunctionType, std::vector<AbstractExpressionRef>>;
 
   auto GetBinaryExpressionFromFactory(const std::string &op_name, AbstractExpressionRef left,
                                       AbstractExpressionRef right) -> AbstractExpressionRef;
