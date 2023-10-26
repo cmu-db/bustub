@@ -28,6 +28,29 @@ namespace bustub {
 
 // TODO(chi): clang-tidy on macOS will suggest changing it to const reference. Looks like a bug.
 
+void CheckOrderByCompatible(
+    const std::vector<std::vector<std::pair<OrderByType, AbstractExpressionRef>>> &order_by_exprs) {
+  if (order_by_exprs.empty()) {
+    // either or window functions not having order by clause
+    return;
+  }
+  // or all order by clause are the same
+  std::vector<std::pair<OrderByType, AbstractExpressionRef>> first_order_by = order_by_exprs[0];
+  for (auto &order_by : order_by_exprs) {
+    if (order_by.size() != first_order_by.size()) {
+      throw Exception("order by clause of window functions are not compatible");
+    }
+    for (uint32_t i = 0; i < order_by.size(); i++) {
+      if (order_by[i].first != first_order_by[i].first) {
+        throw Exception("order by clause of window functions are not compatible");
+      }
+      if (order_by[i].second->ToString() != first_order_by[i].second->ToString()) {
+        throw Exception("order by clause of window functions are not compatible");
+      }
+    }
+  }
+}
+
 /* NOLINTNEXTLINE */
 auto Planner::PlanSelectWindow(const SelectStatement &statement, AbstractPlanNodeRef child) -> AbstractPlanNodeRef {
   /* For window function we don't do two passes rewrites like planning normal aggregations.
@@ -84,6 +107,10 @@ auto Planner::PlanSelectWindow(const SelectStatement &statement, AbstractPlanNod
     }
     partition_by_exprs.emplace_back(std::move(partition_by));
 
+    if (window_call.func_name_ == "rank" && window_call.order_bys_.empty()) {
+      throw Exception("order by clause is mandatory for rank function");
+    }
+
     std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_by;
     for (const auto &item : window_call.order_bys_) {
       auto [_, expr] = PlanExpression(*item->expr_, {child});
@@ -104,18 +131,15 @@ auto Planner::PlanSelectWindow(const SelectStatement &statement, AbstractPlanNod
       throw bustub::NotImplementedException("only agg call of zero/one arg is supported");
     }
     if (clean_args.empty()) {
-      if (window_func_type == WindowFunctionType::CountStarAggregate) {
-        // Rewrite count(*) into count(1)
-        clean_arg = std::make_shared<ConstantValueExpression>(ValueFactory::GetIntegerValue(1));
-      } else {
-        // rank, arg = nullptr
-        clean_arg = std::shared_ptr<AbstractExpression>(nullptr);
-      }
+      // Rewrite count(*)/row_number into count(1)
+      clean_arg = std::make_shared<ConstantValueExpression>(ValueFactory::GetIntegerValue(1));
     } else {
       clean_arg = std::move(clean_args[0]);
     }
     arg_exprs.emplace_back(std::move(clean_arg));
   }
+
+  CheckOrderByCompatible(order_by_exprs);
 
   // we don't need window_agg_indexes here because we already use placeholders to infer the window agg column type is
   // Integer
