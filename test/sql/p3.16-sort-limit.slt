@@ -4,45 +4,52 @@
 
 # Default
 query
-select * from  __mock_table_tas_2023 order by office_hour, github_id;
+select * from  __mock_table_tas_2023_fall order by office_hour, github_id;
 ----
 abigalekim Friday
-David-Lyons Monday
+aoleizhou Friday
+averyqi115 Friday
+kswim8 Never
 skyzh Randomly
-arvinwu168 Thursday
-yliang412 Thursday
+anurag-23 Thursday
 Mayank-Baranwal Tuesday
-christopherlim98 Tuesday
-fanyuex2 Tuesday
-yarkhinephyo Wednesday
+wiam8 Tuesday
+yliang412 Tuesday
+fernandolis10 Wednesday
+ChaosZhai Yesterday
+
 
 # ASC
 query
-select * from  __mock_table_tas_2023 order by office_hour asc, github_id desc;
+select * from  __mock_table_tas_2023_fall order by office_hour asc, github_id desc;
 ----
-abigalekim Friday        
-David-Lyons Monday        
-skyzh Randomly      
-yliang412 Thursday      
-arvinwu168 Thursday      
-fanyuex2 Tuesday       
-christopherlim98 Tuesday       
-Mayank-Baranwal Tuesday       
-yarkhinephyo Wednesday     
+averyqi115 Friday
+aoleizhou Friday
+abigalekim Friday
+kswim8 Never
+skyzh Randomly
+anurag-23 Thursday
+yliang412 Tuesday
+wiam8 Tuesday
+Mayank-Baranwal Tuesday
+fernandolis10 Wednesday
+ChaosZhai Yesterday
 
 
 query
-select * from  __mock_table_tas_2023 order by github_id desc;
+select * from  __mock_table_tas_2023_fall order by github_id desc;
 ----
-yliang412 Thursday
-yarkhinephyo Wednesday
+yliang412 Tuesday
+wiam8 Tuesday
 skyzh Randomly
-fanyuex2 Tuesday
-christopherlim98 Tuesday
-arvinwu168 Thursday
+kswim8 Never
+fernandolis10 Wednesday
+averyqi115 Friday
+aoleizhou Friday
+anurag-23 Thursday
 abigalekim Friday
 Mayank-Baranwal Tuesday
-David-Lyons Monday
+ChaosZhai Yesterday
 
 
 # Simple limit

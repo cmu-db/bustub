@@ -35,6 +35,8 @@ using table_oid_t = uint32_t;
 using column_oid_t = uint32_t;
 using index_oid_t = uint32_t;
 
+enum class IndexType { BPlusTreeIndex, HashTableIndex };
+
 /**
  * The TableInfo class maintains metadata about a table.
  */
@@ -94,6 +96,8 @@ struct IndexInfo {
   const size_t key_size_;
   /** Is primary key index? */
   bool is_primary_key_;
+  /** The index type */
+  [[maybe_unused]] IndexType index_type_{IndexType::BPlusTreeIndex};
 };
 
 /**
@@ -206,7 +210,8 @@ class Catalog {
   template <class KeyType, class ValueType, class KeyComparator>
   auto CreateIndex(Transaction *txn, const std::string &index_name, const std::string &table_name, const Schema &schema,
                    const Schema &key_schema, const std::vector<uint32_t> &key_attrs, std::size_t keysize,
-                   HashFunction<KeyType> hash_function, bool is_primary_key = false) -> IndexInfo * {
+                   HashFunction<KeyType> hash_function, bool is_primary_key = false,
+                   IndexType index_type = IndexType::HashTableIndex) -> IndexInfo * {
     // Reject the creation request for nonexistent table
     if (table_names_.find(table_name) == table_names_.end()) {
       return NULL_INDEX_INFO;
@@ -231,7 +236,14 @@ class Catalog {
     // just the key, value, and comparator types
 
     // TODO(chi): support both hash index and btree index
-    auto index = std::make_unique<BPlusTreeIndex<KeyType, ValueType, KeyComparator>>(std::move(meta), bpm_);
+    std::unique_ptr<Index> index;
+    if (index_type == IndexType::HashTableIndex) {
+      index = std::make_unique<ExtendibleHashTableIndex<KeyType, ValueType, KeyComparator>>(std::move(meta), bpm_,
+                                                                                            hash_function);
+    } else {
+      BUSTUB_ASSERT(index_type == IndexType::BPlusTreeIndex, "Unsupported Index Type");
+      index = std::make_unique<BPlusTreeIndex<KeyType, ValueType, KeyComparator>>(std::move(meta), bpm_);
+    }
 
     // Populate the index with all tuples in table heap
     auto *table_meta = GetTable(table_name);

@@ -350,6 +350,7 @@ set(P3_FILES
         "src/optimizer/optimizer_custom_rules.cpp"
         "src/optimizer/sort_limit_as_topn.cpp"
         "src/optimizer/optimizer_internal.cpp"
+        "src/optimizer/seqscan_as_indexscan.cpp"
         "src/common/bustub_ddl.cpp"
         "src/include/execution/plans/index_scan_plan.h"
         "src/include/execution/plans/topn_per_group_plan.h"

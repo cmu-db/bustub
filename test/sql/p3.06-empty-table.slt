@@ -22,7 +22,7 @@ create index t1v1 on t1(v1);
 
 # Index Scan
 query
-select * from t1 order by v1;
+select * from t1 where v1 = 1;
 ----
 
 
@@ -40,7 +40,7 @@ select * from t1;
 
 # Index Scan
 query
-select * from t1 order by v1;
+select * from t1 where v1 = 1;
 ----
 1
 
@@ -57,5 +57,5 @@ select * from t1;
 ----
 
 # Index Scan
-select * from t1 order by v1;
+select * from t1 where v1 = 1;
 ----
