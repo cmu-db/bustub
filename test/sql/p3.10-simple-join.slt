@@ -8,12 +8,11 @@ set force_optimizer_starter_rule=yes
 
 query rowsort
 select * from
-    __mock_table_tas_2023 inner join __mock_table_schedule_2023
+    __mock_table_tas_2023_fall inner join __mock_table_schedule_2023
     on office_hour = day_of_week
     where has_lecture = 1;
 ----
-David-Lyons Monday Monday 1 
-yarkhinephyo Wednesday Wednesday 1 
+fernandolis10 Wednesday Wednesday 1
 
 # The real test begins...
 

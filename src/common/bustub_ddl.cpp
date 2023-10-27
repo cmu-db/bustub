@@ -107,7 +107,7 @@ void BustubInstance::HandleIndexStatement(Transaction *txn, const IndexStatement
   std::unique_lock<std::shared_mutex> l(catalog_lock_);
   auto info = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
       txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, TWO_INTEGER_SIZE,
-      IntegerHashFunctionType{});
+      IntegerHashFunctionType{}, false, IndexType::HashTableIndex);
   l.unlock();
 
   if (info == nullptr) {

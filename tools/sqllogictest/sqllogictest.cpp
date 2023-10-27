@@ -75,10 +75,23 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instanc
           fmt::print("IndexScan not found\n");
           return false;
         }
-      } else if (opt == "ensure:hash_join") {
+      } else if (opt == "ensure:seq_scan") {
+        if (bustub::StringUtil::Contains(result.str(), "IndexScan") ||
+            bustub::StringUtil::ContainsAfter("OPTIMIZER", result.str(), "Filter")) {
+          fmt::print("SeqScan on not indexed columns\n");
+          return false;
+        }
+      }
+      else if (opt == "ensure:hash_join") {
         if (bustub::StringUtil::Split(result.str(), "HashJoin").size() != 2 &&
             !bustub::StringUtil::Contains(result.str(), "Filter")) {
           fmt::print("HashJoin not found\n");
+          return false;
+        }
+      } else if (opt == "ensure:hash_join_no_filter") {
+        if (bustub::StringUtil::Split(result.str(), "HashJoin").size() != 2 ||
+            bustub::StringUtil::ContainsAfter("OPTIMIZER", result.str(), "Filter")) {
+          fmt::print("Push all filters into HashJoin\n");
           return false;
         }
       } else if (opt == "ensure:hash_join*2") {
@@ -198,6 +211,10 @@ auto main(int argc, char **argv) -> int {  // NOLINT
   t.close();
 
   auto result = bustub::SQLLogicTestParser::Parse(script);
+  if (result.empty()) {
+    fmt::print("This is not tested this semester\n");
+    return 0;
+  }
 
   std::unique_ptr<bustub::BustubInstance> bustub;
 
