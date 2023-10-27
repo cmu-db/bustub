@@ -153,6 +153,7 @@ auto main(int argc, char **argv) -> int {
   }
 
   auto bustub = std::make_unique<bustub::BustubInstance>();
+  bustub->txn_manager_->SetTerrier();
   auto writer = bustub::SimpleStreamWriter(std::cerr);
 
   // create schema
