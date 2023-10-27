@@ -50,6 +50,7 @@ constexpr static const auto TWO_INTEGER_SIZE = 8;
 using IntegerKeyType = GenericKey<TWO_INTEGER_SIZE>;
 using IntegerValueType = RID;
 using IntegerComparatorType = GenericComparator<TWO_INTEGER_SIZE>;
-using HashTableIndexForTwoIntegerColumn = ExtendibleHashTableIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>;
+using HashTableIndexForTwoIntegerColumn =
+    ExtendibleHashTableIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>;
 
 }  // namespace bustub

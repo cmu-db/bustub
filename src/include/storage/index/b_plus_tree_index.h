@@ -50,11 +50,12 @@ class BPlusTreeIndex : public Index {
 
 /** We only support index table with one integer key for now in BusTub. Hardcode everything here. */
 
-constexpr static const auto TWO_INTEGER_SIZE_BTree = 8;
-using IntegerKeyType_BTree = GenericKey<TWO_INTEGER_SIZE_BTree>;
+constexpr static const auto TWO_INTEGER_SIZE_B_TREE = 8;
+using IntegerKeyType_BTree = GenericKey<TWO_INTEGER_SIZE_B_TREE>;
 using IntegerValueType_BTree = RID;
-using IntegerComparatorType_BTree = GenericComparator<TWO_INTEGER_SIZE_BTree>;
-using BPlusTreeIndexForTwoIntegerColumn = BPlusTreeIndex<IntegerKeyType_BTree, IntegerValueType_BTree, IntegerComparatorType_BTree>;
+using IntegerComparatorType_BTree = GenericComparator<TWO_INTEGER_SIZE_B_TREE>;
+using BPlusTreeIndexForTwoIntegerColumn =
+    BPlusTreeIndex<IntegerKeyType_BTree, IntegerValueType_BTree, IntegerComparatorType_BTree>;
 using BPlusTreeIndexIteratorForTwoIntegerColumn =
     IndexIterator<IntegerKeyType_BTree, IntegerValueType_BTree, IntegerComparatorType_BTree>;
 using IntegerHashFunctionType = HashFunction<IntegerKeyType_BTree>;

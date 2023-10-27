@@ -35,7 +35,7 @@ using table_oid_t = uint32_t;
 using column_oid_t = uint32_t;
 using index_oid_t = uint32_t;
 
-enum class IndexType {BPlusTreeIndex, HashTableIndex};
+enum class IndexType { BPlusTreeIndex, HashTableIndex };
 
 /**
  * The TableInfo class maintains metadata about a table.
@@ -97,7 +97,7 @@ struct IndexInfo {
   /** Is primary key index? */
   bool is_primary_key_;
   /** The index type */
-  [[maybe_unused]] IndexType index_type_ {IndexType::BPlusTreeIndex};
+  [[maybe_unused]] IndexType index_type_{IndexType::BPlusTreeIndex};
 };
 
 /**
@@ -238,8 +238,8 @@ class Catalog {
     // TODO(chi): support both hash index and btree index
     std::unique_ptr<Index> index;
     if (index_type == IndexType::HashTableIndex) {
-      index = std::make_unique<ExtendibleHashTableIndex<KeyType, ValueType, KeyComparator>>(std::move(meta),
-                                                                                            bpm_, hash_function);
+      index = std::make_unique<ExtendibleHashTableIndex<KeyType, ValueType, KeyComparator>>(std::move(meta), bpm_,
+                                                                                            hash_function);
     } else {
       BUSTUB_ASSERT(index_type == IndexType::BPlusTreeIndex, "Unsupported Index Type");
       index = std::make_unique<BPlusTreeIndex<KeyType, ValueType, KeyComparator>>(std::move(meta), bpm_);

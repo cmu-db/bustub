@@ -29,9 +29,9 @@ static const char *ta_list_2022[] = {"amstqq",      "durovo",     "joyceliaoo", 
 static const char *ta_list_2023[] = {"abigalekim",      "arvinwu168", "christopherlim98", "David-Lyons", "fanyuex2",
                                      "Mayank-Baranwal", "skyzh",      "yarkhinephyo",     "yliang412"};
 
-static const char *ta_list_2023_fall[] = {"skyzh", "yliang412", "fernandolis10", "wiam8", "anurag-23",
-                                          "Mayank-Baranwal", "abigalekim",
-                                          "ChaosZhai", "aoleizhou", "averyqi115", "kswim8"};
+static const char *ta_list_2023_fall[] = {"skyzh",     "yliang412",       "fernandolis10", "wiam8",
+                                          "anurag-23", "Mayank-Baranwal", "abigalekim",    "ChaosZhai",
+                                          "aoleizhou", "averyqi115",      "kswim8"};
 
 static const char *ta_oh_2022[] = {"Tuesday",   "Wednesday", "Monday",  "Wednesday", "Thursday", "Friday",
                                    "Wednesday", "Randomly",  "Tuesday", "Monday",    "Tuesday"};
@@ -39,17 +39,15 @@ static const char *ta_oh_2022[] = {"Tuesday",   "Wednesday", "Monday",  "Wednesd
 static const char *ta_oh_2023[] = {"Friday",  "Thursday", "Tuesday",   "Monday",  "Tuesday",
                                    "Tuesday", "Randomly", "Wednesday", "Thursday"};
 
-static const char *ta_oh_2023_fall[] = {"Randomly", "Tuesday", "Wednesday", "Tuesday", "Thursday",
-                                         "Tuesday", "Friday",
-                                         "Yesterday", "Friday", "Friday", "Never"};
+static const char *ta_oh_2023_fall[] = {"Randomly", "Tuesday",   "Wednesday", "Tuesday", "Thursday", "Tuesday",
+                                        "Friday",   "Yesterday", "Friday",    "Friday",  "Never"};
 
 static const char *course_on_date[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
 const char *mock_table_list[] = {"__mock_table_1", "__mock_table_2", "__mock_table_3", "__mock_table_tas_2022",
                                  "__mock_table_tas_2023", "__mock_table_tas_2023_fall", "__mock_agg_input_small",
-                                 "__mock_agg_input_big",
-                                 "__mock_table_schedule_2022", "__mock_table_schedule_2023", "__mock_table_123",
-                                 "__mock_graph",
+                                 "__mock_agg_input_big", "__mock_table_schedule_2022", "__mock_table_schedule_2023",
+                                 "__mock_table_123", "__mock_graph",
                                  // For leaderboard Q1
                                  "__mock_t1",
                                  // For leaderboard Q2
