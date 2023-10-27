@@ -550,7 +550,7 @@ select * from temp_1 t1 inner join temp_2 t2 on t1.colC = t2.colB and t1.colB = 
 6 2 170 92798 6 170 2
 
 query rowsort +ensure:hash_join_no_filter
-select * from test_1 t1, test_2 t2 WHERE t1.colA = t2.colA and t1.colB = t2.colC and t1.colA = t2.colC;
+select * from temp_1 t1, temp_2 t2 WHERE t1.colA = t2.colA and t1.colB = t2.colC and t1.colA = t2.colC;
 ----
 8 8 3074 56174 8 194 8
 
