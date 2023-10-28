@@ -354,7 +354,6 @@ set(P3_FILES
         "src/common/bustub_ddl.cpp"
         "src/include/execution/plans/index_scan_plan.h"
         "src/include/execution/plans/topn_per_group_plan.h"
-        "src/include/execution/plans/seq_scan_plan.h"
         ${P2_FILES}
 )
 
