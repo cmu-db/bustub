@@ -72,6 +72,7 @@ set(BUSTUB_SLT_SOURCES
         "${PROJECT_SOURCE_DIR}/test/sql/p3.17-topn.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.18-integration-1.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.19-integration-2.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.20-window-function.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.leaderboard-q1.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.leaderboard-q2.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.leaderboard-q3.slt"
