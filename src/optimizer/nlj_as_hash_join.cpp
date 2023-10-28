@@ -19,9 +19,8 @@ namespace bustub {
 
 auto Optimizer::OptimizeNLJAsHashJoin(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {
   // TODO(student): implement NestedLoopJoin -> HashJoin optimizer rule
-  // Note for 2023 Spring: You should at least support join keys of the form:
-  // 1. <column expr> = <column expr>
-  // 2. <column expr> = <column expr> AND <column expr> = <column expr>
+  // Note for 2023 Fall: You should support join keys of any number of conjunction of equi-condistions:
+  // E.g. <column expr> = <column expr> AND <column expr> = <column expr> AND ...
   return plan;
 }
 
