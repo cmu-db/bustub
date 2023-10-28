@@ -59,7 +59,7 @@ class SeqScanPlanNode : public AbstractPlanNode {
 
   /** The predicate to filter in seqscan.
    * For Fall 2023, We'll enable the MergeFilterScan rule, so we can further support index point lookup
-  */
+   */
   AbstractExpressionRef filter_predicate_;
 
  protected:
