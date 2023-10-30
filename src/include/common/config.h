@@ -16,6 +16,9 @@
 #include <chrono>  // NOLINT
 #include <cstdint>
 
+#define DISABLE_LOCK_MANAGER
+#define DISABLE_CHECKPOINT_MANAGER
+
 namespace bustub {
 
 /** Cycle detection is performed every CYCLE_DETECTION_INTERVAL milliseconds. */
