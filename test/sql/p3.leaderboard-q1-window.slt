@@ -1,0 +1,24 @@
+statement ok
+explain (o) select x, y from (
+ select x, y, rank() over (partition by x order by y) as rank
+ from __mock_t9
+) where rank <= 3;
+
+query nosort +timing:x10:.q1
+select * from (
+    select x, y from (
+    select x, y, rank() over (partition by x order by y) as rank
+    from __mock_t9
+    ) where rank <= 3
+) order by y limit 10;
+----
+0 0
+0 0
+0 1
+0 1
+1 5000
+1 5000
+1 5002
+1 5002
+1 5002
+1 5002
