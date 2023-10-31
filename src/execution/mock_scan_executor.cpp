@@ -422,7 +422,8 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
     return [plan](size_t cursor) {
       std::vector<Value> values{};
       values.push_back(ValueFactory::GetIntegerValue(cursor / 10000));
-      values.push_back(ValueFactory::GetIntegerValue(10000000 - (cursor / 2 + ((cursor / 10000) % 2) * ((cursor / 2) % 2))));
+      values.push_back(
+          ValueFactory::GetIntegerValue(10000000 - (cursor / 2 + ((cursor / 10000) % 2) * ((cursor / 2) % 2))));
       return Tuple{values, &plan->OutputSchema()};
     };
   }
