@@ -67,14 +67,14 @@ struct TerrierTotalMetrics {
     auto update_txn_per_sec = committed_update_txn_cnt_ / static_cast<double>(elsped) * 1000;
     auto verify_txn_per_sec = committed_verify_txn_cnt_ / static_cast<double>(elsped) * 1000;
 
-    fmt::print("<<< BEGIN\n");
+    fmt::print(stderr, "<<< BEGIN\n");
 
     // ensure the verifying thread is not blocked
-    fmt::print("update: {}\n", update_txn_per_sec);
-    fmt::print("count: {}\n", count_txn_per_sec);
-    fmt::print("verify: {}\n", verify_txn_per_sec);
+    fmt::print(stderr, "update: {}\n", update_txn_per_sec);
+    fmt::print(stderr, "count: {}\n", count_txn_per_sec);
+    fmt::print(stderr, "verify: {}\n", verify_txn_per_sec);
 
-    fmt::print(">>> END\n");
+    fmt::print(stderr, ">>> END\n");
   }
 };
 
@@ -102,6 +102,7 @@ struct TerrierMetrics {
     auto elsped = now - start_time_;
     if (elsped - last_report_at_ > 1000) {
       fmt::print(
+          stderr,
           "[{:5.2f}] {}: total_committed_txn={:<5} total_aborted_txn={:<5} throughput={:<6.3} avg_throughput={:<6.3}\n",
           elsped / 1000.0, reporter_, committed_txn_cnt_, aborted_txn_cnt_,
           (committed_txn_cnt_ - last_committed_txn_cnt_) / static_cast<double>(elsped - last_report_at_) * 1000,
@@ -127,15 +128,11 @@ auto ParseBool(const std::string &str) -> bool {
   throw bustub::Exception(fmt::format("unexpected arg: {}", str));
 }
 
-void CheckTableLock(bustub::Transaction *txn) {
-  if (!txn->GetExclusiveTableLockSet()->empty() || !txn->GetSharedTableLockSet()->empty()) {
-    fmt::print("should not acquire S/X table lock, grab IS/IX instead");
-    exit(1);
-  }
-}
+void CheckTableLock(bustub::Transaction *txn) {}
 
 // NOLINTNEXTLINE
 auto main(int argc, char **argv) -> int {
+  const auto isolation_lvl = bustub::IsolationLevel::SNAPSHOT_ISOLATION;
   argparse::ArgumentParser program("bustub-terrier-bench");
   program.add_argument("--duration").help("run terrier bench for n milliseconds");
   program.add_argument("--force-create-index").help("create index in terrier bench");
@@ -153,11 +150,10 @@ auto main(int argc, char **argv) -> int {
   }
 
   auto bustub = std::make_unique<bustub::BustubInstance>();
-  bustub->txn_manager_->SetTerrier();
   auto writer = bustub::SimpleStreamWriter(std::cerr);
 
   // create schema
-  auto schema = "CREATE TABLE nft(id int, terrier int);";
+  auto schema = "CREATE TABLE nft(id int PRIMARY KEY, terrier int);";
   std::cerr << "x: create schema" << std::endl;
   bustub->ExecuteSql(schema, writer);
 
@@ -209,6 +205,16 @@ auto main(int argc, char **argv) -> int {
   std::cerr << "x: benchmark for " << duration_ms << "ms" << std::endl;
   std::cerr << "x: nft_num=" << bustub_nft_num << std::endl;
 
+  std::cerr << "x: please ensure plans are correct for all queries." << std::endl;
+
+  {
+    bustub->ExecuteSql("explain (o) UPDATE nft SET terrier = 0 WHERE id = 0", writer);
+    bustub->ExecuteSql("explain (o) DELETE FROM nft WHERE id = 0", writer);
+    bustub->ExecuteSql("explain (o) INSERT INTO nft VALUES (0, 0)", writer);
+    bustub->ExecuteSql("explain (o) SELECT * from nft", writer);
+    bustub->ExecuteSql("explain (o) SELECT count(*) FROM nft WHERE terrier = 0", writer);
+  }
+
   // initialize data
   std::cerr << "x: initialize data" << std::endl;
   std::string query = "INSERT INTO nft VALUES ";
@@ -224,13 +230,13 @@ auto main(int argc, char **argv) -> int {
   {
     std::stringstream ss;
     auto writer = bustub::SimpleStreamWriter(ss, true);
-    auto txn = bustub->txn_manager_->Begin(nullptr, bustub::IsolationLevel::REPEATABLE_READ);
+    auto txn = bustub->txn_manager_->Begin(isolation_lvl);
     auto success = bustub->ExecuteSqlTxn(query, writer, txn);
     BUSTUB_ENSURE(success, "txn not success");
     bustub->txn_manager_->Commit(txn);
-    delete txn;
+
     if (ss.str() != fmt::format("{}\t\n", bustub_nft_num)) {
-      fmt::print("unexpected result \"{}\" when insert\n", ss.str());
+      fmt::print(stderr, "unexpected result \"{}\" when insert\n", ss.str());
       exit(1);
     }
   }
@@ -266,18 +272,18 @@ auto main(int argc, char **argv) -> int {
             bool txn_success = true;
 
             if (verbose) {
-              fmt::print("begin: thread {} update nft {} to terrier {}\n", thread_id, nft_id, terrier_id);
+              fmt::print(stderr, "begin: thread {} update nft {} to terrier {}\n", thread_id, nft_id, terrier_id);
             }
 
             if (enable_update) {
-              auto txn = bustub->txn_manager_->Begin(nullptr, bustub::IsolationLevel::REPEATABLE_READ);
+              auto txn = bustub->txn_manager_->Begin(isolation_lvl);
               std::string query = fmt::format("UPDATE nft SET terrier = {} WHERE id = {}", terrier_id, nft_id);
               if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
                 txn_success = false;
               }
 
               if (txn_success && ss.str() != "1\t\n") {
-                fmt::print("unexpected result \"{}\",\n", ss.str());
+                fmt::print(stderr, "unexpected result when update \"{}\",\n", ss.str());
                 exit(1);
               }
 
@@ -289,9 +295,9 @@ auto main(int argc, char **argv) -> int {
                 bustub->txn_manager_->Abort(txn);
                 metrics.TxnAborted();
               }
-              delete txn;
+
             } else {
-              auto txn = bustub->txn_manager_->Begin(nullptr, bustub::IsolationLevel::REPEATABLE_READ);
+              auto txn = bustub->txn_manager_->Begin(isolation_lvl);
 
               std::string query = fmt::format("DELETE FROM nft WHERE id = {}", nft_id);
               if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
@@ -299,14 +305,14 @@ auto main(int argc, char **argv) -> int {
               }
 
               if (txn_success && ss.str() != "1\t\n") {
-                fmt::print("unexpected result \"{}\",\n", ss.str());
+                fmt::print(stderr, "unexpected result when delete \"{}\",\n", ss.str());
                 exit(1);
               }
 
               if (!txn_success) {
                 bustub->txn_manager_->Abort(txn);
                 metrics.TxnAborted();
-                delete txn;
+
               } else {
                 query = fmt::format("INSERT INTO nft VALUES ({}, {})", nft_id, terrier_id);
                 if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
@@ -314,7 +320,7 @@ auto main(int argc, char **argv) -> int {
                 }
 
                 if (txn_success && ss.str() != "1\t\n1\t\n") {
-                  fmt::print("unexpected result \"{}\",\n", ss.str());
+                  fmt::print(stderr, "unexpected result when insert \"{}\",\n", ss.str());
                   exit(1);
                 }
 
@@ -326,12 +332,11 @@ auto main(int argc, char **argv) -> int {
                   bustub->txn_manager_->Commit(txn);
                   metrics.TxnCommitted();
                 }
-                delete txn;
               }
             }
 
             if (verbose) {
-              fmt::print("end  : thread {} update nft {} to terrier {}\n", thread_id, nft_id, terrier_id);
+              fmt::print(stderr, "end  : thread {} update nft {} to terrier {}\n", thread_id, nft_id, terrier_id);
             }
 
             metrics.Report();
@@ -355,7 +360,7 @@ auto main(int argc, char **argv) -> int {
         auto writer = bustub::SimpleStreamWriter(ss, true);
         auto terrier_id = terrier_uniform_dist(gen);
 
-        auto txn = bustub->txn_manager_->Begin(nullptr, bustub::IsolationLevel::REPEATABLE_READ);
+        auto txn = bustub->txn_manager_->Begin(isolation_lvl);
         bool txn_success = true;
 
         std::string query = fmt::format("SELECT count(*) FROM nft WHERE terrier = {}", terrier_id);
@@ -371,7 +376,6 @@ auto main(int argc, char **argv) -> int {
           bustub->txn_manager_->Abort(txn);
           metrics.TxnAborted();
         }
-        delete txn;
 
         metrics.Report();
       }
@@ -392,7 +396,7 @@ auto main(int argc, char **argv) -> int {
       std::stringstream ss;
       auto writer = bustub::SimpleStreamWriter(ss, true);
 
-      auto txn = bustub->txn_manager_->Begin(nullptr, bustub::IsolationLevel::REPEATABLE_READ);
+      auto txn = bustub->txn_manager_->Begin(bustub::IsolationLevel::SNAPSHOT_ISOLATION);
       bool txn_success = true;
 
       std::string query = "SELECT * FROM nft";
@@ -413,18 +417,18 @@ auto main(int argc, char **argv) -> int {
         // Due to how BusTub works for now, it is impossible to get more than bustub_nft_num rows, but it is possible to
         // get fewer than that number.
         if (all_nfts_integer.size() != bustub_nft_num) {
-          fmt::print("unexpected result when verifying length. scan result: {}, total rows: {}.\n",
+          fmt::print(stderr, "unexpected result when verifying length. scan result: {}, total rows: {}.\n",
                      all_nfts_integer.size(), bustub_nft_num);
           if (bustub_nft_num <= 100) {
-            fmt::print("This is everything in your database:\n{}", ss.str());
+            fmt::print(stderr, "This is everything in your database:\n{}", ss.str());
           }
           exit(1);
         }
         for (int i = 0; i < static_cast<int>(bustub_nft_num); i++) {
           if (all_nfts_integer[i] != i) {
-            fmt::print("unexpected result when verifying \"{} == {}\",\n", i, all_nfts_integer[i]);
+            fmt::print(stderr, "unexpected result when verifying \"{} == {}\",\n", i, all_nfts_integer[i]);
             if (bustub_nft_num <= 100) {
-              fmt::print("This is everything in your database:\n{}", ss.str());
+              fmt::print(stderr, "This is everything in your database:\n{}", ss.str());
             }
             exit(1);
           }
@@ -442,9 +446,10 @@ auto main(int argc, char **argv) -> int {
 
         if (txn_success) {
           if (ss.str() != prev_result) {
-            fmt::print("ERROR: non repeatable read!\n");
+            fmt::print(stderr, "ERROR: non repeatable read!\n");
             if (bustub_nft_num <= 100) {
-              fmt::print("This is everything in your database:\n--- previous query ---\n{}\n--- this query ---\n{}\n",
+              fmt::print(stderr,
+                         "This is everything in your database:\n--- previous query ---\n{}\n--- this query ---\n{}\n",
                          prev_result, ss.str());
             }
             exit(1);
@@ -460,7 +465,6 @@ auto main(int argc, char **argv) -> int {
         bustub->txn_manager_->Abort(txn);
         metrics.TxnAborted();
       }
-      delete txn;
 
       metrics.Report();
 
@@ -480,18 +484,18 @@ auto main(int argc, char **argv) -> int {
   {
     std::stringstream ss;
     auto writer = bustub::SimpleStreamWriter(ss, true);
-    auto txn = bustub->txn_manager_->Begin(nullptr, bustub::IsolationLevel::REPEATABLE_READ);
+    auto txn = bustub->txn_manager_->Begin(isolation_lvl);
     bustub->ExecuteSqlTxn("SELECT count(*) FROM nft", writer, txn);
     bustub->txn_manager_->Commit(txn);
-    delete txn;
+
     if (ss.str() != fmt::format("{}\t\n", bustub_nft_num)) {
-      fmt::print("unexpected result \"{}\" when verifying total nft count\n", ss.str());
+      fmt::print(stderr, "unexpected result \"{}\" when verifying total nft count\n", ss.str());
       exit(1);
     }
   }
 
   {
-    auto txn = bustub->txn_manager_->Begin(nullptr, bustub::IsolationLevel::REPEATABLE_READ);
+    auto txn = bustub->txn_manager_->Begin(isolation_lvl);
     size_t cnt = 0;
     for (int i = 0; i < static_cast<int>(BUSTUB_TERRIER_CNT); i++) {
       std::stringstream ss;
@@ -509,9 +513,9 @@ auto main(int argc, char **argv) -> int {
     }
 
     bustub->txn_manager_->Commit(txn);
-    delete txn;
+
     if (cnt != bustub_nft_num) {
-      fmt::print("unexpected result \"{} != {}\" when verifying split nft count\n", cnt, bustub_nft_num);
+      fmt::print(stderr, "unexpected result \"{} != {}\" when verifying split nft count\n", cnt, bustub_nft_num);
       exit(1);
     }
   }
@@ -520,7 +524,7 @@ auto main(int argc, char **argv) -> int {
 
   if (total_metrics.committed_verify_txn_cnt_ <= 3 || total_metrics.committed_update_txn_cnt_ < 3 ||
       total_metrics.committed_count_txn_cnt_ < 3) {
-    fmt::print("too many txn are aborted");
+    fmt::print(stderr, "too many txn are aborted");
     exit(1);
   }
 

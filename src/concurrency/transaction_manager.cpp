@@ -36,9 +36,16 @@
 
 namespace bustub {
 
-auto TransactionManager::Commit(Transaction *txn) -> bool { UNIMPLEMENTED("not implemented"); }
+auto TransactionManager::Commit(Transaction *txn) -> bool {
+  // Implement me!
+  txn->state_ = TransactionState::COMMITTED;
+  return true;
+}
 
-void TransactionManager::Abort(Transaction *txn) { UNIMPLEMENTED("not implemented"); }
+void TransactionManager::Abort(Transaction *txn) {
+  // Implement me!
+  txn->state_ = TransactionState::ABORTED;
+}
 
 void TransactionManager::GarbageCollection() { UNIMPLEMENTED("not implemented"); }
 

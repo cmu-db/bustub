@@ -39,7 +39,7 @@ class TransactionManager;
 /**
  * Transaction State.
  */
-enum class TransactionState { RUNNING = 0, VERIFYING, COMMITTED, ABORTED };
+enum class TransactionState { RUNNING = 0, TAINTED, COMMITTED = 100, ABORTED };
 
 /**
  * Transaction isolation level. `READ_UNCOMMITTED` will be used throughout project 3 as the default isolation level.
@@ -115,6 +115,12 @@ class Transaction {
 
   /** @return is read-only txn */
   inline auto IsReadOnly() const -> bool { return read_only_; }
+
+  /** Modify an existing undo log. */
+  inline auto ModifyUndoLog(int log_idx, UndoLog new_log) {
+    std::scoped_lock<std::mutex> lck(latch_);
+    undo_logs_[log_idx] = std::move(new_log);
+  }
 
   /** @return the index of the undo log in this transaction */
   inline auto AppendUndoLog(UndoLog log) -> UndoLink {

@@ -93,6 +93,13 @@ class Value {
   inline auto CastAs(const TypeId type_id) const -> Value {
     return Type::GetInstance(type_id_)->CastAs(*this, type_id);
   }
+  // You will likely need this in project 4...
+  inline auto CompareExactlyEquals(const Value &o) const -> bool {
+    if (this->IsNull() && o.IsNull()) {
+      return true;
+    }
+    return (Type::GetInstance(type_id_)->CompareEquals(*this, o)) == CmpBool::CmpTrue;
+  }
   // Comparison Methods
   inline auto CompareEquals(const Value &o) const -> CmpBool {
     return Type::GetInstance(type_id_)->CompareEquals(*this, o);

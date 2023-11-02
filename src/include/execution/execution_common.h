@@ -12,6 +12,21 @@ auto ReconstructTuple(const Schema *schema, const Tuple &base_tuple, const Tuple
 
 void TxnMgrDbg(TransactionManager *txn_mgr, const TableInfo *table_info, TableHeap *table_heap);
 
-// Add new functions as needed...
+// Add new functions as needed... You are likely need to define some more functions.
+//
+// To give you a sense of what can be shared across executors / transaction manager, here are the
+// list of helper function names that we defined in the reference solution. You should come up with
+// your own when you go through the process.
+// * CollectUndoLogs
+// * Modify
+// * IsWriteWriteConflict
+// * GenerateDiffLog
+// * GenerateNullTupleForSchema
+// * GetUndoLogSchema
+//
+// We do not provide the signatures for these functions because what they actually do depends
+// on the your implementation. You do not need to define the same set of helper functions in
+// your implementation. Please add you own ones as necessary so that you do not need to write
+// the same code everywhere.
 
 }  // namespace bustub
