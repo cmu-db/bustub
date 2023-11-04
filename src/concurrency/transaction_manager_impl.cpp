@@ -24,9 +24,9 @@
 
 namespace bustub {
 
-auto TransactionManager::UpdateVersionLinkInternal(std::unique_lock<std::shared_mutex> lck, RID rid,
-                                                   std::optional<UndoLink> prev_log,
-                                                   std::function<bool(std::optional<UndoLink>)> &&check) -> bool {
+auto TransactionManager::UpdateVersionLink(RID rid, std::optional<VersionUndoLink> prev_version,
+                                           std::function<bool(std::optional<VersionUndoLink>)> &&check) -> bool {
+  std::unique_lock<std::shared_mutex> lck(version_info_mutex_);
   std::shared_ptr<PageVersionInfo> pg_ver_info = nullptr;
   auto iter = version_info_.find(rid.GetPageId());
   if (iter == version_info_.end()) {
@@ -47,21 +47,15 @@ auto TransactionManager::UpdateVersionLinkInternal(std::unique_lock<std::shared_
       return false;
     }
   }
-  if (prev_log.has_value()) {
-    pg_ver_info->prev_version_[rid.GetSlotNum()] = *prev_log;
+  if (prev_version.has_value()) {
+    pg_ver_info->prev_version_[rid.GetSlotNum()] = *prev_version;
   } else {
     pg_ver_info->prev_version_.erase(rid.GetSlotNum());
   }
   return true;
 }
 
-auto TransactionManager::UpdateVersionLink(RID rid, std::optional<UndoLink> prev_log,
-                                           std::function<bool(std::optional<UndoLink>)> &&check) -> bool {
-  std::unique_lock<std::shared_mutex> lck(version_info_mutex_);
-  return UpdateVersionLinkInternal(std::move(lck), rid, prev_log, std::move(check));
-}
-
-auto TransactionManager::GetVersionLink(RID rid) -> std::optional<UndoLink> {
+auto TransactionManager::GetVersionLink(RID rid) -> std::optional<VersionUndoLink> {
   std::shared_lock<std::shared_mutex> lck(version_info_mutex_);
   auto iter = version_info_.find(rid.GetPageId());
   if (iter == version_info_.end()) {
@@ -75,6 +69,14 @@ auto TransactionManager::GetVersionLink(RID rid) -> std::optional<UndoLink> {
     return std::nullopt;
   }
   return std::make_optional(iter2->second);
+}
+
+auto TransactionManager::GetUndoLink(RID rid) -> std::optional<UndoLink> {
+  auto version_link = GetVersionLink(rid);
+  if (version_link.has_value()) {
+    return version_link->prev_;
+  }
+  return std::nullopt;
 }
 
 auto TransactionManager::GetUndoLog(UndoLink link) -> UndoLog {

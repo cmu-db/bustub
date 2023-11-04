@@ -36,14 +36,27 @@
 
 namespace bustub {
 
+auto TransactionManager::Begin(IsolationLevel isolation_level) -> Transaction * {
+  std::unique_lock<std::shared_mutex> l(txn_map_mutex_);
+  auto txn_id = next_txn_id_++;
+  auto txn = std::make_unique<Transaction>(txn_id, isolation_level);
+  auto *txn_ref = txn.get();
+  txn_map_.insert(std::make_pair(txn_id, std::move(txn)));
+
+  // TODO(fall2023): set the timestamps and compute watermark.
+
+  return txn_ref;
+}
+
 auto TransactionManager::Commit(Transaction *txn) -> bool {
-  // Implement me!
+  std::lock_guard<std::mutex> commit_lck(commit_mutex_);
+  // TODO(fall2023): Implement me!
   txn->state_ = TransactionState::COMMITTED;
   return true;
 }
 
 void TransactionManager::Abort(Transaction *txn) {
-  // Implement me!
+  // TODO(fall2023): Implement me!
   txn->state_ = TransactionState::ABORTED;
 }
 

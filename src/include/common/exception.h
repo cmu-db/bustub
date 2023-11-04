@@ -127,7 +127,15 @@ class NotImplementedException : public Exception {
 class ExecutionException : public Exception {
  public:
   ExecutionException() = delete;
-  explicit ExecutionException(const std::string &msg) : Exception(ExceptionType::EXECUTION, msg, false) {}
+  explicit ExecutionException(const std::string &msg)
+      : Exception(ExceptionType::EXECUTION, msg,
+#ifdef NDEBUG
+                  false
+#else
+                  true
+#endif
+        ) {
+  }
 };
 
 }  // namespace bustub
