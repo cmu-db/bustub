@@ -28,8 +28,6 @@
 #include "recovery/log_manager.h"
 #include "storage/table/tuple.h"
 
-#define REFSOL_HACK_P4
-
 namespace bustub {
 
 struct VersionUndoLink {
