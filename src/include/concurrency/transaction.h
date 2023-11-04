@@ -20,11 +20,13 @@
 #include <limits>
 #include <list>
 #include <memory>
-#include <mutex>
+#include <mutex>  // NOLINT
 #include <string>
 #include <thread>  // NOLINT
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
+#include <vector>
 
 #include "common/config.h"
 #include "common/logger.h"

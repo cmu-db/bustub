@@ -15,7 +15,7 @@
 #include <atomic>
 #include <functional>
 #include <memory>
-#include <mutex>
+#include <mutex>  // NOLINT
 #include <optional>
 #include <shared_mutex>
 #include <unordered_map>

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "catalog/catalog.h"
 #include "catalog/schema.h"
 #include "concurrency/transaction.h"
