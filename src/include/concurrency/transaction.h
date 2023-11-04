@@ -141,7 +141,7 @@ class Transaction {
     write_set_[t].insert(rid);
   }
 
-  inline auto AppendScanPredicate(table_oid_t t, AbstractExpressionRef predicate) {
+  inline auto AppendScanPredicate(table_oid_t t, const AbstractExpressionRef &predicate) {
     std::scoped_lock<std::mutex> lck(latch_);
     scan_predicates_.emplace_back(predicate);
   }
