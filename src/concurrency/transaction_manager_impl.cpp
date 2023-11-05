@@ -1,5 +1,6 @@
 // DO NOT CHANGE THIS FILE, this file will not be included in the autograder.
 
+#include <exception>
 #include <memory>
 #include <mutex>  // NOLINT
 #include <optional>
@@ -79,11 +80,33 @@ auto TransactionManager::GetUndoLink(RID rid) -> std::optional<UndoLink> {
   return std::nullopt;
 }
 
-auto TransactionManager::GetUndoLog(UndoLink link) -> UndoLog {
+auto TransactionManager::GetUndoLogOptional(UndoLink link) -> std::optional<UndoLog> {
   std::shared_lock<std::shared_mutex> lck(txn_map_mutex_);
-  auto txn = txn_map_.find(link.prev_txn_)->second;
+  auto iter = txn_map_.find(link.prev_txn_);
+  if (iter == txn_map_.end()) {
+    return std::nullopt;
+  }
+  auto txn = iter->second;
   lck.unlock();
   return txn->GetUndoLog(link.prev_log_idx_);
+}
+
+auto TransactionManager::GetUndoLog(UndoLink link) -> UndoLog {
+  auto undo_log = GetUndoLogOptional(link);
+  if (undo_log.has_value()) {
+    return *undo_log;
+  }
+  throw Exception("undo log not exist");
+}
+
+void Transaction::SetTainted() {
+  auto state = state_.load();
+  if (state == TransactionState::RUNNING) {
+    state_.store(TransactionState::TAINTED);
+    return;
+  }
+  fmt::println(stderr, "transaction not in running state: {}", state);
+  std::terminate();
 }
 
 }  // namespace bustub

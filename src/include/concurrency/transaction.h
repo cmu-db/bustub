@@ -79,7 +79,7 @@ struct UndoLog {
   /* Timestamp of this undo log */
   timestamp_t ts_{INVALID_TS};
   /* Undo log prev version */
-  UndoLink prev_version_;
+  UndoLink prev_version_{};
 };
 
 /**
@@ -100,6 +100,9 @@ class Transaction {
   /** @return the id of this transaction */
   inline auto GetTransactionId() const -> txn_id_t { return txn_id_; }
 
+  /** @return the id of this transaction, stripping the highest bit. NEVER use/store this value unless for debugging. */
+  inline auto GetTransactionIdHumanReadable() const -> txn_id_t { return txn_id_ ^ TXN_START_ID; }
+
   /** @return the temporary timestamp of this transaction */
   inline auto GetTransactionTempTs() const -> timestamp_t { return txn_id_; }
 
@@ -115,9 +118,6 @@ class Transaction {
   /** @return the commit ts */
   inline auto GetCommitTs() const -> timestamp_t { return commit_ts_; }
 
-  /** @return is read-only txn */
-  inline auto IsReadOnly() const -> bool { return read_only_; }
-
   /** Modify an existing undo log. */
   inline auto ModifyUndoLog(int log_idx, UndoLog new_log) {
     std::scoped_lock<std::mutex> lck(latch_);
@@ -129,11 +129,6 @@ class Transaction {
     std::scoped_lock<std::mutex> lck(latch_);
     undo_logs_.emplace_back(std::move(log));
     return {txn_id_, static_cast<int>(undo_logs_.size() - 1)};
-  }
-
-  inline auto AppendReadSet(table_oid_t t, RID rid) {
-    std::scoped_lock<std::mutex> lck(latch_);
-    read_set_[t].insert(rid);
   }
 
   inline auto AppendWriteSet(table_oid_t t, RID rid) {
@@ -151,19 +146,26 @@ class Transaction {
     return undo_logs_[log_id];
   }
 
-  // The below fields should be ONLY changed by txn manager (with the txn manager lock held).
+  inline auto GetUndoLogNum() -> size_t {
+    std::scoped_lock<std::mutex> lck(latch_);
+    return undo_logs_.size();
+  }
+
+  void SetTainted();
 
  private:
   friend class TransactionManager;
 
+  // The below fields should be ONLY changed by txn manager (with the txn manager lock held).
+
   /** The state of this transaction. */
-  TransactionState state_{TransactionState::RUNNING};
+  std::atomic<TransactionState> state_{TransactionState::RUNNING};
 
   /** The read ts */
-  timestamp_t read_ts_{0};
+  std::atomic<timestamp_t> read_ts_{0};
 
   /** The commit ts */
-  timestamp_t commit_ts_{INVALID_TS};
+  std::atomic<timestamp_t> commit_ts_{INVALID_TS};
 
   /** The latch for this transaction for accessing txn-level undo logs, protecting all fields below. */
   std::mutex latch_;
@@ -174,8 +176,6 @@ class Transaction {
    */
   std::vector<UndoLog> undo_logs_;
 
-  /** stores the RID of read tuples */
-  std::unordered_map<table_oid_t, std::unordered_set<RID>> read_set_;
   /** stores the RID of write tuples */
   std::unordered_map<table_oid_t, std::unordered_set<RID>> write_set_;
   /** store all scan predicates */
@@ -186,13 +186,11 @@ class Transaction {
   /** The isolation level of the transaction. */
   const IsolationLevel isolation_level_;
 
-  /** The thread ID, used in single-threaded transactions. */
+  /** The thread ID which the txn starts from.  */
   const std::thread::id thread_id_;
 
   /** The ID of this transaction. */
   const txn_id_t txn_id_;
-
-  const bool read_only_{false};
 };
 
 }  // namespace bustub
@@ -213,6 +211,31 @@ struct fmt::formatter<bustub::IsolationLevel> : formatter<std::string_view> {
         break;
       case IsolationLevel::SERIALIZABLE:
         name = "SERIALIZABLE";
+        break;
+    }
+    return formatter<string_view>::format(name, ctx);
+  }
+};
+
+template <>
+struct fmt::formatter<bustub::TransactionState> : formatter<std::string_view> {
+  // parse is inherited from formatter<string_view>.
+  template <typename FormatContext>
+  auto format(bustub::TransactionState x, FormatContext &ctx) const {
+    using bustub::TransactionState;
+    string_view name = "unknown";
+    switch (x) {
+      case TransactionState::RUNNING:
+        name = "RUNNING";
+        break;
+      case TransactionState::ABORTED:
+        name = "ABORTED";
+        break;
+      case TransactionState::COMMITTED:
+        name = "COMMITTED";
+        break;
+      case TransactionState::TAINTED:
+        name = "TAINTED";
         break;
     }
     return formatter<string_view>::format(name, ctx);

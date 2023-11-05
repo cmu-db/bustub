@@ -88,6 +88,8 @@ class TransactionManager {
   /** You only need this starting task 4.2 */
   auto GetVersionLink(RID rid) -> std::optional<VersionUndoLink>;
 
+  auto GetUndoLogOptional(UndoLink link) -> std::optional<UndoLog>;
+
   auto GetUndoLog(UndoLink link) -> UndoLog;
 
   auto GetWatermark() -> timestamp_t { return running_txns_.GetWatermark(); }

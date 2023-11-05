@@ -113,6 +113,20 @@ class SimpleStreamWriter : public ResultWriter {
   std::string separator_;
 };
 
+class StringVectorWriter : public ResultWriter {
+ public:
+  void WriteCell(const std::string &cell) override { values_.back().push_back(cell); }
+  void WriteHeaderCell(const std::string &cell) override {}
+  void BeginHeader() override {}
+  void EndHeader() override {}
+  void BeginRow() override { values_.emplace_back(); }
+  void EndRow() override {}
+  void BeginTable(bool simplified_output) override {}
+  void EndTable() override {}
+
+  std::vector<std::vector<std::string>> values_;
+};
+
 class HtmlWriter : public ResultWriter {
   auto Escape(const std::string &data) -> std::string {
     std::string buffer;

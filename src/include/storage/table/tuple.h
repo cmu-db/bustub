@@ -60,6 +60,8 @@ class Tuple {
   // constructor for table heap tuple
   explicit Tuple(RID rid) : rid_(rid) {}
 
+  static auto Empty() -> Tuple { return Tuple{RID{INVALID_PAGE_ID, 0}}; }
+
   // constructor for creating a new tuple based on input value
   Tuple(std::vector<Value> values, const Schema *schema);
 

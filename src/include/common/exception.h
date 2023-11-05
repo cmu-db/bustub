@@ -77,7 +77,7 @@ class Exception : public std::runtime_error {
 #ifndef NDEBUG
     if (print) {
       std::string exception_message =
-          "\nException Type :: " + ExceptionTypeToString(type_) + "\nMessage :: " + message + "\n";
+          "\nException Type :: " + ExceptionTypeToString(type_) + ", Message :: " + message + "\n\n";
       std::cerr << exception_message;
     }
 #endif
@@ -109,6 +109,8 @@ class Exception : public std::runtime_error {
         return "Out of Memory";
       case ExceptionType::NOT_IMPLEMENTED:
         return "Not implemented";
+      case ExceptionType::EXECUTION:
+        return "Execution";
       default:
         return "Unknown";
     }
