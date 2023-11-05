@@ -11,6 +11,7 @@
 #include <thread>  // NOLINT
 
 #include "buffer/buffer_pool_manager.h"
+#include "catalog/catalog.h"
 #include "catalog/schema.h"
 #include "common/bustub_instance.h"
 #include "common/config.h"
@@ -180,11 +181,11 @@ void CheckUndoLogColumn(BustubInstance &instance, const std::string &txn_var_nam
   }
 }
 
-#define WithTxn(txn, func)            \
-  {                                   \
-    const std::string &_var = (#txn); \
-    Transaction *_txn = txn;          \
-    func;                             \
+#define WithTxn(txn, func)                             \
+  {                                                    \
+    [[maybe_unused]] const std::string &_var = (#txn); \
+    [[maybe_unused]] Transaction *_txn = txn;          \
+    func;                                              \
   }
 
 void Execute(BustubInstance &instance, const std::string &query) {
@@ -194,6 +195,22 @@ void Execute(BustubInstance &instance, const std::string &query) {
     std::cerr << "failed to execute sql" << std::endl;
     std::terminate();
   }
+}
+
+void TableHeapEntryNoMoreThan(BustubInstance &instance, TableInfo *table_info, size_t upper_limit) {
+  fmt::print(stderr, "- verify table heap");
+  auto table_heap = table_info->table_.get();
+  auto table_iter = table_heap->MakeEagerIterator();
+  size_t cnt = 0;
+  while (!table_iter.IsEnd()) {
+    ++table_iter;
+    cnt++;
+  }
+  if (cnt > upper_limit) {
+    fmt::println(stderr, " -- error: expect table heap to contain at most {} elements, found {}", upper_limit, cnt);
+    std::terminate();
+  }
+  fmt::println(stderr, "- verify table heap");
 }
 
 void ExecuteTxn(BustubInstance &instance, const std::string &txn_var_name, Transaction *txn, const std::string &query) {
@@ -266,6 +283,42 @@ void ExecuteTxnTainted(BustubInstance &instance, const std::string &txn_var_name
     std::terminate();
   }
   CheckTainted(instance, txn_var_name, txn);
+}
+
+void GarbageCollection(BustubInstance &instance) {
+  fmt::println(stderr, "- garbage_collection");
+  instance.txn_manager_->GarbageCollection();
+}
+
+void EnsureTxnGCed(BustubInstance &instance, const std::string &txn_var_name, txn_id_t txn_id) {
+  fmt::println(stderr, "- ensure_txn_gc_ed var={} id={} watermark={}", txn_var_name, txn_id ^ TXN_START_ID,
+               instance.txn_manager_->GetWatermark());
+  const auto &txn_map = instance.txn_manager_->txn_map_;
+  if (txn_map.find(txn_id) != txn_map.end()) {
+    std::cerr << "txn not garbage collected" << std::endl;
+    std::terminate();
+  }
+}
+
+void EnsureTxnExists(BustubInstance &instance, const std::string &txn_var_name, txn_id_t txn_id) {
+  fmt::println(stderr, "- ensure_txn_exists var={} id={} watermark={}", txn_var_name, txn_id ^ TXN_START_ID,
+               instance.txn_manager_->GetWatermark());
+  const auto &txn_map = instance.txn_manager_->txn_map_;
+  if (txn_map.find(txn_id) == txn_map.end()) {
+    std::cerr << "txn not exist" << std::endl;
+    std::terminate();
+  }
+}
+
+void BumpCommitTs(BustubInstance &instance, int by = 1) {
+  auto before_commit_ts = instance.txn_manager_->last_commit_ts_.load();
+  for (int i = 0; i < by; i++) {
+    auto txn = instance.txn_manager_->Begin();
+    instance.txn_manager_->Commit(txn);
+  }
+  auto after_commit_ts = instance.txn_manager_->last_commit_ts_.load();
+  fmt::println(stderr, "- bump_commit_ts from={} to={} watermark={}", before_commit_ts, after_commit_ts,
+               instance.txn_manager_->GetWatermark());
 }
 
 using IntResult = std::vector<std::vector<int>>;
