@@ -12,7 +12,8 @@ namespace bustub {
 auto ReconstructTuple(const Schema *schema, const Tuple &base_tuple, const TupleMeta &base_meta,
                       const std::vector<UndoLog> &undo_logs) -> std::optional<Tuple>;
 
-void TxnMgrDbg(TransactionManager *txn_mgr, const TableInfo *table_info, TableHeap *table_heap);
+void TxnMgrDbg(const std::string &info, TransactionManager *txn_mgr, const TableInfo *table_info,
+               TableHeap *table_heap);
 
 // Add new functions as needed... You are likely need to define some more functions.
 //

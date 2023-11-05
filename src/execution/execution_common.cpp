@@ -15,7 +15,10 @@ auto ReconstructTuple(const Schema *schema, const Tuple &base_tuple, const Tuple
   UNIMPLEMENTED("not implemented");
 }
 
-void TxnMgrDbg(TransactionManager *txn_mgr, const TableInfo *table_info, TableHeap *table_heap) {
+void TxnMgrDbg(const std::string &info, TransactionManager *txn_mgr, const TableInfo *table_info,
+               TableHeap *table_heap) {
+  // always use stderr for printing logs...
+  fmt::println(stderr, "debug_hook: {}", info);
   // noop
 }
 

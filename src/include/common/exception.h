@@ -51,6 +51,8 @@ enum class ExceptionType {
   EXECUTION = 12,
 };
 
+extern std::atomic<bool> global_disable_execution_exception_print;
+
 class Exception : public std::runtime_error {
  public:
   /**
@@ -75,7 +77,7 @@ class Exception : public std::runtime_error {
   Exception(ExceptionType exception_type, const std::string &message, bool print = true)
       : std::runtime_error(message), type_(exception_type) {
 #ifndef NDEBUG
-    if (print) {
+    if (print && !global_disable_execution_exception_print.load()) {
       std::string exception_message =
           "\nException Type :: " + ExceptionTypeToString(type_) + ", Message :: " + message + "\n\n";
       std::cerr << exception_message;
