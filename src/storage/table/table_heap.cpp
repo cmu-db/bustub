@@ -116,9 +116,7 @@ auto TableHeap::MakeIterator() -> TableIterator {
 
   auto page_guard = bpm_->FetchPageRead(last_page_id);
   auto page = page_guard.As<TablePage>();
-  auto num_tuples = page->GetNumTuples();
-  page_guard.Drop();
-  return {this, {first_page_id_, 0}, {last_page_id, num_tuples}};
+  return {this, {first_page_id_, 0}, {last_page_id, page->GetNumTuples()}};
 }
 
 auto TableHeap::MakeEagerIterator() -> TableIterator { return {this, {first_page_id_, 0}, {INVALID_PAGE_ID, 0}}; }

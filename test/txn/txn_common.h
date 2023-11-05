@@ -8,7 +8,9 @@
 #include <future>  // NOLINT
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <thread>  // NOLINT
+#include <vector>
 
 #include "buffer/buffer_pool_manager.h"
 #include "catalog/catalog.h"

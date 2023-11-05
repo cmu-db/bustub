@@ -1,4 +1,4 @@
-#include "txn_common.h"
+#include "txn_common.h"  // NOLINT
 
 namespace bustub {
 
