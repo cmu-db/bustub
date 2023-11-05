@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <fstream>
 #include <ios>
 #include <iostream>
@@ -81,8 +82,7 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instanc
           fmt::print("SeqScan on not indexed columns\n");
           return false;
         }
-      }
-      else if (opt == "ensure:hash_join") {
+      } else if (opt == "ensure:hash_join") {
         if (bustub::StringUtil::Split(result.str(), "HashJoin").size() != 2 &&
             !bustub::StringUtil::Contains(result.str(), "Filter")) {
           fmt::print("HashJoin not found\n");
@@ -155,6 +155,7 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instanc
         auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(clock_end - clock_start);
         duration.push_back(dur.count());
         fmt::print("timing pass {} complete\n", i + 1);
+        std::fflush(stdout);
       }
       fmt::print("<<<BEGIN\n");
       fmt::print(".{}", label);
@@ -163,6 +164,7 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instanc
       }
       fmt::print("\n");
       fmt::print(">>>END\n");
+      std::fflush(stdout);
     } else if (bustub::StringUtil::StartsWith(opt, "explain")) {
       auto writer = bustub::SimpleStreamWriter(std::cout);
       auto x = bustub::StringUtil::Split(opt, "explain:");
@@ -171,12 +173,14 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instanc
       } else {
         instance.ExecuteSql("explain " + sql, writer);
       }
+      std::cout << std::flush;
     } else {
       throw bustub::NotImplementedException(fmt::format("unsupported extra option: {}", opt));
     }
 
     if (verbose) {
       fmt::print("[PASS] extra check: {}\n", opt);
+      std::fflush(stdout);
     }
   }
   return true;
@@ -280,6 +284,7 @@ auto main(int argc, char **argv) -> int {  // NOLINT
           if (verbose) {
             fmt::print("statement errored with {}", ex.what());
           }
+          fflush(stdout);
         }
         continue;
       }
@@ -320,6 +325,7 @@ auto main(int argc, char **argv) -> int {  // NOLINT
           fmt::print("unexpected error: {} \n", ex.what());
           return 1;
         }
+        fflush(stdout);
         continue;
       }
       default:

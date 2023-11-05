@@ -45,7 +45,6 @@ class Column {
    * @param column_name name of the column
    * @param type type of column
    * @param length length of the varlen
-   * @param expr expression used to create this column
    */
   Column(std::string column_name, TypeId type, uint32_t length)
       : column_name_(std::move(column_name)),
