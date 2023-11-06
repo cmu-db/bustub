@@ -13,8 +13,10 @@
 #pragma once
 
 #include <deque>
+#include <mutex>  // NOLINT
 #include <queue>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -22,6 +24,9 @@
 #include "common/config.h"
 #include "concurrency/transaction.h"
 #include "container/hash/hash_function.h"
+#include "storage/index/stl_comparator_wrapper.h"
+#include "storage/index/stl_equal_wrapper.h"
+#include "storage/index/stl_hasher_wrapper.h"
 #include "storage/page/extendible_htable_bucket_page.h"
 #include "storage/page/extendible_htable_directory_page.h"
 #include "storage/page/extendible_htable_header_page.h"
@@ -83,7 +88,7 @@ class DiskExtendibleHashTable {
    * @param transaction the current transaction
    * @return the value(s) associated with the given key
    */
-  auto GetValue(const K &key, std::vector<V> *result, Transaction *transaction = nullptr) const -> bool;
+  auto GetValue(const K &key, std::vector<V> *result, Transaction *transaction = nullptr) -> bool;
 
   /**
    * Helper function to verify the integrity of the extendible hash table's directory.
@@ -126,12 +131,16 @@ class DiskExtendibleHashTable {
   // member variables
   std::string index_name_;
   BufferPoolManager *bpm_;
-  KC cmp_;
-  HashFunction<K> hash_fn_;
   uint32_t header_max_depth_;
   uint32_t directory_max_depth_;
   uint32_t bucket_max_size_;
   page_id_t header_page_id_;
+
+  HashFunction<K> hash_fn_;
+  StlComparatorWrapper<K, KC> cmp_;
+  StlEqualWrapper<K, KC> eq_;
+  std::mutex mu_;
+  std::unordered_map<K, V, StlHasherWrapper<K>, StlEqualWrapper<K, KC>> data_;
 };
 
 }  // namespace bustub
