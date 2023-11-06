@@ -3,6 +3,7 @@ add_library(
         OBJECT
         aggregation_executor.cpp
         delete_executor.cpp
+        execution_common.cpp
         executor_factory.cpp
         filter_executor.cpp
         fmt_impl.cpp

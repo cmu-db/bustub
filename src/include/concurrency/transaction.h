@@ -14,168 +14,74 @@
 
 #include <fmt/format.h>
 #include <atomic>
+#include <bitset>
+#include <cstddef>
 #include <deque>
+#include <limits>
+#include <list>
 #include <memory>
+#include <mutex>  // NOLINT
 #include <string>
 #include <thread>  // NOLINT
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
+#include <vector>
 
 #include "common/config.h"
 #include "common/logger.h"
+#include "execution/expressions/abstract_expression.h"
 #include "storage/page/page.h"
 #include "storage/table/tuple.h"
 
 namespace bustub {
 
-/**
- * Transaction states for 2PL:
- * Running transactions could be aborted during either `GROWING` or `SHRINKING` stage.
- *
- *     _________________________
- *    |                         |
- *    |                         v
- * GROWING -> SHRINKING -> COMMITTED   ABORTED
- *    |           |                        ^
- *    |___________|________________________|
- *
- * Transaction states for Non-2PL:
- * Running transactions could only be aborted during `GROWING` stage, since there is no `SHRINKING` stage.
- *
- *     __________
- *    |          |
- *    |          v
- * GROWING  -> COMMITTED     ABORTED
- *    |                         ^
- *    |_________________________|
- *
- */
-enum class TransactionState { GROWING, SHRINKING, COMMITTED, ABORTED };
+class TransactionManager;
 
 /**
- * Transaction isolation level.
+ * Transaction State.
  */
-enum class IsolationLevel { READ_UNCOMMITTED, REPEATABLE_READ, READ_COMMITTED };
+enum class TransactionState { RUNNING = 0, TAINTED, COMMITTED = 100, ABORTED };
 
 /**
- * Type of write operation.
+ * Transaction isolation level. `READ_UNCOMMITTED` will be used throughout project 3 as the default isolation level.
+ * In project 4, if a txn is in `READ_UNCOMMITTED` mode, it CAN ONLY be read-only.
  */
-enum class WType { INSERT = 0, DELETE, UPDATE };
+enum class IsolationLevel { READ_UNCOMMITTED, SNAPSHOT_ISOLATION, SERIALIZABLE };
 
 class TableHeap;
 class Catalog;
 using table_oid_t = uint32_t;
 using index_oid_t = uint32_t;
 
-/**
- * WriteRecord tracks information related to a write.
- */
-class TableWriteRecord {
- public:
-  // NOLINTNEXTLINE
-  TableWriteRecord(table_oid_t tid, RID rid, TableHeap *table_heap) : tid_(tid), rid_(rid), table_heap_(table_heap) {}
+/** Represents a link to a previous version of this tuple */
+struct UndoLink {
+  /* Previous version can be found in which txn */
+  txn_id_t prev_txn_{INVALID_TXN_ID};
+  /* The log index of the previous version in `prev_txn_` */
+  int prev_log_idx_{0};
 
-  table_oid_t tid_;
-  RID rid_;
-  TableHeap *table_heap_;
-
-  // Recording write type might be useful if you want to implement in-place update for leaderboard
-  // optimization. You don't need it for the basic implementation.
-  WType wtype_;
-};
-
-/**
- * WriteRecord tracks information related to a write.
- */
-class IndexWriteRecord {
- public:
-  // NOLINTNEXTLINE
-  IndexWriteRecord(RID rid, table_oid_t table_oid, WType wtype, const Tuple &tuple, index_oid_t index_oid,
-                   Catalog *catalog)
-      : rid_(rid), table_oid_(table_oid), wtype_(wtype), tuple_(tuple), index_oid_(index_oid), catalog_(catalog) {}
-
-  /**
-   * Note(spring2023): I don't know what are these for. If you are implementing leaderboard optimizations, you can
-   * figure out how to use this structure to store what you need.
-   */
-
-  /** The rid is the value stored in the index. */
-  RID rid_;
-  /** Table oid. */
-  table_oid_t table_oid_;
-  /** Write type. */
-  WType wtype_;
-  /** The tuple is used to construct an index key. */
-  Tuple tuple_;
-  /** The old tuple is only used for the update operation. */
-  Tuple old_tuple_;
-  /** Each table has an index list, this is the identifier of an index into the list. */
-  index_oid_t index_oid_;
-  /** The catalog contains metadata required to locate index. */
-  Catalog *catalog_;
-};
-
-/**
- * Reason to a transaction abortion
- */
-enum class AbortReason {
-  LOCK_ON_SHRINKING,
-  UPGRADE_CONFLICT,
-  LOCK_SHARED_ON_READ_UNCOMMITTED,
-  TABLE_LOCK_NOT_PRESENT,
-  ATTEMPTED_INTENTION_LOCK_ON_ROW,
-  TABLE_UNLOCKED_BEFORE_UNLOCKING_ROWS,
-  INCOMPATIBLE_UPGRADE,
-  ATTEMPTED_UNLOCK_BUT_NO_LOCK_HELD
-};
-
-/**
- * TransactionAbortException is thrown when state of a transaction is changed to ABORTED
- */
-class TransactionAbortException : public std::exception {
- public:
-  explicit TransactionAbortException(txn_id_t txn_id, AbortReason abort_reason)
-      : txn_id_(txn_id), abort_reason_(abort_reason) {}
-
-  /** @return this transaction id */
-  auto GetTransactionId() -> txn_id_t { return txn_id_; }
-
-  /** @return the abort reason for this transaction */
-  auto GetAbortReason() -> AbortReason { return abort_reason_; }
-
-  /** @return the detailed information of abort reason */
-  auto GetInfo() -> std::string {
-    switch (abort_reason_) {
-      case AbortReason::LOCK_ON_SHRINKING:
-        return "Transaction " + std::to_string(txn_id_) +
-               " aborted because it can not take locks in the shrinking state\n";
-      case AbortReason::UPGRADE_CONFLICT:
-        return "Transaction " + std::to_string(txn_id_) +
-               " aborted because another transaction is already waiting to upgrade its lock\n";
-      case AbortReason::LOCK_SHARED_ON_READ_UNCOMMITTED:
-        return "Transaction " + std::to_string(txn_id_) + " aborted on lockshared on READ_UNCOMMITTED\n";
-      case AbortReason::TABLE_LOCK_NOT_PRESENT:
-        return "Transaction " + std::to_string(txn_id_) + " aborted because table lock not present\n";
-      case AbortReason::ATTEMPTED_INTENTION_LOCK_ON_ROW:
-        return "Transaction " + std::to_string(txn_id_) + " aborted because intention lock attempted on row\n";
-      case AbortReason::TABLE_UNLOCKED_BEFORE_UNLOCKING_ROWS:
-        return "Transaction " + std::to_string(txn_id_) +
-               " aborted because table locks dropped before dropping row locks\n";
-      case AbortReason::INCOMPATIBLE_UPGRADE:
-        return "Transaction " + std::to_string(txn_id_) + " aborted because attempted lock upgrade is incompatible\n";
-      case AbortReason::ATTEMPTED_UNLOCK_BUT_NO_LOCK_HELD:
-        return "Transaction " + std::to_string(txn_id_) + " aborted because attempted to unlock but no lock held \n";
-      default:
-        // Unknown AbortReason
-        throw bustub::Exception("Unknown abort reason for transaction " + std::to_string(txn_id_));
-    }
-    // This is impossible
-    assert(false);
+  friend auto operator==(const UndoLink &a, const UndoLink &b) {
+    return a.prev_txn_ == b.prev_txn_ && a.prev_log_idx_ == b.prev_log_idx_;
   }
 
- private:
-  txn_id_t txn_id_;
-  AbortReason abort_reason_;
+  friend auto operator!=(const UndoLink &a, const UndoLink &b) { return !(a == b); }
+
+  auto IsValid() const -> bool { return prev_txn_ != INVALID_TXN_ID; }
+};
+
+/* Once the undo log is added to the txn, it becomes read-only and should NOT be changed except prev_version_. */
+struct UndoLog {
+  /* Whether this log is a deletion marker */
+  bool is_deleted_;
+  /* The fields modified by this redo log */
+  std::vector<bool> modified_fields_;
+  /* The modified fields */
+  Tuple tuple_;
+  /* Timestamp of this undo log */
+  timestamp_t ts_{INVALID_TS};
+  /* Undo log prev version */
+  UndoLink prev_version_{};
 };
 
 /**
@@ -183,24 +89,8 @@ class TransactionAbortException : public std::exception {
  */
 class Transaction {
  public:
-  explicit Transaction(txn_id_t txn_id, IsolationLevel isolation_level = IsolationLevel::REPEATABLE_READ)
-      : isolation_level_(isolation_level),
-        thread_id_(std::this_thread::get_id()),
-        txn_id_(txn_id),
-        prev_lsn_(INVALID_LSN),
-        s_table_lock_set_{new std::unordered_set<table_oid_t>},
-        x_table_lock_set_{new std::unordered_set<table_oid_t>},
-        is_table_lock_set_{new std::unordered_set<table_oid_t>},
-        ix_table_lock_set_{new std::unordered_set<table_oid_t>},
-        six_table_lock_set_{new std::unordered_set<table_oid_t>},
-        s_row_lock_set_{new std::unordered_map<table_oid_t, std::unordered_set<RID>>},
-        x_row_lock_set_{new std::unordered_map<table_oid_t, std::unordered_set<RID>>} {
-    // Initialize the sets that will be tracked.
-    table_write_set_ = std::make_shared<std::deque<TableWriteRecord>>();
-    index_write_set_ = std::make_shared<std::deque<IndexWriteRecord>>();
-    page_set_ = std::make_shared<std::deque<bustub::Page *>>();
-    deleted_page_set_ = std::make_shared<std::unordered_set<page_id_t>>();
-  }
+  explicit Transaction(txn_id_t txn_id, IsolationLevel isolation_level = IsolationLevel::SNAPSHOT_ISOLATION)
+      : isolation_level_(isolation_level), thread_id_(std::this_thread::get_id()), txn_id_(txn_id) {}
 
   ~Transaction() = default;
 
@@ -212,182 +102,97 @@ class Transaction {
   /** @return the id of this transaction */
   inline auto GetTransactionId() const -> txn_id_t { return txn_id_; }
 
+  /** @return the id of this transaction, stripping the highest bit. NEVER use/store this value unless for debugging. */
+  inline auto GetTransactionIdHumanReadable() const -> txn_id_t { return txn_id_ ^ TXN_START_ID; }
+
+  /** @return the temporary timestamp of this transaction */
+  inline auto GetTransactionTempTs() const -> timestamp_t { return txn_id_; }
+
   /** @return the isolation level of this transaction */
   inline auto GetIsolationLevel() const -> IsolationLevel { return isolation_level_; }
 
-  /** @return the list of table write records of this transaction */
-  inline auto GetWriteSet() -> std::shared_ptr<std::deque<TableWriteRecord>> { return table_write_set_; }
+  /** @return the transaction state */
+  inline auto GetTransactionState() const -> TransactionState { return state_; }
 
-  /** @return the list of index write records of this transaction */
-  inline auto GetIndexWriteSet() -> std::shared_ptr<std::deque<IndexWriteRecord>> { return index_write_set_; }
+  /** @return the read ts */
+  inline auto GetReadTs() const -> timestamp_t { return read_ts_; }
 
-  /** @return the page set */
-  inline auto GetPageSet() -> std::shared_ptr<std::deque<Page *>> { return page_set_; }
+  /** @return the commit ts */
+  inline auto GetCommitTs() const -> timestamp_t { return commit_ts_; }
 
-  /**
-   * Adds a tuple write record into the table write set.
-   * @param write_record write record to be added
-   */
-  inline void AppendTableWriteRecord(const TableWriteRecord &write_record) {
-    table_write_set_->push_back(write_record);
+  /** Modify an existing undo log. */
+  inline auto ModifyUndoLog(int log_idx, UndoLog new_log) {
+    std::scoped_lock<std::mutex> lck(latch_);
+    undo_logs_[log_idx] = std::move(new_log);
   }
 
-  /**
-   * Adds an index write record into the index write set.
-   * @param write_record write record to be added
-   */
-  inline void AppendIndexWriteRecord(const IndexWriteRecord &write_record) {
-    index_write_set_->push_back(write_record);
+  /** @return the index of the undo log in this transaction */
+  inline auto AppendUndoLog(UndoLog log) -> UndoLink {
+    std::scoped_lock<std::mutex> lck(latch_);
+    undo_logs_.emplace_back(std::move(log));
+    return {txn_id_, static_cast<int>(undo_logs_.size() - 1)};
   }
 
-  /**
-   * Adds a page into the page set.
-   * @param page page to be added
-   */
-  inline void AddIntoPageSet(Page *page) { page_set_->push_back(page); }
-
-  /** @return the deleted page set */
-  inline auto GetDeletedPageSet() -> std::shared_ptr<std::unordered_set<page_id_t>> { return deleted_page_set_; }
-
-  /**
-   * Adds a page to the deleted page set.
-   * @param page_id id of the page to be marked as deleted
-   */
-  inline void AddIntoDeletedPageSet(page_id_t page_id) { deleted_page_set_->insert(page_id); }
-
-  /** @return the set of rows under a shared lock */
-  inline auto GetSharedRowLockSet() -> std::shared_ptr<std::unordered_map<table_oid_t, std::unordered_set<RID>>> {
-    return s_row_lock_set_;
+  inline auto AppendWriteSet(table_oid_t t, RID rid) {
+    std::scoped_lock<std::mutex> lck(latch_);
+    write_set_[t].insert(rid);
   }
 
-  /** @return the set of rows in under an exclusive lock */
-  inline auto GetExclusiveRowLockSet() -> std::shared_ptr<std::unordered_map<table_oid_t, std::unordered_set<RID>>> {
-    return x_row_lock_set_;
+  inline auto AppendScanPredicate(table_oid_t t, const AbstractExpressionRef &predicate) {
+    std::scoped_lock<std::mutex> lck(latch_);
+    scan_predicates_.emplace_back(predicate);
   }
 
-  /** @return the set of table resources under a shared lock */
-  inline auto GetSharedTableLockSet() -> std::shared_ptr<std::unordered_set<table_oid_t>> { return s_table_lock_set_; }
-
-  /** @return the set of table resources under a exclusive lock */
-  inline auto GetExclusiveTableLockSet() -> std::shared_ptr<std::unordered_set<table_oid_t>> {
-    return x_table_lock_set_;
+  inline auto GetUndoLog(size_t log_id) -> UndoLog {
+    std::scoped_lock<std::mutex> lck(latch_);
+    return undo_logs_[log_id];
   }
 
-  /** @return the set of table resources under a intention shared lock */
-  inline auto GetIntentionSharedTableLockSet() -> std::shared_ptr<std::unordered_set<table_oid_t>> {
-    return is_table_lock_set_;
+  inline auto GetUndoLogNum() -> size_t {
+    std::scoped_lock<std::mutex> lck(latch_);
+    return undo_logs_.size();
   }
 
-  /** @return the set of table resources under a intention exclusive lock */
-  inline auto GetIntentionExclusiveTableLockSet() -> std::shared_ptr<std::unordered_set<table_oid_t>> {
-    return ix_table_lock_set_;
-  }
-
-  /** @return the set of table resources under a shared intention exclusive lock */
-  inline auto GetSharedIntentionExclusiveTableLockSet() -> std::shared_ptr<std::unordered_set<table_oid_t>> {
-    return six_table_lock_set_;
-  }
-
-  /** @return true if the specified row (belong to table oid) is shared locked by this transaction */
-  auto IsRowSharedLocked(const table_oid_t &oid, const RID &rid) -> bool {
-    auto row_lock_set = s_row_lock_set_->find(oid);
-    if (row_lock_set == s_row_lock_set_->end()) {
-      return false;
-    }
-    return row_lock_set->second.find(rid) != row_lock_set->second.end();
-  }
-
-  /** @return true if the specified row (belong to table oid) is exclusive locked by this transaction */
-  auto IsRowExclusiveLocked(const table_oid_t &oid, const RID &rid) -> bool {
-    auto row_lock_set = x_row_lock_set_->find(oid);
-    if (row_lock_set == x_row_lock_set_->end()) {
-      return false;
-    }
-    return row_lock_set->second.find(rid) != row_lock_set->second.end();
-  }
-
-  /** @return true if the table (specified by oid) is intention shared locked by this transaction */
-  auto IsTableIntentionSharedLocked(const table_oid_t &oid) -> bool {
-    return is_table_lock_set_->find(oid) != is_table_lock_set_->end();
-  }
-
-  /** @return true if the table (specified by oid) is shared locked by this transaction */
-  auto IsTableSharedLocked(const table_oid_t &oid) -> bool {
-    return s_table_lock_set_->find(oid) != s_table_lock_set_->end();
-  }
-
-  /** @return true if the table (specified by oid) is intention exclusive locked by this transaction */
-  auto IsTableIntentionExclusiveLocked(const table_oid_t &oid) -> bool {
-    return ix_table_lock_set_->find(oid) != ix_table_lock_set_->end();
-  }
-
-  /** @return true if the table (specified by oid) is exclusive locked by this transaction */
-  auto IsTableExclusiveLocked(const table_oid_t &oid) -> bool {
-    return x_table_lock_set_->find(oid) != x_table_lock_set_->end();
-  }
-
-  /** @return true if the table (specified by oid) is shared intention exclusive locked by this transaction */
-  auto IsTableSharedIntentionExclusiveLocked(const table_oid_t &oid) -> bool {
-    return six_table_lock_set_->find(oid) != six_table_lock_set_->end();
-  }
-
-  /** @return the current state of the transaction */
-  inline auto GetState() -> TransactionState { return state_; }
-
-  inline auto LockTxn() -> void { latch_.lock(); }
-
-  inline auto UnlockTxn() -> void { latch_.unlock(); }
-
-  /**
-   * Set the state of the transaction.
-   * @param state new state
-   */
-  inline void SetState(TransactionState state) { state_ = state; }
-
-  /** @return the previous LSN */
-  inline auto GetPrevLSN() -> lsn_t { return prev_lsn_; }
-
-  /**
-   * Set the previous LSN.
-   * @param prev_lsn new previous lsn
-   */
-  inline void SetPrevLSN(lsn_t prev_lsn) { prev_lsn_ = prev_lsn; }
+  void SetTainted();
 
  private:
-  /** The current transaction state. */
-  TransactionState state_{TransactionState::GROWING};
-  /** The isolation level of the transaction. */
-  IsolationLevel isolation_level_;
-  /** The thread ID, used in single-threaded transactions. */
-  std::thread::id thread_id_;
-  /** The ID of this transaction. */
-  txn_id_t txn_id_;
+  friend class TransactionManager;
 
-  /** The undo set of table tuples. */
-  std::shared_ptr<std::deque<TableWriteRecord>> table_write_set_;
-  /** The undo set of indexes. */
-  std::shared_ptr<std::deque<IndexWriteRecord>> index_write_set_;
-  /** The LSN of the last record written by the transaction. */
-  lsn_t prev_lsn_;
+  // The below fields should be ONLY changed by txn manager (with the txn manager lock held).
 
-  /** The latch for this transaction */
+  /** The state of this transaction. */
+  std::atomic<TransactionState> state_{TransactionState::RUNNING};
+
+  /** The read ts */
+  std::atomic<timestamp_t> read_ts_{0};
+
+  /** The commit ts */
+  std::atomic<timestamp_t> commit_ts_{INVALID_TS};
+
+  /** The latch for this transaction for accessing txn-level undo logs, protecting all fields below. */
   std::mutex latch_;
 
-  /** Concurrent index: the pages that were latched during index operation. */
-  std::shared_ptr<std::deque<Page *>> page_set_;
-  /** Concurrent index: the page IDs that were deleted during index operation.*/
-  std::shared_ptr<std::unordered_set<page_id_t>> deleted_page_set_;
+  /**
+   * @brief Store undo logs. Other undo logs / table heap will store (txn_id, index) pairs, and therefore
+   * you should only append to this vector or update things in-place without removing anything.
+   */
+  std::vector<UndoLog> undo_logs_;
 
-  /** LockManager: the set of table locks held by this transaction. */
-  std::shared_ptr<std::unordered_set<table_oid_t>> s_table_lock_set_;
-  std::shared_ptr<std::unordered_set<table_oid_t>> x_table_lock_set_;
-  std::shared_ptr<std::unordered_set<table_oid_t>> is_table_lock_set_;
-  std::shared_ptr<std::unordered_set<table_oid_t>> ix_table_lock_set_;
-  std::shared_ptr<std::unordered_set<table_oid_t>> six_table_lock_set_;
+  /** stores the RID of write tuples */
+  std::unordered_map<table_oid_t, std::unordered_set<RID>> write_set_;
+  /** store all scan predicates */
+  std::vector<AbstractExpressionRef> scan_predicates_;
 
-  /** LockManager: the set of row locks held by this transaction. */
-  std::shared_ptr<std::unordered_map<table_oid_t, std::unordered_set<RID>>> s_row_lock_set_;
-  std::shared_ptr<std::unordered_map<table_oid_t, std::unordered_set<RID>>> x_row_lock_set_;
+  // The below fields are set when a txn is created and will NEVER be changed.
+
+  /** The isolation level of the transaction. */
+  const IsolationLevel isolation_level_;
+
+  /** The thread ID which the txn starts from.  */
+  const std::thread::id thread_id_;
+
+  /** The ID of this transaction. */
+  const txn_id_t txn_id_;
 };
 
 }  // namespace bustub
@@ -403,11 +208,36 @@ struct fmt::formatter<bustub::IsolationLevel> : formatter<std::string_view> {
       case IsolationLevel::READ_UNCOMMITTED:
         name = "READ_UNCOMMITTED";
         break;
-      case IsolationLevel::READ_COMMITTED:
-        name = "READ_COMMITTED";
+      case IsolationLevel::SNAPSHOT_ISOLATION:
+        name = "SNAPSHOT_ISOLATION";
         break;
-      case IsolationLevel::REPEATABLE_READ:
-        name = "REPEATABLE_READ";
+      case IsolationLevel::SERIALIZABLE:
+        name = "SERIALIZABLE";
+        break;
+    }
+    return formatter<string_view>::format(name, ctx);
+  }
+};
+
+template <>
+struct fmt::formatter<bustub::TransactionState> : formatter<std::string_view> {
+  // parse is inherited from formatter<string_view>.
+  template <typename FormatContext>
+  auto format(bustub::TransactionState x, FormatContext &ctx) const {
+    using bustub::TransactionState;
+    string_view name = "unknown";
+    switch (x) {
+      case TransactionState::RUNNING:
+        name = "RUNNING";
+        break;
+      case TransactionState::ABORTED:
+        name = "ABORTED";
+        break;
+      case TransactionState::COMMITTED:
+        name = "COMMITTED";
+        break;
+      case TransactionState::TAINTED:
+        name = "TAINTED";
         break;
     }
     return formatter<string_view>::format(name, ctx);

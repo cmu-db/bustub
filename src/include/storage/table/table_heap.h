@@ -93,7 +93,8 @@ class TableHeap {
    * @param[out] rid the rid of the tuple to be updated
    */
   auto UpdateTupleInPlace(const TupleMeta &meta, const Tuple &tuple, RID rid,
-                          std::function<bool(const TupleMeta &meta, const Tuple &table, RID rid)> &&check) -> bool;
+                          std::function<bool(const TupleMeta &meta, const Tuple &table, RID rid)> &&check = nullptr)
+      -> bool;
 
   /** For binder tests */
   static auto CreateEmptyHeap(bool create_table_heap = false) -> std::unique_ptr<TableHeap> {
@@ -103,15 +104,6 @@ class TableHeap {
   }
 
  private:
-  /**
-   * Insert a tuple into the table. If the tuple is too large (>= page_size), return std::nullopt.
-   * @param meta tuple meta
-   * @param tuple tuple to insert
-   * @return rid of the inserted tuple
-   */
-  auto InsertTupleDeferredUnlock(const TupleMeta &meta, const Tuple &tuple)
-      -> std::pair<WritePageGuard, std::optional<RID>>;
-
   /** Used for binder tests */
   explicit TableHeap(bool create_table_heap = false);
 
