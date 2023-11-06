@@ -202,8 +202,10 @@ void CheckUndoLogColumn(BustubInstance &instance, const std::string &txn_var_nam
     func;                                              \
   }
 
-void Execute(BustubInstance &instance, const std::string &query) {
-  fmt::println(stderr, "- execute sql=\"{}\"", query);
+void Execute(BustubInstance &instance, const std::string &query, bool log = true) {
+  if (log) {
+    fmt::println(stderr, "- execute sql=\"{}\"", query);
+  }
   NoopWriter writer;
   if (!instance.ExecuteSql(query, writer)) {
     std::cerr << "failed to execute sql" << std::endl;
@@ -229,7 +231,7 @@ void TableHeapEntryNoMoreThan(BustubInstance &instance, TableInfo *table_info, s
     fmt::println(stderr, " -- error: expect table heap to contain at most {} elements, found {}", upper_limit, cnt);
     std::terminate();
   }
-  fmt::println(stderr, "- verify table heap");
+  fmt::println(stderr, "");
 }
 
 void ExecuteTxn(BustubInstance &instance, const std::string &txn_var_name, Transaction *txn, const std::string &query) {

@@ -161,6 +161,7 @@ TEST(TxnScanTest, DISABLED_ScanTest) {  // NOLINT
   WithTxn(txn0, QueryShowResult(*bustub, _var, _txn, query, IntResult{}));
   fmt::println(stderr, "B: Verify txn1");
   WithTxn(txn1, QueryShowResult(*bustub, _var, _txn, query, IntResult{{2}, {4}, {7}}));
+  // hidden tests...
 }
 
 // NOLINTEND(bugprone-unchecked-optional-access))

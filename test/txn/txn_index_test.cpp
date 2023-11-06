@@ -1,8 +1,11 @@
 #include <chrono>  // NOLINT
 #include <exception>
+#include <memory>
 #include <mutex>   // NOLINT
 #include <thread>  // NOLINT
+#include "common/bustub_instance.h"
 #include "common/macros.h"
+#include "concurrency/transaction.h"
 #include "execution/execution_common.h"
 #include "fmt/core.h"
 #include "txn_common.h"  // NOLINT
@@ -80,78 +83,187 @@ TEST(TxnIndexTest, DISABLED_IndexInsertTest) {  // NOLINT
                                 }));
 }
 
-TEST(TxnIndexTest, DISABLED_IndexConcurrentInsertTest) {  // NOLINT
-  const auto generate_sql = [](int thread_id, int n) -> std::string {
-    return fmt::format("INSERT INTO maintable VALUES ({}, {})", n, thread_id);
+TEST(TxnIndexTest, DISABLED_InsertDeleteTest) {  // NOLINT
+  const std::string query = "SELECT * FROM maintable";
+
+  auto bustub = std::make_unique<BustubInstance>();
+  EnsureIndexScan(*bustub);
+  Execute(*bustub, "CREATE TABLE maintable(col1 int primary key, col2 int)");
+  auto table_info = bustub->catalog_->GetTable("maintable");
+
+  auto txn1 = BeginTxn(*bustub, "txn1");
+  WithTxn(txn1, ExecuteTxn(*bustub, _var, _txn, "INSERT INTO maintable VALUES (1, 0), (2, 0), (3, 0), (4, 0)"));
+  WithTxn(txn1, QueryShowResult(*bustub, _var, _txn, query, IntResult{{1, 0}, {2, 0}, {3, 0}, {4, 0}}));
+  WithTxn(txn1, QueryIndex(*bustub, _var, _txn, query, "col1", std::vector<int>{1, 2, 3, 4},
+                           IntResult{{1, 0}, {2, 0}, {3, 0}, {4, 0}}));
+  WithTxn(txn1, CommitTxn(*bustub, _var, _txn));
+  TxnMgrDbg("after txn1 insert", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+  auto txn1_reverify = BeginTxn(*bustub, "txn1_reverify");
+
+  auto txn2 = BeginTxn(*bustub, "txn2");
+  WithTxn(txn2, ExecuteTxn(*bustub, _var, _txn, "DELETE FROM maintable"));
+  WithTxn(txn2, QueryShowResult(*bustub, _var, _txn, query, IntResult{}));
+  WithTxn(txn2, CommitTxn(*bustub, _var, _txn));
+  TxnMgrDbg("after txn2 delete", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+
+  TableHeapEntryNoMoreThan(*bustub, table_info, 4);
+
+  // hidden tests in-between
+
+  WithTxn(txn1_reverify, QueryShowResult(*bustub, _var, _txn, query, IntResult{{1, 0}, {2, 0}, {3, 0}, {4, 0}}));
+  WithTxn(txn1_reverify, QueryIndex(*bustub, _var, _txn, query, "col1", std::vector<int>{1, 2, 3, 4},
+                                    IntResult{{1, 0}, {2, 0}, {3, 0}, {4, 0}}));
+}
+
+TEST(TxnIndexTest, DISABLED_UpdateTest) {  // NOLINT
+  const std::string query = "SELECT * FROM maintable";
+
+  const auto prepare =
+      [](std::unique_ptr<BustubInstance> &bustub) -> std::tuple<Transaction *, Transaction *, Transaction *> {
+    auto table_info = bustub->catalog_->GetTable("maintable");
+    auto txn1 = BeginTxn(*bustub, "txn1");
+    WithTxn(txn1, ExecuteTxn(*bustub, _var, _txn, "INSERT INTO maintable VALUES (1, 0), (2, 0)"));
+    WithTxn(txn1, CommitTxn(*bustub, _var, _txn));
+    auto txn1_reverify = BeginTxn(*bustub, "txn1_reverify");
+    auto txn2 = BeginTxn(*bustub, "txn2");
+    WithTxn(txn2, ExecuteTxn(*bustub, _var, _txn, "DELETE FROM maintable WHERE col1 = 2"));
+    WithTxn(txn2, ExecuteTxn(*bustub, _var, _txn, "INSERT INTO maintable VALUES (3, 0), (5, 0)"));
+    WithTxn(txn2, ExecuteTxn(*bustub, _var, _txn, "DELETE FROM maintable WHERE col1 = 3"));
+    WithTxn(txn2, CommitTxn(*bustub, _var, _txn));
+    auto txn2_reverify = BeginTxn(*bustub, "txn2_reverify");
+    // at this point, we have (1, 0) inserted, (2, 0) deleted, and (3, 0) self inserted and deleted.
+    auto txn3 = BeginTxn(*bustub, "txn3");
+    WithTxn(txn3, ExecuteTxn(*bustub, _var, _txn, "INSERT INTO maintable VALUES (4, 0), (6, 0)"));
+    WithTxn(txn3, ExecuteTxn(*bustub, _var, _txn, "DELETE FROM maintable WHERE col1 = 5"));
+    WithTxn(txn3, ExecuteTxn(*bustub, _var, _txn, "DELETE FROM maintable WHERE col1 = 6"));
+    TxnMgrDbg("after preparation", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+    // at this point, we have (4, 0) inserted, (5, 0) deleted, and (6, 0) self inserted and deleted.
+    return {txn1_reverify, txn2_reverify, txn3};
   };
-  for (int n = 0; n < 50; n++) {
+
+  const auto reverify = [](std::unique_ptr<BustubInstance> &bustub, Transaction *txn1_reverify,
+                           Transaction *txn2_reverify, const std::string &query) {
+    WithTxn(txn1_reverify, QueryShowResult(*bustub, _var, _txn, query, IntResult{{1, 0}, {2, 0}}));
+    WithTxn(txn1_reverify, QueryIndex(*bustub, _var, _txn, query, "col1", std::vector<int>{1, 2, 3, 4, 5, 6},
+                                      IntResult{{1, 0}, {2, 0}, {}, {}, {}, {}}));
+    WithTxn(txn2_reverify, QueryShowResult(*bustub, _var, _txn, query, IntResult{{1, 0}, {5, 0}}));
+    WithTxn(txn2_reverify, QueryIndex(*bustub, _var, _txn, query, "col1", std::vector<int>{1, 2, 3, 4, 5, 6},
+                                      IntResult{{1, 0}, {}, {}, {}, {5, 0}, {}}));
+  };
+
+  {
+    fmt::println("---- UpdateTest1: insert, update, and commit ----");
     auto bustub = std::make_unique<BustubInstance>();
-    Execute(*bustub, "CREATE TABLE maintable(a int primary key, b int)");
-    std::vector<std::thread> insert_threads;
-    const int thread_cnt = 8;
-    const int number_cnt = 80;
-    insert_threads.reserve(thread_cnt);
-    std::map<int, std::vector<bool>> operation_result;
-    std::mutex result_mutex;
-    fmt::println(stderr, "trial {}: running with {} threads with {} rows", n + 1, thread_cnt, number_cnt);
-    global_disable_execution_exception_print.store(true);
-    for (int thread = 0; thread < thread_cnt; thread++) {
-      insert_threads.emplace_back([&bustub, thread, generate_sql, &result_mutex, &operation_result]() {
-        NoopWriter writer;
-        std::vector<bool> result;
-        result.reserve(number_cnt);
-        for (int i = 0; i < number_cnt; i++) {
-          auto sql = generate_sql(thread, i);
-          auto *txn = bustub->txn_manager_->Begin();
-          if (bustub->ExecuteSqlTxn(sql, writer, txn)) {
-            result.push_back(true);
-            BUSTUB_ENSURE(bustub->txn_manager_->Commit(txn), "cannot commit??");
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-          } else {
-            result.push_back(false);
-          }
-        }
-        {
-          std::lock_guard<std::mutex> lck(result_mutex);
-          operation_result.emplace(thread, std::move(result));
-        }
-      });
-    }
-    for (auto &&thread : insert_threads) {
-      thread.join();
-    }
-    global_disable_execution_exception_print.store(false);
-    std::vector<std::vector<int>> expected_rows;
-    std::map<int, int> winner_stats;
-    for (int i = 0; i < number_cnt; i++) {
-      int winner = -1;
-      for (int j = 0; j < thread_cnt; j++) {
-        if (operation_result[j][i]) {
-          if (winner != -1) {
-            fmt::println(stderr, "multiple winner for inserting {}: [{}]", i, fmt::join(operation_result[j], ","));
-            std::terminate();
-          }
-          winner = j;
-        }
-      }
-      if (winner == -1) {
-        fmt::println(stderr, "no winner for inserting {}");
-        std::terminate();
-      }
-      winner_stats[winner]++;
-      expected_rows.push_back({i, winner});
-    }
-    for (auto &&[winner, cnt] : winner_stats) {
-      if (cnt == number_cnt) {
-        fmt::println(stderr, "WARNING: biased winner {}: cnt={}", winner, cnt);
-        std::terminate();
-      }
-    }
-    auto query_txn = BeginTxn(*bustub, "query_txn");
-    WithTxn(query_txn, QueryShowResult(*bustub, _var, _txn, "SELECT * FROM maintable", expected_rows));
-    auto entry = TableHeapEntry(*bustub, bustub->catalog_->GetTable("maintable"));
-    fmt::println("{} entries in the table heap", entry);
+    EnsureIndexScan(*bustub);
+    Execute(*bustub, "CREATE TABLE maintable(col1 int primary key, col2 int)");
+    auto table_info = bustub->catalog_->GetTable("maintable");
+    auto [txn1_reverify, txn2_reverify, txn3] = prepare(bustub);
+    WithTxn(txn3, QueryShowResult(*bustub, _var, _txn, query, IntResult{{1, 0}, {4, 0}}));
+    WithTxn(txn3, QueryIndex(*bustub, _var, _txn, query, "col1", std::vector<int>{1, 2, 3, 4, 5, 6},
+                             IntResult{{1, 0}, {}, {}, {4, 0}, {}, {}}));
+
+    WithTxn(txn3, ExecuteTxn(*bustub, _var, _txn, "INSERT INTO maintable VALUES (2, 1), (5, 1), (3, 1), (6, 1)"));
+    TxnMgrDbg("after txn3 insert operations", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+    WithTxn(txn3, ExecuteTxn(*bustub, _var, _txn, "UPDATE maintable SET col2 = col2 + 10"));
+    TxnMgrDbg("after txn3 update operations", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+    WithTxn(txn3, QueryShowResult(*bustub, _var, _txn, query,
+                                  IntResult{
+                                      {1, 10},
+                                      {2, 11},
+                                      {3, 11},
+                                      {4, 10},
+                                      {5, 11},
+                                      {6, 11},
+                                  }));
+    WithTxn(txn3, QueryIndex(*bustub, _var, _txn, query, "col1", std::vector<int>{1, 2, 3, 4, 5, 6},
+                             IntResult{
+                                 {1, 10},
+                                 {2, 11},
+                                 {3, 11},
+                                 {4, 10},
+                                 {5, 11},
+                                 {6, 11},
+                             }));
+    WithTxn(txn3, CommitTxn(*bustub, _var, _txn));
+    TxnMgrDbg("after commit", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+
+    auto txn4 = BeginTxn(*bustub, "txn4");
+    WithTxn(txn4, QueryShowResult(*bustub, _var, _txn, query,
+                                  IntResult{
+                                      {1, 10},
+                                      {2, 11},
+                                      {3, 11},
+                                      {4, 10},
+                                      {5, 11},
+                                      {6, 11},
+                                  }));
+    WithTxn(txn4, QueryIndex(*bustub, _var, _txn, query, "col1", std::vector<int>{1, 2, 3, 4, 5, 6},
+                             IntResult{
+                                 {1, 10},
+                                 {2, 11},
+                                 {3, 11},
+                                 {4, 10},
+                                 {5, 11},
+                                 {6, 11},
+                             }));
+    reverify(bustub, txn1_reverify, txn2_reverify, query);
+    TableHeapEntryNoMoreThan(*bustub, table_info, 6);
   }
+  // hidden tests...
+}
+
+TEST(GradingTxnIndexTest, DISABLED_IndexUpdateConflictTest) {  // NOLINT
+  const std::string query = "SELECT * FROM maintable";
+
+  auto bustub = std::make_unique<BustubInstance>();
+  EnsureIndexScan(*bustub);
+  Execute(*bustub, "CREATE TABLE maintable(col1 int primary key, col2 int)");
+  auto table_info = bustub->catalog_->GetTable("maintable");
+  auto txn1 = BeginTxn(*bustub, "txn1");
+  WithTxn(txn1, ExecuteTxn(*bustub, _var, _txn, "INSERT INTO maintable VALUES (1, 0), (2, 0), (3, 0)"));
+  WithTxn(txn1, ExecuteTxn(*bustub, _var, _txn, "DELETE FROM maintable WHERE col1 = 2"));
+  WithTxn(txn1, CommitTxn(*bustub, _var, _txn));
+  TxnMgrDbg("after txn1 insert", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+  auto txn2 = BeginTxn(*bustub, "txn2");
+  auto txn3 = BeginTxn(*bustub, "txn3");
+  WithTxn(txn2, ExecuteTxn(*bustub, _var, _txn, "INSERT INTO maintable VALUES (4, 0)"));
+  WithTxn(txn2, ExecuteTxn(*bustub, _var, _txn, "DELETE FROM maintable WHERE col1 = 1"));
+  WithTxn(txn2, ExecuteTxn(*bustub, _var, _txn, "DELETE FROM maintable WHERE col1 = 3"));
+  WithTxn(txn2, CommitTxn(*bustub, _var, _txn));
+  TxnMgrDbg("after txn2 modification", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+  WithTxn(txn3, ExecuteTxnTainted(*bustub, _var, _txn, "UPDATE maintable SET col2 = 2 WHERE col1 = 1"));
+  TxnMgrDbg("after txn3 tainted", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+  // hidden tests...
+}
+
+TEST(TxnIndexTest, DISABLED_UpdatePrimaryKeyTest) {  // NOLINT
+  const std::string query = "SELECT * FROM maintable";
+
+  auto bustub = std::make_unique<BustubInstance>();
+  EnsureIndexScan(*bustub);
+  Execute(*bustub, "CREATE TABLE maintable(col1 int primary key, col2 int)");
+  auto table_info = bustub->catalog_->GetTable("maintable");
+  auto txn1 = BeginTxn(*bustub, "txn1");
+  WithTxn(txn1, ExecuteTxn(*bustub, _var, _txn, "INSERT INTO maintable VALUES (1, 0), (2, 0), (3, 0), (4, 0)"));
+  WithTxn(txn1, QueryShowResult(*bustub, _var, _txn, query, IntResult{{1, 0}, {2, 0}, {3, 0}, {4, 0}}));
+  WithTxn(txn1, QueryIndex(*bustub, _var, _txn, query, "col1", std::vector<int>{1, 2, 3, 4},
+                           IntResult{{1, 0}, {2, 0}, {3, 0}, {4, 0}}));
+  WithTxn(txn1, CommitTxn(*bustub, _var, _txn));
+  TxnMgrDbg("after txn1 insert", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+  auto txn2 = BeginTxn(*bustub, "txn2");
+  WithTxn(txn2, ExecuteTxn(*bustub, _var, _txn, "UPDATE maintable SET col1 = col1 + 1"));
+  WithTxn(txn2, QueryShowResult(*bustub, _var, _txn, query, IntResult{{2, 0}, {3, 0}, {4, 0}, {5, 0}}));
+  WithTxn(txn2, QueryIndex(*bustub, _var, _txn, query, "col1", std::vector<int>{1, 2, 3, 4, 5},
+                           IntResult{{}, {2, 0}, {3, 0}, {4, 0}, {5, 0}}));
+  WithTxn(txn2, CommitTxn(*bustub, _var, _txn));
+  TxnMgrDbg("after txn2 update", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+  auto txn3 = BeginTxn(*bustub, "txn3");
+  WithTxn(txn3, ExecuteTxn(*bustub, _var, _txn, "UPDATE maintable SET col1 = col1 - 2"));
+  WithTxn(txn3, QueryShowResult(*bustub, _var, _txn, query, IntResult{{0, 0}, {1, 0}, {2, 0}, {3, 0}}));
+  WithTxn(txn3, QueryIndex(*bustub, _var, _txn, query, "col1", std::vector<int>{0, 1, 2, 3, 4, 5},
+                           IntResult{{0, 0}, {1, 0}, {2, 0}, {3, 0}, {}, {}}));
+  WithTxn(txn3, CommitTxn(*bustub, _var, _txn));
+  // hidden tests...
 }
 
 // NOLINTEND(bugprone-unchecked-optional-access))
