@@ -149,6 +149,8 @@ TEST(TxnIndexTest, DISABLED_IndexConcurrentInsertTest) {  // NOLINT
     }
     auto query_txn = BeginTxn(*bustub, "query_txn");
     WithTxn(query_txn, QueryShowResult(*bustub, _var, _txn, "SELECT * FROM maintable", expected_rows));
+    auto entry = TableHeapEntry(*bustub, bustub->catalog_->GetTable("maintable"));
+    fmt::println("{} entries in the table heap", entry);
   }
 }
 

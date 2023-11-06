@@ -7,6 +7,7 @@
 #include <functional>
 #include <future>  // NOLINT
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <thread>  // NOLINT
@@ -14,9 +15,11 @@
 
 #include "buffer/buffer_pool_manager.h"
 #include "catalog/catalog.h"
+#include "catalog/column.h"
 #include "catalog/schema.h"
 #include "common/bustub_instance.h"
 #include "common/config.h"
+#include "common/util/string_util.h"
 #include "concurrency/transaction.h"
 #include "concurrency/transaction_manager.h"
 #include "concurrency/watermark.h"
@@ -86,6 +89,15 @@ auto ResultVecToVecString(const std::vector<std::vector<T>> &result) -> std::vec
     for (const auto &col : row) {
       rows.back().push_back(fmt::format("{}", col));
     }
+  }
+  return rows;
+}
+
+template <typename T>
+auto VecToVecString(const std::vector<T> &result) -> std::vector<std::string> {
+  std::vector<std::string> rows;
+  for (const auto &col : result) {
+    rows.emplace_back(fmt::format("{}", col));
   }
   return rows;
 }
@@ -199,8 +211,7 @@ void Execute(BustubInstance &instance, const std::string &query) {
   }
 }
 
-void TableHeapEntryNoMoreThan(BustubInstance &instance, TableInfo *table_info, size_t upper_limit) {
-  fmt::print(stderr, "- verify table heap");
+auto TableHeapEntry(BustubInstance &instance, TableInfo *table_info) -> size_t {
   auto table_heap = table_info->table_.get();
   auto table_iter = table_heap->MakeEagerIterator();
   size_t cnt = 0;
@@ -208,6 +219,12 @@ void TableHeapEntryNoMoreThan(BustubInstance &instance, TableInfo *table_info, s
     ++table_iter;
     cnt++;
   }
+  return cnt;
+}
+
+void TableHeapEntryNoMoreThan(BustubInstance &instance, TableInfo *table_info, size_t upper_limit) {
+  fmt::print(stderr, "- verify table heap");
+  auto cnt = TableHeapEntry(instance, table_info);
   if (cnt > upper_limit) {
     fmt::println(stderr, " -- error: expect table heap to contain at most {} elements, found {}", upper_limit, cnt);
     std::terminate();
@@ -321,6 +338,74 @@ void BumpCommitTs(BustubInstance &instance, int by = 1) {
   auto after_commit_ts = instance.txn_manager_->last_commit_ts_.load();
   fmt::println(stderr, "- bump_commit_ts from={} to={} watermark={}", before_commit_ts, after_commit_ts,
                instance.txn_manager_->GetWatermark());
+}
+
+void EnsureIndexScan(BustubInstance &instance) {
+  global_disable_execution_exception_print.store(true);
+  fmt::println(stderr, "- pre-test index validation");
+  NoopWriter writer;
+  auto res = instance.ExecuteSql("CREATE TABLE pk_test_table_n(pk int primary key)", writer);
+  if (!res) {
+    std::terminate();
+  }
+  res = instance.ExecuteSql("set force_optimizer_starter_rule=yes", writer);
+  if (!res) {
+    std::terminate();
+  }
+
+  {
+    std::stringstream ss;
+    SimpleStreamWriter writer_ss(ss);
+    auto *txn = instance.txn_manager_->Begin();
+    res = instance.ExecuteSqlTxn("EXPLAIN SELECT * FROM pk_test_table_n WHERE pk = 1", writer_ss, txn);
+    if (!StringUtil::Contains(ss.str(), "IndexScan")) {
+      fmt::println("index scan not found in plan:\n{}\n", ss.str());
+      std::terminate();
+    }
+  }
+
+  global_disable_execution_exception_print.store(false);
+}
+
+template <typename T>
+void QueryIndex(BustubInstance &instance, const std::string &txn_var_name, Transaction *txn, const std::string &query,
+                const std::string &pk_column, const std::vector<T> &expected_pk,
+                const std::vector<std::vector<T>> &expected_rows) {
+  assert(expected_pk.size() == expected_rows.size());
+  fmt::print(stderr, "- query_index var={} id={} status={} read_ts={} query=\"{}\" pk={}", txn_var_name,
+             txn->GetTransactionIdHumanReadable(), txn->GetTransactionState(), txn->GetReadTs(), query,
+             fmt::join(expected_pk, ","));
+  if (txn->GetTransactionState() != TransactionState::RUNNING) {
+    fmt::println(stderr, "txn not running");
+    std::terminate();
+  }
+  for (size_t i = 0; i < expected_pk.size(); i++) {
+    StringVectorWriter writer;
+    auto res = instance.ExecuteSqlTxn(fmt::format("{} WHERE {} = {}", query, pk_column, expected_pk[i]), writer, txn);
+    if (!res) {
+      fmt::println("failed to execute query when {} = {}", pk_column, expected_pk[i]);
+      std::terminate();
+    }
+    if (expected_rows[i].empty()) {
+      if (!writer.values_.empty()) {
+        fmt::println("ERROR: expect {} = {} to have 0 rows, found ({})", pk_column, expected_pk[i],
+                     fmt::join(writer.values_[0], ","));
+        std::terminate();
+      }
+    } else {
+      if (writer.values_.size() != 1) {
+        fmt::println("ERROR: expect {} = {} to have 1 row, found {} rows", pk_column, expected_pk[i],
+                     writer.values_.size());
+        std::terminate();
+      }
+      if (writer.values_[0] != VecToVecString(expected_rows[i])) {
+        fmt::println("ERROR: expect {} = {} to be ({}), found ({})", pk_column, expected_pk[i],
+                     fmt::join(expected_rows[0], ","), fmt::join(writer.values_[0], ","));
+        std::terminate();
+      }
+    }
+  }
+  fmt::println(" -- pass check :)");
 }
 
 using IntResult = std::vector<std::vector<int>>;

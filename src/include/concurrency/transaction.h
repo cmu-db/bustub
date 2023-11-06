@@ -66,6 +66,8 @@ struct UndoLink {
   }
 
   friend auto operator!=(const UndoLink &a, const UndoLink &b) { return !(a == b); }
+
+  auto IsValid() const -> bool { return prev_txn_ != INVALID_TXN_ID; }
 };
 
 /* Once the undo log is added to the txn, it becomes read-only and should NOT be changed except prev_version_. */
