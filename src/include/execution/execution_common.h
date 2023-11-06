@@ -22,15 +22,16 @@ void TxnMgrDbg(const std::string &info, TransactionManager *txn_mgr, const Table
 // list of helper function names that we defined in the reference solution. You should come up with
 // your own when you go through the process.
 // * CollectUndoLogs
+// * WalkUndoLogs
 // * Modify
 // * IsWriteWriteConflict
 // * GenerateDiffLog
 // * GenerateNullTupleForSchema
 // * GetUndoLogSchema
 //
-// We do not provide the signatures for these functions because what they actually do depends
-// on the your implementation. You do not need to define the same set of helper functions in
-// your implementation. Please add you own ones as necessary so that you do not need to write
+// We do not provide the signatures for these functions because it depends on the your implementation
+// of other parts of the system. You do not need to define the same set of helper functions in
+// your implementation. Please add your own ones as necessary so that you do not need to write
 // the same code everywhere.
 
 }  // namespace bustub
