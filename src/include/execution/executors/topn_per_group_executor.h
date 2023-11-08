@@ -48,6 +48,8 @@ class TopNPerGroupExecutor : public AbstractExecutor {
    */
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
+  auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); }
+
  private:
   /** The TopNPerGroup plan node to be executed */
   [[maybe_unused]] const TopNPerGroupPlanNode *plan_;
