@@ -296,6 +296,21 @@ auto CommitTxn(BustubInstance &instance, const std::string &txn_var_name, Transa
                txn->GetTransactionIdHumanReadable(), txn->GetTransactionState(), txn->GetReadTs());
 }
 
+auto AbortTxn(BustubInstance &instance, const std::string &txn_var_name, Transaction *txn) {
+  if (txn->GetTransactionState() != TransactionState::RUNNING &&
+      txn->GetTransactionState() != TransactionState::TAINTED) {
+    fmt::println(stderr, "txn not running / tainted");
+    std::terminate();
+  }
+  instance.txn_manager_->Abort(txn);
+  if (txn->GetTransactionState() != TransactionState::ABORTED) {
+    fmt::println(stderr, "should set to aborted state var={} id={}", txn_var_name, txn->GetTransactionId());
+    std::terminate();
+  }
+  fmt::println(stderr, "- txn_abort var={} id={} status={} read_ts={}", txn_var_name,
+               txn->GetTransactionIdHumanReadable(), txn->GetTransactionState(), txn->GetReadTs());
+}
+
 auto CheckTainted(BustubInstance &instance, const std::string &txn_var_name, Transaction *txn) {
   if (txn->GetTransactionState() != TransactionState::TAINTED) {
     fmt::println(stderr, "should set to tainted state var={} id={}", txn_var_name, txn->GetTransactionId());
