@@ -4,8 +4,16 @@
 
 namespace bustub {
 
-auto Watermark::AddTxn(timestamp_t read_ts) -> void { throw NotImplementedException("unimplemented"); }
+auto Watermark::AddTxn(timestamp_t read_ts) -> void {
+  if (read_ts < commit_ts_) {
+    throw Exception("read ts < commit ts");
+  }
 
-auto Watermark::RemoveTxn(timestamp_t read_ts) -> void { throw NotImplementedException("unimplemented"); }
+  // TODO(fall2023): implement me!
+}
+
+auto Watermark::RemoveTxn(timestamp_t read_ts) -> void {
+  // TODO(fall2023): implement me!
+}
 
 }  // namespace bustub

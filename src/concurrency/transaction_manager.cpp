@@ -42,21 +42,52 @@ auto TransactionManager::Begin(IsolationLevel isolation_level) -> Transaction * 
   auto *txn_ref = txn.get();
   txn_map_.insert(std::make_pair(txn_id, std::move(txn)));
 
-  // TODO(fall2023): set the timestamps and compute watermark.
+  // TODO(fall2023): set the timestamps here. Watermark updated below.
 
+  running_txns_.AddTxn(txn_ref->read_ts_);
   return txn_ref;
 }
 
+auto TransactionManager::VerifyTxn(Transaction *txn) -> bool { return true; }
+
 auto TransactionManager::Commit(Transaction *txn) -> bool {
-  std::lock_guard<std::mutex> commit_lck(commit_mutex_);
-  // TODO(fall2023): Implement me!
+  std::unique_lock<std::mutex> commit_lck(commit_mutex_);
+
+  if (txn->state_ != TransactionState::RUNNING) {
+    throw Exception("txn not in running state");
+  }
+
+  if (txn->GetIsolationLevel() == IsolationLevel::SERIALIZABLE) {
+    if (!VerifyTxn(txn)) {
+      commit_lck.unlock();
+      Abort(txn);
+      return false;
+    }
+  }
+
+  // TODO(fall2023): Implement the commit logic!
+
+  std::unique_lock<std::shared_mutex> lck(txn_map_mutex_);
+
+  // TODO(fall2023): set commit timestamp + update last committed timestamp here.
+
   txn->state_ = TransactionState::COMMITTED;
+  running_txns_.UpdateCommitTs(txn->commit_ts_);
+  running_txns_.RemoveTxn(txn->read_ts_);
+
   return true;
 }
 
 void TransactionManager::Abort(Transaction *txn) {
-  // TODO(fall2023): Implement me!
+  if (txn->state_ != TransactionState::RUNNING && txn->state_ != TransactionState::TAINTED) {
+    throw Exception("txn not in running / tainted state");
+  }
+
+  // TODO(fall2023): Implement the abort logic!
+
+  std::unique_lock<std::shared_mutex> lck(txn_map_mutex_);
   txn->state_ = TransactionState::ABORTED;
+  running_txns_.RemoveTxn(txn->read_ts_);
 }
 
 void TransactionManager::GarbageCollection() { UNIMPLEMENTED("not implemented"); }
