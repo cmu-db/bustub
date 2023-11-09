@@ -142,7 +142,7 @@ void Bench1TaskTransfer(const int thread_id, const int terrier_num, const uint64
   std::uniform_int_distribution<int> terrier_uniform_dist(0, terrier_num - 1);
   std::uniform_int_distribution<int> money_transfer_dist(5, max_transfer_amount);
 
-  TerrierMetrics metrics(fmt::format("Transfer {}", thread_id), duration_ms);
+  TerrierMetrics metrics(fmt::format("Xfr {}", thread_id), duration_ms);
   metrics.Begin();
 
   while (!metrics.ShouldFinish()) {
@@ -201,7 +201,7 @@ void Bench2TaskTransfer(const int thread_id, const int terrier_num, const uint64
   std::uniform_int_distribution<int> money_transfer_dist(5, max_transfer_amount);
   int adjustment = 0;
 
-  TerrierMetrics metrics(fmt::format("Transfer {}", thread_id), duration_ms);
+  TerrierMetrics metrics(fmt::format("Xfr {}", thread_id), duration_ms);
   metrics.Begin();
 
   while (!metrics.ShouldFinish()) {
