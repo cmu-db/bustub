@@ -53,6 +53,8 @@ auto TransactionManager::VerifyTxn(Transaction *txn) -> bool { return true; }
 auto TransactionManager::Commit(Transaction *txn) -> bool {
   std::unique_lock<std::mutex> commit_lck(commit_mutex_);
 
+  // TODO(fall2023): acquire commit ts!
+
   if (txn->state_ != TransactionState::RUNNING) {
     throw Exception("txn not in running state");
   }
