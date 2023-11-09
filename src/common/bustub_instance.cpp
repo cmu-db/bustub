@@ -213,7 +213,9 @@ auto BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer,
   auto *txn = txn_manager_->Begin();
   try {
     auto result = ExecuteSqlTxn(sql, writer, txn, std::move(check_options));
-    txn_manager_->Commit(txn);
+    if (!txn_manager_->Commit(txn)) {
+      throw Exception("failed to commit txn");
+    }
     return result;
   } catch (bustub::Exception &ex) {
     txn_manager_->Abort(txn);
