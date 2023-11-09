@@ -121,7 +121,7 @@ class StringVectorWriter : public ResultWriter {
   void EndHeader() override {}
   void BeginRow() override { values_.emplace_back(); }
   void EndRow() override {}
-  void BeginTable(bool simplified_output) override {}
+  void BeginTable(bool simplified_output) override { values_.clear(); }
   void EndTable() override {}
 
   std::vector<std::vector<std::string>> values_;
