@@ -1,10 +1,14 @@
+#include <algorithm>
 #include <chrono>
+#include <exception>
 #include <iostream>
 #include <memory>
 #include <mutex>  // NOLINT
 #include <random>
+#include <shared_mutex>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <vector>
 
@@ -17,7 +21,6 @@
 #include "concurrency/transaction_manager.h"
 #include "fmt/core.h"
 #include "fmt/std.h"
-#include "terrier_bench_config.h"
 
 #include <sys/time.h>
 
@@ -27,52 +30,43 @@ auto ClockMs() -> uint64_t {
   return static_cast<uint64_t>(tm.tv_sec * 1000) + static_cast<uint64_t>(tm.tv_usec / 1000);
 }
 
-static const size_t BUSTUB_TERRIER_THREAD = 2;
-static const size_t BUSTUB_TERRIER_CNT = 100;
-
 struct TerrierTotalMetrics {
-  uint64_t aborted_count_txn_cnt_{0};
-  uint64_t committed_count_txn_cnt_{0};
-  uint64_t aborted_update_txn_cnt_{0};
-  uint64_t committed_update_txn_cnt_{0};
-  uint64_t aborted_verify_txn_cnt_{0};
-  uint64_t committed_verify_txn_cnt_{0};
+  uint64_t aborted_transfer_txn_cnt_{0};
+  uint64_t committed_transfer_txn_cnt_{0};
+  uint64_t aborted_join_txn_cnt_{0};
+  uint64_t committed_join_txn_cnt_{0};
   uint64_t start_time_{0};
+  uint64_t elapsed_{0};
   std::mutex mutex_;
 
   void Begin() { start_time_ = ClockMs(); }
 
-  void ReportVerify(uint64_t aborted_cnt, uint64_t committed_cnt) {
+  void ReportTransfer(uint64_t aborted_cnt, uint64_t committed_cnt) {
     std::unique_lock<std::mutex> l(mutex_);
-    aborted_verify_txn_cnt_ += aborted_cnt;
-    committed_verify_txn_cnt_ += committed_cnt;
+    aborted_transfer_txn_cnt_ += aborted_cnt;
+    committed_transfer_txn_cnt_ += committed_cnt;
   }
 
-  void ReportCount(uint64_t aborted_cnt, uint64_t committed_cnt) {
+  void ReportJoin(uint64_t aborted_cnt, uint64_t committed_cnt) {
     std::unique_lock<std::mutex> l(mutex_);
-    aborted_count_txn_cnt_ += aborted_cnt;
-    committed_count_txn_cnt_ += committed_cnt;
+    aborted_join_txn_cnt_ += aborted_cnt;
+    committed_join_txn_cnt_ += committed_cnt;
   }
 
-  void ReportUpdate(uint64_t aborted_cnt, uint64_t committed_cnt) {
-    std::unique_lock<std::mutex> l(mutex_);
-    aborted_update_txn_cnt_ += aborted_cnt;
-    committed_update_txn_cnt_ += committed_cnt;
-  }
-
-  void Report() {
+  void End() {
     auto now = ClockMs();
-    auto elsped = now - start_time_;
-    auto count_txn_per_sec = committed_count_txn_cnt_ / static_cast<double>(elsped) * 1000;
-    auto update_txn_per_sec = committed_update_txn_cnt_ / static_cast<double>(elsped) * 1000;
-    auto verify_txn_per_sec = committed_verify_txn_cnt_ / static_cast<double>(elsped) * 1000;
+    elapsed_ = now - start_time_;
+  }
+
+  void Report(uint64_t db_size) {
+    auto transfer_txn_per_sec = committed_transfer_txn_cnt_ / static_cast<double>(elapsed_) * 1000;
+    auto join_txn_per_sec = committed_join_txn_cnt_ / static_cast<double>(elapsed_) * 1000;
 
     fmt::print(stderr, "<<< BEGIN\n");
 
-    // ensure the verifying thread is not blocked
-    fmt::print(stderr, "update: {}\n", update_txn_per_sec);
-    fmt::print(stderr, "count: {}\n", count_txn_per_sec);
-    fmt::print(stderr, "verify: {}\n", verify_txn_per_sec);
+    fmt::print(stderr, "transfer: {}\n", transfer_txn_per_sec);
+    fmt::print(stderr, "join: {}\n", join_txn_per_sec);
+    fmt::print(stderr, "db_size: {}\n", db_size);
 
     fmt::print(stderr, ">>> END\n");
   }
@@ -99,15 +93,15 @@ struct TerrierMetrics {
 
   void Report() {
     auto now = ClockMs();
-    auto elsped = now - start_time_;
-    if (elsped - last_report_at_ > 1000) {
+    auto elapsed = now - start_time_;
+    if (elapsed - last_report_at_ > 1000) {
       fmt::print(
           stderr,
-          "[{:5.2f}] {}: total_committed_txn={:<5} total_aborted_txn={:<5} throughput={:<6.3} avg_throughput={:<6.3}\n",
-          elsped / 1000.0, reporter_, committed_txn_cnt_, aborted_txn_cnt_,
-          (committed_txn_cnt_ - last_committed_txn_cnt_) / static_cast<double>(elsped - last_report_at_) * 1000,
-          committed_txn_cnt_ / static_cast<double>(elsped) * 1000);
-      last_report_at_ = elsped;
+          "[{:5.2f}] {}: total_committed_txn={:<8} total_aborted_txn={:<8} throughput={:<8.3} avg_throughput={:<8.3}\n",
+          elapsed / 1000.0, reporter_, committed_txn_cnt_, aborted_txn_cnt_,
+          (committed_txn_cnt_ - last_committed_txn_cnt_) / static_cast<double>(elapsed - last_report_at_) * 1000,
+          committed_txn_cnt_ / static_cast<double>(elapsed) * 1000);
+      last_report_at_ = elapsed;
       last_committed_txn_cnt_ = committed_txn_cnt_;
     }
   }
@@ -128,72 +122,355 @@ auto ParseBool(const std::string &str) -> bool {
   throw bustub::Exception(fmt::format("unexpected arg: {}", str));
 }
 
-void CheckTableLock(bustub::Transaction *txn) {}
+auto ExtractOneCell(const bustub::StringVectorWriter &writer) -> std::string {
+  if (writer.values_.size() == 1) {
+    if (writer.values_[0].size() == 1) {
+      return writer.values_[0][0];
+    }
+  }
+  fmt::println(stderr, "expect only one cell in the result set");
+  std::terminate();
+}
+
+void Bench1TaskTransfer(const int thread_id, const int terrier_num, const uint64_t duration_ms,
+                        const bustub::IsolationLevel iso_lvl, bustub::BustubInstance *bustub,
+                        TerrierTotalMetrics &total_metrics) {
+  const int max_transfer_amount = 1000;
+  std::random_device r;
+  std::default_random_engine gen(r());
+  std::uniform_int_distribution<int> terrier_uniform_dist(0, terrier_num - 1);
+  std::uniform_int_distribution<int> money_transfer_dist(5, max_transfer_amount);
+
+  TerrierMetrics metrics(fmt::format("Transfer {}", thread_id), duration_ms);
+  metrics.Begin();
+
+  while (!metrics.ShouldFinish()) {
+    std::stringstream ss;
+    auto writer = bustub::StringVectorWriter();
+    int terrier_a;
+    int terrier_b;
+    do {
+      terrier_a = terrier_uniform_dist(gen);
+      terrier_b = terrier_uniform_dist(gen);
+    } while (terrier_a == terrier_b);
+    int transfer_amount = money_transfer_dist(gen);
+    auto txn = bustub->txn_manager_->Begin(iso_lvl);
+    std::string query1 =
+        fmt::format("UPDATE terriers SET token = token + {} WHERE terrier = {}", transfer_amount, terrier_a);
+    std::string query2 =
+        fmt::format("UPDATE terriers SET token = token - {} WHERE terrier = {}", transfer_amount, terrier_b);
+    if (!bustub->ExecuteSqlTxn(query1, writer, txn)) {
+      bustub->txn_manager_->Abort(txn);
+      metrics.TxnAborted();
+      continue;
+    }
+    auto result = ExtractOneCell(writer);
+    if (result != "1") {
+      fmt::print(stderr, "unexpected result when update \"{}\" != 1\n", result);
+      exit(1);
+    }
+    if (!bustub->ExecuteSqlTxn(query2, writer, txn)) {
+      bustub->txn_manager_->Abort(txn);
+      metrics.TxnAborted();
+      continue;
+    }
+    result = ExtractOneCell(writer);
+    if (result != "1") {
+      fmt::print(stderr, "unexpected result when update \"{}\" != 1\n", result);
+      exit(1);
+    }
+    if (!bustub->txn_manager_->Commit(txn)) {
+      metrics.TxnAborted();
+      continue;
+    }
+    metrics.TxnCommitted();
+    metrics.Report();
+  }
+
+  total_metrics.ReportTransfer(metrics.aborted_txn_cnt_, metrics.committed_txn_cnt_);
+}
+
+void Bench2TaskTransfer(const int thread_id, const int terrier_num, const uint64_t duration_ms,
+                        const bustub::IsolationLevel iso_lvl, bustub::BustubInstance *bustub,
+                        TerrierTotalMetrics &total_metrics) {
+  const int max_transfer_amount = 1000;
+  std::random_device r;
+  std::default_random_engine gen(r());
+  std::uniform_int_distribution<int> terrier_uniform_dist(0, terrier_num - 1);
+  std::uniform_int_distribution<int> money_transfer_dist(5, max_transfer_amount);
+
+  TerrierMetrics metrics(fmt::format("Transfer {}", thread_id), duration_ms);
+  metrics.Begin();
+
+  while (!metrics.ShouldFinish()) {
+    std::stringstream ss;
+    auto writer = bustub::StringVectorWriter();
+    int terrier_a;
+    int terrier_b;
+    do {
+      terrier_a = terrier_uniform_dist(gen);
+      terrier_b = terrier_uniform_dist(gen);
+    } while (terrier_a == terrier_b);
+    int transfer_amount = money_transfer_dist(gen);
+    auto txn = bustub->txn_manager_->Begin(iso_lvl);
+    std::string select1 = fmt::format("SELECT network FROM terriers WHERE terrier = {}", terrier_a);
+    std::string select2 = fmt::format("SELECT network FROM terriers WHERE terrier = {}", terrier_b);
+    if (!bustub->ExecuteSqlTxn(select1, writer, txn)) {
+      bustub->txn_manager_->Abort(txn);
+      metrics.TxnAborted();
+      continue;
+    }
+    auto network1 = ExtractOneCell(writer);
+    if (!bustub->ExecuteSqlTxn(select2, writer, txn)) {
+      bustub->txn_manager_->Abort(txn);
+      metrics.TxnAborted();
+      continue;
+    }
+    auto network2 = ExtractOneCell(writer);
+    int receive = network1 == network2 ? transfer_amount : transfer_amount * 0.97;
+    std::string transfer1 =
+        fmt::format("UPDATE terriers SET token = token + {} WHERE terrier = {}", receive, terrier_a);
+    std::string transfer2 =
+        fmt::format("UPDATE terriers SET token = token - {} WHERE terrier = {}", transfer_amount, terrier_b);
+
+    if (!bustub->ExecuteSqlTxn(transfer1, writer, txn)) {
+      bustub->txn_manager_->Abort(txn);
+      metrics.TxnAborted();
+      continue;
+    }
+    auto result = ExtractOneCell(writer);
+    if (result != "1") {
+      fmt::print(stderr, "unexpected result when update \"{}\" != 1\n", result);
+      exit(1);
+    }
+    if (!bustub->ExecuteSqlTxn(transfer2, writer, txn)) {
+      bustub->txn_manager_->Abort(txn);
+      metrics.TxnAborted();
+      continue;
+    }
+    result = ExtractOneCell(writer);
+    if (result != "1") {
+      fmt::print(stderr, "unexpected result when update \"{}\" != 1\n", result);
+      exit(1);
+    }
+    if (!bustub->txn_manager_->Commit(txn)) {
+      metrics.TxnAborted();
+      continue;
+    }
+    metrics.TxnCommitted();
+    metrics.Report();
+  }
+
+  total_metrics.ReportTransfer(metrics.aborted_txn_cnt_, metrics.committed_txn_cnt_);
+}
+
+void Bench2TaskJoin(const int thread_id, const int terrier_num, const uint64_t duration_ms,
+                    const bustub::IsolationLevel iso_lvl, bustub::BustubInstance *bustub,
+                    TerrierTotalMetrics &total_metrics) {
+  std::random_device r;
+  std::default_random_engine gen(r());
+  std::uniform_int_distribution<int> terrier_uniform_dist(0, terrier_num - 1);
+  std::uniform_int_distribution<int> join_target_dist(0, terrier_num - 1);
+  std::uniform_int_distribution<int> join_action_dist(0, 2);
+
+  TerrierMetrics metrics(fmt::format("Join {}", thread_id), duration_ms);
+  metrics.Begin();
+
+  const int sign_bonus = 1000;
+
+  while (!metrics.ShouldFinish()) {
+    std::stringstream ss;
+    auto writer = bustub::StringVectorWriter();
+    int join_action = join_action_dist(gen);
+    int terrier;
+    int join_target;
+    do {
+      terrier = terrier_uniform_dist(gen);
+      join_target = join_target_dist(gen);
+    } while (terrier == join_target);
+
+    if (join_action == 0) {
+      // join another terrier's network
+      auto txn = bustub->txn_manager_->Begin(iso_lvl);
+      std::string target_network_sql = fmt::format("SELECT network FROM terriers WHERE terrier = {}", join_target);
+      if (!bustub->ExecuteSqlTxn(target_network_sql, writer, txn)) {
+        bustub->txn_manager_->Abort(txn);
+        metrics.TxnAborted();
+        continue;
+      }
+      auto target_network = ExtractOneCell(writer);
+      std::string join_sql = fmt::format("UPDATE terriers SET network = {}, token = token + {} WHERE terrier = {}",
+                                         target_network, sign_bonus, terrier);
+      if (!bustub->ExecuteSqlTxn(join_sql, writer, txn)) {
+        bustub->txn_manager_->Abort(txn);
+        metrics.TxnAborted();
+        continue;
+      }
+      auto result = ExtractOneCell(writer);
+      if (result != "1") {
+        fmt::print(stderr, "unexpected result when update \"{}\" != 1\n", result);
+        exit(1);
+      }
+      if (!bustub->txn_manager_->Commit(txn)) {
+        metrics.TxnAborted();
+        continue;
+      }
+      metrics.TxnCommitted();
+      metrics.Report();
+    } else if (join_action == 1) {
+      // create a new network
+      auto txn = bustub->txn_manager_->Begin(iso_lvl);
+      std::string join_sql = fmt::format("UPDATE terriers SET network = {}, token = token - {} WHERE terrier = {}",
+                                         join_target, sign_bonus, terrier);
+      if (!bustub->ExecuteSqlTxn(join_sql, writer, txn)) {
+        bustub->txn_manager_->Abort(txn);
+        metrics.TxnAborted();
+        continue;
+      }
+      auto result = ExtractOneCell(writer);
+      if (result != "1") {
+        fmt::print(stderr, "unexpected result when update \"{}\" != 1\n", result);
+        exit(1);
+      }
+      if (!bustub->txn_manager_->Commit(txn)) {
+        metrics.TxnAborted();
+        continue;
+      }
+      metrics.TxnCommitted();
+      metrics.Report();
+    }
+    if (join_action == 2) {
+      // trigger serializable verification by two txns join each other, one should abort
+      auto txn1 = bustub->txn_manager_->Begin(iso_lvl);
+      auto txn2 = bustub->txn_manager_->Begin(iso_lvl);
+      auto terrier1 = terrier;
+      auto terrier2 = join_target;
+      std::string network1_sql = fmt::format("SELECT network FROM terriers WHERE terrier = {}", terrier2);
+      std::string network2_sql = fmt::format("SELECT network FROM terriers WHERE terrier = {}", terrier1);
+      if (!bustub->ExecuteSqlTxn(network1_sql, writer, txn1)) {
+        bustub->txn_manager_->Abort(txn1);
+        bustub->txn_manager_->Abort(txn2);
+        metrics.TxnAborted();
+        continue;
+      }
+      auto network2 = ExtractOneCell(writer);
+      if (!bustub->ExecuteSqlTxn(network2_sql, writer, txn2)) {
+        bustub->txn_manager_->Abort(txn1);
+        bustub->txn_manager_->Abort(txn2);
+        metrics.TxnAborted();
+        continue;
+      }
+      auto network1 = ExtractOneCell(writer);
+
+      std::string join1_sql = fmt::format("UPDATE terriers SET network = {}, token = token + {} WHERE terrier = {}",
+                                          network2, sign_bonus, terrier1);
+      std::string join2_sql = fmt::format("UPDATE terriers SET network = {}, token = token + {} WHERE terrier = {}",
+                                          network1, sign_bonus, terrier2);
+      if (!bustub->ExecuteSqlTxn(join1_sql, writer, txn1)) {
+        bustub->txn_manager_->Abort(txn1);
+        bustub->txn_manager_->Abort(txn2);
+        metrics.TxnAborted();
+        continue;
+      }
+      auto result = ExtractOneCell(writer);
+      if (result != "1") {
+        fmt::print(stderr, "unexpected result when update \"{}\" != 1\n", result);
+        exit(1);
+      }
+      if (!bustub->ExecuteSqlTxn(join2_sql, writer, txn2)) {
+        bustub->txn_manager_->Abort(txn1);
+        bustub->txn_manager_->Abort(txn2);
+        metrics.TxnAborted();
+        continue;
+      }
+      result = ExtractOneCell(writer);
+      if (result != "1") {
+        fmt::print(stderr, "unexpected result when update \"{}\" != 1\n", result);
+        exit(1);
+      }
+      if (!bustub->txn_manager_->Commit(txn1)) {
+        bustub->txn_manager_->Abort(txn2);
+        metrics.TxnAborted();
+        continue;
+      }
+      if (!bustub->txn_manager_->Commit(txn2)) {
+        metrics.TxnAborted();
+        continue;
+      }
+      fmt::println(stderr, "one of the txns should be aborted!");
+      std::terminate();
+    }
+  }
+
+  total_metrics.ReportJoin(metrics.aborted_txn_cnt_, metrics.committed_txn_cnt_);
+}
+
+auto ComputeDbSize(bustub::BustubInstance *bustub, const std::string &table_name) {
+  auto table_info = bustub->catalog_->GetTable(table_name);
+  auto iter = table_info->table_->MakeEagerIterator();
+  int cnt = 0;
+  while (!iter.IsEnd()) {
+    ++cnt;
+    ++iter;
+  }
+  int undo_cnt = 0;
+  std::shared_lock<std::shared_mutex> lck(bustub->txn_manager_->txn_map_mutex_);
+  const auto map = bustub->txn_manager_->txn_map_;
+  lck.unlock();
+  for (const auto &[_, txn] : map) {
+    cnt += txn->GetUndoLogNum();
+  }
+  return cnt + undo_cnt;
+}
+
+void TaskComputeDbSize(const uint64_t duration_ms, std::atomic<int> &db_size, bustub::BustubInstance *bustub,
+                       const std::string &table_name) {
+  TerrierMetrics metrics("Compute Size", duration_ms);
+  metrics.Begin();
+  while (!metrics.ShouldFinish()) {
+    auto size = ComputeDbSize(bustub, table_name);
+    if (size > db_size.load()) {
+      db_size.store(size);
+    }
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+  }
+}
 
 // NOLINTNEXTLINE
 auto main(int argc, char **argv) -> int {
   const auto isolation_lvl = bustub::IsolationLevel::SNAPSHOT_ISOLATION;
   argparse::ArgumentParser program("bustub-terrier-bench");
   program.add_argument("--duration").help("run terrier bench for n milliseconds");
-  program.add_argument("--force-create-index").help("create index in terrier bench");
-  program.add_argument("--force-enable-update").help("use update statement in terrier bench");
-  program.add_argument("--nft").help("number of NFTs in the bench");
+  program.add_argument("--terriers").help("number of terriers in the bench");
+  program.add_argument("--threads").help("number of threads in the bench");
+  program.add_argument("--bench-1")
+      .default_value(false)
+      .implicit_value(true)
+      .help("run benchmark #1 (in snapshot isolation)");
+  program.add_argument("--bench-2")
+      .default_value(false)
+      .implicit_value(true)
+      .help("run benchmark #2 (in serializable)");
 
-  size_t bustub_nft_num = 10;
+  size_t bustub_terrier_num = 10;
+  size_t bustub_thread_cnt = 2;
 
   try {
     program.parse_args(argc, argv);
   } catch (const std::runtime_error &err) {
-    std::cerr << err.what() << std::endl;
-    std::cerr << program;
+    std::cerr << err.what() << std::endl << program << std::endl;
     return 1;
   }
 
   auto bustub = std::make_unique<bustub::BustubInstance>();
   auto writer = bustub::SimpleStreamWriter(std::cerr);
 
-  // create schema
-  auto schema = "CREATE TABLE nft(id int PRIMARY KEY, terrier int);";
-  std::cerr << "x: create schema" << std::endl;
-  bustub->ExecuteSql(schema, writer);
-
-  // create index
-
-#ifdef TERRIER_BENCH_ENABLE_INDEX
-  bool enable_index = true;
-#else
-  bool enable_index = false;
-#endif
-
-  if (program.present("--force-create-index")) {
-    enable_index = ParseBool(program.get("--force-create-index"));
+  if (program.present("--terriers")) {
+    bustub_terrier_num = std::stoi(program.get("--terriers"));
   }
 
-  if (program.present("--nft")) {
-    bustub_nft_num = std::stoi(program.get("--nft"));
-  }
-
-  if (enable_index) {
-    auto schema = "CREATE INDEX nftid on nft(id);";
-    std::cerr << "x: create index" << std::endl;
-    bustub->ExecuteSql(schema, writer);
-  } else {
-    std::cerr << "x: create index disabled" << std::endl;
-  }
-
-#ifdef TERRIER_BENCH_ENABLE_UPDATE
-  bool enable_update = true;
-#else
-  bool enable_update = false;
-#endif
-  if (program.present("--force-enable-update")) {
-    enable_update = ParseBool(program.get("--force-enable-update"));
-  }
-
-  if (enable_update) {
-    std::cerr << "x: use update statement" << std::endl;
-  } else {
-    std::cerr << "x: use insert + delete" << std::endl;
+  if (program.present("--threads")) {
+    bustub_thread_cnt = std::stoi(program.get("--threads"));
   }
 
   uint64_t duration_ms = 30000;
@@ -202,329 +479,133 @@ auto main(int argc, char **argv) -> int {
     duration_ms = std::stoi(program.get("--duration"));
   }
 
-  std::cerr << "x: benchmark for " << duration_ms << "ms" << std::endl;
-  std::cerr << "x: nft_num=" << bustub_nft_num << std::endl;
+  fmt::println(stderr, "x: benchmark for {} ms", duration_ms);
+  fmt::println(stderr, "x: terrier_num={}", bustub_terrier_num);
+  fmt::println(stderr, "x: thread_cnt={}", bustub_thread_cnt);
 
-  std::cerr << "x: please ensure plans are correct for all queries." << std::endl;
-
-  {
-    bustub->ExecuteSql("explain (o) UPDATE nft SET terrier = 0 WHERE id = 0", writer);
-    bustub->ExecuteSql("explain (o) DELETE FROM nft WHERE id = 0", writer);
-    bustub->ExecuteSql("explain (o) INSERT INTO nft VALUES (0, 0)", writer);
-    bustub->ExecuteSql("explain (o) SELECT * from nft", writer);
-    bustub->ExecuteSql("explain (o) SELECT count(*) FROM nft WHERE terrier = 0", writer);
+  bool bench_1 = program.get<bool>("--bench-1");
+  bool bench_2 = program.get<bool>("--bench-2");
+  if ((bench_1 && bench_2) || (!bench_1 && !bench_2)) {
+    fmt::println(stderr, "only one of the bench should be selected");
+    std::terminate();
   }
 
+  if (bench_1) {
+    auto schema = "CREATE TABLE terriers(terrier int PRIMARY KEY, token int);";
+    fmt::println(stderr, "x: create schema for benchmark #1");
+    bustub->ExecuteSql(schema, writer);
+    fmt::println(stderr, "x: please ensure plans are correct for all queries");
+    bustub->ExecuteSql("explain (o) UPDATE terriers SET token = token + 1 WHERE terrier = 0", writer);
+    bustub->ExecuteSql("explain (o) UPDATE terriers SET token = token - 1 WHERE terrier = 0", writer);
+    bustub->ExecuteSql("explain (o) DELETE FROM terriers WHERE terrier = 0", writer);
+    bustub->ExecuteSql("explain (o) INSERT INTO terriers VALUES (0, 0)", writer);
+    bustub->ExecuteSql("explain (o) SELECT * from terriers", writer);
+  }
+  if (bench_2) {
+    auto schema = "CREATE TABLE terriers(terrier int PRIMARY KEY, token int, network int);";
+    fmt::println(stderr, "x: create schema for benchmark #2");
+    bustub->ExecuteSql(schema, writer);
+    fmt::println(stderr, "x: please ensure plans are correct for all queries");
+    bustub->ExecuteSql("explain (o) UPDATE terriers SET token = token + 1 WHERE terrier = 0", writer);
+    bustub->ExecuteSql("explain (o) UPDATE terriers SET token = token - 1 WHERE terrier = 0", writer);
+    bustub->ExecuteSql("explain (o) UPDATE terriers SET network = 1, token = token + 1000 WHERE terrier = 0", writer);
+    bustub->ExecuteSql("explain (o) UPDATE terriers SET network = 1, token = token - 1000 WHERE terrier = 0", writer);
+    bustub->ExecuteSql("explain (o) SELECT network from terriers WHERE terrier = 0", writer);
+    bustub->ExecuteSql("explain (o) DELETE FROM terriers WHERE terrier = 0", writer);
+    bustub->ExecuteSql("explain (o) INSERT INTO terriers VALUES (0, 0, 0)", writer);
+    bustub->ExecuteSql("explain (o) SELECT * from terriers", writer);
+  }
+
+  const int initial_token = 10000;
+
   // initialize data
-  std::cerr << "x: initialize data" << std::endl;
-  std::string query = "INSERT INTO nft VALUES ";
-  for (size_t i = 0; i < bustub_nft_num; i++) {
-    query += fmt::format("({}, {})", i, 0);
-    if (i != bustub_nft_num - 1) {
-      query += ", ";
-    } else {
-      query += ";";
+  fmt::println(stderr, "x: initialize data");
+  std::string query = "INSERT INTO terriers VALUES ";
+  for (size_t i = 0; i < bustub_terrier_num; i++) {
+    if (bench_1) {
+      query += fmt::format("({}, {})", i, initial_token);
+      if (i != bustub_terrier_num - 1) {
+        query += ", ";
+      } else {
+        query += ";";
+      }
+    }
+    if (bench_2) {
+      query += fmt::format("({}, {}, {})", i, initial_token, i);
+      if (i != bustub_terrier_num - 1) {
+        query += ", ";
+      } else {
+        query += ";";
+      }
     }
   }
 
   {
-    std::stringstream ss;
-    auto writer = bustub::SimpleStreamWriter(ss, true);
+    auto writer = bustub::StringVectorWriter();
     auto txn = bustub->txn_manager_->Begin(isolation_lvl);
     auto success = bustub->ExecuteSqlTxn(query, writer, txn);
     BUSTUB_ENSURE(success, "txn not success");
-    bustub->txn_manager_->Commit(txn);
-
-    if (ss.str() != fmt::format("{}\t\n", bustub_nft_num)) {
-      fmt::print(stderr, "unexpected result \"{}\" when insert\n", ss.str());
-      exit(1);
+    BUSTUB_ENSURE(bustub->txn_manager_->Commit(txn), "cannot commit");
+    auto result = ExtractOneCell(writer);
+    if (result != std::to_string(bustub_terrier_num)) {
+      fmt::print(stderr, "unexpected result \"{}\" when insert\n", result);
+      std::terminate();
     }
   }
 
-  std::cerr << "x: benchmark start" << std::endl;
+  bustub::global_disable_execution_exception_print.store(true);
+
+  fmt::println(stderr, "x: benchmark start");
 
   std::vector<std::thread> threads;
   TerrierTotalMetrics total_metrics;
 
-  bool verbose = false;
-
   total_metrics.Begin();
 
-  for (size_t thread_id = 0; thread_id < BUSTUB_TERRIER_THREAD; thread_id++) {
-    threads.emplace_back(
-        std::thread([verbose, thread_id, &bustub, enable_update, duration_ms, &total_metrics, bustub_nft_num] {
-          const size_t nft_range_size = bustub_nft_num / BUSTUB_TERRIER_THREAD;
-          const size_t nft_range_begin = thread_id * nft_range_size;
-          const size_t nft_range_end = (thread_id + 1) * nft_range_size;
-          std::random_device r;
-          std::default_random_engine gen(r());
-          std::uniform_int_distribution<int> nft_uniform_dist(nft_range_begin, nft_range_end - 1);
-          std::uniform_int_distribution<int> terrier_uniform_dist(0, BUSTUB_TERRIER_CNT - 1);
-
-          TerrierMetrics metrics(fmt::format("Update {}", thread_id), duration_ms);
-          metrics.Begin();
-
-          while (!metrics.ShouldFinish()) {
-            std::stringstream ss;
-            auto writer = bustub::SimpleStreamWriter(ss, true);
-            auto nft_id = nft_uniform_dist(gen);
-            auto terrier_id = terrier_uniform_dist(gen);
-            bool txn_success = true;
-
-            if (verbose) {
-              fmt::print(stderr, "begin: thread {} update nft {} to terrier {}\n", thread_id, nft_id, terrier_id);
-            }
-
-            if (enable_update) {
-              auto txn = bustub->txn_manager_->Begin(isolation_lvl);
-              std::string query = fmt::format("UPDATE nft SET terrier = {} WHERE id = {}", terrier_id, nft_id);
-              if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
-                txn_success = false;
-              }
-
-              if (txn_success && ss.str() != "1\t\n") {
-                fmt::print(stderr, "unexpected result when update \"{}\",\n", ss.str());
-                exit(1);
-              }
-
-              if (txn_success) {
-                CheckTableLock(txn);
-                bustub->txn_manager_->Commit(txn);
-                metrics.TxnCommitted();
-              } else {
-                bustub->txn_manager_->Abort(txn);
-                metrics.TxnAborted();
-              }
-
-            } else {
-              auto txn = bustub->txn_manager_->Begin(isolation_lvl);
-
-              std::string query = fmt::format("DELETE FROM nft WHERE id = {}", nft_id);
-              if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
-                txn_success = false;
-              }
-
-              if (txn_success && ss.str() != "1\t\n") {
-                fmt::print(stderr, "unexpected result when delete \"{}\",\n", ss.str());
-                exit(1);
-              }
-
-              if (!txn_success) {
-                bustub->txn_manager_->Abort(txn);
-                metrics.TxnAborted();
-
-              } else {
-                query = fmt::format("INSERT INTO nft VALUES ({}, {})", nft_id, terrier_id);
-                if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
-                  txn_success = false;
-                }
-
-                if (txn_success && ss.str() != "1\t\n1\t\n") {
-                  fmt::print(stderr, "unexpected result when insert \"{}\",\n", ss.str());
-                  exit(1);
-                }
-
-                if (!txn_success) {
-                  bustub->txn_manager_->Abort(txn);
-                  metrics.TxnAborted();
-                } else {
-                  CheckTableLock(txn);
-                  bustub->txn_manager_->Commit(txn);
-                  metrics.TxnCommitted();
-                }
-              }
-            }
-
-            if (verbose) {
-              fmt::print(stderr, "end  : thread {} update nft {} to terrier {}\n", thread_id, nft_id, terrier_id);
-            }
-
-            metrics.Report();
-          }
-
-          total_metrics.ReportUpdate(metrics.aborted_txn_cnt_, metrics.committed_txn_cnt_);
-        }));
-  }
-
-  for (size_t thread_id = 0; thread_id < BUSTUB_TERRIER_THREAD; thread_id++) {
-    threads.emplace_back(std::thread([thread_id, &bustub, duration_ms, &total_metrics] {
-      std::random_device r;
-      std::default_random_engine gen(r());
-      std::uniform_int_distribution<int> terrier_uniform_dist(0, BUSTUB_TERRIER_CNT - 1);
-
-      TerrierMetrics metrics(fmt::format(" Count {}", thread_id), duration_ms);
-      metrics.Begin();
-
-      while (!metrics.ShouldFinish()) {
-        std::stringstream ss;
-        auto writer = bustub::SimpleStreamWriter(ss, true);
-        auto terrier_id = terrier_uniform_dist(gen);
-
-        auto txn = bustub->txn_manager_->Begin(isolation_lvl);
-        bool txn_success = true;
-
-        std::string query = fmt::format("SELECT count(*) FROM nft WHERE terrier = {}", terrier_id);
-        if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
-          txn_success = false;
-        }
-
-        if (txn_success) {
-          CheckTableLock(txn);
-          bustub->txn_manager_->Commit(txn);
-          metrics.TxnCommitted();
-        } else {
-          bustub->txn_manager_->Abort(txn);
-          metrics.TxnAborted();
-        }
-
-        metrics.Report();
-      }
-
-      total_metrics.ReportCount(metrics.aborted_txn_cnt_, metrics.committed_txn_cnt_);
-    }));
-  }
-
-  threads.emplace_back(std::thread([&bustub, duration_ms, &total_metrics, bustub_nft_num] {
-    std::random_device r;
-    std::default_random_engine gen(r());
-    std::uniform_int_distribution<int> terrier_uniform_dist(0, BUSTUB_TERRIER_CNT - 1);
-
-    TerrierMetrics metrics("  Verify", duration_ms);
-    metrics.Begin();
-
-    while (!metrics.ShouldFinish()) {
-      std::stringstream ss;
-      auto writer = bustub::SimpleStreamWriter(ss, true);
-
-      auto txn = bustub->txn_manager_->Begin(bustub::IsolationLevel::SNAPSHOT_ISOLATION);
-      bool txn_success = true;
-
-      std::string query = "SELECT * FROM nft";
-      if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
-        txn_success = false;
-      }
-
-      if (txn_success) {
-        auto all_nfts = bustub::StringUtil::Split(ss.str(), '\n');
-        auto all_nfts_integer = std::vector<int>();
-        for (auto &nft : all_nfts) {
-          if (nft.empty()) {
-            continue;
-          }
-          all_nfts_integer.push_back(std::stoi(nft));
-        }
-        std::sort(all_nfts_integer.begin(), all_nfts_integer.end());
-        // Due to how BusTub works for now, it is impossible to get more than bustub_nft_num rows, but it is possible to
-        // get fewer than that number.
-        if (all_nfts_integer.size() != bustub_nft_num) {
-          fmt::print(stderr, "unexpected result when verifying length. scan result: {}, total rows: {}.\n",
-                     all_nfts_integer.size(), bustub_nft_num);
-          if (bustub_nft_num <= 100) {
-            fmt::print(stderr, "This is everything in your database:\n{}", ss.str());
-          }
-          exit(1);
-        }
-        for (int i = 0; i < static_cast<int>(bustub_nft_num); i++) {
-          if (all_nfts_integer[i] != i) {
-            fmt::print(stderr, "unexpected result when verifying \"{} == {}\",\n", i, all_nfts_integer[i]);
-            if (bustub_nft_num <= 100) {
-              fmt::print(stderr, "This is everything in your database:\n{}", ss.str());
-            }
-            exit(1);
-          }
-        }
-
-        // query again, check repeatable read
-        std::string query = "SELECT * FROM nft";
-        std::string prev_result = ss.str();
-
-        std::stringstream ss;
-        auto writer = bustub::SimpleStreamWriter(ss, true);
-        if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
-          txn_success = false;
-        }
-
-        if (txn_success) {
-          if (ss.str() != prev_result) {
-            fmt::print(stderr, "ERROR: non repeatable read!\n");
-            if (bustub_nft_num <= 100) {
-              fmt::print(stderr,
-                         "This is everything in your database:\n--- previous query ---\n{}\n--- this query ---\n{}\n",
-                         prev_result, ss.str());
-            }
-            exit(1);
-          }
-          CheckTableLock(txn);
-          bustub->txn_manager_->Commit(txn);
-          metrics.TxnCommitted();
-        } else {
-          bustub->txn_manager_->Abort(txn);
-          metrics.TxnAborted();
-        }
+  for (size_t thread_id = 0; thread_id < bustub_thread_cnt; thread_id++) {
+    if (bench_1) {
+      threads.emplace_back([thread_id, bustub_terrier_num, duration_ms, &bustub, &total_metrics]() {
+        Bench1TaskTransfer(thread_id, bustub_terrier_num, duration_ms, bustub::IsolationLevel::SNAPSHOT_ISOLATION,
+                           bustub.get(), total_metrics);
+      });
+    }
+    if (bench_2) {
+      if (thread_id % 2 == 0) {
+        threads.emplace_back([thread_id, bustub_terrier_num, duration_ms, &bustub, &total_metrics]() {
+          Bench2TaskJoin(thread_id, bustub_terrier_num, duration_ms, bustub::IsolationLevel::SERIALIZABLE, bustub.get(),
+                         total_metrics);
+        });
       } else {
-        bustub->txn_manager_->Abort(txn);
-        metrics.TxnAborted();
-      }
-
-      metrics.Report();
-
-      if (bustub_nft_num > 1000) {
-        // if NFT num is large, sleep this thread to avoid lock contention
-        std::this_thread::sleep_for(std::chrono::seconds(3));
+        threads.emplace_back([thread_id, bustub_terrier_num, duration_ms, &bustub, &total_metrics]() {
+          Bench2TaskTransfer(thread_id, bustub_terrier_num, duration_ms, bustub::IsolationLevel::SERIALIZABLE,
+                             bustub.get(), total_metrics);
+        });
       }
     }
+  }
 
-    total_metrics.ReportVerify(metrics.aborted_txn_cnt_, metrics.committed_txn_cnt_);
-  }));
+  std::atomic<int> db_size(0);
+
+  threads.emplace_back(
+      [duration_ms, &db_size, &bustub]() { TaskComputeDbSize(duration_ms, db_size, bustub.get(), "terriers"); });
 
   for (auto &thread : threads) {
     thread.join();
   }
 
-  {
-    std::stringstream ss;
-    auto writer = bustub::SimpleStreamWriter(ss, true);
-    auto txn = bustub->txn_manager_->Begin(isolation_lvl);
-    bustub->ExecuteSqlTxn("SELECT count(*) FROM nft", writer, txn);
-    bustub->txn_manager_->Commit(txn);
+  total_metrics.End();
+  if (db_size.load() == 0) {
+    db_size = 999999999;
+  }
+  total_metrics.Report(db_size);
 
-    if (ss.str() != fmt::format("{}\t\n", bustub_nft_num)) {
-      fmt::print(stderr, "unexpected result \"{}\" when verifying total nft count\n", ss.str());
-      exit(1);
-    }
+  if (total_metrics.committed_transfer_txn_cnt_ <= 200) {
+    fmt::println(stderr, "too many txn are aborted");
+    exit(1);
   }
 
-  {
-    auto txn = bustub->txn_manager_->Begin(isolation_lvl);
-    size_t cnt = 0;
-    for (int i = 0; i < static_cast<int>(BUSTUB_TERRIER_CNT); i++) {
-      std::stringstream ss;
-      auto writer = bustub::SimpleStreamWriter(ss, true);
-      auto sql = fmt::format("SELECT count(*) FROM nft WHERE terrier = {}", i);
-      bustub->ExecuteSqlTxn(sql, writer, txn);
-      cnt += std::stoi(ss.str());
-    }
-
-    {
-      auto writer = bustub::SimpleStreamWriter(std::cout, true);
-      auto sql = "SELECT count(*) FROM nft WHERE terrier = 0";
-      std::cout << "SELECT count(*) FROM nft WHERE terrier = 0: ";
-      bustub->ExecuteSqlTxn(sql, writer, txn);
-    }
-
-    bustub->txn_manager_->Commit(txn);
-
-    if (cnt != bustub_nft_num) {
-      fmt::print(stderr, "unexpected result \"{} != {}\" when verifying split nft count\n", cnt, bustub_nft_num);
-      exit(1);
-    }
-  }
-
-  total_metrics.Report();
-
-  if (total_metrics.committed_verify_txn_cnt_ <= 3 || total_metrics.committed_update_txn_cnt_ < 3 ||
-      total_metrics.committed_count_txn_cnt_ < 3) {
-    fmt::print(stderr, "too many txn are aborted");
+  if (bench_2 && total_metrics.committed_join_txn_cnt_ <= 200) {
+    fmt::println(stderr, "too many txn are aborted");
     exit(1);
   }
 

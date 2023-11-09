@@ -248,28 +248,67 @@ void ExecuteTxn(BustubInstance &instance, const std::string &txn_var_name, Trans
   }
 }
 
-auto BeginTxn(BustubInstance &instance, const std::string &txn_var_name) -> Transaction * {
-  auto txn = instance.txn_manager_->Begin();
-  fmt::println(stderr, "- txn_begin var={} id={} status={} read_ts={}", txn_var_name,
-               txn->GetTransactionIdHumanReadable(), txn->GetTransactionState(), txn->GetReadTs());
+auto BeginTxn(BustubInstance &instance, const std::string &txn_var_name,
+              IsolationLevel iso_lvl = IsolationLevel::SNAPSHOT_ISOLATION) -> Transaction * {
+  auto txn = instance.txn_manager_->Begin(iso_lvl);
+  fmt::println(stderr, "- txn_begin var={} id={} status={} read_ts={} iso_lvl={}", txn_var_name,
+               txn->GetTransactionIdHumanReadable(), txn->GetTransactionState(), txn->GetReadTs(),
+               txn->GetIsolationLevel());
   return txn;
 }
 
-auto CommitTxn(BustubInstance &instance, const std::string &txn_var_name, Transaction *txn) {
+auto BeginTxnSerializable(BustubInstance &instance, const std::string &txn_var_name) -> Transaction * {
+  return BeginTxn(instance, txn_var_name, IsolationLevel::SERIALIZABLE);
+}
+
+const bool EXPECT_FAIL = true;
+
+auto CommitTxn(BustubInstance &instance, const std::string &txn_var_name, Transaction *txn, bool expect_fail = false) {
   if (txn->GetTransactionState() != TransactionState::RUNNING) {
     fmt::println(stderr, "txn not running");
     std::terminate();
   }
-  if (!instance.txn_manager_->Commit(txn)) {
-    fmt::println(stderr, "failed to commit txn: var={} id={}", txn_var_name, txn->GetTransactionId());
+  auto res = instance.txn_manager_->Commit(txn);
+  if (!expect_fail) {
+    if (!res) {
+      fmt::println(stderr, "failed to commit txn: var={} id={}", txn_var_name, txn->GetTransactionId());
+      std::terminate();
+    }
+    if (txn->GetTransactionState() != TransactionState::COMMITTED) {
+      fmt::println(stderr, "should set to committed state var={} id={}", txn_var_name, txn->GetTransactionId());
+      std::terminate();
+    }
+    fmt::println(stderr, "- txn_commit var={} id={} status={} read_ts={} commit_ts={}", txn_var_name,
+                 txn->GetTransactionIdHumanReadable(), txn->GetTransactionState(), txn->GetReadTs(),
+                 txn->GetCommitTs());
+    return;
+  }
+  if (res) {
+    fmt::println(stderr, "expect txn fail to commit, but committed: var={} id={}", txn_var_name,
+                 txn->GetTransactionId());
     std::terminate();
   }
-  if (txn->GetTransactionState() != TransactionState::COMMITTED) {
-    fmt::println(stderr, "should set to committed state var={} id={}", txn_var_name, txn->GetTransactionId());
+  if (txn->GetTransactionState() != TransactionState::ABORTED) {
+    fmt::println(stderr, "should set to aborted state var={} id={}", txn_var_name, txn->GetTransactionId());
     std::terminate();
   }
-  fmt::println(stderr, "- txn_commit var={} id={} status={} read_ts={} commit_ts={}", txn_var_name,
-               txn->GetTransactionIdHumanReadable(), txn->GetTransactionState(), txn->GetReadTs(), txn->GetCommitTs());
+  fmt::println(stderr, "- txn_commit_fail var={} id={} status={} read_ts={}", txn_var_name,
+               txn->GetTransactionIdHumanReadable(), txn->GetTransactionState(), txn->GetReadTs());
+}
+
+auto AbortTxn(BustubInstance &instance, const std::string &txn_var_name, Transaction *txn) {
+  if (txn->GetTransactionState() != TransactionState::RUNNING &&
+      txn->GetTransactionState() != TransactionState::TAINTED) {
+    fmt::println(stderr, "txn not running / tainted");
+    std::terminate();
+  }
+  instance.txn_manager_->Abort(txn);
+  if (txn->GetTransactionState() != TransactionState::ABORTED) {
+    fmt::println(stderr, "should set to aborted state var={} id={}", txn_var_name, txn->GetTransactionId());
+    std::terminate();
+  }
+  fmt::println(stderr, "- txn_abort var={} id={} status={} read_ts={}", txn_var_name,
+               txn->GetTransactionIdHumanReadable(), txn->GetTransactionState(), txn->GetReadTs());
 }
 
 auto CheckTainted(BustubInstance &instance, const std::string &txn_var_name, Transaction *txn) {

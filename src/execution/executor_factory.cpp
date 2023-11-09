@@ -32,6 +32,7 @@
 #include "execution/executors/sort_executor.h"
 #include "execution/executors/topn_check_executor.h"
 #include "execution/executors/topn_executor.h"
+#include "execution/executors/topn_per_group_executor.h"
 #include "execution/executors/update_executor.h"
 #include "execution/executors/values_executor.h"
 #include "execution/executors/window_function_executor.h"
@@ -39,6 +40,7 @@
 #include "execution/plans/mock_scan_plan.h"
 #include "execution/plans/projection_plan.h"
 #include "execution/plans/sort_plan.h"
+#include "execution/plans/topn_per_group_plan.h"
 #include "execution/plans/topn_plan.h"
 #include "execution/plans/values_plan.h"
 #include "execution/plans/window_plan.h"
@@ -178,6 +180,13 @@ auto ExecutorFactory::CreateExecutor(ExecutorContext *exec_ctx, const AbstractPl
         return topn_executor;
       }
       return std::make_unique<TopNExecutor>(exec_ctx, topn_plan, std::move(child));
+    }
+
+      // Create a new groupTopN executor
+    case PlanType::TopNPerGroup: {
+      const auto *group_topn_plan = dynamic_cast<const TopNPerGroupPlanNode *>(plan.get());
+      auto child = ExecutorFactory::CreateExecutor(exec_ctx, group_topn_plan->GetChildPlan());
+      return std::make_unique<TopNPerGroupExecutor>(exec_ctx, group_topn_plan, std::move(child));
     }
 
     default:

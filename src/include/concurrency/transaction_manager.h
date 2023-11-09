@@ -127,6 +127,9 @@ class TransactionManager {
   Catalog *catalog_;
 
   std::atomic<txn_id_t> next_txn_id_{TXN_START_ID};
+
+ private:
+  auto VerifyTxn(Transaction *txn) -> bool;
 };
 
 }  // namespace bustub
