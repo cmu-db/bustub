@@ -1,8 +1,6 @@
 #include "execution/execution_common.h"
 #include "txn_common.h"  // NOLINT
 
-// NO HIDDEN TEST IN THIS FILE!!!
-
 namespace bustub {
 
 // NOLINTBEGIN(bugprone-unchecked-optional-access)
