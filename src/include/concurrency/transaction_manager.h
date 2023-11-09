@@ -99,6 +99,8 @@ class TransactionManager {
   /** @brief Get the first undo log of a table heap tuple. Use this after task 4.2 */
   auto GetVersionLink(RID rid) -> std::optional<VersionUndoLink>;
 
+  /** @brief Access the transaction undo log buffer and get the undo log. Return nullopt if the txn does not exist. Will
+   * still throw an exception if the index is out of range. */
   auto GetUndoLogOptional(UndoLink link) -> std::optional<UndoLog>;
 
   /** @brief Access the transaction undo log buffer and get the undo log. Except when accessing the current txn buffer,

@@ -25,6 +25,19 @@
 
 namespace bustub {
 
+auto TransactionManager::UpdateUndoLink(RID rid, std::optional<UndoLink> prev_link,
+                                        std::function<bool(std::optional<UndoLink>)> &&check) -> bool {
+  std::function<bool(std::optional<VersionUndoLink>)> wrapper_func =
+      [check](std::optional<VersionUndoLink> link) -> bool {
+    if (link.has_value()) {
+      return check(link->prev_);
+    }
+    return check(std::nullopt);
+  };
+  return UpdateVersionLink(rid, prev_link.has_value() ? std::make_optional(VersionUndoLink{*prev_link}) : std::nullopt,
+                           check != nullptr ? wrapper_func : nullptr);
+}
+
 auto TransactionManager::UpdateVersionLink(RID rid, std::optional<VersionUndoLink> prev_version,
                                            std::function<bool(std::optional<VersionUndoLink>)> &&check) -> bool {
   std::unique_lock<std::shared_mutex> lck(version_info_mutex_);
