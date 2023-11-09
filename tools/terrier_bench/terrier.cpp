@@ -5,6 +5,7 @@
 #include <memory>
 #include <mutex>  // NOLINT
 #include <random>
+#include <shared_mutex>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -406,23 +407,33 @@ void Bench2TaskJoin(const int thread_id, const int terrier_num, const uint64_t d
 
 auto ComputeDbSize(bustub::BustubInstance *bustub, const std::string &table_name) {
   auto table_info = bustub->catalog_->GetTable(table_name);
-  auto width = table_info->schema_.GetColumnCount();
-  auto iter = table_info->table_->MakeIterator();
+  auto iter = table_info->table_->MakeEagerIterator();
   int cnt = 0;
   while (!iter.IsEnd()) {
-    cnt += width;
+    ++cnt;
     ++iter;
   }
   int undo_cnt = 0;
-  for (const auto &[_, txn] : bustub->txn_manager_->txn_map_) {
-    const int undo_log_num = txn->GetUndoLogNum();
-    for (int i = 0; i < undo_log_num; i++) {
-      const auto undo_log = txn->GetUndoLog(i);
-      undo_cnt += std::count_if(undo_log.modified_fields_.cbegin(), undo_log.modified_fields_.cend(),
-                                [](const auto &&x) { return x; });
-    }
+  std::shared_lock<std::shared_mutex> lck(bustub->txn_manager_->txn_map_mutex_);
+  const auto map = bustub->txn_manager_->txn_map_;
+  lck.unlock();
+  for (const auto &[_, txn] : map) {
+    cnt += txn->GetUndoLogNum();
   }
   return cnt + undo_cnt;
+}
+
+void TaskComputeDbSize(const uint64_t duration_ms, std::atomic<int> &db_size, bustub::BustubInstance *bustub,
+                       const std::string &table_name) {
+  TerrierMetrics metrics("Compute Size", duration_ms);
+  metrics.Begin();
+  while (!metrics.ShouldFinish()) {
+    auto size = ComputeDbSize(bustub, table_name);
+    if (size > db_size.load()) {
+      db_size.store(size);
+    }
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+  }
 }
 
 // NOLINTNEXTLINE
@@ -573,22 +584,27 @@ auto main(int argc, char **argv) -> int {
     }
   }
 
+  std::atomic<int> db_size(0);
+
+  threads.emplace_back(
+      [duration_ms, &db_size, &bustub]() { TaskComputeDbSize(duration_ms, db_size, bustub.get(), "terriers"); });
+
   for (auto &thread : threads) {
     thread.join();
   }
 
   total_metrics.End();
-
-  auto db_size = ComputeDbSize(bustub.get(), "terriers");
-
+  if (db_size.load() == 0) {
+    db_size = 999999999;
+  }
   total_metrics.Report(db_size);
 
-  if (total_metrics.committed_transfer_txn_cnt_ < 3) {
+  if (total_metrics.committed_transfer_txn_cnt_ <= 200) {
     fmt::println(stderr, "too many txn are aborted");
     exit(1);
   }
 
-  if (bench_2 && total_metrics.committed_join_txn_cnt_ <= 3) {
+  if (bench_2 && total_metrics.committed_join_txn_cnt_ <= 200) {
     fmt::println(stderr, "too many txn are aborted");
     exit(1);
   }
