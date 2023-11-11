@@ -257,7 +257,7 @@ auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
       CmdDisplayHelp(writer);
       return true;
     }
-    if (sql == "\\dbgmvcc") {
+    if (StringUtil::StartsWith(sql, "\\dbgmvcc")) {
       auto split = StringUtil::Split(sql, " ");
       CmdDbgMvcc(split, writer);
       return true;

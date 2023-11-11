@@ -79,7 +79,7 @@ void Serve(int socket, bustub::BustubInstance *bustub, bool use_serializable_iso
       query += "\n";
       first_line = false;
     }
-    std::cout << query << std::flush;
+    std::cout << query << std::endl << std::flush;
     try {
       auto writer = bustub::FortTableWriter();
       if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
