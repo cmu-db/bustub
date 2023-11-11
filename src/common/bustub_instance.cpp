@@ -21,6 +21,7 @@
 #include "concurrency/lock_manager.h"
 #include "concurrency/transaction.h"
 #include "execution/check_options.h"
+#include "execution/execution_common.h"
 #include "execution/execution_engine.h"
 #include "execution/executor_context.h"
 #include "execution/executors/mock_scan_executor.h"
@@ -147,6 +148,22 @@ BustubInstance::BustubInstance() {
   execution_engine_ = std::make_unique<ExecutionEngine>(buffer_pool_manager_.get(), txn_manager_.get(), catalog_.get());
 }
 
+void BustubInstance::CmdDbgMvcc(const std::vector<std::string> &params, ResultWriter &writer) {
+  if (params.size() != 2) {
+    writer.OneCell("please provide a table name");
+    return;
+  }
+  const auto &table = params[1];
+  writer.OneCell("please view the result in the BusTub console (or Chrome DevTools console), table=" + table);
+  std::shared_lock<std::shared_mutex> lck(catalog_lock_);
+  auto table_info = catalog_->GetTable(table);
+  if (table_info == nullptr) {
+    writer.OneCell("table " + table + " not found");
+    return;
+  }
+  TxnMgrDbg("\\dbgmvcc", txn_manager_.get(), table_info, table_info->table_.get());
+}
+
 void BustubInstance::CmdDisplayTables(ResultWriter &writer) {
   auto table_names = catalog_->GetTableNames();
   writer.BeginTable(false);
@@ -195,6 +212,7 @@ void BustubInstance::CmdDisplayHelp(ResultWriter &writer) {
 
 \dt: show all tables
 \di: show all indices
+\dbgmvcc: show version chain of a table
 \help: show this message again
 
 BusTub shell currently only supports a small set of Postgres queries. We'll set
@@ -239,6 +257,11 @@ auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
       CmdDisplayHelp(writer);
       return true;
     }
+    if (sql == "\\dbgmvcc") {
+      auto split = StringUtil::Split(sql, " ");
+      CmdDbgMvcc(split, writer);
+      return true;
+    }
     throw Exception(fmt::format("unsupported internal command: {}", sql));
   }
 
@@ -278,6 +301,11 @@ auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
       case StatementType::EXPLAIN_STATEMENT: {
         const auto &explain_stmt = dynamic_cast<const ExplainStatement &>(*statement);
         HandleExplainStatement(txn, explain_stmt, writer);
+        continue;
+      }
+      case StatementType::TRANSACTION_STATEMENT: {
+        const auto &txn_stmt = dynamic_cast<const TransactionStatement &>(*statement);
+        HandleTxnStatement(txn, txn_stmt, writer);
         continue;
       }
       case StatementType::DELETE_STATEMENT:

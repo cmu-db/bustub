@@ -47,6 +47,7 @@ class IndexStatement;
 class VariableSetStatement;
 class VariableShowStatement;
 class ExplainStatement;
+class TransactionStatement;
 
 class ResultWriter {
  public:
@@ -301,6 +302,7 @@ class BustubInstance {
 
  private:
   void CmdDisplayTables(ResultWriter &writer);
+  void CmdDbgMvcc(const std::vector<std::string> &params, ResultWriter &writer);
   void CmdDisplayIndices(ResultWriter &writer);
   void CmdDisplayHelp(ResultWriter &writer);
   void WriteOneCell(const std::string &cell, ResultWriter &writer);
@@ -308,6 +310,7 @@ class BustubInstance {
   void HandleCreateStatement(Transaction *txn, const CreateStatement &stmt, ResultWriter &writer);
   void HandleIndexStatement(Transaction *txn, const IndexStatement &stmt, ResultWriter &writer);
   void HandleExplainStatement(Transaction *txn, const ExplainStatement &stmt, ResultWriter &writer);
+  void HandleTxnStatement(Transaction *txn, const TransactionStatement &stmt, ResultWriter &writer);
   void HandleVariableShowStatement(Transaction *txn, const VariableShowStatement &stmt, ResultWriter &writer);
   void HandleVariableSetStatement(Transaction *txn, const VariableSetStatement &stmt, ResultWriter &writer);
 

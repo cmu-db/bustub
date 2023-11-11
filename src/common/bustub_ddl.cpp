@@ -169,4 +169,23 @@ void BustubInstance::HandleVariableSetStatement(Transaction *txn, const Variable
   session_variables_[stmt.variable_] = stmt.value_;
 }
 
+void BustubInstance::HandleTxnStatement(Transaction *txn, const TransactionStatement &stmt, ResultWriter &writer) {
+  if (txn == nullptr) {
+    writer.OneCell("commit / rollback can only be used with txn");
+    return;
+  }
+  if (stmt.type_ == "commit") {
+    txn_manager_->Commit(txn);
+    writer.OneCell(fmt::format("txn committed, txn_id={}, status={}, read_ts={}, commit_ts={}",
+                               txn->GetTransactionIdHumanReadable(), txn->GetTransactionState(), txn->GetReadTs(),
+                               txn->GetCommitTs()));
+    return;
+  }
+  if (stmt.type_ == "abort") {
+    txn_manager_->Abort(txn);
+    writer.OneCell(fmt::format("txn aborted, txn_id={}, status={}, read_ts={}", txn->GetTransactionIdHumanReadable(),
+                               txn->GetTransactionState(), txn->GetReadTs()));
+    return;
+  }
+}
 }  // namespace bustub
