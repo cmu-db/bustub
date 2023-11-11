@@ -137,9 +137,15 @@ class Transaction {
     write_set_[t].insert(rid);
   }
 
+  inline auto GetWriteSets() -> const std::unordered_map<table_oid_t, std::unordered_set<RID>> & { return write_set_; }
+
   inline auto AppendScanPredicate(table_oid_t t, const AbstractExpressionRef &predicate) {
     std::scoped_lock<std::mutex> lck(latch_);
-    scan_predicates_.emplace_back(predicate);
+    scan_predicates_[t].emplace_back(predicate);
+  }
+
+  inline auto GetScanPredicates() -> const std::unordered_map<table_oid_t, std::vector<AbstractExpressionRef>> & {
+    return scan_predicates_;
   }
 
   inline auto GetUndoLog(size_t log_id) -> UndoLog {
@@ -180,7 +186,7 @@ class Transaction {
   /** stores the RID of write tuples */
   std::unordered_map<table_oid_t, std::unordered_set<RID>> write_set_;
   /** store all scan predicates */
-  std::vector<AbstractExpressionRef> scan_predicates_;
+  std::unordered_map<table_oid_t, std::vector<AbstractExpressionRef>> scan_predicates_;
 
   // The below fields are set when a txn is created and will NEVER be changed.
 
