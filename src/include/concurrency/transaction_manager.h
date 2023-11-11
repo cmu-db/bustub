@@ -79,21 +79,40 @@ class TransactionManager {
    */
   void Abort(Transaction *txn);
 
+  /**
+   * @brief Use this function before task 4.2. Update an undo link that links table heap tuple to the first undo log.
+   * Before updating, `check` function will be called to ensure validity.
+   */
+  auto UpdateUndoLink(RID rid, std::optional<UndoLink> prev_link,
+                      std::function<bool(std::optional<UndoLink>)> &&check = nullptr) -> bool;
+
+  /**
+   * @brief Use this function after task 4.2. Update an undo link that links table heap tuple to the first undo log.
+   * Before updating, `check` function will be called to ensure validity.
+   */
   auto UpdateVersionLink(RID rid, std::optional<VersionUndoLink> prev_version,
                          std::function<bool(std::optional<VersionUndoLink>)> &&check = nullptr) -> bool;
 
-  /** The same as `GetVersionLink`, except that we extracted the undo link field out. */
+  /** @brief Get the first undo log of a table heap tuple. Use this before task 4.2 */
   auto GetUndoLink(RID rid) -> std::optional<UndoLink>;
 
-  /** You only need this starting task 4.2 */
+  /** @brief Get the first undo log of a table heap tuple. Use this after task 4.2 */
   auto GetVersionLink(RID rid) -> std::optional<VersionUndoLink>;
 
+  /** @brief Access the transaction undo log buffer and get the undo log. Return nullopt if the txn does not exist. Will
+   * still throw an exception if the index is out of range. */
   auto GetUndoLogOptional(UndoLink link) -> std::optional<UndoLog>;
 
+  /** @brief Access the transaction undo log buffer and get the undo log. Except when accessing the current txn buffer,
+   * you should always call this function to get the undo log instead of manually retrieve the txn shared_ptr and access
+   * the buffer. */
   auto GetUndoLog(UndoLink link) -> UndoLog;
 
+  /** @brief Get the lowest read timestamp in the system. */
   auto GetWatermark() -> timestamp_t { return running_txns_.GetWatermark(); }
 
+  /** @brief Stop-the-world garbage collection. Will be called only when all transactions are not accessing the table
+   * heap. */
   void GarbageCollection();
 
   /** protects txn map */
@@ -112,7 +131,8 @@ class TransactionManager {
 
   /** protects version info */
   std::shared_mutex version_info_mutex_;
-  /** Stores the previous version of each tuple in the table heap. */
+  /** Stores the previous version of each tuple in the table heap. Do not directly access this field. Use the helper
+   * functions in `transaction_manager_impl.cpp`. */
   std::unordered_map<page_id_t, std::shared_ptr<PageVersionInfo>> version_info_;
 
   /** Stores all the read_ts of running txns so as to facilitate garbage collection. */
@@ -129,6 +149,8 @@ class TransactionManager {
   std::atomic<txn_id_t> next_txn_id_{TXN_START_ID};
 
  private:
+  /** @brief Verify if a txn satisfies serializability. We will not test this function and you can change / remove it as
+   * you want. */
   auto VerifyTxn(Transaction *txn) -> bool;
 };
 

@@ -32,28 +32,72 @@ TEST(TxnScanTest, DISABLED_TupleReconstructTest) {  // NOLINT
     }
   }
   {
-    fmt::println(stderr, "(partial) C: reconstruct 4 records, one of them is empty, one of them is full change");
+    fmt::println(stderr, "C: reconstruct 4 records, one of them is empty, one of them is full change");
     auto base_tuple = Tuple{{Int(0), Double(1), BoolNull()}, schema.get()};
     auto base_meta = TupleMeta{2333, false};
     auto undo_log_1_schema = ParseCreateStatement("");
     auto undo_log_1 = UndoLog{false, {false, false, false}, Tuple{{}, undo_log_1_schema.get()}};
+    auto undo_log_2_schema = ParseCreateStatement("b double");
+    auto undo_log_2 = UndoLog{false, {false, true, false}, Tuple{{Double(2)}, undo_log_2_schema.get()}};
+    auto undo_log_3_schema = ParseCreateStatement("a integer,c boolean");
+    auto undo_log_3 = UndoLog{false, {true, false, true}, Tuple{{Int(3), Bool(false)}, undo_log_3_schema.get()}};
+    auto undo_log_4 = UndoLog{false, {true, true, true}, Tuple{{Int(4), Double(4), Bool(true)}, schema.get()}};
     {
       fmt::println(stderr, "C1: verify 1st record");
       auto tuple = ReconstructTuple(schema.get(), base_tuple, base_meta, {undo_log_1});
       ASSERT_TRUE(tuple.has_value());
       VerifyTuple(schema.get(), *tuple, {Int(0), Double(1), BoolNull()});
     }
+    {
+      fmt::println(stderr, "C2: verify 2nd record");
+      auto tuple = ReconstructTuple(schema.get(), base_tuple, base_meta, {undo_log_1, undo_log_2});
+      ASSERT_TRUE(tuple.has_value());
+      VerifyTuple(schema.get(), *tuple, {Int(0), Double(2), BoolNull()});
+    }
+    {
+      fmt::println(stderr, "C3: verify 3rd record");
+      auto tuple = ReconstructTuple(schema.get(), base_tuple, base_meta, {undo_log_1, undo_log_2, undo_log_3});
+      ASSERT_TRUE(tuple.has_value());
+      VerifyTuple(schema.get(), *tuple, {Int(3), Double(2), Bool(false)});
+    }
+    {
+      fmt::println(stderr, "C4: verify 4th record");
+      auto tuple =
+          ReconstructTuple(schema.get(), base_tuple, base_meta, {undo_log_1, undo_log_2, undo_log_3, undo_log_4});
+      ASSERT_TRUE(tuple.has_value());
+      VerifyTuple(schema.get(), *tuple, {Int(4), Double(4), Bool(true)});
+    }
   }
   {
-    fmt::println(stderr, "(partial) D: reconstruct 4 records, two of them are delete");
+    fmt::println(stderr, "D: reconstruct 4 records, two of them are delete");
     auto base_tuple = Tuple{{Int(0), Double(1), BoolNull()}, schema.get()};
     auto base_meta = TupleMeta{2333, false};
     auto delete_schema = ParseCreateStatement("");
     auto delete_log = UndoLog{true, {false, false, false}, Tuple{{}, delete_schema.get()}};
+    auto undo_log_1 = UndoLog{false, {true, true, true}, Tuple{{Int(1), Double(1), Bool(false)}, schema.get()}};
+    auto undo_log_2 = UndoLog{false, {true, true, true}, Tuple{{IntNull(), DoubleNull(), BoolNull()}, schema.get()}};
     {
       fmt::println(stderr, "D1: apply delete record");
       auto tuple = ReconstructTuple(schema.get(), base_tuple, base_meta, {delete_log});
       ASSERT_FALSE(tuple.has_value());
+    }
+    {
+      fmt::println(stderr, "D2: verify 2nd record");
+      auto tuple = ReconstructTuple(schema.get(), base_tuple, base_meta, {delete_log, undo_log_1});
+      ASSERT_TRUE(tuple.has_value());
+      VerifyTuple(schema.get(), *tuple, {Int(1), Double(1), Bool(false)});
+    }
+    {
+      fmt::println(stderr, "D3: apply delete record");
+      auto tuple = ReconstructTuple(schema.get(), base_tuple, base_meta, {delete_log, undo_log_1, delete_log});
+      ASSERT_FALSE(tuple.has_value());
+    }
+    {
+      fmt::println(stderr, "D4: verify 4th record");
+      auto tuple =
+          ReconstructTuple(schema.get(), base_tuple, base_meta, {delete_log, undo_log_1, delete_log, undo_log_2});
+      ASSERT_TRUE(tuple.has_value());
+      VerifyTuple(schema.get(), *tuple, {IntNull(), DoubleNull(), BoolNull()});
     }
   }
 }
@@ -161,7 +205,18 @@ TEST(TxnScanTest, DISABLED_ScanTest) {  // NOLINT
   WithTxn(txn0, QueryShowResult(*bustub, _var, _txn, query, IntResult{}));
   fmt::println(stderr, "B: Verify txn1");
   WithTxn(txn1, QueryShowResult(*bustub, _var, _txn, query, IntResult{{2}, {4}, {7}}));
-  // hidden tests...
+
+  // hidden tests... this is the only hidden test case among task 1, 2, 3. We recommend you to implement `TxnMgrDbg`
+  // function, draw the version chain out, and think of what should be read by each txn.
+
+  // fmt::println(stderr, "C: Verify txn2");
+  // WithTxn(txn2, QueryHideResult(*bustub, _var, _txn, query, IntResult{}));
+  // fmt::println(stderr, "D: Verify txn3");
+  // WithTxn(txn3, QueryHideResult(*bustub, _var, _txn, query, IntResult{}));
+  // fmt::println(stderr, "E: Verify txn4");
+  // WithTxn(txn4, QueryHideResult(*bustub, _var, _txn, query, IntResult{}));
+  // fmt::println(stderr, "F: Verify txn5");
+  // WithTxn(txn5, QueryHideResult(*bustub, _var, _txn, query, IntResult{}));
 }
 
 // NOLINTEND(bugprone-unchecked-optional-access))

@@ -134,4 +134,21 @@ auto TableHeap::UpdateTupleInPlace(const TupleMeta &meta, const Tuple &tuple, RI
   return false;
 }
 
+auto TableHeap::AcquireTablePageReadLock(RID rid) -> ReadPageGuard { return bpm_->FetchPageRead(rid.GetPageId()); }
+
+auto TableHeap::AcquireTablePageWriteLock(RID rid) -> WritePageGuard { return bpm_->FetchPageWrite(rid.GetPageId()); }
+
+void TableHeap::UpdateTupleInPlaceWithLockAcquired(const TupleMeta &meta, const Tuple &tuple, RID rid,
+                                                   TablePage *page) {
+  page->UpdateTupleInPlaceUnsafe(meta, tuple, rid);
+}
+
+auto TableHeap::GetTupleWithLockAcquired(RID rid, TablePage *page) -> std::pair<TupleMeta, Tuple> {
+  auto [meta, tuple] = page->GetTuple(rid);
+  tuple.rid_ = rid;
+  return std::make_pair(meta, std::move(tuple));
+}
+
+auto TableHeap::GetTupleMetaWithLockAcquired(RID rid, TablePage *page) -> TupleMeta { return page->GetTupleMeta(rid); }
+
 }  // namespace bustub

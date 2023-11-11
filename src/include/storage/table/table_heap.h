@@ -29,6 +29,8 @@
 
 namespace bustub {
 
+class TablePage;
+
 /**
  * TableHeap represents a physical table on disk.
  * This is just a doubly-linked list of pages.
@@ -77,20 +79,27 @@ class TableHeap {
    */
   auto GetTupleMeta(RID rid) -> TupleMeta;
 
-  /** @return the iterator of this table, use this for project 3 */
+  /** @return the iterator of this table. When this iterator is created, it will record the current last tuple in the
+   * table heap, and the iterator will stop at that point, in order to avoid halloween problem. You usually will need to
+   * use this function for project 3. Given that you have already implemented your project 4 update executor as a
+   * pipeline breaker, you may use `MakeEagerIterator` to test whether the update executor is implemented correctly.
+   * There should be no difference between this function and `MakeEagerIterator` in project 4 if everything is
+   * implemented correctly. */
   auto MakeIterator() -> TableIterator;
 
-  /** @return the iterator of this table, use this for project 4 except updates */
+  /** @return the iterator of this table. The iterator will stop at the last tuple at the time of iterating. */
   auto MakeEagerIterator() -> TableIterator;
 
   /** @return the id of the first page of this table */
   inline auto GetFirstPageId() const -> page_id_t { return first_page_id_; }
 
   /**
-   * Update a tuple in place. SHOULD NOT BE USED UNLESS YOU WANT TO OPTIMIZE FOR PROJECT 4.
+   * Update a tuple in place. Should NOT be used in project 3. Implement your project 3 update executor as delete and
+   * insert. You will need to use this function in project 4.
    * @param meta new tuple meta
    * @param tuple  new tuple
-   * @param[out] rid the rid of the tuple to be updated
+   * @param rid the rid of the tuple to be updated
+   * @param check the check to run before actually update.
    */
   auto UpdateTupleInPlace(const TupleMeta &meta, const Tuple &tuple, RID rid,
                           std::function<bool(const TupleMeta &meta, const Tuple &table, RID rid)> &&check = nullptr)
@@ -102,6 +111,19 @@ class TableHeap {
     assert(!create_table_heap);
     return std::unique_ptr<TableHeap>(new TableHeap(create_table_heap));
   }
+
+  // The below functions are useful only when you want to implement abort in a way that removes an undo log from the
+  // version chain. DO NOT USE THEM if you are unsure what they are supposed to do.
+
+  auto AcquireTablePageReadLock(RID rid) -> ReadPageGuard;
+
+  auto AcquireTablePageWriteLock(RID rid) -> WritePageGuard;
+
+  void UpdateTupleInPlaceWithLockAcquired(const TupleMeta &meta, const Tuple &tuple, RID rid, TablePage *page);
+
+  auto GetTupleWithLockAcquired(RID rid, TablePage *page) -> std::pair<TupleMeta, Tuple>;
+
+  auto GetTupleMetaWithLockAcquired(RID rid, TablePage *page) -> TupleMeta;
 
  private:
   /** Used for binder tests */
