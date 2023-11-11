@@ -17,3 +17,7 @@ add_subdirectory(utf8proc)
 add_subdirectory(backward-cpp)
 
 add_subdirectory(readerwriterqueue)
+
+add_subdirectory(json)
+
+add_subdirectory(cpp-httplib)

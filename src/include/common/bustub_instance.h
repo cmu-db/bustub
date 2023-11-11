@@ -26,6 +26,7 @@
 #include "common/config.h"
 #include "common/util/string_util.h"
 #include "execution/check_options.h"
+#include "execution/plans/abstract_plan.h"
 #include "libfort/lib/fort.hpp"
 #include "type/value.h"
 
@@ -257,6 +258,9 @@ class BustubInstance {
    */
   auto ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn,
                      std::shared_ptr<CheckOptions> check_options = nullptr) -> bool;
+
+  auto ExecutePlan(const AbstractPlanNodeRef &plan, ResultWriter &writer) -> bool;
+  auto ExecutePlanTxn(const AbstractPlanNodeRef &plan, Transaction *txn, ResultWriter &writer) -> bool;
 
   /**
    * FOR TEST ONLY. Generate test tables in this BusTub instance.

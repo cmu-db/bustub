@@ -7,6 +7,7 @@ add_subdirectory(terrier_bench)
 add_subdirectory(bpm_bench)
 add_subdirectory(btree_bench)
 add_subdirectory(htable_bench)
+add_subdirectory(http-server)
 
 add_backward(shell)
 add_backward(sqllogictest)
