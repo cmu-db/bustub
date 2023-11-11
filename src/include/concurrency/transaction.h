@@ -44,8 +44,7 @@ class TransactionManager;
 enum class TransactionState { RUNNING = 0, TAINTED, COMMITTED = 100, ABORTED };
 
 /**
- * Transaction isolation level. `READ_UNCOMMITTED` will be used throughout project 3 as the default isolation level.
- * In project 4, if a txn is in `READ_UNCOMMITTED` mode, it CAN ONLY be read-only.
+ * Transaction isolation level. READ_UNCOMMITTED will NOT be used in project 3/4 as of Fall 2023.
  */
 enum class IsolationLevel { READ_UNCOMMITTED, SNAPSHOT_ISOLATION, SERIALIZABLE };
 
@@ -67,14 +66,14 @@ struct UndoLink {
 
   friend auto operator!=(const UndoLink &a, const UndoLink &b) { return !(a == b); }
 
+  /* Checks if the undo link points to something. */
   auto IsValid() const -> bool { return prev_txn_ != INVALID_TXN_ID; }
 };
 
-/* Once the undo log is added to the txn, it becomes read-only and should NOT be changed except prev_version_. */
 struct UndoLog {
   /* Whether this log is a deletion marker */
   bool is_deleted_;
-  /* The fields modified by this redo log */
+  /* The fields modified by this undo log */
   std::vector<bool> modified_fields_;
   /* The modified fields */
   Tuple tuple_;

@@ -369,11 +369,12 @@ add_custom_target(submit-p3
 )
 
 set(P4_FILES
-        "src/include/concurrency/lock_manager.h"
-        "src/concurrency/lock_manager.cpp"
         "src/include/concurrency/transaction_manager.h"
         "src/concurrency/transaction_manager.cpp"
-        "tools/terrier_bench/terrier_bench_config.h"
+        "src/include/concurrency/watermark.h"
+        "src/concurrency/watermark.cpp"
+        "src/include/execution/execution_common.h"
+        "src/execution/execution_common.cpp"
         ${P3_FILES}
 )
 
