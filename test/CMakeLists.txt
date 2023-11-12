@@ -31,7 +31,6 @@ foreach (bustub_test_source ${BUSTUB_TEST_SOURCES})
 
     gtest_discover_tests(${bustub_test_name}
             EXTRA_ARGS
-            --gtest_color=auto
             --gtest_output=xml:${CMAKE_BINARY_DIR}/test/${bustub_test_name}.xml
             --gtest_catch_exceptions=0
             DISCOVERY_TIMEOUT 120

@@ -152,7 +152,7 @@ TEST(TxnIndexTest, DISABLED_UpdateTest) {  // NOLINT
   };
 
   {
-    fmt::println("---- UpdateTest1: insert, update, and commit ----");
+    fmt::println(stderr, "---- UpdateTest1: insert, update, and commit ----");
     auto bustub = std::make_unique<BustubInstance>();
     EnsureIndexScan(*bustub);
     Execute(*bustub, "CREATE TABLE maintable(col1 int primary key, col2 int)");
