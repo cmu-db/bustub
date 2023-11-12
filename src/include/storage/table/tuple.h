@@ -28,7 +28,7 @@ const timestamp_t INVALID_TS = -1;
 static constexpr size_t TUPLE_META_SIZE = 16;
 
 struct TupleMeta {
-  /** the ts / txn_id of this tuple; if larger than read_ts, need to fetch previous version. */
+  /** the ts / txn_id of this tuple. In project 3, simply set it to 0. */
   timestamp_t ts_;
   /** marks whether this tuple is marked removed from table heap. */
   bool is_deleted_;
