@@ -42,7 +42,7 @@ void Serve(int socket, bustub::BustubInstance *bustub, bool use_serializable_iso
   auto txn = bustub->txn_manager_->Begin(use_serializable_iso_lvl ? bustub::IsolationLevel::SERIALIZABLE
                                                                   : bustub::IsolationLevel::SNAPSHOT_ISOLATION);
 
-  std::cerr << "txn" << txn->GetTransactionIdHumanReadable() << " connected" << std::endl;
+  fmt::println(stderr, "txn{}: started", txn->GetTransactionIdHumanReadable());
 
   send(socket, welcome.c_str(), welcome.length(), 0);
 
@@ -64,12 +64,12 @@ void Serve(int socket, bustub::BustubInstance *bustub, bool use_serializable_iso
       send(socket, line_prompt.c_str(), line_prompt.length(), 0);
       int valread = read(socket, buffer, 1024 - 1);
       if (valread <= 0) {
-        fmt::println(stderr, "disconnected txn_id={}, status={}", txn->GetTransactionIdHumanReadable(),
+        fmt::println(stderr, "txn{}: disconnected, status={}", txn->GetTransactionIdHumanReadable(),
                      txn->GetTransactionState());
         if (txn->GetTransactionState() == bustub::TransactionState::RUNNING ||
             txn->GetTransactionState() == bustub::TransactionState::TAINTED) {
           bustub->txn_manager_->Abort(txn);
-          std::cerr << "txn" << txn->GetTransactionIdHumanReadable() << " disconnected and aborted" << std::endl;
+          fmt::println(stderr, "txn{}: aborted due to disconnected", txn->GetTransactionIdHumanReadable());
         }
         close(socket);
         return;
