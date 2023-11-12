@@ -16,6 +16,7 @@
 #include "catalog/schema.h"
 #include "catalog/table_generator.h"
 #include "common/bustub_instance.h"
+#include "common/config.h"
 #include "common/exception.h"
 #include "common/util/string_util.h"
 #include "concurrency/lock_manager.h"
@@ -212,8 +213,12 @@ void BustubInstance::CmdDisplayHelp(ResultWriter &writer) {
 
 \dt: show all tables
 \di: show all indices
-\dbgmvcc: show version chain of a table
+\dbgmvcc <table>: show version chain of a table
 \help: show this message again
+\txn: show current txn information
+\txn <txn_id>: switch to txn
+\txn gc: run garbage collection
+\txn -1: exit txn mode
 
 BusTub shell currently only supports a small set of Postgres queries. We'll set
 up a doc describing the current status later. It will silently ignore some parts
@@ -228,15 +233,20 @@ see the execution plan of your query.
 
 auto BustubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer,
                                 std::shared_ptr<CheckOptions> check_options) -> bool {
-  auto *txn = txn_manager_->Begin();
+  bool is_local_txn = current_txn_ != nullptr;
+  auto *txn = is_local_txn ? current_txn_ : txn_manager_->Begin();
   try {
     auto result = ExecuteSqlTxn(sql, writer, txn, std::move(check_options));
-    if (!txn_manager_->Commit(txn)) {
-      throw Exception("failed to commit txn");
+    if (!is_local_txn) {
+      auto res = txn_manager_->Commit(txn);
+      if (!res) {
+        throw Exception("failed to commit txn");
+      }
     }
     return result;
   } catch (bustub::Exception &ex) {
     txn_manager_->Abort(txn);
+    current_txn_ = nullptr;
     throw ex;
   }
 }
@@ -260,6 +270,11 @@ auto BustubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer,
     if (StringUtil::StartsWith(sql, "\\dbgmvcc")) {
       auto split = StringUtil::Split(sql, " ");
       CmdDbgMvcc(split, writer);
+      return true;
+    }
+    if (StringUtil::StartsWith(sql, "\\txn")) {
+      auto split = StringUtil::Split(sql, " ");
+      CmdTxn(split, writer);
       return true;
     }
     throw Exception(fmt::format("unsupported internal command: {}", sql));
@@ -399,6 +414,59 @@ BustubInstance::~BustubInstance() {
   if (enable_logging) {
     log_manager_->StopFlushThread();
   }
+}
+
+/** Enable managed txn mode on this BusTub instance, allowing statements like `BEGIN`. */
+void BustubInstance::EnableManagedTxn() { managed_txn_mode_ = true; }
+
+/** Get the current transaction. */
+auto BustubInstance::CurrentManagedTxn() -> Transaction * { return current_txn_; }
+
+void BustubInstance::CmdTxn(const std::vector<std::string> &params, ResultWriter &writer) {
+  if (!managed_txn_mode_) {
+    writer.OneCell("only supported in managed mode, please use bustub-shell");
+    return;
+  }
+  auto dump_current_txn = [&]() {
+    writer.OneCell(fmt::format("txn_id={} txn_real_id={} read_ts={} commit_ts={} status={} iso_lvl={}",
+                               current_txn_->GetTransactionIdHumanReadable(), current_txn_->GetTransactionId(),
+                               current_txn_->GetReadTs(), current_txn_->GetCommitTs(),
+                               current_txn_->GetTransactionState(), current_txn_->GetIsolationLevel()));
+  };
+  if (params.size() == 1) {
+    if (current_txn_ != nullptr) {
+      dump_current_txn();
+    } else {
+      writer.OneCell("no active txn, each statement starts a new txn.");
+    }
+    return;
+  }
+  if (params.size() == 2) {
+    const std::string &param1 = params[1];
+    if (param1 == "gc") {
+      txn_manager_->GarbageCollection();
+      writer.OneCell("GC complete");
+      return;
+    }
+    auto txn_id = std::stoi(param1);
+    if (txn_id == -1) {
+      dump_current_txn();
+      current_txn_ = nullptr;
+      return;
+    }
+    auto iter = txn_manager_->txn_map_.find(txn_id);
+    if (iter == txn_manager_->txn_map_.end()) {
+      iter = txn_manager_->txn_map_.find(txn_id + TXN_START_ID);
+      if (iter == txn_manager_->txn_map_.end()) {
+        writer.OneCell("cannot find txn.");
+        return;
+      }
+    }
+    current_txn_ = iter->second.get();
+    dump_current_txn();
+    return;
+  }
+  writer.OneCell("unsupported txn cmd.");
 }
 
 }  // namespace bustub

@@ -21,6 +21,7 @@
 #include "common/bustub_instance.h"
 #include "common/enums/statement_type.h"
 #include "common/exception.h"
+#include "common/macros.h"
 #include "common/util/string_util.h"
 #include "concurrency/lock_manager.h"
 #include "concurrency/transaction.h"
@@ -170,8 +171,37 @@ void BustubInstance::HandleVariableSetStatement(Transaction *txn, const Variable
 }
 
 void BustubInstance::HandleTxnStatement(Transaction *txn, const TransactionStatement &stmt, ResultWriter &writer) {
+  if (managed_txn_mode_ && current_txn_ != nullptr) {
+    BUSTUB_ASSERT(current_txn_ == txn, "txn mismatched??");
+  }
+  auto dump_current_txn = [&]() {
+    writer.OneCell(fmt::format("txn_id={} txn_real_id={} read_ts={} commit_ts={} status={} iso_lvl={}",
+                               current_txn_->GetTransactionIdHumanReadable(), current_txn_->GetTransactionId(),
+                               current_txn_->GetReadTs(), current_txn_->GetCommitTs(),
+                               current_txn_->GetTransactionState(), current_txn_->GetIsolationLevel()));
+  };
   if (txn == nullptr) {
     writer.OneCell("commit / rollback can only be used with txn");
+    return;
+  }
+  if (stmt.type_ == "begin") {
+    if (!managed_txn_mode_) {
+      writer.OneCell("begin statement is only supported in managed txn mode, please use bustub-shell");
+      return;
+    }
+    if (current_txn_ != nullptr) {
+      writer.OneCell("cannot start a txn from existing txn, use \\txn -1 to switch to the global environment.");
+      return;
+    }
+    auto iso_lvl = StringUtil::Lower(GetSessionVariable("global_isolation_level"));
+    if (iso_lvl == "serializable") {
+      current_txn_ = txn_manager_->Begin(IsolationLevel::SERIALIZABLE);
+    } else if (iso_lvl == "snapshot_isolation" || iso_lvl.empty()) {
+      current_txn_ = txn_manager_->Begin(IsolationLevel::SNAPSHOT_ISOLATION);
+    } else {
+      throw Exception("unsupported global_isolation_level");
+    }
+    dump_current_txn();
     return;
   }
   if (stmt.type_ == "commit") {
@@ -179,12 +209,14 @@ void BustubInstance::HandleTxnStatement(Transaction *txn, const TransactionState
     writer.OneCell(fmt::format("txn committed, txn_id={}, status={}, read_ts={}, commit_ts={}",
                                txn->GetTransactionIdHumanReadable(), txn->GetTransactionState(), txn->GetReadTs(),
                                txn->GetCommitTs()));
+    current_txn_ = nullptr;
     return;
   }
   if (stmt.type_ == "abort") {
     txn_manager_->Abort(txn);
     writer.OneCell(fmt::format("txn aborted, txn_id={}, status={}, read_ts={}", txn->GetTransactionIdHumanReadable(),
                                txn->GetTransactionState(), txn->GetReadTs()));
+    current_txn_ = nullptr;
     return;
   }
 }

@@ -228,7 +228,7 @@ class FortTableWriter : public ResultWriter {
     tables_.emplace_back(table_.to_string());
     table_ = fort::utf8_table{};
   }
-  void OneCell(const std::string &cell) override { tables_.emplace_back(cell); }
+  void OneCell(const std::string &cell) override { tables_.emplace_back(cell + "\n"); }
   fort::utf8_table table_;
   std::vector<std::string> tables_;
 };
@@ -258,6 +258,12 @@ class BustubInstance {
    */
   auto ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn,
                      std::shared_ptr<CheckOptions> check_options = nullptr) -> bool;
+
+  /** Enable managed txn mode on this BusTub instance, allowing statements like `BEGIN`. */
+  void EnableManagedTxn();
+
+  /** Get the current transaction. */
+  auto CurrentManagedTxn() -> Transaction *;
 
   /**
    * FOR TEST ONLY. Generate test tables in this BusTub instance.
@@ -303,6 +309,7 @@ class BustubInstance {
  private:
   void CmdDisplayTables(ResultWriter &writer);
   void CmdDbgMvcc(const std::vector<std::string> &params, ResultWriter &writer);
+  void CmdTxn(const std::vector<std::string> &params, ResultWriter &writer);
   void CmdDisplayIndices(ResultWriter &writer);
   void CmdDisplayHelp(ResultWriter &writer);
   void WriteOneCell(const std::string &cell, ResultWriter &writer);
@@ -315,6 +322,8 @@ class BustubInstance {
   void HandleVariableSetStatement(Transaction *txn, const VariableSetStatement &stmt, ResultWriter &writer);
 
   std::unordered_map<std::string, std::string> session_variables_;
+  Transaction *current_txn_{nullptr};
+  bool managed_txn_mode_{false};
 };
 
 }  // namespace bustub

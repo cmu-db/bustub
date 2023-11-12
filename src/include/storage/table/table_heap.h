@@ -60,7 +60,7 @@ class TableHeap {
   /**
    * Update the meta of a tuple.
    * @param meta new tuple meta
-   * @param[out] rid the rid of the inserted tuple
+   * @param rid the rid of the inserted tuple
    */
   void UpdateTupleMeta(const TupleMeta &meta, RID rid);
 

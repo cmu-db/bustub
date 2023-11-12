@@ -30,6 +30,8 @@ auto Binder::BindTransaction(duckdb_libpgquery::PGTransactionStmt *stmt) -> std:
       return std::make_unique<TransactionStatement>("commit");
     case duckdb_libpgquery::PG_TRANS_STMT_ROLLBACK:
       return std::make_unique<TransactionStatement>("abort");
+    case duckdb_libpgquery::PG_TRANS_STMT_BEGIN:
+      return std::make_unique<TransactionStatement>("begin");
     default:
       throw bustub::NotImplementedException("unsupported txn statement kind");
   }
