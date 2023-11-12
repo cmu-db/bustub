@@ -243,7 +243,7 @@ class BustubInstance {
  public:
   explicit BustubInstance(const std::string &db_file_name, size_t bpm_size = 128);
 
-  BustubInstance(size_t bpm_size = 128);
+  explicit BustubInstance(size_t bpm_size = 128);
 
   ~BustubInstance();
 
