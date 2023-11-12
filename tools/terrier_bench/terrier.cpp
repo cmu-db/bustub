@@ -256,6 +256,8 @@ void Bench2TaskTransfer(const int thread_id, const int terrier_num, const uint64
       fmt::print(stderr, "unexpected result when update \"{}\" != 1\n", result);
       exit(1);
     }
+    metrics.TxnCommitted();
+
     if (!bustub->txn_manager_->Commit(txn)) {
       metrics.TxnAborted();
       continue;

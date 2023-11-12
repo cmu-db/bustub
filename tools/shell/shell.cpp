@@ -4,6 +4,8 @@
 #include "common/bustub_instance.h"
 #include "common/exception.h"
 #include "common/util/string_util.h"
+#include "concurrency/transaction.h"
+#include "fmt/core.h"
 #include "libfort/lib/fort.hpp"
 #include "linenoise/linenoise.h"
 #include "utf8proc/utf8proc.h"
@@ -51,6 +53,8 @@ auto main(int argc, char **argv) -> int {
     bustub->GenerateTestTable();
   }
 
+  bustub->EnableManagedTxn();
+
   std::cout << "Welcome to the BusTub shell! Type \\help to learn more." << std::endl << std::endl;
 
   linenoiseHistorySetMaxLen(1024);
@@ -62,9 +66,19 @@ auto main(int argc, char **argv) -> int {
     std::string query;
     bool first_line = true;
     while (true) {
-      auto line_prompt = first_line ? prompt : "... ";
+      std::string context_prompt = prompt;
+      auto *txn = bustub->CurrentManagedTxn();
+      if (txn != nullptr) {
+        if (txn->GetTransactionState() != bustub::TransactionState::RUNNING) {
+          context_prompt =
+              fmt::format("txn{} ({})> ", txn->GetTransactionIdHumanReadable(), txn->GetTransactionState());
+        } else {
+          context_prompt = fmt::format("txn{}> ", txn->GetTransactionIdHumanReadable());
+        }
+      }
+      std::string line_prompt = first_line ? context_prompt : "... ";
       if (!disable_tty) {
-        char *query_c_str = linenoise(line_prompt);
+        char *query_c_str = linenoise(line_prompt.c_str());
         if (query_c_str == nullptr) {
           return 0;
         }
@@ -98,7 +112,7 @@ auto main(int argc, char **argv) -> int {
       auto writer = bustub::FortTableWriter();
       bustub->ExecuteSql(query, writer);
       for (const auto &table : writer.tables_) {
-        std::cout << table;
+        std::cout << table << std::flush;
       }
     } catch (bustub::Exception &ex) {
       std::cerr << ex.what() << std::endl;

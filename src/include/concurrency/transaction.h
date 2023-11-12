@@ -44,8 +44,7 @@ class TransactionManager;
 enum class TransactionState { RUNNING = 0, TAINTED, COMMITTED = 100, ABORTED };
 
 /**
- * Transaction isolation level. `READ_UNCOMMITTED` will be used throughout project 3 as the default isolation level.
- * In project 4, if a txn is in `READ_UNCOMMITTED` mode, it CAN ONLY be read-only.
+ * Transaction isolation level. READ_UNCOMMITTED will NOT be used in project 3/4 as of Fall 2023.
  */
 enum class IsolationLevel { READ_UNCOMMITTED, SNAPSHOT_ISOLATION, SERIALIZABLE };
 
@@ -67,14 +66,14 @@ struct UndoLink {
 
   friend auto operator!=(const UndoLink &a, const UndoLink &b) { return !(a == b); }
 
+  /* Checks if the undo link points to something. */
   auto IsValid() const -> bool { return prev_txn_ != INVALID_TXN_ID; }
 };
 
-/* Once the undo log is added to the txn, it becomes read-only and should NOT be changed except prev_version_. */
 struct UndoLog {
   /* Whether this log is a deletion marker */
   bool is_deleted_;
-  /* The fields modified by this redo log */
+  /* The fields modified by this undo log */
   std::vector<bool> modified_fields_;
   /* The modified fields */
   Tuple tuple_;
@@ -138,9 +137,15 @@ class Transaction {
     write_set_[t].insert(rid);
   }
 
+  inline auto GetWriteSets() -> const std::unordered_map<table_oid_t, std::unordered_set<RID>> & { return write_set_; }
+
   inline auto AppendScanPredicate(table_oid_t t, const AbstractExpressionRef &predicate) {
     std::scoped_lock<std::mutex> lck(latch_);
-    scan_predicates_.emplace_back(predicate);
+    scan_predicates_[t].emplace_back(predicate);
+  }
+
+  inline auto GetScanPredicates() -> const std::unordered_map<table_oid_t, std::vector<AbstractExpressionRef>> & {
+    return scan_predicates_;
   }
 
   inline auto GetUndoLog(size_t log_id) -> UndoLog {
@@ -181,7 +186,7 @@ class Transaction {
   /** stores the RID of write tuples */
   std::unordered_map<table_oid_t, std::unordered_set<RID>> write_set_;
   /** store all scan predicates */
-  std::vector<AbstractExpressionRef> scan_predicates_;
+  std::unordered_map<table_oid_t, std::vector<AbstractExpressionRef>> scan_predicates_;
 
   // The below fields are set when a txn is created and will NEVER be changed.
 

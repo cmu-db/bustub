@@ -213,6 +213,8 @@ class Binder {
 
   auto BindVariableShow(duckdb_libpgquery::PGVariableShowStmt *stmt) -> std::unique_ptr<VariableShowStatement>;
 
+  auto BindTransaction(duckdb_libpgquery::PGTransactionStmt *stmt) -> std::unique_ptr<TransactionStatement>;
+
   class ContextGuard {
    public:
     explicit ContextGuard(const BoundTableRef **scope, const CTEList **cte_scope) {

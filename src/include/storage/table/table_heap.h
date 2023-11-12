@@ -58,9 +58,9 @@ class TableHeap {
                    Transaction *txn = nullptr, table_oid_t oid = 0) -> std::optional<RID>;
 
   /**
-   * Insert a tuple into the table. If the tuple is too large (>= page_size), return false.
+   * Update the meta of a tuple.
    * @param meta new tuple meta
-   * @param[out] rid the rid of the inserted tuple
+   * @param rid the rid of the inserted tuple
    */
   void UpdateTupleMeta(const TupleMeta &meta, RID rid);
 
@@ -114,6 +114,9 @@ class TableHeap {
 
   // The below functions are useful only when you want to implement abort in a way that removes an undo log from the
   // version chain. DO NOT USE THEM if you are unsure what they are supposed to do.
+  //
+  // And if you decide to use the below functions, DO NOT use the normal ones like `GetTuple`. Having two read locks
+  // on the same thing in one thread might cause deadlocks.
 
   auto AcquireTablePageReadLock(RID rid) -> ReadPageGuard;
 

@@ -30,6 +30,7 @@
 
 namespace bustub {
 
+/// The first undo link in the version chain, that links table heap tuple to the undo log.
 struct VersionUndoLink {
   /** The next version in the version chain. */
   UndoLink prev_;

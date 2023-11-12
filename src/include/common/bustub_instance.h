@@ -47,6 +47,7 @@ class IndexStatement;
 class VariableSetStatement;
 class VariableShowStatement;
 class ExplainStatement;
+class TransactionStatement;
 
 class ResultWriter {
  public:
@@ -227,7 +228,7 @@ class FortTableWriter : public ResultWriter {
     tables_.emplace_back(table_.to_string());
     table_ = fort::utf8_table{};
   }
-  void OneCell(const std::string &cell) override { tables_.emplace_back(cell); }
+  void OneCell(const std::string &cell) override { tables_.emplace_back(cell + "\n"); }
   fort::utf8_table table_;
   std::vector<std::string> tables_;
 };
@@ -257,6 +258,12 @@ class BustubInstance {
    */
   auto ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn,
                      std::shared_ptr<CheckOptions> check_options = nullptr) -> bool;
+
+  /** Enable managed txn mode on this BusTub instance, allowing statements like `BEGIN`. */
+  void EnableManagedTxn();
+
+  /** Get the current transaction. */
+  auto CurrentManagedTxn() -> Transaction *;
 
   /**
    * FOR TEST ONLY. Generate test tables in this BusTub instance.
@@ -301,6 +308,8 @@ class BustubInstance {
 
  private:
   void CmdDisplayTables(ResultWriter &writer);
+  void CmdDbgMvcc(const std::vector<std::string> &params, ResultWriter &writer);
+  void CmdTxn(const std::vector<std::string> &params, ResultWriter &writer);
   void CmdDisplayIndices(ResultWriter &writer);
   void CmdDisplayHelp(ResultWriter &writer);
   void WriteOneCell(const std::string &cell, ResultWriter &writer);
@@ -308,10 +317,13 @@ class BustubInstance {
   void HandleCreateStatement(Transaction *txn, const CreateStatement &stmt, ResultWriter &writer);
   void HandleIndexStatement(Transaction *txn, const IndexStatement &stmt, ResultWriter &writer);
   void HandleExplainStatement(Transaction *txn, const ExplainStatement &stmt, ResultWriter &writer);
+  void HandleTxnStatement(Transaction *txn, const TransactionStatement &stmt, ResultWriter &writer);
   void HandleVariableShowStatement(Transaction *txn, const VariableShowStatement &stmt, ResultWriter &writer);
   void HandleVariableSetStatement(Transaction *txn, const VariableSetStatement &stmt, ResultWriter &writer);
 
   std::unordered_map<std::string, std::string> session_variables_;
+  Transaction *current_txn_{nullptr};
+  bool managed_txn_mode_{false};
 };
 
 }  // namespace bustub
