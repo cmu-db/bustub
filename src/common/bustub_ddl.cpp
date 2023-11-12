@@ -174,8 +174,8 @@ void BustubInstance::HandleTxnStatement(Transaction *txn, const TransactionState
   if (managed_txn_mode_ && current_txn_ != nullptr) {
     BUSTUB_ASSERT(current_txn_ == txn, "txn mismatched??");
   }
-  auto dump_current_txn = [&]() {
-    writer.OneCell(fmt::format("txn_id={} txn_real_id={} read_ts={} commit_ts={} status={} iso_lvl={}",
+  auto dump_current_txn = [&](const std::string &prefix) {
+    writer.OneCell(fmt::format("{}txn_id={} txn_real_id={} read_ts={} commit_ts={} status={} iso_lvl={}", prefix,
                                current_txn_->GetTransactionIdHumanReadable(), current_txn_->GetTransactionId(),
                                current_txn_->GetReadTs(), current_txn_->GetCommitTs(),
                                current_txn_->GetTransactionState(), current_txn_->GetIsolationLevel()));
@@ -189,10 +189,7 @@ void BustubInstance::HandleTxnStatement(Transaction *txn, const TransactionState
       writer.OneCell("begin statement is only supported in managed txn mode, please use bustub-shell");
       return;
     }
-    if (current_txn_ != nullptr) {
-      writer.OneCell("cannot start a txn from existing txn, use \\txn -1 to switch to the global environment.");
-      return;
-    }
+    bool txn_activated = current_txn_ != nullptr;
     auto iso_lvl = StringUtil::Lower(GetSessionVariable("global_isolation_level"));
     if (iso_lvl == "serializable") {
       current_txn_ = txn_manager_->Begin(IsolationLevel::SERIALIZABLE);
@@ -201,14 +198,20 @@ void BustubInstance::HandleTxnStatement(Transaction *txn, const TransactionState
     } else {
       throw Exception("unsupported global_isolation_level");
     }
-    dump_current_txn();
+    dump_current_txn(txn_activated ? "pause current txn and begin new txn " : "begin txn ");
     return;
   }
   if (stmt.type_ == "commit") {
-    txn_manager_->Commit(txn);
-    writer.OneCell(fmt::format("txn committed, txn_id={}, status={}, read_ts={}, commit_ts={}",
-                               txn->GetTransactionIdHumanReadable(), txn->GetTransactionState(), txn->GetReadTs(),
-                               txn->GetCommitTs()));
+    auto res = txn_manager_->Commit(txn);
+    if (res) {
+      writer.OneCell(fmt::format("txn committed, txn_id={}, status={}, read_ts={}, commit_ts={}",
+                                 txn->GetTransactionIdHumanReadable(), txn->GetTransactionState(), txn->GetReadTs(),
+                                 txn->GetCommitTs()));
+    } else {
+      writer.OneCell(fmt::format("txn failed to commit, txn_id={}, status={}, read_ts={}, commit_ts={}",
+                                 txn->GetTransactionIdHumanReadable(), txn->GetTransactionState(), txn->GetReadTs(),
+                                 txn->GetCommitTs()));
+    }
     current_txn_ = nullptr;
     return;
   }

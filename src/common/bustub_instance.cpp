@@ -427,15 +427,15 @@ void BustubInstance::CmdTxn(const std::vector<std::string> &params, ResultWriter
     writer.OneCell("only supported in managed mode, please use bustub-shell");
     return;
   }
-  auto dump_current_txn = [&]() {
-    writer.OneCell(fmt::format("txn_id={} txn_real_id={} read_ts={} commit_ts={} status={} iso_lvl={}",
+  auto dump_current_txn = [&](const std::string &prefix) {
+    writer.OneCell(fmt::format("{}txn_id={} txn_real_id={} read_ts={} commit_ts={} status={} iso_lvl={}", prefix,
                                current_txn_->GetTransactionIdHumanReadable(), current_txn_->GetTransactionId(),
                                current_txn_->GetReadTs(), current_txn_->GetCommitTs(),
                                current_txn_->GetTransactionState(), current_txn_->GetIsolationLevel()));
   };
   if (params.size() == 1) {
     if (current_txn_ != nullptr) {
-      dump_current_txn();
+      dump_current_txn("");
     } else {
       writer.OneCell("no active txn, each statement starts a new txn.");
     }
@@ -450,7 +450,7 @@ void BustubInstance::CmdTxn(const std::vector<std::string> &params, ResultWriter
     }
     auto txn_id = std::stoi(param1);
     if (txn_id == -1) {
-      dump_current_txn();
+      dump_current_txn("pause current txn ");
       current_txn_ = nullptr;
       return;
     }
@@ -463,7 +463,7 @@ void BustubInstance::CmdTxn(const std::vector<std::string> &params, ResultWriter
       }
     }
     current_txn_ = iter->second.get();
-    dump_current_txn();
+    dump_current_txn("switch to new txn ");
     return;
   }
   writer.OneCell("unsupported txn cmd.");
