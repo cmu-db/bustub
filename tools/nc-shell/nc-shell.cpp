@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <cstddef>
 #include <iostream>
+#include <ostream>
 #include <string>
 #include <thread>
 #include "argparse/argparse.hpp"
@@ -36,18 +37,25 @@ void Serve(int socket, bustub::BustubInstance *bustub, bool use_serializable_iso
   const std::string prompt = "bustub> ";
   char buffer[1024] = {0};
 
-  std::cerr << "connected" << std::endl;
-
   std::string welcome = "Welcome to the BusTub shell! Type \\help to learn more.\n";
 
   auto txn = bustub->txn_manager_->Begin(use_serializable_iso_lvl ? bustub::IsolationLevel::SERIALIZABLE
                                                                   : bustub::IsolationLevel::SNAPSHOT_ISOLATION);
+
+  std::cerr << "txn" << txn->GetTransactionIdHumanReadable() << " connected" << std::endl;
+
   send(socket, welcome.c_str(), welcome.length(), 0);
 
   while (true) {
-    std::string txn_status = fmt::format("txn_id={} status={} read_ts={}\n", txn->GetTransactionIdHumanReadable(),
-                                         txn->GetTransactionState(), txn->GetReadTs());
+    std::string txn_status =
+        fmt::format("txn_id={} status={} read_ts={} iso_lvl={}\n", txn->GetTransactionIdHumanReadable(),
+                    txn->GetTransactionState(), txn->GetReadTs(), txn->GetIsolationLevel());
     send(socket, txn_status.c_str(), txn_status.length(), 0);
+
+    if (txn->GetTransactionState() != bustub::TransactionState::RUNNING) {
+      close(socket);
+      return;
+    }
 
     std::string query;
     bool first_line = true;
@@ -55,14 +63,15 @@ void Serve(int socket, bustub::BustubInstance *bustub, bool use_serializable_iso
       auto line_prompt = first_line ? prompt : "... ";
       send(socket, line_prompt.c_str(), line_prompt.length(), 0);
       int valread = read(socket, buffer, 1024 - 1);
-      if (valread < 0) {
+      if (valread <= 0) {
         fmt::println(stderr, "disconnected txn_id={}, status={}", txn->GetTransactionIdHumanReadable(),
                      txn->GetTransactionState());
         if (txn->GetTransactionState() == bustub::TransactionState::RUNNING ||
             txn->GetTransactionState() == bustub::TransactionState::TAINTED) {
           bustub->txn_manager_->Abort(txn);
-          std::cerr << "txn aborted" << std::endl;
+          std::cerr << "txn" << txn->GetTransactionIdHumanReadable() << " disconnected and aborted" << std::endl;
         }
+        close(socket);
         return;
       }
       buffer[valread] = '\0';
@@ -80,7 +89,7 @@ void Serve(int socket, bustub::BustubInstance *bustub, bool use_serializable_iso
       query += "\n";
       first_line = false;
     }
-    std::cout << query << std::endl << std::flush;
+    std::cout << "txn" << txn->GetTransactionIdHumanReadable() << ": " << query << std::endl << std::flush;
     try {
       auto writer = bustub::FortTableWriter();
       if (!bustub->ExecuteSqlTxn(query, writer, txn)) {
@@ -96,6 +105,44 @@ void Serve(int socket, bustub::BustubInstance *bustub, bool use_serializable_iso
       std::string what = ex.what();
       std::string what1 = "Error: " + what + "\n";
       send(socket, what1.c_str(), what1.length(), 0);
+      std::cerr << ex.what() << std::endl;
+    }
+  }
+}
+
+void Cli(bustub::BustubInstance *bustub) {
+  const std::string prompt = "bustub> ";
+
+  std::cout << "Welcome to the BusTub shell! Type \\help to learn more.\n";
+  std::cout << "In this terminal, all statements are running in separate transactions. To create transactions, use "
+               "the `nc` command to connect to BusTub.\n"
+            << std::flush;
+
+  while (true) {
+    std::string query;
+    bool first_line = true;
+    while (true) {
+      auto line_prompt = first_line ? prompt : "... ";
+      std::cout << line_prompt;
+      std::string query_line;
+      std::getline(std::cin, query_line);
+      query += query_line;
+      if (bustub::StringUtil::EndsWith(query, ";") || bustub::StringUtil::StartsWith(query, "\\")) {
+        break;
+      }
+      query += "\n";
+      first_line = false;
+    }
+    try {
+      auto writer = bustub::FortTableWriter();
+      if (!bustub->ExecuteSql(query, writer)) {
+        std::cout << "failed to execute" << std::endl << std::flush;
+        continue;
+      }
+      for (const auto &table : writer.tables_) {
+        std::cout << table << std::endl << std::flush;
+      }
+    } catch (bustub::Exception &ex) {
       std::cerr << ex.what() << std::endl;
     }
   }
@@ -169,6 +216,8 @@ auto main(int argc, char **argv) -> int {
   }
   std::cerr << "Listening at " << port << std::endl;
   std::cerr << "connect with `nc 127.0.0.1 " << port << "`" << std::endl;
+
+  std::thread cli(Cli, bustub.get());
 
   while (true) {
     int new_socket = accept(server_fd, reinterpret_cast<struct sockaddr *>(&address), &addrlen);
