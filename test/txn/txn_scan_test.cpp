@@ -209,14 +209,18 @@ TEST(TxnScanTest, DISABLED_ScanTest) {  // NOLINT
   // hidden tests... this is the only hidden test case among task 1, 2, 3. We recommend you to implement `TxnMgrDbg`
   // function, draw the version chain out, and think of what should be read by each txn.
 
+  // though we don't have null and double / bool types in task 3 and onwards, we will test them in this test case.
+  // you should think about types other than integer, and think of the case where the user updates / inserts
+  // a column of null.
+
   // fmt::println(stderr, "C: Verify txn2");
-  // WithTxn(txn2, QueryHideResult(*bustub, _var, _txn, query, IntResult{}));
+  // WithTxn(txn2, QueryHideResult(*bustub, _var, _txn, query, IntResult{})); // <- you will need to fill in the answer
   // fmt::println(stderr, "D: Verify txn3");
-  // WithTxn(txn3, QueryHideResult(*bustub, _var, _txn, query, IntResult{}));
+  // WithTxn(txn3, QueryHideResult(*bustub, _var, _txn, query, IntResult{})); // <- you will need to fill in the answer
   // fmt::println(stderr, "E: Verify txn4");
-  // WithTxn(txn4, QueryHideResult(*bustub, _var, _txn, query, IntResult{}));
+  // WithTxn(txn4, QueryHideResult(*bustub, _var, _txn, query, IntResult{})); // <- you will need to fill in the answer 
   // fmt::println(stderr, "F: Verify txn5");
-  // WithTxn(txn5, QueryHideResult(*bustub, _var, _txn, query, IntResult{}));
+  // WithTxn(txn5, QueryHideResult(*bustub, _var, _txn, query, IntResult{})); // <- you will need to fill in the answer
 }
 
 // NOLINTEND(bugprone-unchecked-optional-access))
