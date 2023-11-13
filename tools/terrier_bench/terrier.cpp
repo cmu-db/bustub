@@ -96,12 +96,12 @@ struct TerrierMetrics {
     auto now = ClockMs();
     auto elapsed = now - start_time_;
     if (elapsed - last_report_at_ > 1000) {
-      fmt::print(
-          stderr,
-          "[{:5.2f}] {}: total_committed_txn={:<8} total_aborted_txn={:<8} throughput={:<8.3} avg_throughput={:<8.3}\n",
-          elapsed / 1000.0, reporter_, committed_txn_cnt_, aborted_txn_cnt_,
-          (committed_txn_cnt_ - last_committed_txn_cnt_) / static_cast<double>(elapsed - last_report_at_) * 1000,
-          committed_txn_cnt_ / static_cast<double>(elapsed) * 1000);
+      fmt::print(stderr,
+                 "[{:5.2f}] {}: total_committed_txn={:<8} total_aborted_txn={:<8} throughput={:<8.3f} "
+                 "avg_throughput={:<8.3f}\n",
+                 elapsed / 1000.0, reporter_, committed_txn_cnt_, aborted_txn_cnt_,
+                 (committed_txn_cnt_ - last_committed_txn_cnt_) / static_cast<double>(elapsed - last_report_at_) * 1000,
+                 committed_txn_cnt_ / static_cast<double>(elapsed) * 1000);
       last_report_at_ = elapsed;
       last_committed_txn_cnt_ = committed_txn_cnt_;
     }
@@ -467,7 +467,7 @@ auto main(int argc, char **argv) -> int {
 
   size_t bustub_terrier_num = 10;
   size_t bustub_thread_cnt = 2;
-  const size_t bpm_size = 4096; // ensure benchmark does not hit BPM
+  const size_t bpm_size = 4096;  // ensure benchmark does not hit BPM
 
   try {
     program.parse_args(argc, argv);
