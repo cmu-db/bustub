@@ -87,7 +87,7 @@ TEST(TxnIndexTest, DISABLED_IndexConcurrentInsertTest) {  // NOLINT
     auto query_txn = BeginTxn(*bustub, "query_txn");
     WithTxn(query_txn, QueryShowResult(*bustub, _var, _txn, "SELECT * FROM maintable", expected_rows));
     auto entry = TableHeapEntry(*bustub, bustub->catalog_->GetTable("maintable"));
-    fmt::println("{} entries in the table heap", entry);
+    fmt::println(stderr, "{} entries in the table heap", entry);
     if (n == trials - 1) {
       SimpleStreamWriter writer(std::cerr);
       fmt::println(stderr, "--- the following data might be manually inspected by TAs ---");

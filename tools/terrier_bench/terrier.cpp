@@ -142,7 +142,7 @@ void Bench1TaskTransfer(const int thread_id, const int terrier_num, const uint64
   std::uniform_int_distribution<int> terrier_uniform_dist(0, terrier_num - 1);
   std::uniform_int_distribution<int> money_transfer_dist(5, max_transfer_amount);
 
-  TerrierMetrics metrics(fmt::format("Xfr {}", thread_id), duration_ms);
+  TerrierMetrics metrics(fmt::format("Xfr  {}", thread_id), duration_ms);
   metrics.Begin();
 
   while (!metrics.ShouldFinish()) {
@@ -201,7 +201,7 @@ void Bench2TaskTransfer(const int thread_id, const int terrier_num, const uint64
   std::uniform_int_distribution<int> money_transfer_dist(5, max_transfer_amount);
   int adjustment = 0;
 
-  TerrierMetrics metrics(fmt::format("Xfr {}", thread_id), duration_ms);
+  TerrierMetrics metrics(fmt::format("Xfr  {}", thread_id), duration_ms);
   metrics.Begin();
 
   while (!metrics.ShouldFinish()) {
@@ -467,6 +467,7 @@ auto main(int argc, char **argv) -> int {
 
   size_t bustub_terrier_num = 10;
   size_t bustub_thread_cnt = 2;
+  const size_t bpm_size = 4096; // ensure benchmark does not hit BPM
 
   try {
     program.parse_args(argc, argv);
@@ -475,7 +476,7 @@ auto main(int argc, char **argv) -> int {
     return 1;
   }
 
-  auto bustub = std::make_unique<bustub::BustubInstance>();
+  auto bustub = std::make_unique<bustub::BustubInstance>(bpm_size);
   auto writer = bustub::SimpleStreamWriter(std::cerr);
 
   if (program.present("--terriers")) {

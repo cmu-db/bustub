@@ -241,9 +241,9 @@ class BustubInstance {
   auto MakeExecutorContext(Transaction *txn, bool is_modify) -> std::unique_ptr<ExecutorContext>;
 
  public:
-  explicit BustubInstance(const std::string &db_file_name);
+  explicit BustubInstance(const std::string &db_file_name, size_t bpm_size = 128);
 
-  BustubInstance();
+  explicit BustubInstance(size_t bpm_size = 128);
 
   ~BustubInstance();
 

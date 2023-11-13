@@ -45,7 +45,7 @@ auto BustubInstance::MakeExecutorContext(Transaction *txn, bool is_modify) -> st
                                            lock_manager_.get(), is_modify);
 }
 
-BustubInstance::BustubInstance(const std::string &db_file_name) {
+BustubInstance::BustubInstance(const std::string &db_file_name, size_t bpm_size) {
   enable_logging = false;
 
   // Storage related.
@@ -60,7 +60,7 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
   // buffer pool size specified in `config.h`.
   try {
     buffer_pool_manager_ =
-        std::make_unique<BufferPoolManager>(128, disk_manager_.get(), LRUK_REPLACER_K, log_manager_.get());
+        std::make_unique<BufferPoolManager>(bpm_size, disk_manager_.get(), LRUK_REPLACER_K, log_manager_.get());
   } catch (NotImplementedException &e) {
     std::cerr << "BufferPoolManager is not implemented, only mock tables are supported." << std::endl;
     buffer_pool_manager_ = nullptr;
@@ -98,7 +98,7 @@ BustubInstance::BustubInstance(const std::string &db_file_name) {
   execution_engine_ = std::make_unique<ExecutionEngine>(buffer_pool_manager_.get(), txn_manager_.get(), catalog_.get());
 }
 
-BustubInstance::BustubInstance() {
+BustubInstance::BustubInstance(size_t bpm_size) {
   enable_logging = false;
 
   // Storage related.
@@ -113,7 +113,7 @@ BustubInstance::BustubInstance() {
   // buffer pool size specified in `config.h`.
   try {
     buffer_pool_manager_ =
-        std::make_unique<BufferPoolManager>(128, disk_manager_.get(), LRUK_REPLACER_K, log_manager_.get());
+        std::make_unique<BufferPoolManager>(bpm_size, disk_manager_.get(), LRUK_REPLACER_K, log_manager_.get());
   } catch (NotImplementedException &e) {
     std::cerr << "BufferPoolManager is not implemented, only mock tables are supported." << std::endl;
     buffer_pool_manager_ = nullptr;
