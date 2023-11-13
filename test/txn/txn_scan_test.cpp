@@ -1,3 +1,4 @@
+#include "execution/execution_common.h"
 #include "txn_common.h"  // NOLINT
 
 namespace bustub {
@@ -137,7 +138,7 @@ TEST(TxnScanTest, DISABLED_ScanTest) {  // NOLINT
     auto txn_store_2 = bustub->txn_manager_->Begin();
     ASSERT_EQ(txn_store_2->GetReadTs(), 1);
     prev_log_3 = txn_store_2->AppendUndoLog(
-        UndoLog{false, {true, true, true}, Tuple{{Int(4), DoubleNull(), BoolNull()}, schema.get()}, 1, {}});
+        UndoLog{false, {true, true, true}, Tuple{{Int(4), Double(4), Bool(true)}, schema.get()}, 1, {}});
     prev_log_6 =
         txn_store_2->AppendUndoLog(UndoLog{false, {true, false, false}, Tuple{{Int(7)}, modify_schema.get()}, 1, {}});
     bustub->txn_manager_->Commit(txn_store_2);
@@ -166,7 +167,7 @@ TEST(TxnScanTest, DISABLED_ScanTest) {  // NOLINT
     auto txn_store_4 = bustub->txn_manager_->Begin();
     ASSERT_EQ(txn_store_4->GetReadTs(), 3);
     prev_log_4 = txn_store_4->AppendUndoLog(
-        UndoLog{false, {true, true, true}, Tuple{{Int(5), DoubleNull(), BoolNull()}, schema.get()}, 3, {}});
+        UndoLog{false, {true, true, true}, Tuple{{Int(5), Double(3), Bool(false)}, schema.get()}, 3, {}});
     bustub->txn_manager_->Commit(txn_store_4);
     ASSERT_EQ(txn_store_4->GetCommitTs(), 4);
   }
@@ -200,23 +201,33 @@ TEST(TxnScanTest, DISABLED_ScanTest) {  // NOLINT
 
   TxnMgrDbg("before verify scan", bustub->txn_manager_.get(), table_info, table_info->table_.get());
 
-  auto query = "SELECT a FROM maintable";
+  auto query = "SELECT * FROM maintable";
   fmt::println(stderr, "A: Verify txn0");
-  WithTxn(txn0, QueryShowResult(*bustub, _var, _txn, query, IntResult{}));
+  WithTxn(txn0, QueryShowResult(*bustub, _var, _txn, query, AnyResult{}));
   fmt::println(stderr, "B: Verify txn1");
-  WithTxn(txn1, QueryShowResult(*bustub, _var, _txn, query, IntResult{{2}, {4}, {7}}));
+  WithTxn(txn1, QueryShowResult(*bustub, _var, _txn, query,
+                                AnyResult{
+                                    {"2", "decimal_null", "boolean_null"},
+                                    {"4", "4.000000", "true"},
+                                    {"7", "decimal_null", "boolean_null"},
+                                }));
 
   // hidden tests... this is the only hidden test case among task 1, 2, 3. We recommend you to implement `TxnMgrDbg`
   // function, draw the version chain out, and think of what should be read by each txn.
 
+  // though we don't have null and double / bool types in task 3 and onwards, we will test them in this test case.
+  // you should think about types other than integer, and think of the case where the user updates / inserts
+  // a column of null.
+
+  // auto query_int = "SELECT a FROM maintable";
   // fmt::println(stderr, "C: Verify txn2");
-  // WithTxn(txn2, QueryHideResult(*bustub, _var, _txn, query, IntResult{}));
+  // WithTxn(txn2, QueryHideResult(*bustub, _var, _txn, query, IntResult{})); // <- you will need to fill in the answer
   // fmt::println(stderr, "D: Verify txn3");
-  // WithTxn(txn3, QueryHideResult(*bustub, _var, _txn, query, IntResult{}));
+  // WithTxn(txn3, QueryHideResult(*bustub, _var, _txn, query, IntResult{})); // <- you will need to fill in the answer
   // fmt::println(stderr, "E: Verify txn4");
-  // WithTxn(txn4, QueryHideResult(*bustub, _var, _txn, query, IntResult{}));
+  // WithTxn(txn4, QueryHideResult(*bustub, _var, _txn, query, IntResult{})); // <- you will need to fill in the answer
   // fmt::println(stderr, "F: Verify txn5");
-  // WithTxn(txn5, QueryHideResult(*bustub, _var, _txn, query, IntResult{}));
+  // WithTxn(txn5, QueryHideResult(*bustub, _var, _txn, query, IntResult{})); // <- you will need to fill in the answer
 }
 
 // NOLINTEND(bugprone-unchecked-optional-access))

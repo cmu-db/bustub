@@ -488,5 +488,6 @@ void QueryIndex(BustubInstance &instance, const std::string &txn_var_name, Trans
 }
 
 using IntResult = std::vector<std::vector<int>>;
+using AnyResult = std::vector<std::vector<std::string>>;
 
 }  // namespace bustub
