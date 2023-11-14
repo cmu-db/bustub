@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <exception>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -249,6 +250,7 @@ class Catalog {
     auto *table_meta = GetTable(table_name);
     for (auto iter = table_meta->table_->MakeIterator(); !iter.IsEnd(); ++iter) {
       auto [meta, tuple] = iter.GetTuple();
+      // we have to silently ignore the error here for a lot of reasons...
       index->InsertEntry(tuple.KeyFromTuple(schema, key_schema, key_attrs), tuple.GetRid(), txn);
     }
 
