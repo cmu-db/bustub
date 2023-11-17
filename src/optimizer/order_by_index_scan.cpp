@@ -58,20 +58,10 @@ auto Optimizer::OptimizeOrderByAsIndexScan(const AbstractPlanNodeRef &plan) -> A
       const auto indices = catalog_.GetTableIndexes(table_info->name_);
 
       for (const auto *index : indices) {
-        const auto &columns = index->key_schema_.GetColumns();
-        // check index key schema == order by columns
-        bool valid = true;
-        if (columns.size() == order_by_column_ids.size()) {
-          for (size_t i = 0; i < columns.size(); i++) {
-            if (columns[i].GetName() != table_info->schema_.GetColumn(order_by_column_ids[i]).GetName()) {
-              valid = false;
-              break;
-            }
-          }
-          if (valid) {
-            return std::make_shared<IndexScanPlanNode>(optimized_plan->output_schema_, table_info->oid_,
-                                                       index->index_oid_);
-          }
+        const auto &columns = index->index_->GetKeyAttrs();
+        if (order_by_column_ids == columns) {
+          return std::make_shared<IndexScanPlanNode>(optimized_plan->output_schema_, table_info->oid_,
+                                                     index->index_oid_);
         }
       }
     }
