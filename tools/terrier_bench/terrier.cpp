@@ -456,6 +456,7 @@ auto main(int argc, char **argv) -> int {
   program.add_argument("--duration").help("run terrier bench for n milliseconds");
   program.add_argument("--terriers").help("number of terriers in the bench");
   program.add_argument("--threads").help("number of threads in the bench");
+  program.add_argument("--commit-threshold").help("number of commits to pass the benchmark");
   program.add_argument("--bench-1")
       .default_value(false)
       .implicit_value(true)
@@ -468,6 +469,7 @@ auto main(int argc, char **argv) -> int {
   size_t bustub_terrier_num = 10;
   size_t bustub_thread_cnt = 2;
   const size_t bpm_size = 4096;  // ensure benchmark does not hit BPM
+  size_t commit_threshold = 100;
 
   try {
     program.parse_args(argc, argv);
@@ -481,6 +483,10 @@ auto main(int argc, char **argv) -> int {
 
   if (program.present("--terriers")) {
     bustub_terrier_num = std::stoi(program.get("--terriers"));
+  }
+
+  if (program.present("--commit-threshold")) {
+    commit_threshold = std::stoi(program.get("--commit-threshold"));
   }
 
   if (program.present("--threads")) {
@@ -635,13 +641,15 @@ auto main(int argc, char **argv) -> int {
 
   total_metrics.Report(db_size);
 
-  if (total_metrics.committed_transfer_txn_cnt_ <= 100) {
-    fmt::println(stderr, "too many txn are aborted");
+  if (total_metrics.committed_transfer_txn_cnt_ <= commit_threshold) {
+    fmt::println(stderr, "too many txn are aborted: {} txn committed, expect more than {}",
+                 total_metrics.committed_transfer_txn_cnt_, commit_threshold);
     exit(1);
   }
 
-  if (bench_2 && total_metrics.committed_join_txn_cnt_ <= 100) {
-    fmt::println(stderr, "too many txn are aborted");
+  if (bench_2 && total_metrics.committed_join_txn_cnt_ <= commit_threshold) {
+    fmt::println(stderr, "too many txn are aborted: {} txn committed, expect more than {}",
+                 total_metrics.committed_join_txn_cnt_, commit_threshold);
     exit(1);
   }
 
