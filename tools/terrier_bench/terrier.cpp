@@ -449,6 +449,22 @@ void TaskComputeDbSize(const uint64_t duration_ms, std::atomic<int> &db_size, bu
   }
 }
 
+void PrintPlan(bustub::BustubInstance &instance, const std::string &query, bool ensure_index_scan = true) {
+  {
+    std::stringstream ss;
+    bustub::SimpleStreamWriter writer_ss(ss);
+    auto *txn = instance.txn_manager_->Begin();
+    instance.ExecuteSqlTxn("EXPLAIN (o) " + query, writer_ss, txn);
+    fmt::println(stderr, "> {}\n[PLAN]\n{}", query, ss.str());
+    if (ensure_index_scan) {
+      if (!bustub::StringUtil::Contains(ss.str(), "IndexScan")) {
+        fmt::println(stderr, "ERROR: index scan not found in plan.");
+        std::terminate();
+      }
+    }
+  }
+}
+
 // NOLINTNEXTLINE
 auto main(int argc, char **argv) -> int {
   const auto isolation_lvl = bustub::IsolationLevel::SNAPSHOT_ISOLATION;
@@ -515,25 +531,25 @@ auto main(int argc, char **argv) -> int {
     fmt::println(stderr, "x: create schema for benchmark #1");
     bustub->ExecuteSql(schema, writer);
     fmt::println(stderr, "x: please ensure plans are correct for all queries");
-    bustub->ExecuteSql("explain (o) UPDATE terriers SET token = token + 1 WHERE terrier = 0", writer);
-    bustub->ExecuteSql("explain (o) UPDATE terriers SET token = token - 1 WHERE terrier = 0", writer);
-    bustub->ExecuteSql("explain (o) DELETE FROM terriers WHERE terrier = 0", writer);
-    bustub->ExecuteSql("explain (o) INSERT INTO terriers VALUES (0, 0)", writer);
-    bustub->ExecuteSql("explain (o) SELECT * from terriers", writer);
+    PrintPlan(*bustub, "UPDATE terriers SET token = token + 1 WHERE terrier = 0");
+    PrintPlan(*bustub, "UPDATE terriers SET token = token - 1 WHERE terrier = 0");
+    PrintPlan(*bustub, "DELETE FROM terriers WHERE terrier = 0");
+    PrintPlan(*bustub, "INSERT INTO terriers VALUES (0, 0)", false);
+    PrintPlan(*bustub, "SELECT * from terriers", false);
   }
   if (bench_2) {
     auto schema = "CREATE TABLE terriers(terrier int PRIMARY KEY, token int, network int);";
     fmt::println(stderr, "x: create schema for benchmark #2");
     bustub->ExecuteSql(schema, writer);
     fmt::println(stderr, "x: please ensure plans are correct for all queries");
-    bustub->ExecuteSql("explain (o) UPDATE terriers SET token = token + 1 WHERE terrier = 0", writer);
-    bustub->ExecuteSql("explain (o) UPDATE terriers SET token = token - 1 WHERE terrier = 0", writer);
-    bustub->ExecuteSql("explain (o) UPDATE terriers SET network = 1, token = token + 1000 WHERE terrier = 0", writer);
-    bustub->ExecuteSql("explain (o) UPDATE terriers SET network = 1, token = token - 1000 WHERE terrier = 0", writer);
-    bustub->ExecuteSql("explain (o) SELECT network from terriers WHERE terrier = 0", writer);
-    bustub->ExecuteSql("explain (o) DELETE FROM terriers WHERE terrier = 0", writer);
-    bustub->ExecuteSql("explain (o) INSERT INTO terriers VALUES (0, 0, 0)", writer);
-    bustub->ExecuteSql("explain (o) SELECT * from terriers", writer);
+    PrintPlan(*bustub, "UPDATE terriers SET token = token + 1 WHERE terrier = 0");
+    PrintPlan(*bustub, "UPDATE terriers SET token = token - 1 WHERE terrier = 0");
+    PrintPlan(*bustub, "UPDATE terriers SET network = 1, token = token + 1000 WHERE terrier = 0");
+    PrintPlan(*bustub, "UPDATE terriers SET network = 1, token = token - 1000 WHERE terrier = 0");
+    PrintPlan(*bustub, "SELECT network from terriers WHERE terrier = 0");
+    PrintPlan(*bustub, "DELETE FROM terriers WHERE terrier = 0");
+    PrintPlan(*bustub, "INSERT INTO terriers VALUES (0, 0, 0)", false);
+    PrintPlan(*bustub, "SELECT * from terriers", false);
   }
 
   const int initial_token = 10000;
