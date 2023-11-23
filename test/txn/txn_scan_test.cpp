@@ -219,7 +219,7 @@ TEST(TxnScanTest, DISABLED_ScanTest) {  // NOLINT
   // you should think about types other than integer, and think of the case where the user updates / inserts
   // a column of null.
 
-  // auto query_int = "SELECT a FROM maintable";
+  // query = "SELECT a FROM maintable";
   // fmt::println(stderr, "C: Verify txn2");
   // WithTxn(txn2, QueryHideResult(*bustub, _var, _txn, query, IntResult{})); // <- you will need to fill in the answer
   // fmt::println(stderr, "D: Verify txn3");
