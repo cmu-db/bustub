@@ -145,12 +145,14 @@ void TableHeap::UpdateTupleInPlaceWithLockAcquired(const TupleMeta &meta, const 
   page->UpdateTupleInPlaceUnsafe(meta, tuple, rid);
 }
 
-auto TableHeap::GetTupleWithLockAcquired(RID rid, TablePage *page) -> std::pair<TupleMeta, Tuple> {
+auto TableHeap::GetTupleWithLockAcquired(RID rid, const TablePage *page) -> std::pair<TupleMeta, Tuple> {
   auto [meta, tuple] = page->GetTuple(rid);
   tuple.rid_ = rid;
   return std::make_pair(meta, std::move(tuple));
 }
 
-auto TableHeap::GetTupleMetaWithLockAcquired(RID rid, TablePage *page) -> TupleMeta { return page->GetTupleMeta(rid); }
+auto TableHeap::GetTupleMetaWithLockAcquired(RID rid, const TablePage *page) -> TupleMeta {
+  return page->GetTupleMeta(rid);
+}
 
 }  // namespace bustub
