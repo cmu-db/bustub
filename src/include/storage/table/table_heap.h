@@ -124,9 +124,9 @@ class TableHeap {
 
   void UpdateTupleInPlaceWithLockAcquired(const TupleMeta &meta, const Tuple &tuple, RID rid, TablePage *page);
 
-  auto GetTupleWithLockAcquired(RID rid, TablePage *page) -> std::pair<TupleMeta, Tuple>;
+  auto GetTupleWithLockAcquired(RID rid, const TablePage *page) -> std::pair<TupleMeta, Tuple>;
 
-  auto GetTupleMetaWithLockAcquired(RID rid, TablePage *page) -> TupleMeta;
+  auto GetTupleMetaWithLockAcquired(RID rid, const TablePage *page) -> TupleMeta;
 
  private:
   /** Used for binder tests */
