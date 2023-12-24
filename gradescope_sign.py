@@ -74,7 +74,7 @@ def main():
     )
     buffer = request_yn(
         buffer,
-        "4. I understand that the course staff does not provide official help for student outside CMU. i.e., DO NOT email the course staff or create GitHub issues for course-related questions. Use the unofficial Discord server.",
+        "4. I understand that the course staff does not provide official help for students outside CMU. i.e., DO NOT email the course staff or create GitHub issues for course-related questions. Use the unofficial Discord server.",
     )
     buffer = request_yn(
         buffer,
