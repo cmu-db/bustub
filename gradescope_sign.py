@@ -51,7 +51,7 @@ def main():
         print("Found existing signature GRADESCOPE.md, adding to all submissions...")
         add_to_submission()
         print(
-            "If you want to make modifications to your signed document, run `rm GRADESCOPE.md` and then run this script again."
+            "If you want to make modifications to signed document, run `rm GRADESCOPE.md` and then run this script again."
         )
         return
     buffer = ""
@@ -81,10 +81,10 @@ def main():
         "I understand that if I violate the rules, I will be banned from using Gradescope.",
     )
     buffer += "\n"
-    buffer = request_sign(buffer, "Your Name:")
-    buffer = request_sign(buffer, "Your Affiliation (School/Company):")
-    buffer = request_sign(buffer, "Your Email:")
-    buffer = request_sign(buffer, "Your GitHub ID:")
+    buffer = request_sign(buffer, "Name:")
+    buffer = request_sign(buffer, "Affiliation (School/Company):")
+    buffer = request_sign(buffer, "Email:")
+    buffer = request_sign(buffer, "GitHub ID:")
     buffer = request_date(buffer, "Date:")
     buffer += "\n"
     buffer = request_yn(
@@ -92,9 +92,9 @@ def main():
         "I understand that if I provide a fake signature, I will be banned from using Gradescope.",
     )
     print()
-    print("--- THIS IS A COPY OF YOUR SIGNED DOCUMENT ---")
+    print("--- THIS IS A COPY OF THE SIGNED DOCUMENT ---")
     print(buffer)
-    print("--- END OF YOUR SIGNED DOCUMENT ---")
+    print("--- END OF THE SIGNED DOCUMENT ---")
     print()
     print(
         "Saving the signature to GRADESCOPE.md and adding the signed document to submission zips..."
