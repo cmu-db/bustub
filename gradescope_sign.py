@@ -62,7 +62,7 @@ def main():
     buffer += "\n"
     buffer = request_yn(
         buffer,
-        "1. I agree NOT to make my solution public. i.e., DO NOT make it public on GitHub.",
+        "1. I agree NOT to make my solution public. i.e., DO NOT make it public on GitHub or create videos explaining the solution code.",
     )
     buffer = request_yn(
         buffer,
