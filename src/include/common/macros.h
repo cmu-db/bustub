@@ -13,6 +13,7 @@
 #pragma once
 
 #include <cassert>
+#include <exception>
 #include <stdexcept>
 
 namespace bustub {
@@ -21,9 +22,10 @@ namespace bustub {
 
 #define UNIMPLEMENTED(message) throw std::logic_error(message)
 
-#define BUSTUB_ENSURE(expr, message) \
-  if (!(expr)) {                     \
-    throw std::logic_error(message); \
+#define BUSTUB_ENSURE(expr, message)                  \
+  if (!(expr)) {                                      \
+    std::cerr << "ERROR: " << (message) << std::endl; \
+    std::terminate();                                 \
   }
 
 #define UNREACHABLE(message) throw std::logic_error(message)

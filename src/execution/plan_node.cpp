@@ -10,6 +10,7 @@
 #include "execution/plans/nested_loop_join_plan.h"
 #include "execution/plans/projection_plan.h"
 #include "execution/plans/seq_scan_plan.h"
+#include "execution/plans/window_plan.h"
 
 namespace bustub {
 
@@ -75,6 +76,20 @@ auto AggregationPlanNode::InferAggSchema(const std::vector<AbstractExpressionRef
   for (size_t idx = 0; idx < aggregates.size(); idx++) {
     // TODO(chi): correctly infer agg call return type
     output.emplace_back(Column("<unnamed>", TypeId::INTEGER));
+  }
+  return Schema(output);
+}
+
+auto WindowFunctionPlanNode::InferWindowSchema(const std::vector<AbstractExpressionRef> &columns) -> Schema {
+  std::vector<Column> output;
+  // TODO(avery): correctly infer window call return type
+  for (const auto &column : columns) {
+    // TODO(chi): correctly process VARCHAR column
+    if (column->GetReturnType() == TypeId::VARCHAR) {
+      output.emplace_back(Column("<unnamed>", column->GetReturnType(), 128));
+    } else {
+      output.emplace_back(Column("<unnamed>", column->GetReturnType()));
+    }
   }
   return Schema(output);
 }

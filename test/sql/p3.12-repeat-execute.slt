@@ -48,13 +48,10 @@ statement ok
 create index t1v1 on t1(v1);
 
 query rowsort +ensure:nlj_init_check
-select * from __mock_table_123, (select * from t1 order by v1);
+select * from __mock_table_123, (select * from t1 where v1 = 1);
 ----
-1 0 🥰 
-1 1 🥰🥰 
-2 0 🥰 
-2 1 🥰🥰 
-3 0 🥰 
+1 1 🥰🥰
+2 1 🥰🥰
 3 1 🥰🥰
 
 # TODO: limit + repeat

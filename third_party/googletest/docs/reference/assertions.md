@@ -88,7 +88,7 @@ For example, the following code verifies that the string `value1` starts with
 10:
 
 ```cpp
-#include "gmock/gmock.h"
+#include <gmock/gmock.h>
 
 using ::testing::AllOf;
 using ::testing::Gt;
@@ -515,7 +515,7 @@ Verifies that *`expression`* is a success `HRESULT`.
 ### EXPECT_HRESULT_FAILED {#EXPECT_HRESULT_FAILED}
 
 `EXPECT_HRESULT_FAILED(`*`expression`*`)` \
-`EXPECT_HRESULT_FAILED(`*`expression`*`)`
+`ASSERT_HRESULT_FAILED(`*`expression`*`)`
 
 Verifies that *`expression`* is a failure `HRESULT`.
 

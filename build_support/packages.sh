@@ -21,7 +21,7 @@ main() {
     else
         echo "PACKAGES WILL BE INSTALLED. THIS MAY BREAK YOUR EXISTING TOOLCHAIN."
         echo "YOU ACCEPT ALL RESPONSIBILITY BY PROCEEDING."
-        read -p "Proceed? [Y/n] : " yn
+        read -p "Proceed? [y/N] : " yn
     
         case $yn in
             Y|y) install;;
@@ -79,6 +79,7 @@ install_mac() {
   brew ls --versions doxygen || brew install doxygen
   brew ls --versions git || brew install git
   (brew ls --versions llvm | grep 14) || brew install llvm@14
+  brew ls --versions libelf || brew install libelf
 }
 
 install_linux() {
@@ -94,7 +95,9 @@ install_linux() {
       doxygen \
       git \
       pkg-config \
-      zlib1g-dev
+      zlib1g-dev \
+      libelf-dev \
+      libdwarf-dev
 }
 
 main "$@"

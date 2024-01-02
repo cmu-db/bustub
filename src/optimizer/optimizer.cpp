@@ -13,6 +13,8 @@ auto Optimizer::Optimize(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef
     p = OptimizeMergeFilterNLJ(p);
     p = OptimizeOrderByAsIndexScan(p);
     p = OptimizeSortLimitAsTopN(p);
+    p = OptimizeMergeFilterScan(p);
+    p = OptimizeSeqScanAsIndexScan(p);
     return p;
   }
   // By default, use user-defined rules.

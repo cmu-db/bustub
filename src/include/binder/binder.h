@@ -36,6 +36,7 @@
 
 #include <string>
 
+#include "binder/expressions/bound_window.h"
 #include "binder/simplified_token.h"
 #include "binder/statement/select_statement.h"
 #include "binder/statement/set_show_statement.h"
@@ -113,6 +114,8 @@ class Binder {
   /** Get the std::string representation of a Postgres node tag. */
   static auto NodeTagToString(duckdb_libpgquery::PGNodeTag type) -> std::string;
 
+  static auto WindowBoundaryToString(WindowBoundary wb) -> std::string;
+
   // The following parts are undocumented. One `BindXXX` functions simply corresponds to a
   // node type in the Postgres parse tree.
 
@@ -150,6 +153,12 @@ class Binder {
   auto BindStar(duckdb_libpgquery::PGAStar *node) -> std::unique_ptr<BoundExpression>;
 
   auto BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_ptr<BoundExpression>;
+
+  auto BindWindowFrame(duckdb_libpgquery::PGWindowDef *window_spec, std::unique_ptr<BoundWindow> expr)
+      -> std::unique_ptr<BoundWindow>;
+
+  auto BindWindowExpression(std::string func_name, std::vector<std::unique_ptr<BoundExpression>> children,
+                            duckdb_libpgquery::PGWindowDef *node) -> std::unique_ptr<BoundWindow>;
 
   auto BindAExpr(duckdb_libpgquery::PGAExpr *root) -> std::unique_ptr<BoundExpression>;
 
@@ -203,6 +212,8 @@ class Binder {
   auto BindVariableSet(duckdb_libpgquery::PGVariableSetStmt *stmt) -> std::unique_ptr<VariableSetStatement>;
 
   auto BindVariableShow(duckdb_libpgquery::PGVariableShowStmt *stmt) -> std::unique_ptr<VariableShowStatement>;
+
+  auto BindTransaction(duckdb_libpgquery::PGTransactionStmt *stmt) -> std::unique_ptr<TransactionStatement>;
 
   class ContextGuard {
    public:

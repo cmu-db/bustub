@@ -10,11 +10,7 @@
 #include <locale>
 #include <string>
 
-#ifdef FMT_MODULE_TEST
-import fmt;
-#else
-#  include "fmt/os.h"
-#endif  // FMT_MODULE_TEST
+#include "fmt/os.h"
 
 #ifdef _MSC_VER
 #  define FMT_VSNPRINTF vsprintf_s
@@ -81,5 +77,5 @@ class date {
   int day() const { return day_; }
 };
 
-// Returns a locale with the given name if available or classic locale othewise.
+// Returns a locale with the given name if available or classic locale otherwise.
 std::locale get_locale(const char* name, const char* alt_name = nullptr);

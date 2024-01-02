@@ -28,6 +28,15 @@ auto StringUtil::Contains(const std::string &haystack, const std::string &needle
   return (haystack.find(needle) != std::string::npos);
 }
 
+auto StringUtil::ContainsAfter(const std::string &keyword, const std::string &haystack, const std::string &needle)
+    -> bool {
+  auto pos = haystack.find(keyword);
+  if (pos == std::string::npos) {
+    return false;
+  }
+  return (haystack.find(needle, pos) != std::string::npos);
+}
+
 void StringUtil::RTrim(std::string *str) {
   // remove trailing ' ', \f, \n, \r, \t, \v
   str->erase(std::find_if(str->rbegin(), str->rend(), [](int ch) { return std::isspace(ch) == 0; }).base(), str->end());

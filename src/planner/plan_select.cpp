@@ -58,14 +58,28 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> AbstractPlanNodeRe
   }
 
   bool has_agg = false;
+  bool has_window_agg = false;
+  // Binder already checked that normal aggregations and window aggregations cannot coexist.
   for (const auto &item : statement.select_list_) {
     if (item->HasAggregation()) {
       has_agg = true;
       break;
     }
+    if (item->HasWindowFunction()) {
+      has_window_agg = true;
+      break;
+    }
   }
 
-  if (!statement.having_->IsInvalid() || !statement.group_by_.empty() || has_agg) {
+  if (has_window_agg) {
+    if (!statement.having_->IsInvalid()) {
+      throw Exception("HAVING on window function is not supported yet.");
+    }
+    if (!statement.group_by_.empty()) {
+      throw Exception("Group by is not allowed to use with window function.");
+    }
+    plan = PlanSelectWindow(statement, std::move(plan));
+  } else if (!statement.having_->IsInvalid() || !statement.group_by_.empty() || has_agg) {
     // Plan aggregation
     plan = PlanSelectAgg(statement, std::move(plan));
   } else {

@@ -77,10 +77,12 @@ auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple, LockManag
   // only allow one insertion at a time, otherwise it will deadlock.
   guard.unlock();
 
+#ifndef DISABLE_LOCK_MANAGER
   if (lock_mgr != nullptr) {
     BUSTUB_ENSURE(lock_mgr->LockRow(txn, LockManager::LockMode::EXCLUSIVE, oid, RID{last_page_id, slot_id}),
                   "failed to lock when inserting new tuple");
   }
+#endif
 
   page_guard.Drop();
 
@@ -114,15 +116,43 @@ auto TableHeap::MakeIterator() -> TableIterator {
 
   auto page_guard = bpm_->FetchPageRead(last_page_id);
   auto page = page_guard.As<TablePage>();
-  return {this, {first_page_id_, 0}, {last_page_id, page->GetNumTuples()}};
+  auto num_tuples = page->GetNumTuples();
+  page_guard.Drop();
+  return {this, {first_page_id_, 0}, {last_page_id, num_tuples}};
 }
 
 auto TableHeap::MakeEagerIterator() -> TableIterator { return {this, {first_page_id_, 0}, {INVALID_PAGE_ID, 0}}; }
 
-void TableHeap::UpdateTupleInPlaceUnsafe(const TupleMeta &meta, const Tuple &tuple, RID rid) {
+auto TableHeap::UpdateTupleInPlace(const TupleMeta &meta, const Tuple &tuple, RID rid,
+                                   std::function<bool(const TupleMeta &meta, const Tuple &table, RID rid)> &&check)
+    -> bool {
   auto page_guard = bpm_->FetchPageWrite(rid.GetPageId());
   auto page = page_guard.AsMut<TablePage>();
+  auto [old_meta, old_tup] = page->GetTuple(rid);
+  if (check == nullptr || check(old_meta, old_tup, rid)) {
+    page->UpdateTupleInPlaceUnsafe(meta, tuple, rid);
+    return true;
+  }
+  return false;
+}
+
+auto TableHeap::AcquireTablePageReadLock(RID rid) -> ReadPageGuard { return bpm_->FetchPageRead(rid.GetPageId()); }
+
+auto TableHeap::AcquireTablePageWriteLock(RID rid) -> WritePageGuard { return bpm_->FetchPageWrite(rid.GetPageId()); }
+
+void TableHeap::UpdateTupleInPlaceWithLockAcquired(const TupleMeta &meta, const Tuple &tuple, RID rid,
+                                                   TablePage *page) {
   page->UpdateTupleInPlaceUnsafe(meta, tuple, rid);
+}
+
+auto TableHeap::GetTupleWithLockAcquired(RID rid, const TablePage *page) -> std::pair<TupleMeta, Tuple> {
+  auto [meta, tuple] = page->GetTuple(rid);
+  tuple.rid_ = rid;
+  return std::make_pair(meta, std::move(tuple));
+}
+
+auto TableHeap::GetTupleMetaWithLockAcquired(RID rid, const TablePage *page) -> TupleMeta {
+  return page->GetTupleMeta(rid);
 }
 
 }  // namespace bustub

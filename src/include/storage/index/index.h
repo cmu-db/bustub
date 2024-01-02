@@ -45,8 +45,11 @@ class IndexMetadata {
    * @param key_attrs The mapping from indexed columns to base table columns
    */
   IndexMetadata(std::string index_name, std::string table_name, const Schema *tuple_schema,
-                std::vector<uint32_t> key_attrs)
-      : name_(std::move(index_name)), table_name_(std::move(table_name)), key_attrs_(std::move(key_attrs)) {
+                std::vector<uint32_t> key_attrs, bool is_primary_key)
+      : name_(std::move(index_name)),
+        table_name_(std::move(table_name)),
+        key_attrs_(std::move(key_attrs)),
+        is_primary_key_(is_primary_key) {
     key_schema_ = std::make_shared<Schema>(Schema::CopySchema(tuple_schema, key_attrs_));
   }
 
@@ -72,6 +75,9 @@ class IndexMetadata {
   /** @return The mapping relation between indexed columns and base table columns */
   inline auto GetKeyAttrs() const -> const std::vector<uint32_t> & { return key_attrs_; }
 
+  /** @return is primary key */
+  inline auto IsPrimaryKey() const -> bool { return is_primary_key_; }
+
   /** @return A string representation for debugging */
   auto ToString() const -> std::string {
     std::stringstream os;
@@ -94,6 +100,8 @@ class IndexMetadata {
   const std::vector<uint32_t> key_attrs_;
   /** The schema of the indexed key */
   std::shared_ptr<Schema> key_schema_;
+  /** Is primary key? */
+  bool is_primary_key_;
 };
 
 /////////////////////////////////////////////////////////////////////

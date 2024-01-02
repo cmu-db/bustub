@@ -1,4 +1,5 @@
-# --- NOT TESTED IN SPRING 2023 ---
+# --- NOT TESTED IN Fall 2023 ---
+no test
 
 statement ok
 set force_optimizer_starter_rule=yes

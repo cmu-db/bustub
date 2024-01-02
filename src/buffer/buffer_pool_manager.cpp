@@ -20,7 +20,7 @@ namespace bustub {
 
 BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager, size_t replacer_k,
                                      LogManager *log_manager)
-    : pool_size_(pool_size), disk_manager_(disk_manager), log_manager_(log_manager) {
+    : pool_size_(pool_size), disk_scheduler_(std::make_unique<DiskScheduler>(disk_manager)), log_manager_(log_manager) {
   // TODO(students): remove this line after you have implemented the buffer pool manager
 
   // we allocate a consecutive memory space for the buffer pool

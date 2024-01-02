@@ -6,6 +6,7 @@
 #include "execution/expressions/comparison_expression.h"
 #include "execution/expressions/constant_value_expression.h"
 #include "execution/expressions/logic_expression.h"
+#include "execution/plans/window_plan.h"
 #include "planner/planner.h"
 
 namespace bustub {
@@ -33,6 +34,35 @@ auto Planner::GetAggCallFromFactory(const std::string &func_name, std::vector<Ab
     }
   }
   throw Exception(fmt::format("unsupported agg_call {} with {} args", func_name, args.size()));
+}
+
+// NOLINTNEXTLINE - weird error on clang-tidy.
+auto Planner::GetWindowAggCallFromFactory(const std::string &func_name, std::vector<AbstractExpressionRef> args)
+    -> std::tuple<WindowFunctionType, std::vector<AbstractExpressionRef>> {
+  if (args.empty()) {
+    if (func_name == "count_star") {
+      return {WindowFunctionType::CountStarAggregate, {}};
+    }
+    if (func_name == "rank") {
+      return {WindowFunctionType::Rank, {}};
+    }
+  }
+  if (args.size() == 1) {
+    auto expr = std::move(args[0]);
+    if (func_name == "min") {
+      return {WindowFunctionType::MinAggregate, {std::move(expr)}};
+    }
+    if (func_name == "max") {
+      return {WindowFunctionType::MaxAggregate, {std::move(expr)}};
+    }
+    if (func_name == "sum") {
+      return {WindowFunctionType::SumAggregate, {std::move(expr)}};
+    }
+    if (func_name == "count") {
+      return {WindowFunctionType::CountAggregate, {std::move(expr)}};
+    }
+  }
+  throw Exception(fmt::format("unsupported window_call {} with {} args", func_name, args.size()));
 }
 
 auto Planner::GetBinaryExpressionFromFactory(const std::string &op_name, AbstractExpressionRef left,

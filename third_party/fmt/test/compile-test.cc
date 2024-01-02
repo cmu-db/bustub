@@ -21,38 +21,6 @@ TEST(iterator_test, counting_iterator) {
   EXPECT_EQ((it + 41).count(), 42);
 }
 
-TEST(iterator_test, truncating_iterator) {
-  char* p = nullptr;
-  auto it = fmt::detail::truncating_iterator<char*>(p, 3);
-  auto prev = it++;
-  EXPECT_EQ(prev.base(), p);
-  EXPECT_EQ(it.base(), p + 1);
-}
-
-TEST(iterator_test, truncating_iterator_default_construct) {
-  auto it = fmt::detail::truncating_iterator<char*>();
-  EXPECT_EQ(nullptr, it.base());
-  EXPECT_EQ(std::size_t{0}, it.count());
-}
-
-#ifdef __cpp_lib_ranges
-TEST(iterator_test, truncating_iterator_is_output_iterator) {
-  static_assert(
-      std::output_iterator<fmt::detail::truncating_iterator<char*>, char>);
-}
-#endif
-
-TEST(iterator_test, truncating_back_inserter) {
-  auto buffer = std::string();
-  auto bi = std::back_inserter(buffer);
-  auto it = fmt::detail::truncating_iterator<decltype(bi)>(bi, 2);
-  *it++ = '4';
-  *it++ = '2';
-  *it++ = '1';
-  EXPECT_EQ(buffer.size(), 2);
-  EXPECT_EQ(buffer, "42");
-}
-
 TEST(compile_test, compile_fallback) {
   // FMT_COMPILE should fallback on runtime formatting when `if constexpr` is
   // not available.
@@ -227,10 +195,12 @@ TEST(compile_test, format_to_n) {
   EXPECT_STREQ("2a", buffer);
 }
 
-TEST(compile_test, formatted_size) {
-  EXPECT_EQ(2, fmt::formatted_size(FMT_COMPILE("{0}"), 42));
-  EXPECT_EQ(5, fmt::formatted_size(FMT_COMPILE("{0:<4.2f}"), 42.0));
+#  ifdef __cpp_lib_bit_cast
+TEST(compile_test, constexpr_formatted_size) {
+  FMT_CONSTEXPR20 size_t size = fmt::formatted_size(FMT_COMPILE("{}"), 42);
+  EXPECT_EQ(size, 2);
 }
+#  endif
 
 TEST(compile_test, text_and_arg) {
   EXPECT_EQ(">>>42<<<", fmt::format(FMT_COMPILE(">>>{}<<<"), 42));
@@ -300,8 +270,9 @@ TEST(compile_test, compile_format_string_literal) {
 //  (compiler file
 //  'D:\a\_work\1\s\src\vctools\Compiler\CxxFE\sl\p1\c\constexpr\constexpr.cpp',
 //  line 8635)
-#if ((FMT_CPLUSPLUS >= 202002L) &&                    \
-     (!FMT_MSC_VERSION || FMT_MSC_VERSION < 1930)) || \
+#if ((FMT_CPLUSPLUS >= 202002L) &&                           \
+     (!defined(_GLIBCXX_RELEASE) || _GLIBCXX_RELEASE > 9) && \
+     (!FMT_MSC_VERSION || FMT_MSC_VERSION < 1930)) ||        \
     (FMT_CPLUSPLUS >= 201709L && FMT_GCC_VERSION >= 1002)
 template <size_t max_string_length, typename Char = char> struct test_string {
   template <typename T> constexpr bool operator==(const T& rhs) const noexcept {

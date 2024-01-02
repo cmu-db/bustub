@@ -61,13 +61,15 @@ class TrieNode {
   virtual auto Clone() const -> std::unique_ptr<TrieNode> { return std::make_unique<TrieNode>(children_); }
 
   // A map of children, where the key is the next character in the key, and the value is the next TrieNode.
+  // You MUST store the children information in this structure. You are NOT allowed to remove the `const` from
+  // the structure.
   std::map<char, std::shared_ptr<const TrieNode>> children_;
 
   // Indicates if the node is the terminal node.
   bool is_value_node_{false};
 
-  // You can add additional fields and methods here. But in general, you don't need to add extra fields to
-  // complete this project.
+  // You can add additional fields and methods here except storing children. But in general, you don't need to add extra
+  // fields to complete this project.
 };
 
 // A TrieNodeWithValue is a TrieNode that also has a value of type T associated with it.
@@ -97,6 +99,8 @@ class TrieNodeWithValue : public TrieNode {
 // A Trie is a data structure that maps strings to values of type T. All operations on a Trie should not
 // modify the trie itself. It should reuse the existing nodes as much as possible, and create new nodes to
 // represent the new trie.
+//
+// You are NOT allowed to remove any `const` in this project, or use `mutable` to bypass the const checks.
 class Trie {
  private:
   // The root of the trie.
@@ -124,6 +128,9 @@ class Trie {
   // Remove the key from the trie. If the key does not exist, return the original trie.
   // Otherwise, returns the new trie.
   auto Remove(std::string_view key) const -> Trie;
+
+  // Get the root of the trie, should only be used in test cases.
+  auto GetRoot() const -> std::shared_ptr<const TrieNode> { return root_; }
 };
 
 }  // namespace bustub
