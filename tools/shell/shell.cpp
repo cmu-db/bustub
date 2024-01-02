@@ -69,6 +69,10 @@ auto main(int argc, char **argv) -> int {
           return 0;
         }
         query += query_c_str;
+        //std::cout<<"Here "<<query<<" "<<query_c_str<<std::endl;
+        if(query  == "exit"){
+          exit(0);
+        }
         if (bustub::StringUtil::EndsWith(query, ";") || bustub::StringUtil::StartsWith(query, "\\")) {
           break;
         }

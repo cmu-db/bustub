@@ -22,9 +22,6 @@ BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager
                                      LogManager *log_manager)
     : pool_size_(pool_size), disk_manager_(disk_manager), log_manager_(log_manager) {
   // TODO(students): remove this line after you have implemented the buffer pool manager
-  throw NotImplementedException(
-      "BufferPoolManager is not implemented yet. If you have finished implementing BPM, please remove the throw "
-      "exception line in `buffer_pool_manager.cpp`.");
 
   // we allocate a consecutive memory space for the buffer pool
   pages_ = new Page[pool_size_];
@@ -38,13 +35,40 @@ BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager
 
 BufferPoolManager::~BufferPoolManager() { delete[] pages_; }
 
-auto BufferPoolManager::NewPage(page_id_t *page_id) -> Page * { return nullptr; }
+auto BufferPoolManager::NewPage(page_id_t *page_id) -> Page * {
+      std::lock_guard<std::mutex> lock(latch_);
+
+      if(free_list_.empty() && replacer_->Size() == 0){
+        *page_id = INVALID_PAGE_ID;
+        return nullptr;
+      }
+      frame_id_t frame_id;
+      if (!free_list_.empty()) {
+        frame_id = free_list_.front();
+        free_list_.pop_front();
+      }else{
+        replacer_->Evict(&frame_id);
+      }
+
+      if(pages_[frame_id].IsDirty()){
+        FlushPage(page_table_[pages_[frame_id].GetPageId()]);
+      }
+
+      *page_id = AllocatePage();
+      page_table_[*page_id] = frame_id;
+
+      replacer_->SetEvictable(frame_id, false);
+
+
+  return nullptr;
+}
 
 auto BufferPoolManager::FetchPage(page_id_t page_id, [[maybe_unused]] AccessType access_type) -> Page * {
   return nullptr;
 }
 
 auto BufferPoolManager::UnpinPage(page_id_t page_id, bool is_dirty, [[maybe_unused]] AccessType access_type) -> bool {
+
   return false;
 }
 
