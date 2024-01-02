@@ -99,6 +99,8 @@ void LRUKReplacer::Remove(frame_id_t frame_id) {
     if(it->second.is_evictable_){
       node_store_.erase(it);
       curr_size_--;
+    }else{
+      throw Exception("This frame is non-evictable");
     }
   }
 
