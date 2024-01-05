@@ -64,11 +64,13 @@ TEST(BufferPoolManagerTest, _BinaryDataTest) {
   // Scenario: We should be able to create new pages until we fill up the buffer pool.
   for (size_t i = 1; i < buffer_pool_size; ++i) {
     EXPECT_NE(nullptr, bpm->NewPage(&page_id_temp));
+    EXPECT_EQ(i,page_id_temp);
   }
 
   // Scenario: Once the buffer pool is full, we should not be able to create any new pages.
   for (size_t i = buffer_pool_size; i < buffer_pool_size * 2; ++i) {
     EXPECT_EQ(nullptr, bpm->NewPage(&page_id_temp));
+//    EXPECT_NE(INVALID_PAGE_ID, page_id_temp);
   }
 
   // Scenario: After unpinning pages {0, 1, 2, 3, 4}, we should be able to create 5 new pages
@@ -84,8 +86,10 @@ TEST(BufferPoolManagerTest, _BinaryDataTest) {
 
   // Scenario: We should be able to fetch the data we wrote a while ago.
   page0 = bpm->FetchPage(0);
+//  std::cout<<"read data: "<<page0->GetData()<<std::endl<<"write data: "<<random_binary_data<<std::endl;
   ASSERT_NE(nullptr, page0);
   EXPECT_EQ(0, memcmp(page0->GetData(), random_binary_data, BUSTUB_PAGE_SIZE));
+
   EXPECT_EQ(true, bpm->UnpinPage(0, true));
 
   // Shutdown the disk manager and remove the temporary file we created.
@@ -97,7 +101,7 @@ TEST(BufferPoolManagerTest, _BinaryDataTest) {
 }
 
 // NOLINTNEXTLINE
-TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
+TEST(BufferPoolManagerTest, _SampleTest) {
   const std::string db_name = "test.db";
   const size_t buffer_pool_size = 10;
   const size_t k = 5;
@@ -128,11 +132,15 @@ TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
 
   // Scenario: After unpinning pages {0, 1, 2, 3, 4} and pinning another 4 new pages,
   // there would still be one buffer page left for reading page 0.
+//  ASSERT_NE(page_id_temp,-1);
   for (int i = 0; i < 5; ++i) {
     EXPECT_EQ(true, bpm->UnpinPage(i, true));
   }
+//  std::cout<<"xzw"<<std::endl;
   for (int i = 0; i < 4; ++i) {
+//    std::cout<<page_id_temp<<std::endl;
     EXPECT_NE(nullptr, bpm->NewPage(&page_id_temp));
+
   }
 
   // Scenario: We should be able to fetch the data we wrote a while ago.

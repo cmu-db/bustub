@@ -43,6 +43,7 @@ TEST(DiskSchedulerTest, _ScheduleWriteReadPageTest) {
 
   ASSERT_TRUE(future1.get());
   ASSERT_TRUE(future2.get());
+//  std::cout<<"page_data: "<<buf<<std::endl<<"data: "<<data<<std::endl<<sizeof(data);
   ASSERT_EQ(std::memcmp(buf, data, sizeof(buf)), 0);
 
   disk_scheduler = nullptr;  // Call the DiskScheduler destructor to finish all scheduled jobs.

@@ -32,7 +32,6 @@ DiskScheduler::~DiskScheduler() {
 
 void DiskScheduler::Schedule(DiskRequest r) {
   request_queue_.Put(std::make_optional(std::move(r)));
-
 }
 
 void DiskScheduler::StartWorkerThread() {

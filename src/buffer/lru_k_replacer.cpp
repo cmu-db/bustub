@@ -36,7 +36,7 @@ auto LRUKReplacer::Evict(frame_id_t *frame_id) -> bool {
         // Frame with less than k historical references, treat it as having +inf backward k-distance
         max_distance = std::numeric_limits<size_t>::max();
         size_t distance_latest = current_timestamp_ - node.history_.front();
-        if(distance_latest_max < distance_latest){
+        if(distance_latest_max <= distance_latest){
           distance_latest_max = distance_latest;
           victim_frame = entry.first;
         }
@@ -87,6 +87,8 @@ void LRUKReplacer::SetEvictable(frame_id_t frame_id, bool set_evictable) {
         curr_size_--;
       }
     }
+  }else if(set_evictable){
+    throw Exception("NO Frame Found!");
   }
 
 }
