@@ -1,6 +1,7 @@
 add_library(
   bustub_primer
   OBJECT
+  orset.cpp
   trie.cpp
   trie_store.cpp)
 
