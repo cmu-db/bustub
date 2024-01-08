@@ -14,7 +14,7 @@ BusTub supports basic SQL and comes with an interactive shell. You can get it ru
 
 We make the autograder for each assignment available to non-CMU students on Gradescope after their due date for CMU students. In exchange for making this available to the public, we ask that you do not make your project implementations public on Github or other source code repositories. Please read the course FAQ on how to use the autograder on Gradescope. Run `python3 gradescope_sign.py` to sign an agreement before submitting to the autograder.
 
-**WARNING: IF YOU ARE A STUDENT OUTSIDE CMU, DO NOT MAKE YOUR SOLUTION PUBLICLY AVAILABLE. OTHERWISE, YOU WILL BE BANNED FROM USING THE AUTOGRADER.** Thank you for creating a fair learning environment.
+**WARNING: IF YOU ARE A STUDENT OUTSIDE CMU, DO NOT MAKE YOUR SOLUTION PUBLICLY AVAILABLE, AND DO SUBMIT YOUR OWN WORK. OTHERWISE, YOU WILL BE BANNED FROM USING THE AUTOGRADER.** Thank you for creating a fair learning environment.
 
 ## Cloning this Repository
 
