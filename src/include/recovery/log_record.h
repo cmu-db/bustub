@@ -141,12 +141,8 @@ class LogRecord {
   // For debug purpose
   inline auto ToString() const -> std::string {
     std::ostringstream os;
-    os << "Log["
-       << "size:" << size_ << ", "
-       << "LSN:" << lsn_ << ", "
-       << "transID:" << txn_id_ << ", "
-       << "prevLSN:" << prev_lsn_ << ", "
-       << "LogType:" << static_cast<int>(log_record_type_) << "]";
+    os << "Log[" << "size:" << size_ << ", " << "LSN:" << lsn_ << ", " << "transID:" << txn_id_ << ", "
+       << "prevLSN:" << prev_lsn_ << ", " << "LogType:" << static_cast<int>(log_record_type_) << "]";
 
     return os.str();
   }

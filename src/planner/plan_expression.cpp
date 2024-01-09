@@ -26,8 +26,8 @@
 
 namespace bustub {
 
-auto Planner::PlanBinaryOp(const BoundBinaryOp &expr, const std::vector<AbstractPlanNodeRef> &children)
-    -> AbstractExpressionRef {
+auto Planner::PlanBinaryOp(const BoundBinaryOp &expr,
+                           const std::vector<AbstractPlanNodeRef> &children) -> AbstractExpressionRef {
   auto [_1, left] = PlanExpression(*expr.larg_, children);
   auto [_2, right] = PlanExpression(*expr.rarg_, children);
   const auto &op_name = expr.op_name_;
@@ -100,8 +100,8 @@ auto Planner::PlanColumnRef(const BoundColumnRef &expr, const std::vector<Abstra
   UNREACHABLE("no executor with expression has more than 2 children for now");
 }
 
-auto Planner::PlanConstant(const BoundConstant &expr, const std::vector<AbstractPlanNodeRef> &children)
-    -> AbstractExpressionRef {
+auto Planner::PlanConstant(const BoundConstant &expr,
+                           const std::vector<AbstractPlanNodeRef> &children) -> AbstractExpressionRef {
   return std::make_shared<ConstantValueExpression>(expr.val_);
 }
 

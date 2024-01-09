@@ -48,8 +48,8 @@
 
 namespace bustub {
 
-auto ExecutorFactory::CreateExecutor(ExecutorContext *exec_ctx, const AbstractPlanNodeRef &plan)
-    -> std::unique_ptr<AbstractExecutor> {
+auto ExecutorFactory::CreateExecutor(ExecutorContext *exec_ctx,
+                                     const AbstractPlanNodeRef &plan) -> std::unique_ptr<AbstractExecutor> {
   auto check_options_set = exec_ctx->GetCheckOptions()->check_options_set_;
   switch (plan->GetType()) {
     // Create a new sequential scan executor

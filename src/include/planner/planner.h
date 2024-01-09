@@ -117,17 +117,17 @@ class Planner {
   auto PlanExpression(const BoundExpression &expr, const std::vector<AbstractPlanNodeRef> &children)
       -> std::tuple<std::string, AbstractExpressionRef>;
 
-  auto PlanBinaryOp(const BoundBinaryOp &expr, const std::vector<AbstractPlanNodeRef> &children)
-      -> AbstractExpressionRef;
+  auto PlanBinaryOp(const BoundBinaryOp &expr,
+                    const std::vector<AbstractPlanNodeRef> &children) -> AbstractExpressionRef;
 
-  auto PlanFuncCall(const BoundFuncCall &expr, const std::vector<AbstractPlanNodeRef> &children)
-      -> AbstractExpressionRef;
+  auto PlanFuncCall(const BoundFuncCall &expr,
+                    const std::vector<AbstractPlanNodeRef> &children) -> AbstractExpressionRef;
 
   auto PlanColumnRef(const BoundColumnRef &expr, const std::vector<AbstractPlanNodeRef> &children)
       -> std::tuple<std::string, std::shared_ptr<ColumnValueExpression>>;
 
-  auto PlanConstant(const BoundConstant &expr, const std::vector<AbstractPlanNodeRef> &children)
-      -> AbstractExpressionRef;
+  auto PlanConstant(const BoundConstant &expr,
+                    const std::vector<AbstractPlanNodeRef> &children) -> AbstractExpressionRef;
 
   auto PlanSelectAgg(const SelectStatement &statement, AbstractPlanNodeRef child) -> AbstractPlanNodeRef;
 
@@ -145,8 +145,8 @@ class Planner {
   auto GetBinaryExpressionFromFactory(const std::string &op_name, AbstractExpressionRef left,
                                       AbstractExpressionRef right) -> AbstractExpressionRef;
 
-  auto GetFuncCallFromFactory(const std::string &func_name, std::vector<AbstractExpressionRef> args)
-      -> AbstractExpressionRef;
+  auto GetFuncCallFromFactory(const std::string &func_name,
+                              std::vector<AbstractExpressionRef> args) -> AbstractExpressionRef;
 
   auto PlanInsert(const InsertStatement &statement) -> AbstractPlanNodeRef;
 

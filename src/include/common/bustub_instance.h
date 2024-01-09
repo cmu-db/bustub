@@ -250,8 +250,8 @@ class BustubInstance {
   /**
    * Execute a SQL query in the BusTub instance.
    */
-  auto ExecuteSql(const std::string &sql, ResultWriter &writer, std::shared_ptr<CheckOptions> check_options = nullptr)
-      -> bool;
+  auto ExecuteSql(const std::string &sql, ResultWriter &writer,
+                  std::shared_ptr<CheckOptions> check_options = nullptr) -> bool;
 
   /**
    * Execute a SQL query in the BusTub instance with provided txn.

@@ -57,9 +57,7 @@ auto Schema::ToString(bool simplified) const -> std::string {
 
   std::ostringstream os;
 
-  os << "Schema["
-     << "NumColumns:" << GetColumnCount() << ", "
-     << "IsInlined:" << tuple_is_inlined_ << ", "
+  os << "Schema[" << "NumColumns:" << GetColumnCount() << ", " << "IsInlined:" << tuple_is_inlined_ << ", "
      << "Length:" << length_ << "]";
 
   bool first = true;

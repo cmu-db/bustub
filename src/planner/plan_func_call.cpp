@@ -23,8 +23,8 @@
 
 namespace bustub {
 
-auto Planner::PlanFuncCall(const BoundFuncCall &expr, const std::vector<AbstractPlanNodeRef> &children)
-    -> AbstractExpressionRef {
+auto Planner::PlanFuncCall(const BoundFuncCall &expr,
+                           const std::vector<AbstractPlanNodeRef> &children) -> AbstractExpressionRef {
   std::vector<AbstractExpressionRef> args;
   for (const auto &arg : expr.args_) {
     auto [_1, arg_expr] = PlanExpression(*arg, children);
@@ -34,12 +34,21 @@ auto Planner::PlanFuncCall(const BoundFuncCall &expr, const std::vector<Abstract
 }
 
 // NOLINTNEXTLINE
-auto Planner::GetFuncCallFromFactory(const std::string &func_name, std::vector<AbstractExpressionRef> args)
-    -> AbstractExpressionRef {
+auto Planner::GetFuncCallFromFactory(const std::string &func_name,
+                                     std::vector<AbstractExpressionRef> args) -> AbstractExpressionRef {
   // 1. check if the parsed function name is "lower" or "upper".
   // 2. verify the number of args (should be 1), refer to the test cases for when you should throw an `Exception`.
   // 3. return a `StringExpression` std::shared_ptr.
-  throw Exception(fmt::format("func call {} not supported in planner yet", func_name));
+  if (func_name != "lower" && func_name != "upper") {
+    throw Exception(fmt::format("func call {} not supported in planner yet", func_name));
+  }
+
+  if (args.size() != 1) {
+    throw Exception(fmt::format("statement errored with the number of args {} > 1", args.size()));
+  }
+
+  StringExpressionType func_type = func_name == "upper" ? StringExpressionType::Upper : StringExpressionType::Lower;
+  return std::make_shared<StringExpression>(args[0], func_type);
 }
 
 }  // namespace bustub

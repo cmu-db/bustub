@@ -79,8 +79,8 @@ auto Binder::BindStatement(duckdb_libpgquery::PGNode *stmt) -> std::unique_ptr<B
   }
 }
 
-auto Binder::BindWindowFrame(duckdb_libpgquery::PGWindowDef *window_spec, std::unique_ptr<BoundWindow> expr)
-    -> std::unique_ptr<BoundWindow> {
+auto Binder::BindWindowFrame(duckdb_libpgquery::PGWindowDef *window_spec,
+                             std::unique_ptr<BoundWindow> expr) -> std::unique_ptr<BoundWindow> {
   if ((window_spec->frameOptions & FRAMEOPTION_END_UNBOUNDED_PRECEDING) != 0 ||
       (window_spec->frameOptions & FRAMEOPTION_START_UNBOUNDED_FOLLOWING) != 0) {
     throw Exception("Window frames starting with unbounded following or ending in unbounded preceding make no sense");

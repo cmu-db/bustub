@@ -66,8 +66,8 @@ auto Binder::BindValuesList(duckdb_libpgquery::PGList *list) -> std::unique_ptr<
   return std::make_unique<BoundExpressionListRef>(std::move(all_values), "<unnamed>");
 }
 
-auto Binder::BindSubquery(duckdb_libpgquery::PGSelectStmt *node, const std::string &alias)
-    -> std::unique_ptr<BoundSubqueryRef> {
+auto Binder::BindSubquery(duckdb_libpgquery::PGSelectStmt *node,
+                          const std::string &alias) -> std::unique_ptr<BoundSubqueryRef> {
   std::vector<std::vector<std::string>> select_list_name;
   auto subquery = BindSelect(node);
   for (const auto &col : subquery->select_list_) {
@@ -297,8 +297,8 @@ auto Binder::BindJoin(duckdb_libpgquery::PGJoinExpr *root) -> std::unique_ptr<Bo
   return join_ref;
 }
 
-auto Binder::BindBaseTableRef(std::string table_name, std::optional<std::string> alias)
-    -> std::unique_ptr<BoundBaseTableRef> {
+auto Binder::BindBaseTableRef(std::string table_name,
+                              std::optional<std::string> alias) -> std::unique_ptr<BoundBaseTableRef> {
   auto table_info = catalog_.GetTable(table_name);
   if (table_info == nullptr) {
     throw bustub::Exception(fmt::format("invalid table {}", table_name));
@@ -590,8 +590,8 @@ auto Binder::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_pt
 /**
  * @brief Get `BoundColumnRef` from the schema.
  */
-static auto ResolveColumnRefFromSchema(const Schema &schema, const std::vector<std::string> &col_name)
-    -> std::unique_ptr<BoundColumnRef> {
+static auto ResolveColumnRefFromSchema(const Schema &schema,
+                                       const std::vector<std::string> &col_name) -> std::unique_ptr<BoundColumnRef> {
   if (col_name.size() != 1) {
     return nullptr;
   }
@@ -610,9 +610,8 @@ static auto ResolveColumnRefFromSchema(const Schema &schema, const std::vector<s
 /**
  * @brief Get `BoundColumnRef` from the table. Returns something like `alias.column` or `table_name.column`.
  */
-auto Binder::ResolveColumnRefFromBaseTableRef(const BoundBaseTableRef &table_ref,
-                                              const std::vector<std::string> &col_name)
-    -> std::unique_ptr<BoundColumnRef> {
+auto Binder::ResolveColumnRefFromBaseTableRef(
+    const BoundBaseTableRef &table_ref, const std::vector<std::string> &col_name) -> std::unique_ptr<BoundColumnRef> {
   auto bound_table_name = table_ref.GetBoundTableName();
   // Firstly, try directly resolve the column name through schema
   std::unique_ptr<BoundColumnRef> direct_resolved_expr =
@@ -696,8 +695,8 @@ auto Binder::ResolveColumnRefFromSubqueryRef(const BoundSubqueryRef &subquery_re
   return direct_resolved_expr;
 }
 
-auto Binder::ResolveColumnInternal(const BoundTableRef &table_ref, const std::vector<std::string> &col_name)
-    -> std::unique_ptr<BoundExpression> {
+auto Binder::ResolveColumnInternal(const BoundTableRef &table_ref,
+                                   const std::vector<std::string> &col_name) -> std::unique_ptr<BoundExpression> {
   switch (table_ref.type_) {
     case TableReferenceType::BASE_TABLE: {
       const auto &base_table_ref = dynamic_cast<const BoundBaseTableRef &>(table_ref);
@@ -746,8 +745,8 @@ auto Binder::ResolveColumnInternal(const BoundTableRef &table_ref, const std::ve
   }
 }
 
-auto Binder::ResolveColumn(const BoundTableRef &scope, const std::vector<std::string> &col_name)
-    -> std::unique_ptr<BoundExpression> {
+auto Binder::ResolveColumn(const BoundTableRef &scope,
+                           const std::vector<std::string> &col_name) -> std::unique_ptr<BoundExpression> {
   BUSTUB_ASSERT(!scope.IsInvalid(), "invalid scope");
   auto expr = ResolveColumnInternal(scope, col_name);
   if (!expr) {

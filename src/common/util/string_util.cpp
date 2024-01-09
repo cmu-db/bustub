@@ -28,8 +28,8 @@ auto StringUtil::Contains(const std::string &haystack, const std::string &needle
   return (haystack.find(needle) != std::string::npos);
 }
 
-auto StringUtil::ContainsAfter(const std::string &keyword, const std::string &haystack, const std::string &needle)
-    -> bool {
+auto StringUtil::ContainsAfter(const std::string &keyword, const std::string &haystack,
+                               const std::string &needle) -> bool {
   auto pos = haystack.find(keyword);
   if (pos == std::string::npos) {
     return false;

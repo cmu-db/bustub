@@ -123,8 +123,8 @@ class StringUtil {
    * @param except_first_line if true, the first line is not indented
    * @return a new string with spaces added to each line
    */
-  static auto IndentAllLines(const std::string &lines, size_t num_indent, bool except_first_line = false)
-      -> std::string;
+  static auto IndentAllLines(const std::string &lines, size_t num_indent,
+                             bool except_first_line = false) -> std::string;
 };
 
 }  // namespace bustub
