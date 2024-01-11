@@ -74,6 +74,11 @@ class ValueFactory {
     return {TypeId::VARCHAR, value};
   }
 
+  static inline auto GetVectorValue(const std::vector<double> &value,
+                                    __attribute__((__unused__)) AbstractPool *pool = nullptr) -> Value {
+    return {TypeId::VECTOR, value};
+  }
+
   static inline auto GetNullValueByType(TypeId type_id) -> Value {
     Value ret_value;
     switch (type_id) {

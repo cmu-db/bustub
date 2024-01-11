@@ -2,6 +2,7 @@
 #include <iterator>
 #include <memory>
 #include <optional>
+#include <string>
 #include <vector>
 #include "binder/binder.h"
 #include "binder/bound_expression.h"
@@ -466,6 +467,10 @@ auto Binder::BindConstant(duckdb_libpgquery::PGAConst *node) -> std::unique_ptr<
     case duckdb_libpgquery::T_PGInteger: {
       BUSTUB_ENSURE(val.val.ival <= BUSTUB_INT32_MAX, "value out of range");
       return std::make_unique<BoundConstant>(ValueFactory::GetIntegerValue(static_cast<int32_t>(val.val.ival)));
+    }
+    case duckdb_libpgquery::T_PGFloat: {
+      double parsed_val = std::stod(std::string(val.val.str));
+      return std::make_unique<BoundConstant>(ValueFactory::GetDecimalValue(parsed_val));
     }
     case duckdb_libpgquery::T_PGString: {
       return std::make_unique<BoundConstant>(ValueFactory::GetVarcharValue(val.val.str));
