@@ -43,6 +43,8 @@ void ORSetDriver<T>::Sync() {
   }
 }
 
+template class ORSetNode<int>;
+template class ORSetNode<std::string>;
 template class ORSetDriver<int>;
 template class ORSetDriver<std::string>;
 
