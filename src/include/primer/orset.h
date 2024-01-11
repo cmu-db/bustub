@@ -1,28 +1,12 @@
 #pragma once
 
-#include <atomic>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
 #include <vector>
-#include "common/util/hash_util.h"
-#include "fmt/format.h"
 
 namespace bustub {
 
 /** @brief Unique ID type. */
 using uid_t = int64_t;
-
-/** @brief Monotonically increasing unique id. */
-static std::atomic<uid_t> next_uid = 0;
-
-/**
- * @brief Generates a unique id.
- *
- * @return a unique id.
- */
-inline auto ORSetGenerateUid() -> uid_t { return next_uid++; }
 
 /** @brief The observed remove set datatype. */
 template <typename T>
@@ -39,18 +23,12 @@ class ORSet {
   auto Contains(const T &elem) const -> bool;
 
   /**
-   * @brief Gets all the elements in the set.
-   *
-   * @return all the elements in the set.
-   */
-  auto Elements() const -> std::vector<T>;
-
-  /**
    * @brief Adds an element to the set.
    *
    * @param elem the element to add
+   * @param uid unique token associated with the add operation.
    */
-  void Add(const T &elem);
+  void Add(const T &elem, uid_t uid);
 
   /**
    * @brief Removes an element from the set if it exists.
@@ -64,13 +42,24 @@ class ORSet {
    *
    * @param other another ORSet
    */
-  void Merge(ORSet<T> &other);
+  void Merge(const ORSet<T> &other);
+
+  /**
+   * @brief Gets all the elements in the set.
+   *
+   * @return all the elements in the set.
+   */
+  auto Elements() const -> std::vector<T>;
+
+  /**
+   * @brief Gets a string representation of the set.
+   *
+   * @return a string representation of the set.
+   */
+  auto ToString() const -> std::string;
 
  private:
-  /** @brief Set of elements (e, n). */
-  std::unordered_map<T, std::unordered_set<uid_t>> elements_;
-  /** @brief Set of tombstones (e, n). */
-  std::unordered_map<T, std::unordered_set<uid_t>> tombstones_;
+  // TODO(student): Add your private memeber variables to represent ORSet.
 };
 
 }  // namespace bustub

@@ -2,6 +2,7 @@ add_library(
   bustub_primer
   OBJECT
   orset.cpp
+  orset_driver.cpp
   trie.cpp
   trie_store.cpp)
 

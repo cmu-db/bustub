@@ -1,39 +1,47 @@
 #include "primer/orset.h"
+#include <algorithm>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
 #include <vector>
 #include "common/exception.h"
+#include "fmt/format.h"
 
 namespace bustub {
 
 template <typename T>
 auto ORSet<T>::Contains(const T &elem) const -> bool {
-  throw NotImplementedException("OrSet<T>::Contains is not implemented.");
+  // TODO(student): Implement this
+  throw NotImplementedException("ORSet<T>::Contains is not implemented");
 }
 
 template <typename T>
-auto ORSet<T>::Elements() const -> std::vector<T> {
-  throw NotImplementedException("OrSet<T>::Elements is not implemented.");
-}
-
-template <typename T>
-void ORSet<T>::Add(const T &elem) {
-  throw NotImplementedException("OrSet<T>::Add is not implemented.");
+void ORSet<T>::Add(const T &elem, uid_t uid) {
+  // TODO(student): Implement this
+  throw NotImplementedException("ORSet<T>::Add is not implemented");
 }
 
 template <typename T>
 void ORSet<T>::Remove(const T &elem) {
-  // 1. Prepare the observed elements.
-  // 2. Remove the observed elements.
-
-  throw NotImplementedException("OrSet<T>::Remove is not implemented.");
+  // TODO(student): Implement this
+  throw NotImplementedException("ORSet<T>::Remove is not implemented");
 }
 
 template <typename T>
-void ORSet<T>::Merge(ORSet<T> &other) {
-  throw NotImplementedException("OrSet<T>::Merge is not implemented.");
+void ORSet<T>::Merge(const ORSet<T> &other) {
+  // TODO(student): Implement this
+  throw NotImplementedException("ORSet<T>::Merge is not implemented");
+}
+
+template <typename T>
+auto ORSet<T>::Elements() const -> std::vector<T> {
+  // TODO(student): Implement this
+  throw NotImplementedException("ORSet<T>::Elements is not implemented");
+}
+
+template <typename T>
+auto ORSet<T>::ToString() const -> std::string {
+  auto elements = Elements();
+  std::sort(elements.begin(), elements.end());
+  return fmt::format("{{{}}}", fmt::join(elements, ", "));
 }
 
 template class ORSet<int>;
