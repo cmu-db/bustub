@@ -16,7 +16,10 @@ class ORSetDriver;
 template <typename T>
 class ORSetNode {
  public:
-  explicit ORSetNode(ORSetDriver<T> *driver, size_t node_id) : driver_(driver), node_id_(node_id) {}
+  ORSetNode() = delete;
+
+  explicit ORSetNode(ORSetDriver<T> *driver, size_t node_id, size_t n)
+      : driver_(driver), node_id_(node_id), peer_size_(n), last_read_version_(n, 0) {}
 
   /**
    * @brief Adds an element to the local ORSet.
@@ -73,6 +76,12 @@ class ORSetNode {
 
   /** @brief node id */
   size_t node_id_;
+
+  /** @brief total number of nodes in the same network */
+  size_t peer_size_;
+
+  /** @brief last read version number of each peer's copy */
+  std::vector<int> last_read_version_;
 };
 
 /** @brief A driver class for managing ORSets. */
@@ -115,6 +124,9 @@ class ORSetDriver {
 
   /** @brief  List of saved copies of ORSet. */
   std::vector<ORSet<T>> saved_copies_;
+
+  /** @brief latest version number of each node */
+  std::vector<std::atomic<uint32_t>> version_counter_;
 
   /** @brief Monotonically increasing unique id for the elements. */
   std::atomic<uid_t> next_uid_ = 0;
