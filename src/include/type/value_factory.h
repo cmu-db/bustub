@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "common/macros.h"
 #include "common/util/string_util.h"

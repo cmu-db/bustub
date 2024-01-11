@@ -24,7 +24,7 @@ namespace bustub {
  */
 class VectorType : public Type {
  public:
-  explicit VectorType();
+  VectorType();
   ~VectorType() override;
 
   // Access the raw variable length data
