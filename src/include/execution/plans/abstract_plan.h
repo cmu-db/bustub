@@ -22,12 +22,12 @@
 
 namespace bustub {
 
-#define BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(cname)                                                          \
-  auto CloneWithChildren(std::vector<AbstractPlanNodeRef> children) const->std::unique_ptr<AbstractPlanNode> \
-      override {                                                                                             \
-    auto plan_node = cname(*this);                                                                           \
-    plan_node.children_ = children;                                                                          \
-    return std::make_unique<cname>(std::move(plan_node));                                                    \
+#define BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(cname)                                                            \
+  auto CloneWithChildren(std::vector<AbstractPlanNodeRef> children) const -> std::unique_ptr<AbstractPlanNode> \
+      override {                                                                                               \
+    auto plan_node = cname(*this);                                                                             \
+    plan_node.children_ = children;                                                                            \
+    return std::make_unique<cname>(std::move(plan_node));                                                      \
   }
 
 /** PlanType represents the types of plans that we have in our system. */

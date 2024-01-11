@@ -1,4 +1,3 @@
-#include "primer/orset_driver.h"
 #include <string>
 #include <vector>
 #include "common/exception.h"
@@ -6,6 +5,7 @@
 #include "fmt/format.h"
 #include "fmt/ranges.h"
 #include "gtest/gtest.h"
+#include "primer/orset_driver.h"
 
 namespace bustub {
 
