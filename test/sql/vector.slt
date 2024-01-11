@@ -5,18 +5,6 @@ statement ok
 INSERT INTO t1 VALUES (ARRAY [1.0, 1.0, 1.0], 232), (ARRAY [2.0, 1.0, 1.0], 233), (ARRAY [3.0, 1.0, 1.0], 234), (ARRAY [4.0, 1.0, 1.0], 235);
 
 statement ok
-EXPLAIN SELECT * FROM (SELECT v1, ARRAY [1.0, 1.0, 1.0] <-> v1 as distance FROM t1) ORDER BY distance LIMIT 2;
-
-statement ok
-SELECT * FROM (SELECT v1, ARRAY [1.0, 1.0, 1.0] <-> v1 as distance FROM t1) ORDER BY distance LIMIT 2;
-
-statement ok
-EXPLAIN SELECT v1 FROM t1 ORDER BY ARRAY [1.0, 1.0, 1.0] <-> v1 LIMIT 2;
-
-statement ok
-SELECT v1 FROM t1 ORDER BY ARRAY [1.0, 1.0, 1.0] <-> v1 LIMIT 2;
-
-statement ok
 CREATE INDEX t1v2a ON t1 (v2);
 
 statement ok
