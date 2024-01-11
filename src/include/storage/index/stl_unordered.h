@@ -2,9 +2,10 @@
 
 #include <map>
 #include <memory>
-#include <mutex>
+#include <mutex>  // NOLINT
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "common/rid.h"
