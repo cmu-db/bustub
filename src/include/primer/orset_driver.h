@@ -1,6 +1,5 @@
 #pragma once
 
-#include <atomic>
 #include <memory>
 #include <vector>
 #include "primer/orset.h"
@@ -81,7 +80,7 @@ class ORSetNode {
   size_t peer_size_;
 
   /** @brief last read version number of each peer's copy */
-  std::vector<int> last_read_version_;
+  std::vector<uint32_t> last_read_version_;
 };
 
 /** @brief A driver class for managing ORSets. */
@@ -126,10 +125,10 @@ class ORSetDriver {
   std::vector<ORSet<T>> saved_copies_;
 
   /** @brief latest version number of each node */
-  std::vector<std::atomic<uint32_t>> version_counter_;
+  std::vector<uint32_t> version_counter_;
 
   /** @brief Monotonically increasing unique id for the elements. */
-  std::atomic<uid_t> next_uid_ = 0;
+  uid_t next_uid_ = 0;
 };
 
 }  // namespace bustub

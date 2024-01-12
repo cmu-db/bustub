@@ -9,7 +9,7 @@ void ORSetNode<T>::Load() {
     if (i == node_id_) {
       continue;
     }
-    int curr_version = driver_->version_counter_[i].load();
+    uint32_t curr_version = driver_->version_counter_[i];
     if (last_read_version_[i] < curr_version) {
       Merge(driver_->saved_copies_[i]);
       last_read_version_[i] = curr_version;
@@ -20,7 +20,7 @@ void ORSetNode<T>::Load() {
 template <typename T>
 void ORSetNode<T>::Save() {
   driver_->saved_copies_[node_id_] = orset_;
-  driver_->version_counter_[node_id_].fetch_add(1);
+  driver_->version_counter_[node_id_]++;
 }
 
 template <typename T>
@@ -28,7 +28,7 @@ ORSetDriver<T>::ORSetDriver(size_t num_orset_node) : version_counter_(num_orset_
   orset_nodes_.reserve(num_orset_node);
   for (size_t i = 0; i < num_orset_node; ++i) {
     orset_nodes_.emplace_back(std::make_unique<ORSetNode<T>>(this, i, num_orset_node));
-    version_counter_[i].store(0);
+    version_counter_[i] = 0;
   }
   saved_copies_.resize(num_orset_node);
 }
