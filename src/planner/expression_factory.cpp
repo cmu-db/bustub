@@ -1,7 +1,9 @@
 #include "binder/bound_expression.h"
+#include "binder/expressions/bound_func_call.h"
 #include "binder/statement/select_statement.h"
 #include "execution/expressions/abstract_expression.h"
 #include "execution/expressions/arithmetic_expression.h"
+#include "execution/expressions/array_expression.h"
 #include "execution/expressions/column_value_expression.h"
 #include "execution/expressions/comparison_expression.h"
 #include "execution/expressions/constant_value_expression.h"
@@ -100,6 +102,19 @@ auto Planner::GetBinaryExpressionFromFactory(const std::string &op_name, Abstrac
   }
 
   throw Exception(fmt::format("binary op {} not supported in planner yet", op_name));
+}
+
+auto Planner::PlanFuncCall(const BoundFuncCall &expr, const std::vector<AbstractPlanNodeRef> &children)
+    -> AbstractExpressionRef {
+  std::vector<AbstractExpressionRef> args;
+  for (const auto &arg : expr.args_) {
+    auto [_1, arg_expr] = PlanExpression(*arg, children);
+    args.push_back(std::move(arg_expr));
+  }
+  if (expr.func_name_ == "construct_array") {
+    return std::make_shared<ArrayExpression>(args);
+  }
+  return GetFuncCallFromFactory(expr.func_name_, std::move(args));
 }
 
 }  // namespace bustub

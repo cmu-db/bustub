@@ -18,7 +18,7 @@ auto SeqScanPlanNode::InferScanSchema(const BoundBaseTableRef &table) -> Schema 
   std::vector<Column> schema;
   for (const auto &column : table.schema_.GetColumns()) {
     auto col_name = fmt::format("{}.{}", table.GetBoundTableName(), column.GetName());
-    schema.emplace_back(Column(col_name, column));
+    schema.emplace_back(col_name, column);
   }
   return Schema(schema);
 }
@@ -38,12 +38,7 @@ auto ProjectionPlanNode::InferProjectionSchema(const std::vector<AbstractExpress
   std::vector<Column> schema;
   for (const auto &expr : expressions) {
     auto type_id = expr->GetReturnType();
-    if (type_id != TypeId::VARCHAR) {
-      schema.emplace_back("<unnamed>", type_id);
-    } else {
-      // TODO(chi): infer the correct VARCHAR length. Maybe it doesn't matter for executors?
-      schema.emplace_back("<unnamed>", type_id, VARCHAR_DEFAULT_LENGTH);
-    }
+    schema.emplace_back(expr->GetReturnType().WithColumnName("<unnamed>"));
   }
   return Schema(schema);
 }
@@ -55,7 +50,7 @@ auto ProjectionPlanNode::RenameSchema(const Schema &schema, const std::vector<st
   }
   size_t idx = 0;
   for (const auto &column : schema.GetColumns()) {
-    output.emplace_back(Column(col_names[idx++], column));
+    output.emplace_back(col_names[idx++], column);
   }
   return Schema(output);
 }
@@ -66,30 +61,21 @@ auto AggregationPlanNode::InferAggSchema(const std::vector<AbstractExpressionRef
   std::vector<Column> output;
   output.reserve(group_bys.size() + aggregates.size());
   for (const auto &column : group_bys) {
-    // TODO(chi): correctly process VARCHAR column
-    if (column->GetReturnType() == TypeId::VARCHAR) {
-      output.emplace_back(Column("<unnamed>", column->GetReturnType(), 128));
-    } else {
-      output.emplace_back(Column("<unnamed>", column->GetReturnType()));
-    }
+    output.emplace_back(column->GetReturnType().WithColumnName("<unnamed>"));
   }
   for (size_t idx = 0; idx < aggregates.size(); idx++) {
     // TODO(chi): correctly infer agg call return type
-    output.emplace_back(Column("<unnamed>", TypeId::INTEGER));
+    output.emplace_back("<unnamed>", TypeId::INTEGER);
   }
   return Schema(output);
 }
 
 auto WindowFunctionPlanNode::InferWindowSchema(const std::vector<AbstractExpressionRef> &columns) -> Schema {
   std::vector<Column> output;
+  output.reserve(columns.size());
   // TODO(avery): correctly infer window call return type
   for (const auto &column : columns) {
-    // TODO(chi): correctly process VARCHAR column
-    if (column->GetReturnType() == TypeId::VARCHAR) {
-      output.emplace_back(Column("<unnamed>", column->GetReturnType(), 128));
-    } else {
-      output.emplace_back(Column("<unnamed>", column->GetReturnType()));
-    }
+    output.emplace_back(column->GetReturnType().WithColumnName("<unnamed>"));
   }
   return Schema(output);
 }

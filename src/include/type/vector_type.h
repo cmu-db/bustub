@@ -2,9 +2,9 @@
 //
 //                         BusTub
 //
-// varlen_type.h
+// vector_type.h
 //
-// Identification: src/include/type/varlen_type.h
+// Identification: src/include/type/vector_type.h
 //
 // Copyright (c) 2015-2019, Carnegie Mellon University Database Group
 //
@@ -12,6 +12,8 @@
 
 #pragma once
 #include <string>
+#include <valarray>
+#include <vector>
 #include "type/value.h"
 
 namespace bustub {
@@ -20,13 +22,15 @@ namespace bustub {
  * For simplicity, for valen_type we always set flag "inline" as true, which
  * means we store actual data along with its size rather than a pointer
  */
-class VarlenType : public Type {
+class VectorType : public Type {
  public:
-  explicit VarlenType(TypeId type);
-  ~VarlenType() override;
+  VectorType();
+  ~VectorType() override;
 
   // Access the raw variable length data
   auto GetData(const Value &val) const -> const char * override;
+
+  auto GetVector(const Value &val) const -> std::vector<double>;
 
   // Get the length of the variable length data
   auto GetStorageSize(const Value &val) const -> uint32_t override;

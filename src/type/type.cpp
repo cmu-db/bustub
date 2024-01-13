@@ -17,16 +17,25 @@
 #include "type/decimal_type.h"
 #include "type/integer_type.h"
 #include "type/smallint_type.h"
+#include "type/timestamp_type.h"
 #include "type/tinyint_type.h"
+#include "type/type_id.h"
 #include "type/value.h"
 #include "type/varlen_type.h"
+#include "type/vector_type.h"
 
 namespace bustub {
 
-Type *Type::k_types[] = {
-    new Type(TypeId::INVALID),        new BooleanType(), new TinyintType(), new SmallintType(),
-    new IntegerType(TypeId::INTEGER), new BigintType(),  new DecimalType(), new VarlenType(TypeId::VARCHAR),
-};
+Type *Type::k_types[] = {new Type(TypeId::INVALID),
+                         new BooleanType(),
+                         new TinyintType(),
+                         new SmallintType(),
+                         new IntegerType(TypeId::INTEGER),
+                         new BigintType(),
+                         new DecimalType(),
+                         new VarlenType(TypeId::VARCHAR),
+                         new TimestampType(),
+                         new VectorType()};
 
 // Get the size of this data type in bytes
 auto Type::GetTypeSize(const TypeId type_id) -> uint64_t {
@@ -115,6 +124,8 @@ auto Type::TypeIdToString(const TypeId type_id) -> std::string {
       return "TIMESTAMP";
     case VARCHAR:
       return "VARCHAR";
+    case VECTOR:
+      return "VECTOR";
     default:
       return "INVALID";
   }
@@ -281,13 +292,8 @@ auto Type::GetData(const Value &val __attribute__((unused))) const -> const char
 }
 
 // Get the length of the variable length data
-auto Type::GetLength(const Value &val __attribute__((unused))) const -> uint32_t {
-  throw NotImplementedException("GetLength not implemented");
-}
-
-// Access the raw varlen data stored from the tuple storage
-auto Type::GetData(char *storage __attribute__((unused))) -> char * {
-  throw NotImplementedException("GetData not implemented");
+auto Type::GetStorageSize(const Value &val __attribute__((unused))) const -> uint32_t {
+  throw NotImplementedException("GetStorageSize not implemented");
 }
 
 }  // namespace bustub

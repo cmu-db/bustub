@@ -91,7 +91,7 @@ class Schema {
   auto GetUnlinedColumnCount() const -> uint32_t { return static_cast<uint32_t>(uninlined_columns_.size()); }
 
   /** @return the number of bytes used by one tuple */
-  inline auto GetLength() const -> uint32_t { return length_; }
+  inline auto GetInlinedStorageSize() const -> uint32_t { return length_; }
 
   /** @return true if all columns are inlined, false otherwise */
   inline auto IsInlined() const -> bool { return tuple_is_inlined_; }

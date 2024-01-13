@@ -58,7 +58,7 @@ auto Planner::PlanColumnRef(const BoundColumnRef &expr, const std::vector<Abstra
       }
     }
     uint32_t col_idx = schema.GetColIdx(col_name);
-    auto col_type = schema.GetColumn(col_idx).GetType();
+    auto col_type = schema.GetColumn(col_idx);
     return std::make_tuple(col_name, std::make_shared<ColumnValueExpression>(0, col_idx, col_type));
   }
   if (children.size() == 2) {
@@ -88,11 +88,11 @@ auto Planner::PlanColumnRef(const BoundColumnRef &expr, const std::vector<Abstra
       throw bustub::Exception(fmt::format("ambiguous column name {}", col_name));
     }
     if (col_idx_left) {
-      auto col_type = left_schema.GetColumn(*col_idx_left).GetType();
+      auto col_type = left_schema.GetColumn(*col_idx_left);
       return std::make_tuple(col_name, std::make_shared<ColumnValueExpression>(0, *col_idx_left, col_type));
     }
     if (col_idx_right) {
-      auto col_type = right_schema.GetColumn(*col_idx_right).GetType();
+      auto col_type = right_schema.GetColumn(*col_idx_right);
       return std::make_tuple(col_name, std::make_shared<ColumnValueExpression>(1, *col_idx_right, col_type));
     }
     throw bustub::Exception(fmt::format("column name {} not found", col_name));
