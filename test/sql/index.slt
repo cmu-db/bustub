@@ -1,0 +1,20 @@
+statement ok
+CREATE TABLE t1(v1 integer, v2 integer);
+
+statement ok
+INSERT INTO t1 VALUES (0, 0), (1, 1), (2, 2);
+
+statement ok
+CREATE INDEX t1v2a ON t1 (v2);
+
+statement ok
+CREATE INDEX t1v2b ON t1 USING bplustree (v2);
+
+statement ok
+CREATE INDEX t1v2c ON t1 USING hash (v2);
+
+statement ok
+CREATE INDEX t1v2d ON t1 USING stl_ordered (v2);
+
+statement ok
+CREATE INDEX t1v2e ON t1 USING stl_unordered (v2);
