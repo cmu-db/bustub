@@ -277,7 +277,6 @@ set(P1_FILES
         "src/storage/disk/disk_scheduler.cpp"
         "src/storage/page/page_guard.cpp"
         "src/include/storage/page/page_guard.h"
-        "src/include/storage/page/page.h"
 )
 add_custom_target(check-clang-tidy-p1
         ${BUSTUB_BUILD_SUPPORT_DIR}/run_clang_tidy.py # run LLVM's clang-tidy script
