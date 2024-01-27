@@ -52,7 +52,7 @@ class CoWBuffer {
   }
 
   /**
-   * @brief Removes a page to the CoW buffer.
+   * @brief Removes a page from the CoW buffer.
    * @param page the pointer previously returned by Add.
    */
   auto Remove(Page *page) -> void {
