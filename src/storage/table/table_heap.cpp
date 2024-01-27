@@ -62,8 +62,6 @@ auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple, LockManag
 
     page_guard.Drop();
 
-    // acquire latch here as TSAN complains. Given we only have one insertion thread, this is fine.
-    npg->WLatch();
     auto next_page_guard = WritePageGuard{bpm_, npg};
 
     last_page_id_ = next_page_id;
