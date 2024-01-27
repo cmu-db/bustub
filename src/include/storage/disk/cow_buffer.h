@@ -14,7 +14,6 @@
 
 #include <cstdint>
 #include <cstring>
-#include <unordered_map>
 #include "common/config.h"
 #include "common/macros.h"
 #include "storage/page/page.h"
@@ -22,7 +21,7 @@
 namespace bustub {
 
 /**
- * CoWBuffer provides extra memory space other than the buffer pool to store the copy-on-write pages. 
+ * CoWBuffer provides extra memory space other than the buffer pool to store the copy-on-write pages.
  * It's purpose is to gather the copy of pages that are about to be written back to disk, so that the bpm
  * doesn't have to incur IO penality and wait for the write to be completed when evicting.
  * Spring 24: The buffer is limited to store a constant number of pages in total (8).
@@ -31,7 +30,7 @@ namespace bustub {
 class CoWBuffer {
  public:
   CoWBuffer() : cow_pages_{new Page[8]} {}
-  ~CoWBuffer() { delete [] cow_pages_; }
+  ~CoWBuffer() { delete[] cow_pages_; }
   DISALLOW_COPY_AND_MOVE(CoWBuffer);
 
   /**
@@ -56,16 +55,14 @@ class CoWBuffer {
    * @param page the pointer previously returned by Add.
    */
   auto Remove(Page *page) -> void {
-    if(page != nullptr) {
+    if (page != nullptr) {
       MarkSlotFree(page - cow_pages_);
     }
   }
 
  private:
   /** @brief Whether the buffer is full. */
-  auto IsFull() -> bool {
-    return free_slot_bitmap_ == 0xFFU;
-  }
+  auto IsFull() -> bool { return free_slot_bitmap_ == 0xFFU; }
 
   /** @brief Finds a free slot in the buffer, if not full. */
   auto FindFreeSlot() -> uint32_t {
