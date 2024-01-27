@@ -14,6 +14,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <unordered_map>
 #include "common/config.h"
 #include "common/macros.h"
 #include "storage/page/page.h"
@@ -51,7 +52,7 @@ class CoWBuffer {
   }
 
   /**
-   * @brief Removes a page from the CoW buffer.
+   * @brief Removes a page to the CoW buffer.
    * @param page the pointer previously returned by Add.
    */
   auto Remove(Page *page) -> void {
