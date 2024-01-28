@@ -20,8 +20,8 @@
 #include "buffer/lru_k_replacer.h"
 #include "common/config.h"
 #include "recovery/log_manager.h"
-#include "storage/disk/write_back_cache.h"
 #include "storage/disk/disk_scheduler.h"
+#include "storage/disk/write_back_cache.h"
 #include "storage/page/page.h"
 #include "storage/page/page_guard.h"
 
