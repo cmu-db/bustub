@@ -21,9 +21,9 @@
 namespace bustub {
 
 /**
- * WriteBackCache provides extra memory space other than the buffer pool to store the pages to be written
- * back to disk. It's purpose is to gather the copy of pages that are about to be written back to disk, so
- * that the bpm doesn't have to incur IO penality and wait for the write to be completed when evicting.
+ * WriteBackCache provides extra memory space other than the buffer pool to store the pages. It's purpose
+ * is to gather the copy of pages that are about to be written back to disk, so that the bpm doesn't have
+ * to incur IO penality and wait for the write to be completed when evicting.
  * Spring 24: The cache is limited to store a constant number of pages in total (8).
  * !! ANY ATTEMPTS TO ADD ANOTHER IN-MEMORY CACHE WILL BE REVIEWED MANUALLY AS PER LEADERBOARD POLICY !!
  */
