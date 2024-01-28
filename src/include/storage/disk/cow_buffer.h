@@ -14,7 +14,6 @@
 
 #include <cstdint>
 #include <cstring>
-#include <unordered_map>
 #include "common/config.h"
 #include "common/macros.h"
 #include "storage/page/page.h"
