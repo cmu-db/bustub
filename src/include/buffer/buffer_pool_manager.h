@@ -20,8 +20,8 @@
 #include "buffer/lru_k_replacer.h"
 #include "common/config.h"
 #include "recovery/log_manager.h"
-#include "storage/disk/cow_buffer.h"
 #include "storage/disk/disk_scheduler.h"
+#include "storage/disk/write_back_cache.h"
 #include "storage/page/page.h"
 #include "storage/page/page_guard.h"
 
@@ -73,7 +73,7 @@ class BufferPoolManager {
   auto NewPage(page_id_t *page_id) -> Page *;
 
   /**
-   * TODO(P2): Add implementation
+   * TODO(P1): Add implementation
    *
    * @brief PageGuard wrapper for NewPage
    *
@@ -106,7 +106,7 @@ class BufferPoolManager {
   auto FetchPage(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> Page *;
 
   /**
-   * TODO(P2): Add implementation
+   * TODO(P1): Add implementation
    *
    * @brief PageGuard wrappers for FetchPage
    *
@@ -194,7 +194,7 @@ class BufferPoolManager {
   /** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */
   std::mutex latch_;
   /** This buffer is for the leaderboard task. You may want to use it to optimize the write requests. */
-  CoWBuffer cow_buffer_ __attribute__((__unused__));
+  WriteBackCache write_back_cache_ __attribute__((__unused__));
 
   /**
    * @brief Allocate a page on disk. Caller should acquire the latch before calling this function.
