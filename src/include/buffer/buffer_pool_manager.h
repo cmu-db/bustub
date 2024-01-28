@@ -73,7 +73,7 @@ class BufferPoolManager {
   auto NewPage(page_id_t *page_id) -> Page *;
 
   /**
-   * TODO(P2): Add implementation
+   * TODO(P1): Add implementation
    *
    * @brief PageGuard wrapper for NewPage
    *
@@ -106,7 +106,7 @@ class BufferPoolManager {
   auto FetchPage(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> Page *;
 
   /**
-   * TODO(P2): Add implementation
+   * TODO(P1): Add implementation
    *
    * @brief PageGuard wrappers for FetchPage
    *
