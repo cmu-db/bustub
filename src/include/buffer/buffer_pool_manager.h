@@ -21,7 +21,7 @@
 #include "common/config.h"
 #include "recovery/log_manager.h"
 #include "storage/disk/disk_scheduler.h"
-#include "storage/disk/write_back_cache.h"
+// #include "storage/disk/write_back_cache.h"
 #include "storage/page/page.h"
 #include "storage/page/page_guard.h"
 
@@ -194,7 +194,7 @@ class BufferPoolManager {
   /** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */
   std::mutex latch_;
   /** This buffer is for the leaderboard task. You may want to use it to optimize the write requests. */
-  WriteBackCache write_back_cache_ __attribute__((__unused__));
+  // WriteBackCache write_back_cache_ __attribute__((__unused__));
 
   /**
    * @brief Allocate a page on disk. Caller should acquire the latch before calling this function.
