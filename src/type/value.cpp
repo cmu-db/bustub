@@ -28,6 +28,7 @@ Value::Value(const Value &other) {
   value_ = other.value_;
   switch (type_id_) {
     case TypeId::VARCHAR:
+    case TypeId::VECTOR:
       if (size_.len_ == BUSTUB_VALUE_NULL) {
         value_.varlen_ = nullptr;
       } else {
@@ -278,6 +279,7 @@ Value::Value(TypeId type, const std::vector<double> &data) : Value(type) {
 Value::~Value() {
   switch (type_id_) {
     case TypeId::VARCHAR:
+    case TypeId::VECTOR:
       if (manage_data_) {
         delete[] value_.varlen_;
       }
