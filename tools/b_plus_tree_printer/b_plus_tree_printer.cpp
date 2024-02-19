@@ -40,6 +40,7 @@ auto UsageMessage() -> std::string {
       "\tg <filename>.dot  -- Output the tree in graph format to a dot file\n"
       "\tp -- Print the B+ tree.\n"
       "\tq -- Quit. (Or use Ctl-D.)\n"
+      "\ts -- Save and visualize the tree(macos).\n"
       "\t? -- Print this help message.\n\n"
       "Please Enter Leaf node max size and Internal node max size:\n"
       "Example: 5 5\n"
@@ -123,6 +124,15 @@ auto main(int argc, char **argv) -> int {
         std::cin >> filename;
         tree.Draw(bpm, filename);
         break;
+
+      case 's':
+        //std::cin >> filename;
+        tree.Draw(bpm, filename);
+        filename="my-tree.dot";
+        system((std::string("dot -Tpng -O ")+filename).c_str());
+        system((std::string("open -a preview ./")+filename+std::string(".png")).c_str());
+        break;
+
       case '?':
         std::cout << UsageMessage();
         break;
