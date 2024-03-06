@@ -12,6 +12,7 @@
 
 #include "storage/page/extendible_htable_header_page.h"
 
+#include "common/config.h"
 #include "common/exception.h"
 
 namespace bustub {
@@ -22,7 +23,7 @@ void ExtendibleHTableHeaderPage::Init(uint32_t max_depth) {
 
 auto ExtendibleHTableHeaderPage::HashToDirectoryIndex(uint32_t hash) const -> uint32_t { return 0; }
 
-auto ExtendibleHTableHeaderPage::GetDirectoryPageId(uint32_t directory_idx) const -> uint32_t { return 0; }
+auto ExtendibleHTableHeaderPage::GetDirectoryPageId(uint32_t directory_idx) const -> page_id_t { return 0; }
 
 void ExtendibleHTableHeaderPage::SetDirectoryPageId(uint32_t directory_idx, page_id_t directory_page_id) {
   throw NotImplementedException("ExtendibleHTableHeaderPage is not implemented");
