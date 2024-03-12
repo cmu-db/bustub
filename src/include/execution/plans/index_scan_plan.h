@@ -35,7 +35,7 @@ class IndexScanPlanNode : public AbstractPlanNode {
    * @param pred_key The key for point lookup
    */
   IndexScanPlanNode(SchemaRef output, table_oid_t table_oid, index_oid_t index_oid,
-                    AbstractExpressionRef filter_predicate = nullptr, std::vector<AbstractExpressionRef> pred_keys)
+                    AbstractExpressionRef filter_predicate, std::vector<AbstractExpressionRef> pred_keys)
       : AbstractPlanNode(std::move(output), {}),
         table_oid_(table_oid),
         index_oid_(index_oid),
