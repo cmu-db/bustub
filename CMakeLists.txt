@@ -351,6 +351,7 @@ set(P3_FILES
         "src/optimizer/sort_limit_as_topn.cpp"
         "src/optimizer/optimizer_internal.cpp"
         "src/optimizer/seqscan_as_indexscan.cpp"
+        "src/optimizer/column_pruning.cpp"
         "src/common/bustub_ddl.cpp"
         "src/include/execution/plans/topn_per_group_plan.h"
         ${P2_FILES}
