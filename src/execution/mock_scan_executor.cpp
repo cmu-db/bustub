@@ -54,7 +54,7 @@ const char *mock_table_list[] = {"__mock_table_1", "__mock_table_2", "__mock_tab
                                  "__mock_t4_1m", "__mock_t5_1m", "__mock_t6_1m",
                                  // For leaderboard Q3
                                  "__mock_t7", "__mock_t8", "__mock_t9",
-                                 // For P3 leaderboard Q3
+                                 // For P3 leaderboard Q4
                                  "__mock_t10", "__mock_t11", nullptr};
 
 static const int GRAPH_NODE_CNT = 10;
