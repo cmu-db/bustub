@@ -1,0 +1,3 @@
+query rowsort +timing:x20:.q1
+select * from __mock_t10 a join __mock_t11 b on a.x = b.x;
+----

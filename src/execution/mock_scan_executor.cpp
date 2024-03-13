@@ -53,7 +53,9 @@ const char *mock_table_list[] = {"__mock_table_1", "__mock_table_2", "__mock_tab
                                  // For leaderboard Q2
                                  "__mock_t4_1m", "__mock_t5_1m", "__mock_t6_1m",
                                  // For leaderboard Q3
-                                 "__mock_t7", "__mock_t8", "__mock_t9", nullptr};
+                                 "__mock_t7", "__mock_t8", "__mock_t9",
+                                 // For P3 leaderboard Q4
+                                 "__mock_t10", "__mock_t11", nullptr};
 
 static const int GRAPH_NODE_CNT = 10;
 
@@ -125,6 +127,14 @@ auto GetMockTableSchemaOf(const std::string &table) -> Schema {
   }
 
   if (table == "__mock_t9") {
+    return Schema{std::vector{Column{"x", TypeId::INTEGER}, Column{"y", TypeId::INTEGER}}};
+  }
+
+  if (table == "__mock_t10") {
+    return Schema{std::vector{Column{"x", TypeId::INTEGER}, Column{"y", TypeId::INTEGER}}};
+  }
+
+  if (table == "__mock_t11") {
     return Schema{std::vector{Column{"x", TypeId::INTEGER}, Column{"y", TypeId::INTEGER}}};
   }
 
@@ -200,6 +210,14 @@ auto GetSizeOf(const MockScanPlanNode *plan) -> size_t {
 
   if (table == "__mock_t9") {
     return 10000000;
+  }
+
+  if (table == "__mock_t10") {
+    return 10000;  // 10k
+  }
+
+  if (table == "__mock_t11") {
+    return 1000000;  // 1M
   }
 
   return 0;
@@ -424,6 +442,24 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
       values.push_back(ValueFactory::GetIntegerValue(cursor / 10000));
       values.push_back(
           ValueFactory::GetIntegerValue(10000000 - (cursor / 2 + ((cursor / 10000) % 2) * ((cursor / 2) % 2))));
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
+  if (table == "__mock_t10") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.push_back(ValueFactory::GetIntegerValue(cursor));
+      values.push_back(ValueFactory::GetIntegerValue(cursor * 10));
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
+  if (table == "__mock_t11") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.push_back(ValueFactory::GetIntegerValue(-1 * (cursor % 1000) - 1));
+      values.push_back(ValueFactory::GetIntegerValue(cursor * 10));
       return Tuple{values, &plan->OutputSchema()};
     };
   }
