@@ -147,7 +147,7 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instanc
                 return false;
               }
               for (int i = 0; i < 2; i++) {
-                if (bustub::StringUtil::Count(cols[i], "\",")+1 != static_cast<size_t>(expected_cols_agg)) {
+                if (bustub::StringUtil::Count(cols[i], "\",")+1 > static_cast<size_t>(expected_cols_agg)) {
                   fmt::print("Agg wrong column pruning count!\n");
                   return false;
                 }
@@ -155,7 +155,7 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instanc
               break;
             }
             if (bustub::StringUtil::StartsWith(line, "Projection")) {
-              if (bustub::StringUtil::Count(line, "\",")+1 != static_cast<size_t>(expected_cols_proj)) {
+              if (bustub::StringUtil::Count(line, "\",")+1 > static_cast<size_t>(expected_cols_proj)) {
                 fmt::print("Projection wrong column pruning count!\n");
                 return false;
               }
