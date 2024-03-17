@@ -94,6 +94,13 @@ class Optimizer {
       -> std::optional<std::tuple<index_oid_t, std::string>>;
 
   /**
+   * @brief column pruning for child plan following a projection plan
+   * @param plan the plan to optimize
+   * @return the new plan with column pruning
+   */
+  auto OptimizeColumnPruning(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef;
+
+  /**
    * @brief optimize sort + limit as top N
    */
   auto OptimizeSortLimitAsTopN(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef;

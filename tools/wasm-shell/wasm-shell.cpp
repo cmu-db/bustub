@@ -8,6 +8,7 @@
 #include "common/bustub_instance.h"
 #include "common/exception.h"
 #include "common/util/string_util.h"
+#include "fmt/core.h"
 #include "linenoise/linenoise.h"
 #include "utf8proc/utf8proc.h"
 
@@ -24,14 +25,17 @@ auto BustubInit() -> int {
     bustub->GenerateTestTable();
   }
 
+  bustub->EnableManagedTxn();
+
   instance = std::move(bustub);
   return 0;
 }
 
-auto BustubExecuteQuery(const char *input, char *output, uint16_t len) -> int {
+auto BustubExecuteQuery(const char *input, char *prompt, char *output, uint16_t len) -> int {
   std::string input_string(input);
   std::cout << input_string << std::endl;
   std::string output_string;
+  std::string output_prompt;
   try {
     auto writer = bustub::HtmlWriter();
     instance->ExecuteSql(input_string, writer);
@@ -39,8 +43,12 @@ auto BustubExecuteQuery(const char *input, char *output, uint16_t len) -> int {
   } catch (bustub::Exception &ex) {
     output_string = ex.what();
   }
-  std::cout << output_string << std::endl;
+  auto txn = instance->CurrentManagedTxn();
+  if (txn != nullptr) {
+    output_prompt = fmt::format("txn{}", txn->GetTransactionIdHumanReadable());
+  }
   strncpy(output, output_string.c_str(), len);
+  strncpy(prompt, output_prompt.c_str(), len);
   if (output_string.length() >= len) {
     return 1;
   }

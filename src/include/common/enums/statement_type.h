@@ -32,6 +32,7 @@ enum class StatementType : uint8_t {
   INDEX_STATEMENT,          // index statement type
   VARIABLE_SET_STATEMENT,   // set variable statement type
   VARIABLE_SHOW_STATEMENT,  // show variable statement type
+  TRANSACTION_STATEMENT,    // txn statement type
 };
 
 }  // namespace bustub
@@ -74,6 +75,9 @@ struct fmt::formatter<bustub::StatementType> : formatter<string_view> {
         break;
       case bustub::StatementType::VARIABLE_SET_STATEMENT:
         name = "VariableSet";
+        break;
+      case bustub::StatementType::TRANSACTION_STATEMENT:
+        name = "Transaction";
         break;
     }
     return formatter<string_view>::format(name, ctx);

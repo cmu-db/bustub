@@ -81,16 +81,20 @@
     let is_ready = false
 
     Module['onRuntimeInitialized'] = function () {
-        const executeQuery = Module.cwrap('BustubExecuteQuery', 'number', ['string', 'number', 'number'])
+        const executeQuery = Module.cwrap('BustubExecuteQuery', 'number', ['string', 'number', 'number', 'number'])
         const initialize = Module.cwrap('BustubInit', 'number', [])
         window.executeQuery = (x) => {
             const bufferSize = 64 * 1024
             let output = "\0".repeat(bufferSize)
             let ptrOutput = Module.allocateUTF8(output)
-            const retCode = executeQuery(x, ptrOutput, bufferSize)
+            let output2 = "\0".repeat(bufferSize)
+            let ptrOutput2 = Module.allocateUTF8(output2)
+            const retCode = executeQuery(x, ptrOutput2, ptrOutput, bufferSize)
             output = Module.UTF8ToString(ptrOutput)
+            output2 = Module.UTF8ToString(ptrOutput2)
             Module._free(ptrOutput)
-            return [retCode, output]
+            Module._free(ptrOutput2)
+            return [retCode, output2, output]
         }
         initialize()
         is_ready = true
@@ -105,6 +109,7 @@
             command: true
         }
         let line = ""
+        let bustub_prompt = ""
         var term = $('body').terminal(function (command) {
             if (!is_ready) {
                 this.echo("BusTub shell is still initializing, please wait.")
@@ -115,7 +120,9 @@
                 if (line == "\\clear") {
                     this.clear()
                 } else {
-                    const [retCode, result] = executeQuery(line)
+                    const [retCode, new_prompt, result] = executeQuery(line)
+                    bustub_prompt = new_prompt
+                    console.log(bustub_prompt)
                     this.echo(result, { raw: true })
                     if (retCode == 1) {
                         this.echo("Table truncated due to output limit.")
@@ -126,7 +133,7 @@
             }
         }, {
             greetings: `[[@;;;;bustub.svg]]`,
-            prompt: () => line.length == 0 ? "[[b;;]bustub> ]" : "[[b;;]... ]"
+            prompt: () => line.length == 0 ? "[[b;;]" + (bustub_prompt.length == 0 ? "bustub" : bustub_prompt) + "> ]" : "[[b;;]... ]"
         })
         term.echo(`<hr><h1>Live Database Shell</h1>`, { raw: true })
 
