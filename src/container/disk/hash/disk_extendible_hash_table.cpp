@@ -47,7 +47,7 @@ auto DiskExtendibleHashTable<K, V, KC>::GetValue(const K &key, std::vector<V> *r
     -> bool {
   std::scoped_lock<std::mutex> lock(mu_);
   if (auto it = data_.find(key); it != data_.end()) {
-    *result = std::vector{it->second};
+    result->push_back(it->second);
     return true;
   }
   *result = {};
