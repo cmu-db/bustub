@@ -183,7 +183,7 @@ select * from t1 where v1 = 3 or v1 = 3 or v1 = 3
 ----
 3 30 645 
 
-query +ensure:index_scan
+query rowsort +ensure:index_scan
 select * from t1 where v1 = 3 or v1 = 5 or v1 = 1 or v1 = 5
 ----
 5 10 445 
