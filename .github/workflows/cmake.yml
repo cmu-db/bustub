@@ -19,16 +19,16 @@ jobs:
       matrix:
         config:
           - {
-              name: "Ubuntu 22.04 GCC",
-              os: "ubuntu-22.04",
+              name: "Ubuntu 20.04 GCC",
+              os: "ubuntu-20.04",
               cc: "/usr/bin/gcc",
               cxx: "/usr/bin/g++",
               format: "/usr/bin/clang-format-14",
               tidy: "/usr/bin/clang-tidy-14",
             }
           - {
-              name: "Ubuntu 22.04 Clang",
-              os: "ubuntu-22.04",
+              name: "Ubuntu 20.04 Clang",
+              os: "ubuntu-20.04",
               cc: "/usr/bin/clang-14",
               cxx: "/usr/bin/clang++-14",
               format: "/usr/bin/clang-format-14",
