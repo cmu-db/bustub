@@ -44,19 +44,19 @@ TEST(TrieDebugger, TestCase) {
 
   // (1) How many children nodes are there on the root?
   // Replace `CASE_1_YOUR_ANSWER` in `trie_answer.h` with the correct answer.
-  if (CASE_1_YOUR_ANSWER != Case1CorrectAnswer()) {
+  if (CASE_1_YOUR_ANSWER != Case1CorrectAnswer(trie)) {
     ASSERT_TRUE(false) << "case 1 not correct";
   }
 
   // (2) How many children nodes are there on the node of prefix `9`?
   // Replace `CASE_2_YOUR_ANSWER` in `trie_answer.h` with the correct answer.
-  if (CASE_2_YOUR_ANSWER != Case2CorrectAnswer()) {
+  if (CASE_2_YOUR_ANSWER != Case2CorrectAnswer(trie)) {
     ASSERT_TRUE(false) << "case 2 not correct";
   }
 
   // (3) What's the value for `969`?
   // Replace `CASE_3_YOUR_ANSWER` in `trie_answer.h` with the correct answer.
-  if (CASE_3_YOUR_ANSWER != Case3CorrectAnswer()) {
+  if (CASE_3_YOUR_ANSWER != Case3CorrectAnswer(trie)) {
     ASSERT_TRUE(false) << "case 3 not correct";
   }
 }
