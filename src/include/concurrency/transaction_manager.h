@@ -26,6 +26,7 @@
 #include "concurrency/transaction.h"
 #include "concurrency/watermark.h"
 #include "recovery/log_manager.h"
+#include "storage/table/table_heap.h"
 #include "storage/table/tuple.h"
 
 namespace bustub {
@@ -121,5 +122,19 @@ class TransactionManager {
    * you want. */
   auto VerifyTxn(Transaction *txn) -> bool;
 };
+
+/**
+ * @brief Update the tuple and its undo link in the table heap atomically.
+ */
+auto UpdateTupleAndUndoLink(TransactionManager *txn_mgr, RID rid, std::optional<UndoLink> undo_link,
+                 TableHeap *table_heap, Transaction *txn, const TupleMeta &meta, const Tuple &tuple,
+                 std::function<bool(std::optional<UndoLink>)> &&check = nullptr) -> std::pair<bool, const char *>;
+
+
+/**
+ * @brief Get the tuple and its undo link in the table heap atomically.
+ */
+auto GetTupleAndUndoLink(TransactionManager *txn_mgr, TableHeap *table_heap, RID rid)
+    -> std::tuple<TupleMeta, Tuple, std::optional<UndoLink>>;
 
 }  // namespace bustub
