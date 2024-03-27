@@ -26,7 +26,7 @@
 namespace bustub {
 
 auto TransactionManager::UpdateUndoLink(RID rid, std::optional<UndoLink> prev_link,
-                                           std::function<bool(std::optional<UndoLink>)> &&check) -> bool {
+                                        std::function<bool(std::optional<UndoLink>)> &&check) -> bool {
   std::unique_lock<std::shared_mutex> lck(version_info_mutex_);
   std::shared_ptr<PageVersionInfo> pg_ver_info = nullptr;
   auto iter = version_info_.find(rid.GetPageId());
@@ -72,11 +72,11 @@ auto TransactionManager::GetUndoLink(RID rid) -> std::optional<UndoLink> {
   return std::make_optional(iter2->second);
 }
 
-auto TransactionManager::GetUndoLogOptional(UndoLink link) -> UndoLog {
+auto TransactionManager::GetUndoLogOptional(UndoLink link) -> std::optional<UndoLog> {
   std::shared_lock<std::shared_mutex> lck(txn_map_mutex_);
   auto iter = txn_map_.find(link.prev_txn_);
   if (iter == txn_map_.end()) {
-    return UndoLog{};
+    return std::nullopt;
   }
   auto txn = iter->second;
   lck.unlock();
@@ -101,15 +101,16 @@ void Transaction::SetTainted() {
   std::terminate();
 }
 
-auto UpdateTupleAndUndoLink(TransactionManager *txn_mgr, RID rid, std::optional<UndoLink> undo_link,
-                 TableHeap *table_heap, Transaction *txn, const TupleMeta &meta, const Tuple &tuple,
-                 std::function<bool(std::optional<UndoLink>)> &&check) -> std::pair<bool, const char *> {
+auto UpdateTupleAndUndoLink(
+    TransactionManager *txn_mgr, RID rid, std::optional<UndoLink> undo_link, TableHeap *table_heap, Transaction *txn,
+    const TupleMeta &meta, const Tuple &tuple,
+    std::function<bool(const TupleMeta &meta, const Tuple &tuple, RID rid, std::optional<UndoLink>)> &&check) -> bool {
   auto page_write_guard = table_heap->AcquireTablePageWriteLock(rid);
   auto page = page_write_guard.AsMut<TablePage>();
 
   auto [base_meta, base_tuple] = page->GetTuple(rid);
-  if (check != nullptr && !check(undo_link)) {
-    return {false, "Check failed"};
+  if (check != nullptr && !check(base_meta, base_tuple, rid, undo_link)) {
+    return false;
   }
 
   // Update tuple and tupleMeta if pass in tuple and meta are different
@@ -119,7 +120,7 @@ auto UpdateTupleAndUndoLink(TransactionManager *txn_mgr, RID rid, std::optional<
 
   txn_mgr->UpdateUndoLink(rid, undo_link);
 
-  return {true, ""};
+  return true;
 }
 
 auto GetTupleAndUndoLink(TransactionManager *txn_mgr, TableHeap *table_heap, RID rid)

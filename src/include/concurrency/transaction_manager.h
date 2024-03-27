@@ -18,6 +18,7 @@
 #include <mutex>  // NOLINT
 #include <optional>
 #include <shared_mutex>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -126,10 +127,11 @@ class TransactionManager {
 /**
  * @brief Update the tuple and its undo link in the table heap atomically.
  */
-auto UpdateTupleAndUndoLink(TransactionManager *txn_mgr, RID rid, std::optional<UndoLink> undo_link,
-                 TableHeap *table_heap, Transaction *txn, const TupleMeta &meta, const Tuple &tuple,
-                 std::function<bool(std::optional<UndoLink>)> &&check = nullptr) -> std::pair<bool, const char *>;
-
+auto UpdateTupleAndUndoLink(
+    TransactionManager *txn_mgr, RID rid, std::optional<UndoLink> undo_link, TableHeap *table_heap, Transaction *txn,
+    const TupleMeta &meta, const Tuple &tuple,
+    std::function<bool(const TupleMeta &meta, const Tuple &tuple, RID rid, std::optional<UndoLink>)> &&check = nullptr)
+    -> bool;
 
 /**
  * @brief Get the tuple and its undo link in the table heap atomically.
