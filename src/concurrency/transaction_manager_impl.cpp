@@ -27,19 +27,6 @@ namespace bustub {
 
 auto TransactionManager::UpdateUndoLink(RID rid, std::optional<UndoLink> prev_link,
                                         std::function<bool(std::optional<UndoLink>)> &&check) -> bool {
-  std::function<bool(std::optional<VersionUndoLink>)> wrapper_func =
-      [check](std::optional<VersionUndoLink> link) -> bool {
-    if (link.has_value()) {
-      return check(link->prev_);
-    }
-    return check(std::nullopt);
-  };
-  return UpdateVersionLink(rid, prev_link.has_value() ? std::make_optional(VersionUndoLink{*prev_link}) : std::nullopt,
-                           check != nullptr ? wrapper_func : nullptr);
-}
-
-auto TransactionManager::UpdateVersionLink(RID rid, std::optional<VersionUndoLink> prev_version,
-                                           std::function<bool(std::optional<VersionUndoLink>)> &&check) -> bool {
   std::unique_lock<std::shared_mutex> lck(version_info_mutex_);
   std::shared_ptr<PageVersionInfo> pg_ver_info = nullptr;
   auto iter = version_info_.find(rid.GetPageId());
@@ -51,8 +38,8 @@ auto TransactionManager::UpdateVersionLink(RID rid, std::optional<VersionUndoLin
   }
   std::unique_lock<std::shared_mutex> lck2(pg_ver_info->mutex_);
   lck.unlock();
-  auto iter2 = pg_ver_info->prev_version_.find(rid.GetSlotNum());
-  if (iter2 == pg_ver_info->prev_version_.end()) {
+  auto iter2 = pg_ver_info->prev_link_.find(rid.GetSlotNum());
+  if (iter2 == pg_ver_info->prev_link_.end()) {
     if (check != nullptr && !check(std::nullopt)) {
       return false;
     }
@@ -61,15 +48,15 @@ auto TransactionManager::UpdateVersionLink(RID rid, std::optional<VersionUndoLin
       return false;
     }
   }
-  if (prev_version.has_value()) {
-    pg_ver_info->prev_version_[rid.GetSlotNum()] = *prev_version;
+  if (prev_link.has_value()) {
+    pg_ver_info->prev_link_[rid.GetSlotNum()] = *prev_link;
   } else {
-    pg_ver_info->prev_version_.erase(rid.GetSlotNum());
+    pg_ver_info->prev_link_.erase(rid.GetSlotNum());
   }
   return true;
 }
 
-auto TransactionManager::GetVersionLink(RID rid) -> std::optional<VersionUndoLink> {
+auto TransactionManager::GetUndoLink(RID rid) -> std::optional<UndoLink> {
   std::shared_lock<std::shared_mutex> lck(version_info_mutex_);
   auto iter = version_info_.find(rid.GetPageId());
   if (iter == version_info_.end()) {
@@ -78,19 +65,11 @@ auto TransactionManager::GetVersionLink(RID rid) -> std::optional<VersionUndoLin
   std::shared_ptr<PageVersionInfo> pg_ver_info = iter->second;
   std::unique_lock<std::shared_mutex> lck2(pg_ver_info->mutex_);
   lck.unlock();
-  auto iter2 = pg_ver_info->prev_version_.find(rid.GetSlotNum());
-  if (iter2 == pg_ver_info->prev_version_.end()) {
+  auto iter2 = pg_ver_info->prev_link_.find(rid.GetSlotNum());
+  if (iter2 == pg_ver_info->prev_link_.end()) {
     return std::nullopt;
   }
   return std::make_optional(iter2->second);
-}
-
-auto TransactionManager::GetUndoLink(RID rid) -> std::optional<UndoLink> {
-  auto version_link = GetVersionLink(rid);
-  if (version_link.has_value()) {
-    return version_link->prev_;
-  }
-  return std::nullopt;
 }
 
 auto TransactionManager::GetUndoLogOptional(UndoLink link) -> std::optional<UndoLog> {
@@ -120,6 +99,38 @@ void Transaction::SetTainted() {
   }
   fmt::println(stderr, "transaction not in running state: {}", state);
   std::terminate();
+}
+
+auto UpdateTupleAndUndoLink(
+    TransactionManager *txn_mgr, RID rid, std::optional<UndoLink> undo_link, TableHeap *table_heap, Transaction *txn,
+    const TupleMeta &meta, const Tuple &tuple,
+    std::function<bool(const TupleMeta &meta, const Tuple &tuple, RID rid, std::optional<UndoLink>)> &&check) -> bool {
+  auto page_write_guard = table_heap->AcquireTablePageWriteLock(rid);
+  auto page = page_write_guard.AsMut<TablePage>();
+
+  auto [base_meta, base_tuple] = page->GetTuple(rid);
+  if (check != nullptr && !check(base_meta, base_tuple, rid, undo_link)) {
+    return false;
+  }
+
+  // Update tuple and tupleMeta if pass in tuple and meta are different
+  if (meta != base_meta || !IsTupleContentEqual(tuple, base_tuple)) {
+    table_heap->UpdateTupleInPlaceWithLockAcquired(meta, tuple, rid, page);
+  }
+
+  txn_mgr->UpdateUndoLink(rid, undo_link);
+
+  return true;
+}
+
+auto GetTupleAndUndoLink(TransactionManager *txn_mgr, TableHeap *table_heap, RID rid)
+    -> std::tuple<TupleMeta, Tuple, std::optional<UndoLink>> {
+  auto page_read_guard = table_heap->AcquireTablePageReadLock(rid);
+  auto page = page_read_guard.As<TablePage>();
+  auto [meta, tuple] = page->GetTuple(rid);
+
+  auto undo_link = txn_mgr->GetUndoLink(rid);
+  return std::make_tuple(meta, tuple, undo_link);
 }
 
 }  // namespace bustub

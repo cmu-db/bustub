@@ -188,16 +188,16 @@ TEST(TxnScanTest, DISABLED_ScanTest) {  // NOLINT
 
   auto rid1 = *table_info->table_->InsertTuple(TupleMeta{txn4->GetTransactionTempTs(), false},
                                                Tuple{{Int(1), DoubleNull(), BoolNull()}, schema.get()});
-  bustub->txn_manager_->UpdateVersionLink(rid1, VersionUndoLink{prev_log_1}, nullptr);
+  bustub->txn_manager_->UpdateUndoLink(rid1, prev_log_1, nullptr);
   auto rid2 = *table_info->table_->InsertTuple(TupleMeta{txn3->GetReadTs(), false},
                                                Tuple{{Int(3), DoubleNull(), BoolNull()}, schema.get()});
-  bustub->txn_manager_->UpdateVersionLink(rid2, VersionUndoLink{prev_log_2}, nullptr);
+  bustub->txn_manager_->UpdateUndoLink(rid2, prev_log_2, nullptr);
   auto rid3 = *table_info->table_->InsertTuple(TupleMeta{txn4->GetReadTs(), true},
                                                Tuple{{IntNull(), DoubleNull(), BoolNull()}, schema.get()});
-  bustub->txn_manager_->UpdateVersionLink(rid3, VersionUndoLink{prev_log_4}, nullptr);
+  bustub->txn_manager_->UpdateUndoLink(rid3, prev_log_4, nullptr);
   auto rid4 = *table_info->table_->InsertTuple(TupleMeta{txn3->GetTransactionTempTs(), true},
                                                Tuple{{IntNull(), DoubleNull(), BoolNull()}, schema.get()});
-  bustub->txn_manager_->UpdateVersionLink(rid4, VersionUndoLink{prev_log_5}, nullptr);
+  bustub->txn_manager_->UpdateUndoLink(rid4, prev_log_5, nullptr);
 
   TxnMgrDbg("before verify scan", bustub->txn_manager_.get(), table_info, table_info->table_.get());
 

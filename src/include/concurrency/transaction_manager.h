@@ -18,6 +18,7 @@
 #include <mutex>  // NOLINT
 #include <optional>
 #include <shared_mutex>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -26,32 +27,10 @@
 #include "concurrency/transaction.h"
 #include "concurrency/watermark.h"
 #include "recovery/log_manager.h"
+#include "storage/table/table_heap.h"
 #include "storage/table/tuple.h"
 
 namespace bustub {
-
-/// The first undo link in the version chain, that links table heap tuple to the undo log.
-struct VersionUndoLink {
-  /** The next version in the version chain. */
-  UndoLink prev_;
-  /** Whether a transaction is modifying the version link. Fall 2023: you do not need to read / write this field until
-   * task 4.2. */
-  bool in_progress_{false};
-
-  friend auto operator==(const VersionUndoLink &a, const VersionUndoLink &b) {
-    return a.prev_ == b.prev_ && a.in_progress_ == b.in_progress_;
-  }
-
-  friend auto operator!=(const VersionUndoLink &a, const VersionUndoLink &b) { return !(a == b); }
-
-  inline static auto FromOptionalUndoLink(std::optional<UndoLink> undo_link) -> std::optional<VersionUndoLink> {
-    if (undo_link.has_value()) {
-      return VersionUndoLink{*undo_link};
-    }
-    return std::nullopt;
-  }
-};
-
 /**
  * TransactionManager keeps track of all the transactions running in the system.
  */
@@ -81,24 +60,14 @@ class TransactionManager {
   void Abort(Transaction *txn);
 
   /**
-   * @brief Use this function before task 4.2. Update an undo link that links table heap tuple to the first undo log.
+   * @brief Update an undo link that links table heap tuple to the first undo log.
    * Before updating, `check` function will be called to ensure validity.
    */
   auto UpdateUndoLink(RID rid, std::optional<UndoLink> prev_link,
                       std::function<bool(std::optional<UndoLink>)> &&check = nullptr) -> bool;
 
-  /**
-   * @brief Use this function after task 4.2. Update an undo link that links table heap tuple to the first undo log.
-   * Before updating, `check` function will be called to ensure validity.
-   */
-  auto UpdateVersionLink(RID rid, std::optional<VersionUndoLink> prev_version,
-                         std::function<bool(std::optional<VersionUndoLink>)> &&check = nullptr) -> bool;
-
-  /** @brief Get the first undo log of a table heap tuple. Use this before task 4.2 */
+  /** @brief Get the first undo log of a table heap tuple. */
   auto GetUndoLink(RID rid) -> std::optional<UndoLink>;
-
-  /** @brief Get the first undo log of a table heap tuple. Use this after task 4.2 */
-  auto GetVersionLink(RID rid) -> std::optional<VersionUndoLink>;
 
   /** @brief Access the transaction undo log buffer and get the undo log. Return nullopt if the txn does not exist. Will
    * still throw an exception if the index is out of range. */
@@ -127,7 +96,7 @@ class TransactionManager {
     /** Stores previous version info for all slots. Note: DO NOT use `[x]` to access it because
      * it will create new elements even if it does not exist. Use `find` instead.
      */
-    std::unordered_map<slot_offset_t, VersionUndoLink> prev_version_;
+    std::unordered_map<slot_offset_t, UndoLink> prev_link_;
   };
 
   /** protects version info */
@@ -154,5 +123,20 @@ class TransactionManager {
    * you want. */
   auto VerifyTxn(Transaction *txn) -> bool;
 };
+
+/**
+ * @brief Update the tuple and its undo link in the table heap atomically.
+ */
+auto UpdateTupleAndUndoLink(
+    TransactionManager *txn_mgr, RID rid, std::optional<UndoLink> undo_link, TableHeap *table_heap, Transaction *txn,
+    const TupleMeta &meta, const Tuple &tuple,
+    std::function<bool(const TupleMeta &meta, const Tuple &tuple, RID rid, std::optional<UndoLink>)> &&check = nullptr)
+    -> bool;
+
+/**
+ * @brief Get the tuple and its undo link in the table heap atomically.
+ */
+auto GetTupleAndUndoLink(TransactionManager *txn_mgr, TableHeap *table_heap, RID rid)
+    -> std::tuple<TupleMeta, Tuple, std::optional<UndoLink>>;
 
 }  // namespace bustub
