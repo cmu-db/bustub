@@ -62,12 +62,19 @@ struct TerrierTotalMetrics {
   void Report(uint64_t db_size) {
     auto transfer_txn_per_sec = committed_transfer_txn_cnt_ / static_cast<double>(elapsed_) * 1000;
     auto join_txn_per_sec = committed_join_txn_cnt_ / static_cast<double>(elapsed_) * 1000;
+    auto committed_txn_cnt = committed_join_txn_cnt_ + committed_transfer_txn_cnt_;
 
     fmt::print(stderr, "<<< BEGIN\n");
 
     fmt::print(stderr, "transfer: {}\n", transfer_txn_per_sec);
     fmt::print(stderr, "join: {}\n", join_txn_per_sec);
     fmt::print(stderr, "db_size: {}\n", db_size);
+    if (committed_txn_cnt != 0) {
+      fmt::print(stderr, "db_size per committed txn: {}\n", db_size / static_cast<double>(committed_txn_cnt));
+    } else{
+      fmt::print(stderr, "db_size per committed txn: 999999999\n");
+    }
+
 
     fmt::print(stderr, ">>> END\n");
   }
