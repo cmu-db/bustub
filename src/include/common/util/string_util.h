@@ -85,11 +85,20 @@ class StringUtil {
   /** @return input string split based on the split string */
   static auto Split(const std::string &input, const std::string &split) -> std::vector<std::string>;
 
+  /** @return count occurrence of specified string in input string */
+  static auto Count(const std::string &input, const std::string &str) -> size_t;
+
   /**
    * Removes the whitespace characters from the right side of the string.
    * @param[in,out] str string to be trimmed on the right
    */
   static void RTrim(std::string *str);
+
+  /**
+   * Removes the whitespace characters from the left side of the string.
+   * @param[in,out] str string to be trimmed on the left
+   */
+  static void LTrim(std::string *str);
 
   /** @return indented string */
   static auto Indent(int num_indent) -> std::string;

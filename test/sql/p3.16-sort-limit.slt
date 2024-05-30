@@ -4,51 +4,33 @@
 
 # Default
 query
-select * from  __mock_table_tas_2023_fall order by office_hour, github_id;
+select * from  __mock_table_tas_2024 order by office_hour, github_id;
 ----
-abigalekim Friday
-aoleizhou Friday
+AlSchlo Friday
 averyqi115 Friday
-kswim8 Never
-skyzh Randomly
-anurag-23 Thursday
-Mayank-Baranwal Tuesday
-wiam8 Tuesday
+SDTheSlayer Monday
+thelongmarch-azx Monday
+sweetsuro Thursday
+walkingcabbages Thursday
+xx01cyx Tuesday
 yliang412 Tuesday
-fernandolis10 Wednesday
+lanlou1554 Wednesday
 ChaosZhai Yesterday
 
 
 # ASC
 query
-select * from  __mock_table_tas_2023_fall order by office_hour asc, github_id desc;
+select * from  __mock_table_tas_2024 order by office_hour asc, github_id desc;
 ----
 averyqi115 Friday
-aoleizhou Friday
-abigalekim Friday
-kswim8 Never
-skyzh Randomly
-anurag-23 Thursday
+AlSchlo Friday
+thelongmarch-azx Monday
+SDTheSlayer Monday
+walkingcabbages Thursday
+sweetsuro Thursday
 yliang412 Tuesday
-wiam8 Tuesday
-Mayank-Baranwal Tuesday
-fernandolis10 Wednesday
-ChaosZhai Yesterday
-
-
-query
-select * from  __mock_table_tas_2023_fall order by github_id desc;
-----
-yliang412 Tuesday
-wiam8 Tuesday
-skyzh Randomly
-kswim8 Never
-fernandolis10 Wednesday
-averyqi115 Friday
-aoleizhou Friday
-anurag-23 Thursday
-abigalekim Friday
-Mayank-Baranwal Tuesday
+xx01cyx Tuesday
+lanlou1554 Wednesday
 ChaosZhai Yesterday
 
 
@@ -382,7 +364,9 @@ select * from __mock_table_123, (select * from temp_1 order by colA desc limit 3
 3 98 3 1394 17139
 3 97 1 2273 63790
 
-query rowsort +ensure:nlj_init_check
+# remember to enable your hash join optimizer to pass this
+# you could disable this ensure if you haven't implemented it yet
+query rowsort +ensure:hash_join
 select * from
     temp_2 t2 inner join
     (select colB, colD, colA, colC from temp_1 order by colB desc, colD, colA desc limit 10 ) t1

@@ -5,11 +5,14 @@
 
 query rowsort +ensure:hash_join
 select * from
-    __mock_table_tas_2023_fall inner join __mock_table_schedule_2023
+    __mock_table_tas_2024 inner join __mock_table_schedule
     on office_hour = day_of_week
     where has_lecture = 1;
 ----
-fernandolis10 Wednesday Wednesday 1
+SDTheSlayer Monday Monday 1
+thelongmarch-azx Monday Monday 1
+lanlou1554 Wednesday Wednesday 1
+
 
 # The real test begins...
 
