@@ -22,11 +22,11 @@ The following instructions are adapted from the Github documentation on [duplica
 
 1. Go [here](https://github.com/new) to create a new repository under your account. Pick a name (e.g. `bustub-private`) and select **Private** for the repository visibility level.
 2. On your development machine, create a bare clone of the public BusTub repository:
-   ```
+   ```console
    $ git clone --bare https://github.com/cmu-db/bustub.git bustub-public
    ```
 3. Next, [mirror](https://git-scm.com/docs/git-push#Documentation/git-push.txt---mirror) the public BusTub repository to your own private BusTub repository. Suppose your GitHub name is `student` and your repository name is `bustub-private`. The procedure for mirroring the repository is then:
-   ```
+   ```console
    $ cd bustub-public
    
    # If you pull / push over HTTPS
@@ -36,12 +36,12 @@ The following instructions are adapted from the Github documentation on [duplica
    $ git push git@github.com:student/bustub-private.git master
    ```
    This copies everything in the public BusTub repository to your own private repository. You can now delete your local clone of the public repository:
-   ```
+   ```console
    $ cd ..
    $ rm -rf bustub-public
    ```
 4. Clone your private repository to your development machine:
-   ```
+   ```console
    # If you pull / push over HTTPS
    $ git clone https://github.com/student/bustub-private.git
 
@@ -49,11 +49,11 @@ The following instructions are adapted from the Github documentation on [duplica
    $ git clone git@github.com:student/bustub-private.git
    ```
 5. Add the public BusTub repository as a second remote. This allows you to retrieve changes from the CMU-DB repository and merge them with your solution throughout the semester:
-   ```
+   ```console
    $ git remote add public https://github.com/cmu-db/bustub.git
    ```
    You can verify that the remote was added with the following command:
-   ```
+   ```console
    $ git remote -v
    origin	https://github.com/student/bustub-private.git (fetch)
    origin	https://github.com/student/bustub-private.git (push)
@@ -61,7 +61,7 @@ The following instructions are adapted from the Github documentation on [duplica
    public	https://github.com/cmu-db/bustub.git (push)
    ```
 6. You can now pull in changes from the public BusTub repository as needed with:
-   ```
+   ```console
    $ git pull public master
    ```
 7. **Disable GitHub Actions** from the project settings of your private repository, otherwise you may run out of GitHub Actions quota.
@@ -80,7 +80,7 @@ Ubuntu 22.04.
 
 To ensure that you have the proper packages on your machine, run the following script to automatically install them:
 
-```
+```console
 # Linux
 $ sudo build_support/packages.sh
 # macOS
@@ -89,7 +89,7 @@ $ build_support/packages.sh
 
 Then run the following commands to build the system:
 
-```
+```console
 $ mkdir build
 $ cd build
 $ cmake ..
@@ -99,7 +99,7 @@ $ make
 If you want to compile the system in debug mode, pass in the following flag to cmake:
 Debug mode:
 
-```
+```console
 $ cmake -DCMAKE_BUILD_TYPE=Debug ..
 $ make -j`nproc`
 ```
@@ -107,7 +107,7 @@ This enables [AddressSanitizer](https://github.com/google/sanitizers) by default
 
 If you want to use other sanitizers,
 
-```
+```console
 $ cmake -DCMAKE_BUILD_TYPE=Debug -DBUSTUB_SANITIZER=thread ..
 $ make -j`nproc`
 ```
