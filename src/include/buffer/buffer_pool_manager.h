@@ -181,7 +181,7 @@ class BufferPoolManager {
 
   /** Array of buffer pool pages. */
   Page *pages_;
-  /** Pointer to the disk sheduler. */
+  /** Pointer to the disk scheduler. */
   std::unique_ptr<DiskScheduler> disk_scheduler_ __attribute__((__unused__));
   /** Pointer to the log manager. Please ignore this for P1. */
   LogManager *log_manager_ __attribute__((__unused__));
