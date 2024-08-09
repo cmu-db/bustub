@@ -69,7 +69,7 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instanc
     if (bustub::StringUtil::StartsWith(opt, "ensure:")) {
       std::stringstream result;
       auto writer = bustub::SimpleStreamWriter(result);
-      instance.ExecuteSql("explain " + sql, writer);
+      instance.ExecuteSql("explain (o) " + sql, writer);
 
       if (opt == "ensure:index_scan") {
         if (!bustub::StringUtil::Contains(result.str(), "IndexScan")) {
@@ -129,6 +129,38 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instanc
           return false;
         }
         check_options->check_options_set_.emplace(bustub::CheckOption::ENABLE_NLJ_CHECK);
+      } else if (bustub::StringUtil::StartsWith(opt, "ensure:column-pruned")) {
+        auto args = bustub::StringUtil::Split(opt, ":");
+        if (args.size() != 4) {
+          throw bustub::NotImplementedException(fmt::format("unsupported extra option: {}", opt));
+        }
+        auto expected_cols_proj = std::stoi(args[2]);
+        auto expected_cols_agg = std::stoi(args[3]);
+        // find agg & proj plan and test if the output schema has the expected number of columns
+          auto lines = bustub::StringUtil::Split(result.str(), "\n");
+          for (auto &line : lines) {
+            bustub::StringUtil::LTrim(&line);
+            if (bustub::StringUtil::StartsWith(line, "Agg")) {
+              auto cols = bustub::StringUtil::Split(line, "],");
+              if (cols.size() != 3) {
+                fmt::print("Agg plan wrong formatting!\n");
+                return false;
+              }
+              for (int i = 0; i < 2; i++) {
+                if (bustub::StringUtil::Count(cols[i], "\",")+1 > static_cast<size_t>(expected_cols_agg)) {
+                  fmt::print("Agg wrong column pruning count!\n");
+                  return false;
+                }
+              }
+              break;
+            }
+            if (bustub::StringUtil::StartsWith(line, "Projection")) {
+              if (bustub::StringUtil::Count(line, "\",")+1 > static_cast<size_t>(expected_cols_proj)) {
+                fmt::print("Projection wrong column pruning count!\n");
+                return false;
+              }
+            }
+          }
       } else {
         throw bustub::NotImplementedException(fmt::format("unsupported extra option: {}", opt));
       }

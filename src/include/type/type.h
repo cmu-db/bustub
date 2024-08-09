@@ -28,6 +28,7 @@ class Type {
   explicit Type(TypeId type_id) : type_id_(type_id) {}
 
   virtual ~Type() = default;
+
   // Get the size of this data type in bytes
   static auto GetTypeSize(TypeId type_id) -> uint64_t;
 
@@ -99,19 +100,16 @@ class Type {
 
   virtual auto CastAs(const Value &val, TypeId type_id) const -> Value;
 
-  // Access the raw variable length data
+  // Access the raw varlen data stored from the tuple storage
   virtual auto GetData(const Value &val) const -> const char *;
 
-  // Get the length of the variable length data
-  virtual auto GetLength(const Value &val) const -> uint32_t;
-
-  // Access the raw varlen data stored from the tuple storage
-  virtual auto GetData(char *storage) -> char *;
+  // Get the storage size of the value.
+  virtual auto GetStorageSize(const Value &val) const -> uint32_t;
 
  protected:
   // The actual type ID
   TypeId type_id_;
   // Singleton instances.
-  static Type *k_types[14];
+  static Type *k_types[10];
 };
 }  // namespace bustub

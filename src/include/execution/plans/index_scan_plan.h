@@ -14,11 +14,11 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "catalog/catalog.h"
 #include "concurrency/transaction.h"
 #include "execution/expressions/abstract_expression.h"
-#include "execution/expressions/constant_value_expression.h"
 #include "execution/plans/abstract_plan.h"
 
 namespace bustub {
@@ -35,12 +35,12 @@ class IndexScanPlanNode : public AbstractPlanNode {
    * @param pred_key The key for point lookup
    */
   IndexScanPlanNode(SchemaRef output, table_oid_t table_oid, index_oid_t index_oid,
-                    AbstractExpressionRef filter_predicate = nullptr, ConstantValueExpression *pred_key = nullptr)
+                    AbstractExpressionRef filter_predicate = nullptr, std::vector<AbstractExpressionRef> pred_keys = {})
       : AbstractPlanNode(std::move(output), {}),
         table_oid_(table_oid),
         index_oid_(index_oid),
         filter_predicate_(std::move(filter_predicate)),
-        pred_key_(pred_key) {}
+        pred_keys_(std::move(pred_keys)) {}
 
   auto GetType() const -> PlanType override { return PlanType::IndexScan; }
 
@@ -62,10 +62,10 @@ class IndexScanPlanNode : public AbstractPlanNode {
   AbstractExpressionRef filter_predicate_;
 
   /**
-   * The constant value key to lookup.
+   * The constant value keys to lookup.
    * For example when dealing "WHERE v = 1" we could store the constant value 1 here
    */
-  const ConstantValueExpression *pred_key_;
+  std::vector<AbstractExpressionRef> pred_keys_;
 
   // Add anything you want here for index lookup
 

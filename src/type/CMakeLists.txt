@@ -11,7 +11,8 @@ add_library(
     tinyint_type.cpp
     type.cpp
     value.cpp
-    varlen_type.cpp)
+    varlen_type.cpp
+    vector_type.cpp)
 
 set(ALL_OBJECT_FILES
     ${ALL_OBJECT_FILES} $<TARGET_OBJECTS:bustub_type>

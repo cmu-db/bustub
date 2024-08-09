@@ -14,8 +14,11 @@
 #include <string>
 #include <utility>
 
+#include "catalog/column.h"
 #include "common/exception.h"
+#include "type/type.h"
 #include "type/value.h"
+#include "type/vector_type.h"
 
 namespace bustub {
 Value::Value(const Value &other) {
@@ -25,6 +28,7 @@ Value::Value(const Value &other) {
   value_ = other.value_;
   switch (type_id_) {
     case TypeId::VARCHAR:
+    case TypeId::VECTOR:
       if (size_.len_ == BUSTUB_VALUE_NULL) {
         value_.varlen_ = nullptr;
       } else {
@@ -214,6 +218,7 @@ Value::Value(TypeId type, float f) : Value(type) {
 Value::Value(TypeId type, const char *data, uint32_t len, bool manage_data) : Value(type) {
   switch (type) {
     case TypeId::VARCHAR:
+    case TypeId::VECTOR:
       if (data == nullptr) {
         value_.varlen_ = nullptr;
         size_.len_ = BUSTUB_VALUE_NULL;
@@ -254,10 +259,27 @@ Value::Value(TypeId type, const std::string &data) : Value(type) {
   }
 }
 
+Value::Value(TypeId type, const std::vector<double> &data) : Value(type) {
+  switch (type) {
+    case TypeId::VECTOR: {
+      manage_data_ = true;
+      auto len = data.size() * sizeof(double);
+      value_.varlen_ = new char[len];
+      assert(value_.varlen_ != nullptr);
+      size_.len_ = len;
+      memcpy(value_.varlen_, data.data(), len);
+      break;
+    }
+    default:
+      throw Exception(ExceptionType::INCOMPATIBLE_TYPE, "Invalid Type  for variable-length Value constructor");
+  }
+}
+
 // delete allocated char array space
 Value::~Value() {
   switch (type_id_) {
     case TypeId::VARCHAR:
+    case TypeId::VECTOR:
       if (manage_data_) {
         delete[] value_.varlen_;
       }
@@ -310,4 +332,20 @@ auto Value::CheckInteger() const -> bool {
   }
   return false;
 }
+
+auto Value::GetColumn() const -> Column {
+  switch (GetTypeId()) {
+    case TypeId::VARCHAR:
+    case TypeId::VECTOR: {
+      return Column{"<val>", GetTypeId(), GetStorageSize()};
+    }
+    default:
+      return Column{"<val>", GetTypeId()};
+  }
+}
+
+auto Value::GetVector() const -> std::vector<double> {
+  return reinterpret_cast<VectorType *>(Type::GetInstance(type_id_))->GetVector(*this);
+}
+
 }  // namespace bustub
