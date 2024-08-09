@@ -46,4 +46,11 @@ class ExtendibleHashTableIndex : public Index {
   DiskExtendibleHashTable<KeyType, ValueType, KeyComparator> container_;
 };
 
+constexpr static const auto TWO_INTEGER_SIZE = 8;
+using IntegerKeyType = GenericKey<TWO_INTEGER_SIZE>;
+using IntegerValueType = RID;
+using IntegerComparatorType = GenericComparator<TWO_INTEGER_SIZE>;
+using HashTableIndexForTwoIntegerColumn =
+    ExtendibleHashTableIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>;
+
 }  // namespace bustub

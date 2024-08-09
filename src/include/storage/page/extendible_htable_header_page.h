@@ -56,7 +56,7 @@ class ExtendibleHTableHeaderPage {
    * @param directory_idx index in the directory page id array
    * @return directory page_id at index
    */
-  auto GetDirectoryPageId(uint32_t directory_idx) const -> uint32_t;
+  auto GetDirectoryPageId(uint32_t directory_idx) const -> page_id_t;
 
   /**
    * @brief Set the directory page id at an index
@@ -82,9 +82,6 @@ class ExtendibleHTableHeaderPage {
 };
 
 static_assert(sizeof(page_id_t) == 4);
-
-static_assert(sizeof(ExtendibleHTableHeaderPage) ==
-              sizeof(page_id_t) * HTABLE_HEADER_ARRAY_SIZE + HTABLE_HEADER_PAGE_METADATA_SIZE);
 
 static_assert(sizeof(ExtendibleHTableHeaderPage) <= BUSTUB_PAGE_SIZE);
 

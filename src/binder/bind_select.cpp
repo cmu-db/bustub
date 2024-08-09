@@ -2,6 +2,7 @@
 #include <iterator>
 #include <memory>
 #include <optional>
+#include <string>
 #include <vector>
 #include "binder/binder.h"
 #include "binder/bound_expression.h"
@@ -16,6 +17,7 @@
 #include "binder/expressions/bound_func_call.h"
 #include "binder/expressions/bound_star.h"
 #include "binder/expressions/bound_unary_op.h"
+#include "binder/expressions/bound_window.h"
 #include "binder/statement/explain_statement.h"
 #include "binder/statement/select_statement.h"
 #include "binder/table_ref/bound_base_table_ref.h"
@@ -403,6 +405,8 @@ auto Binder::BindSelectList(duckdb_libpgquery::PGList *list) -> std::vector<std:
   std::vector<std::unique_ptr<BoundExpression>> exprs;
   auto select_list = std::vector<std::unique_ptr<BoundExpression>>{};
   bool is_select_star = false;
+  bool has_agg = false;
+  bool has_window_agg = false;
 
   for (auto node = list->head; node != nullptr; node = lnext(node)) {
     auto target = reinterpret_cast<duckdb_libpgquery::PGNode *>(node->data.ptr_value);
@@ -420,8 +424,18 @@ auto Binder::BindSelectList(duckdb_libpgquery::PGList *list) -> std::vector<std:
       if (is_select_star) {
         throw bustub::Exception("select * cannot have other expressions in list");
       }
+      if (expr->HasAggregation()) {
+        has_agg = true;
+      }
+      if (expr->HasWindowFunction()) {
+        has_window_agg = true;
+      }
       select_list.push_back(std::move(expr));
     }
+  }
+
+  if (has_agg && has_window_agg) {
+    throw bustub::Exception("cannot have both normal agg and window agg in same query");
   }
 
   return select_list;
@@ -453,6 +467,10 @@ auto Binder::BindConstant(duckdb_libpgquery::PGAConst *node) -> std::unique_ptr<
     case duckdb_libpgquery::T_PGInteger: {
       BUSTUB_ENSURE(val.val.ival <= BUSTUB_INT32_MAX, "value out of range");
       return std::make_unique<BoundConstant>(ValueFactory::GetIntegerValue(static_cast<int32_t>(val.val.ival)));
+    }
+    case duckdb_libpgquery::T_PGFloat: {
+      double parsed_val = std::stod(std::string(val.val.str));
+      return std::make_unique<BoundConstant>(ValueFactory::GetDecimalValue(parsed_val));
     }
     case duckdb_libpgquery::T_PGString: {
       return std::make_unique<BoundConstant>(ValueFactory::GetVarcharValue(val.val.str));
@@ -508,6 +526,34 @@ auto Binder::BindStar(duckdb_libpgquery::PGAStar *node) -> std::unique_ptr<Bound
   return std::make_unique<BoundStar>();
 }
 
+auto Binder::BindWindowExpression(std::string func_name, std::vector<std::unique_ptr<BoundExpression>> children,
+                                  duckdb_libpgquery::PGWindowDef *node) -> std::unique_ptr<BoundWindow> {
+  BUSTUB_ASSERT(node, "nullptr");
+  auto partition_by = std::vector<std::unique_ptr<BoundExpression>>{};
+  if (node->partitionClause != nullptr) {
+    partition_by = BindExpressionList(node->partitionClause);
+  }
+
+  auto sort = std::vector<std::unique_ptr<BoundOrderBy>>{};
+  if (node->orderClause != nullptr) {
+    sort = BindSort(node->orderClause);
+  }
+
+  std::optional<std::unique_ptr<BoundExpression>> start_offset;
+  if (node->startOffset != nullptr) {
+    start_offset = std::make_optional(BindExpression(node->startOffset));
+  }
+  std::optional<std::unique_ptr<BoundExpression>> end_offset;
+  if (node->endOffset != nullptr) {
+    end_offset = std::make_optional(BindExpression(node->endOffset));
+  }
+
+  auto window = std::make_unique<BoundWindow>(std::move(func_name), std::move(children), std::move(partition_by),
+                                              std::move(sort), std::move(start_offset), std::move(end_offset));
+  window = BindWindowFrame(node, std::move(window));
+  return window;
+}
+
 auto Binder::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_ptr<BoundExpression> {
   BUSTUB_ASSERT(root, "nullptr");
   auto name = root->funcname;
@@ -523,10 +569,19 @@ auto Binder::BindFuncCall(duckdb_libpgquery::PGFuncCall *root) -> std::unique_pt
   }
 
   if (function_name == "min" || function_name == "max" || function_name == "first" || function_name == "last" ||
-      function_name == "sum" || function_name == "count") {
-    // Rewrite count(*) to count_star().
-    if (function_name == "count" && children.empty()) {
+      function_name == "sum" || function_name == "count" || function_name == "rank" || function_name == "row_number") {
+    // Rewrite row_number()/count(*) to count_star().
+    if ((function_name == "count" && children.empty()) || function_name == "row_number") {
       function_name = "count_star";
+    }
+
+    if (root->over != nullptr) {
+      if (root->agg_distinct) {
+        throw bustub::Exception("DISTINCT is not supported in window functions");
+      }
+
+      auto window = BindWindowExpression(function_name, std::move(children), root->over);
+      return window;
     }
 
     // Bind function as agg call.

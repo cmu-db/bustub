@@ -46,6 +46,7 @@
 #include "fmt/ranges.h"
 #include "nodes/nodes.hpp"
 #include "nodes/primnodes.hpp"
+#include "nodes/value.hpp"
 #include "pg_definitions.hpp"
 #include "postgres_parser.hpp"
 #include "type/type_id.h"
@@ -68,6 +69,14 @@ auto Binder::BindColumnDefinition(duckdb_libpgquery::PGColumnDef *cdef) -> Colum
     return {colname, TypeId::INTEGER};
   }
 
+  if (name == "double") {
+    return {colname, TypeId::DECIMAL};
+  }
+
+  if (name == "bool") {
+    return {colname, TypeId::BOOLEAN};
+  }
+
   if (name == "varchar") {
     auto exprs = BindExpressionList(cdef->typeName->typmods);
     if (exprs.size() != 1) {
@@ -78,6 +87,16 @@ auto Binder::BindColumnDefinition(duckdb_libpgquery::PGColumnDef *cdef) -> Colum
     return {colname, TypeId::VARCHAR, varchar_max_length};
   }
 
+  if (name == "vector") {
+    auto exprs = BindExpressionList(cdef->typeName->typmods);
+    if (exprs.size() != 1) {
+      throw bustub::Exception("should specify vector length");
+    }
+    const auto &vector_length_val = dynamic_cast<const BoundConstant &>(*exprs[0]);
+    uint32_t vector_length = std::stoi(vector_length_val.ToString());
+    return {colname, TypeId::VECTOR, vector_length};
+  }
+
   throw NotImplementedException(fmt::format("unsupported type: {}", name));
 }
 
@@ -85,6 +104,7 @@ auto Binder::BindCreate(duckdb_libpgquery::PGCreateStmt *pg_stmt) -> std::unique
   auto table = std::string(pg_stmt->relation->relname);
   auto columns = std::vector<Column>{};
   size_t column_count = 0;
+  std::vector<std::string> pk;
 
   for (auto c = pg_stmt->tableElts->head; c != nullptr; c = lnext(c)) {
     auto node = reinterpret_cast<duckdb_libpgquery::PGNode *>(c->data.ptr_value);
@@ -93,14 +113,44 @@ auto Binder::BindCreate(duckdb_libpgquery::PGCreateStmt *pg_stmt) -> std::unique
         auto cdef = reinterpret_cast<duckdb_libpgquery::PGColumnDef *>(c->data.ptr_value);
         auto centry = BindColumnDefinition(cdef);
         if (cdef->constraints != nullptr) {
-          throw NotImplementedException("constraints not supported");
+          for (auto constr = cdef->constraints->head; constr != nullptr; constr = constr->next) {
+            auto constraint = reinterpret_cast<duckdb_libpgquery::PGConstraint *>(constr->data.ptr_value);
+            switch (constraint->contype) {
+              case duckdb_libpgquery::PG_CONSTR_PRIMARY: {
+                if (!pk.empty()) {
+                  throw NotImplementedException("cannot have two primary keys");
+                }
+                pk = {centry.GetName()};
+                break;
+              }
+              default:
+                throw NotImplementedException("unsupported constraint");
+            }
+          }
         }
         columns.push_back(std::move(centry));
         column_count++;
         break;
       }
       case duckdb_libpgquery::T_PGConstraint: {
-        throw NotImplementedException("constraints not supported");
+        for (auto con = c; con != nullptr; con = con->next) {
+          auto constraint = reinterpret_cast<duckdb_libpgquery::PGConstraint *>(con->data.ptr_value);
+          switch (constraint->contype) {
+            case duckdb_libpgquery::PG_CONSTR_PRIMARY: {
+              std::vector<std::string> columns;
+              for (auto kc = constraint->keys->head; kc != nullptr; kc = kc->next) {
+                columns.emplace_back(reinterpret_cast<duckdb_libpgquery::PGValue *>(kc->data.ptr_value)->val.str);
+              }
+              if (!pk.empty()) {
+                throw NotImplementedException("cannot have two primary keys");
+              }
+              pk = std::move(columns);
+              break;
+            }
+            default:
+              throw NotImplementedException("unsupported constraint");
+          }
+        }
         break;
       }
       default:
@@ -112,11 +162,12 @@ auto Binder::BindCreate(duckdb_libpgquery::PGCreateStmt *pg_stmt) -> std::unique
     throw bustub::Exception("should have at least 1 column");
   }
 
-  return std::make_unique<CreateStatement>(std::move(table), std::move(columns));
+  return std::make_unique<CreateStatement>(std::move(table), std::move(columns), std::move(pk));
 }
 
 auto Binder::BindIndex(duckdb_libpgquery::PGIndexStmt *stmt) -> std::unique_ptr<IndexStatement> {
   std::vector<std::unique_ptr<BoundColumnRef>> cols;
+  std::vector<std::string> col_options;
   auto table = BindBaseTableRef(stmt->relation->relname, std::nullopt);
 
   for (auto cell = stmt->indexParams->head; cell != nullptr; cell = cell->next) {
@@ -124,12 +175,43 @@ auto Binder::BindIndex(duckdb_libpgquery::PGIndexStmt *stmt) -> std::unique_ptr<
     if (index_element->name != nullptr) {
       auto column_ref = ResolveColumn(*table, std::vector{std::string(index_element->name)});
       cols.emplace_back(std::make_unique<BoundColumnRef>(dynamic_cast<const BoundColumnRef &>(*column_ref)));
+      std::string opt;
+      if (index_element->opclass != nullptr) {
+        for (auto c = index_element->opclass->head; c != nullptr; c = lnext(c)) {
+          opt = reinterpret_cast<duckdb_libpgquery::PGValue *>(c->data.ptr_value)->val.str;
+          break;
+        }
+      }
+      col_options.emplace_back(opt);
     } else {
       throw NotImplementedException("create index by expr is not supported yet");
     }
   }
 
-  return std::make_unique<IndexStatement>(stmt->idxname, std::move(table), std::move(cols));
+  std::string index_type;
+
+  if (stmt->accessMethod != nullptr) {
+    index_type = stmt->accessMethod;
+    if (index_type == "art") {
+      index_type = "";
+    }
+  }
+
+  std::vector<std::pair<std::string, int>> options;
+
+  if (stmt->options != nullptr) {
+    for (auto c = stmt->options->head; c != nullptr; c = lnext(c)) {
+      auto def_elem = reinterpret_cast<duckdb_libpgquery::PGDefElem *>(c->data.ptr_value);
+      int val;
+      if (def_elem->arg != nullptr) {
+        val = reinterpret_cast<duckdb_libpgquery::PGValue *>(def_elem->arg)->val.ival;
+      }
+      options.emplace_back(def_elem->defname, val);
+    }
+  }
+
+  return std::make_unique<IndexStatement>(stmt->idxname, std::move(table), std::move(cols), std::move(index_type),
+                                          std::move(col_options), std::move(options));
 }
 
 }  // namespace bustub

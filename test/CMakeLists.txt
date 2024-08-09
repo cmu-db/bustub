@@ -13,7 +13,7 @@ file(GLOB_RECURSE BUSTUB_TEST_SOURCES "${PROJECT_SOURCE_DIR}/test/*/*test.cpp")
 # #########################################
 add_custom_target(build-tests COMMAND ${CMAKE_CTEST_COMMAND} --show-only)
 add_custom_target(check-tests COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
-add_custom_target(check-public-ci-tests COMMAND ${CMAKE_CTEST_COMMAND} --verbose -E "\"SQLLogicTest|Trie|BPlusTreeContentionTest\"")
+add_custom_target(check-public-ci-tests COMMAND ${CMAKE_CTEST_COMMAND} --verbose -E "\"SQLLogicTest|Trie|ORSet|BPlusTreeContentionTest\"")
 
 # #########################################
 # "make XYZ_test"
@@ -31,7 +31,6 @@ foreach (bustub_test_source ${BUSTUB_TEST_SOURCES})
 
     gtest_discover_tests(${bustub_test_name}
             EXTRA_ARGS
-            --gtest_color=auto
             --gtest_output=xml:${CMAKE_BINARY_DIR}/test/${bustub_test_name}.xml
             --gtest_catch_exceptions=0
             DISCOVERY_TIMEOUT 120
@@ -72,7 +71,8 @@ set(BUSTUB_SLT_SOURCES
         "${PROJECT_SOURCE_DIR}/test/sql/p3.17-topn.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.18-integration-1.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.19-integration-2.slt"
-        "${PROJECT_SOURCE_DIR}/test/sql/p3.leaderboard-q1.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.20-window-function.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.leaderboard-q1-window.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.leaderboard-q2.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.leaderboard-q3.slt"
         )

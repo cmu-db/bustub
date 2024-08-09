@@ -45,7 +45,6 @@ TEST(PageGuardTest, DISABLED_SampleTest) {
 
   {
     auto *page2 = bpm->NewPage(&page_id_temp);
-    page2->RLatch();
     auto guard2 = ReadPageGuard(bpm.get(), page2);
   }
 

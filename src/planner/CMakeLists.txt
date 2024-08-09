@@ -8,6 +8,7 @@ add_library(
   plan_insert.cpp
   plan_table_ref.cpp
   plan_select.cpp
+  plan_window_function.cpp
   planner.cpp)
 
 set(ALL_OBJECT_FILES

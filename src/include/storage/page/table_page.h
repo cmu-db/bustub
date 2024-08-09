@@ -105,7 +105,7 @@ class TablePage {
   uint16_t num_deleted_tuples_;
   TupleInfo tuple_info_[0];
 
-  static constexpr size_t TUPLE_INFO_SIZE = 16;
+  static constexpr size_t TUPLE_INFO_SIZE = 24;
   static_assert(sizeof(TupleInfo) == TUPLE_INFO_SIZE);
 };
 

@@ -32,12 +32,14 @@ auto ClockMs() -> uint64_t {
   return static_cast<uint64_t>(tm.tv_sec * 1000) + static_cast<uint64_t>(tm.tv_usec / 1000);
 }
 
-static const size_t BUSTUB_READ_THREAD = 4;
-static const size_t BUSTUB_WRITE_THREAD = 2;
+static const size_t BUSTUB_READ_THREAD = 5;
+static const size_t BUSTUB_WRITE_THREAD = 3;
 static const size_t LRU_K_SIZE = 4;
-static const size_t BUSTUB_BPM_SIZE = 256;
-static const size_t TOTAL_KEYS = 100000;
+static const size_t BUSTUB_BPM_SIZE = 2048;
+static const size_t TOTAL_KEYS = 200000;
 static const size_t KEY_MODIFY_RANGE = 2048;
+static const size_t HTABLE_HEADER_DEPTH = 7;
+static const size_t HTABLE_DIRECTORY_DEPTH = 9;
 
 struct HTableTotalMetrics {
   uint64_t write_cnt_{0};
@@ -110,6 +112,9 @@ auto KeyWillVanish(size_t key) -> bool { return key % 7 == 0; }
 // These keys will be overwritten to a new value
 auto KeyWillChange(size_t key) -> bool { return key % 5 == 0; }
 
+// These keys will not be present
+auto KeyWillNeverBeInserted(size_t key) -> bool { return key % 3 == 0; }
+
 // NOLINTNEXTLINE
 auto main(int argc, char **argv) -> int {
   using bustub::AccessType;
@@ -143,15 +148,18 @@ auto main(int argc, char **argv) -> int {
   bustub::GenericComparator<8> comparator(key_schema.get());
 
   bustub::DiskExtendibleHashTable<bustub::GenericKey<8>, bustub::RID, bustub::GenericComparator<8>> index(
-      "foo_pk", bpm.get(), comparator, bustub::HashFunction<bustub::GenericKey<8>>());
+      "foo_pk", bpm.get(), comparator, bustub::HashFunction<bustub::GenericKey<8>>(), HTABLE_HEADER_DEPTH,
+      HTABLE_DIRECTORY_DEPTH);
 
   for (size_t key = 0; key < TOTAL_KEYS; key++) {
-    bustub::GenericKey<8> index_key;
-    bustub::RID rid;
-    uint32_t value = key;
-    rid.Set(value, value);
-    index_key.SetFromInteger(key);
-    index.Insert(index_key, rid, nullptr);
+    if (!KeyWillNeverBeInserted(key)) {
+      bustub::GenericKey<8> index_key;
+      bustub::RID rid;
+      uint32_t value = key;
+      rid.Set(value, value);
+      index_key.SetFromInteger(key);
+      index.Insert(index_key, rid, nullptr);
+    }
   }
 
   fmt::print(stderr, "[info] benchmark start\n");
@@ -183,12 +191,12 @@ auto main(int argc, char **argv) -> int {
           index_key.SetFromInteger(key);
           index.GetValue(index_key, &rids);
 
-          if (!KeyWillVanish(key) && rids.empty()) {
+          if (!KeyWillVanish(key) && !KeyWillNeverBeInserted(key) && rids.empty()) {
             std::string msg = fmt::format("key not found: {}", key);
             throw std::runtime_error(msg);
           }
 
-          if (!KeyWillVanish(key) && !KeyWillChange(key)) {
+          if (!KeyWillVanish(key) && !KeyWillNeverBeInserted(key) && !KeyWillChange(key)) {
             if (rids.size() != 1) {
               std::string msg = fmt::format("key not found: {}", key);
               throw std::runtime_error(msg);
@@ -257,7 +265,7 @@ auto main(int argc, char **argv) -> int {
   for (auto &thread : threads) {
     thread.join();
   }
-
+  index.VerifyIntegrity();
   total_metrics.Report();
 
   return 0;
