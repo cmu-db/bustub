@@ -33,7 +33,7 @@ TEST(TxnBonusTest, DISABLED_SerializableTest) {  // NOLINT
   }
 }
 
-TEST(TxnBonusTest, DISABLE_ConcurrentSerializableTest) {  // NOLINT
+TEST(TxnBonusTest, DISABLED_ConcurrentSerializableTest) {  // NOLINT
   fmt::println(stderr, "--- SerializableTest2: Concurrent Serializable ---");
   {
     for (int i = 0; i < 10; i++) {
