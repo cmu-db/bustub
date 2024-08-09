@@ -29,7 +29,11 @@ Schema::Schema(const std::vector<Column> &columns) {
     }
     // set column offset
     column.column_offset_ = curr_offset;
-    curr_offset += column.GetFixedLength();
+    if (column.IsInlined()) {
+      curr_offset += column.GetStorageSize();
+    } else {
+      curr_offset += sizeof(uint32_t);
+    }
 
     // add column
     this->columns_.push_back(column);

@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "common/macros.h"
 #include "common/util/string_util.h"
@@ -72,6 +73,11 @@ class ValueFactory {
   static inline auto GetVarcharValue(const std::string &value, __attribute__((__unused__)) AbstractPool *pool = nullptr)
       -> Value {
     return {TypeId::VARCHAR, value};
+  }
+
+  static inline auto GetVectorValue(const std::vector<double> &value,
+                                    __attribute__((__unused__)) AbstractPool *pool = nullptr) -> Value {
+    return {TypeId::VECTOR, value};
   }
 
   static inline auto GetNullValueByType(TypeId type_id) -> Value {

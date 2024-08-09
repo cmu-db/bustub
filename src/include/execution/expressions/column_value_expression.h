@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "catalog/schema.h"
@@ -32,8 +33,8 @@ class ColumnValueExpression : public AbstractExpression {
    * @param col_idx the index of the column in the schema
    * @param ret_type the return type of the expression
    */
-  ColumnValueExpression(uint32_t tuple_idx, uint32_t col_idx, TypeId ret_type)
-      : AbstractExpression({}, ret_type), tuple_idx_{tuple_idx}, col_idx_{col_idx} {}
+  ColumnValueExpression(uint32_t tuple_idx, uint32_t col_idx, Column ret_type)
+      : AbstractExpression({}, std::move(ret_type)), tuple_idx_{tuple_idx}, col_idx_{col_idx} {}
 
   auto Evaluate(const Tuple *tuple, const Schema &schema) const -> Value override {
     return tuple->GetValue(&schema, col_idx_);

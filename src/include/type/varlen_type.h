@@ -29,7 +29,7 @@ class VarlenType : public Type {
   auto GetData(const Value &val) const -> const char * override;
 
   // Get the length of the variable length data
-  auto GetLength(const Value &val) const -> uint32_t override;
+  auto GetStorageSize(const Value &val) const -> uint32_t override;
 
   // Comparison functions
   auto CompareEquals(const Value &left, const Value &right) const -> CmpBool override;

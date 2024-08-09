@@ -67,8 +67,7 @@ auto Planner::PlanUpdate(const UpdateStatement &statement) -> AbstractPlanNodeRe
 
   for (size_t idx = 0; idx < target_exprs.size(); idx++) {
     if (target_exprs[idx] == nullptr) {
-      target_exprs[idx] =
-          std::make_shared<ColumnValueExpression>(0, idx, filter->output_schema_->GetColumn(idx).GetType());
+      target_exprs[idx] = std::make_shared<ColumnValueExpression>(0, idx, filter->output_schema_->GetColumn(idx));
     }
   }
 

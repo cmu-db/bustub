@@ -76,6 +76,9 @@ class DiskManagerUnlimitedMemory : public DiskManager {
     ProcessLatency(page_id);
 
     std::unique_lock<std::mutex> l(mutex_);
+    if (!thread_id_.has_value()) {
+      thread_id_ = std::this_thread::get_id();
+    }
     if (page_id >= static_cast<int>(data_.size())) {
       data_.resize(page_id + 1);
     }
@@ -100,6 +103,9 @@ class DiskManagerUnlimitedMemory : public DiskManager {
     ProcessLatency(page_id);
 
     std::unique_lock<std::mutex> l(mutex_);
+    if (!thread_id_.has_value()) {
+      thread_id_ = std::this_thread::get_id();
+    }
     if (page_id >= static_cast<int>(data_.size()) || page_id < 0) {
       fmt::println(stderr, "page {} not in range", page_id);
       std::terminate();
@@ -148,6 +154,13 @@ class DiskManagerUnlimitedMemory : public DiskManager {
 
   void EnableLatencySimulator(bool enabled) { latency_simulator_enabled_ = enabled; }
 
+  auto GetLastReadThreadAndClear() -> std::optional<std::thread::id> {
+    std::unique_lock<std::mutex> lck(mutex_);
+    auto t = thread_id_;
+    thread_id_ = std::nullopt;
+    return t;
+  }
+
  private:
   bool latency_simulator_enabled_{false};
 
@@ -159,6 +172,7 @@ class DiskManagerUnlimitedMemory : public DiskManager {
   using ProtectedPage = std::pair<Page, std::shared_mutex>;
 
   std::mutex mutex_;
+  std::optional<std::thread::id> thread_id_;
   std::vector<std::shared_ptr<ProtectedPage>> data_;
 };
 
