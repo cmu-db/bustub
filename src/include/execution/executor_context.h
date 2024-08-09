@@ -91,6 +91,7 @@ class ExecutorContext {
     check_options_ = std::move(check_options);
   }
 
+  /** As of Fall 2023, this function should not be used. */
   auto IsDelete() const -> bool { return is_delete_; }
 
  private:

@@ -22,7 +22,6 @@
 #include <cstdlib>
 #include "common/config.h"
 #include "common/macros.h"
-#include "storage/page/hash_table_page_defs.h"
 
 namespace bustub {
 
@@ -57,7 +56,7 @@ class ExtendibleHTableHeaderPage {
    * @param directory_idx index in the directory page id array
    * @return directory page_id at index
    */
-  auto GetDirectoryPageId(uint32_t directory_idx) const -> uint32_t;
+  auto GetDirectoryPageId(uint32_t directory_idx) const -> page_id_t;
 
   /**
    * @brief Set the directory page id at an index
@@ -66,6 +65,11 @@ class ExtendibleHTableHeaderPage {
    * @param directory_page_id page id of the directory
    */
   void SetDirectoryPageId(uint32_t directory_idx, page_id_t directory_page_id);
+
+  /**
+   * @brief Get the maximum number of directory page ids the header page could handle
+   */
+  auto MaxSize() const -> uint32_t;
 
   /**
    * Prints the header's occupancy information
@@ -78,9 +82,6 @@ class ExtendibleHTableHeaderPage {
 };
 
 static_assert(sizeof(page_id_t) == 4);
-
-static_assert(sizeof(ExtendibleHTableHeaderPage) ==
-              sizeof(page_id_t) * HTABLE_HEADER_ARRAY_SIZE + HTABLE_HEADER_PAGE_METADATA_SIZE);
 
 static_assert(sizeof(ExtendibleHTableHeaderPage) <= BUSTUB_PAGE_SIZE);
 

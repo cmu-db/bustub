@@ -250,14 +250,12 @@ add_custom_target(fix-clang-tidy-diff
 # hardcode some files to check here for each project.
 # ##########################################################
 set(P0_FILES
-        "src/include/primer/trie_answer.h"
-        "src/include/primer/trie_store.h"
-        "src/include/primer/trie.h"
-        "src/primer/trie_store.cpp"
-        "src/primer/trie.cpp"
         "src/planner/plan_func_call.cpp"
         "src/include/execution/expressions/string_expression.h"
+        "src/include/primer/orset.h"
+        "src/primer/orset.cpp"
 )
+
 add_custom_target(check-clang-tidy-p0
         ${BUSTUB_BUILD_SUPPORT_DIR}/run_clang_tidy.py # run LLVM's clang-tidy script
         -clang-tidy-binary ${CLANG_TIDY_BIN} # using our clang-tidy binary
@@ -277,6 +275,8 @@ set(P1_FILES
         "src/buffer/buffer_pool_manager.cpp"
         "src/include/storage/disk/disk_scheduler.h"
         "src/storage/disk/disk_scheduler.cpp"
+        "src/storage/page/page_guard.cpp"
+        "src/include/storage/page/page_guard.h"
 )
 add_custom_target(check-clang-tidy-p1
         ${BUSTUB_BUILD_SUPPORT_DIR}/run_clang_tidy.py # run LLVM's clang-tidy script
@@ -291,16 +291,16 @@ add_custom_target(submit-p1
 )
 
 set(P2_FILES
-        "src/include/storage/page/b_plus_tree_page.h"
-        "src/storage/page/b_plus_tree_page.cpp"
-        "src/include/storage/page/b_plus_tree_internal_page.h"
-        "src/storage/page/b_plus_tree_internal_page.cpp"
-        "src/include/storage/page/b_plus_tree_leaf_page.h"
-        "src/storage/page/b_plus_tree_leaf_page.cpp"
-        "src/include/storage/index/index_iterator.h"
-        "src/storage/index/index_iterator.cpp"
-        "src/include/storage/index/b_plus_tree.h"
-        "src/storage/index/b_plus_tree.cpp"
+        "src/include/storage/page/page_guard.h"
+        "src/storage/page/page_guard.cpp"
+        "src/include/storage/page/extendible_htable_bucket_page.h"
+        "src/storage/page/extendible_htable_bucket_page.cpp"
+        "src/include/storage/page/extendible_htable_directory_page.h"
+        "src/storage/page/extendible_htable_directory_page.cpp"
+        "src/include/storage/page/extendible_htable_header_page.h"
+        "src/storage/page/extendible_htable_header_page.cpp"
+        "src/include/container/disk/hash/disk_extendible_hash_table.h"
+        "src/container/disk/hash/disk_extendible_hash_table.cpp"
         ${P1_FILES}
 )
 add_custom_target(check-clang-tidy-p2
@@ -327,8 +327,11 @@ set(P3_FILES
         "src/include/execution/executors/seq_scan_executor.h"
         "src/include/execution/executors/sort_executor.h"
         "src/include/execution/executors/topn_executor.h"
+        "src/include/execution/executors/topn_per_group_executor.h"
         "src/include/execution/executors/update_executor.h"
+        "src/include/execution/executors/window_function_executor.h"
         "src/execution/aggregation_executor.cpp"
+        "src/execution/window_function_executor.cpp"
         "src/execution/delete_executor.cpp"
         "src/execution/filter_executor.cpp"
         "src/execution/hash_join_executor.cpp"
@@ -339,6 +342,7 @@ set(P3_FILES
         "src/execution/seq_scan_executor.cpp"
         "src/execution/sort_executor.cpp"
         "src/execution/topn_executor.cpp"
+        "src/execution/topn_per_group_executor.cpp"
         "src/execution/update_executor.cpp"
         "src/include/optimizer/optimizer.h"
         "src/include/optimizer/optimizer_internal.h"
@@ -346,8 +350,10 @@ set(P3_FILES
         "src/optimizer/optimizer_custom_rules.cpp"
         "src/optimizer/sort_limit_as_topn.cpp"
         "src/optimizer/optimizer_internal.cpp"
+        "src/optimizer/seqscan_as_indexscan.cpp"
+        "src/optimizer/column_pruning.cpp"
         "src/common/bustub_ddl.cpp"
-        "src/include/execution/plans/index_scan_plan.h"
+        "src/include/execution/plans/topn_per_group_plan.h"
         ${P2_FILES}
 )
 
@@ -364,11 +370,12 @@ add_custom_target(submit-p3
 )
 
 set(P4_FILES
-        "src/include/concurrency/lock_manager.h"
-        "src/concurrency/lock_manager.cpp"
         "src/include/concurrency/transaction_manager.h"
         "src/concurrency/transaction_manager.cpp"
-        "tools/terrier_bench/terrier_bench_config.h"
+        "src/include/concurrency/watermark.h"
+        "src/concurrency/watermark.cpp"
+        "src/include/execution/execution_common.h"
+        "src/execution/execution_common.cpp"
         ${P3_FILES}
 )
 

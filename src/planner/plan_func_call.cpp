@@ -23,16 +23,6 @@
 
 namespace bustub {
 
-auto Planner::PlanFuncCall(const BoundFuncCall &expr, const std::vector<AbstractPlanNodeRef> &children)
-    -> AbstractExpressionRef {
-  std::vector<AbstractExpressionRef> args;
-  for (const auto &arg : expr.args_) {
-    auto [_1, arg_expr] = PlanExpression(*arg, children);
-    args.push_back(std::move(arg_expr));
-  }
-  return GetFuncCallFromFactory(expr.func_name_, std::move(args));
-}
-
 // NOLINTNEXTLINE
 auto Planner::GetFuncCallFromFactory(const std::string &func_name, std::vector<AbstractExpressionRef> args)
     -> AbstractExpressionRef {

@@ -44,4 +44,14 @@ class VariableShowStatement : public BoundStatement {
   }
 };
 
+class TransactionStatement : public BoundStatement {
+ public:
+  explicit TransactionStatement(std::string type)
+      : BoundStatement(StatementType::TRANSACTION_STATEMENT), type_(std::move(type)) {}
+
+  std::string type_;
+
+  auto ToString() const -> std::string override { return fmt::format("BoundTransaction {{ type={} }}", type_); }
+};
+
 }  // namespace bustub

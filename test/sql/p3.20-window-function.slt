@@ -1,0 +1,100 @@
+# 5 pts
+# The real test process begins...
+
+# Create a table
+statement ok
+create table t1(v1 int);
+
+# Simple window aggregation over the table
+query
+insert into t1 values (-99999), (99999), (0), (1), (2), (3);
+----
+6
+
+query
+select count(*) over (), min(v1) over (), max(v1) over (), count(v1) over (), sum(v1) over () from t1;
+----
+6 -99999 99999 6 6
+6 -99999 99999 6 6
+6 -99999 99999 6 6
+6 -99999 99999 6 6
+6 -99999 99999 6 6
+6 -99999 99999 6 6
+
+query
+select count(*) over (order by v1), min(v1) over (order by v1), max(v1) over (order by v1), count(v1) over (order by v1), sum(v1) over (order by v1) from t1;
+----
+1 -99999 -99999 1 -99999
+2 -99999 0 2 -99999
+3 -99999 1 3 -99998
+4 -99999 2 4 -99996
+5 -99999 3 5 -99993
+6 -99999 99999 6 6
+
+query rowsort
+select v1, rank() over (order by v1) from t1;
+----
+-99999 1
+0 2
+1 3
+2 4
+3 5
+99999 6
+
+# duplicate ranks
+query
+insert into t1 values (1), (3);
+----
+2
+
+query rowsort
+select v1, rank() over (order by v1) from t1;
+----
+-99999 1
+0 2
+1 3
+1 3
+2 5
+3 6
+3 6
+99999 8
+
+# Create yet another table
+statement ok
+create table t2(v1 int, v2 int);
+
+# Insert something
+query
+insert into t2 values (1, 100), (1, 200), (1, 300), (2, 400), (2, 500);
+----
+5
+
+# partition by
+query rowsort
+select count(*) over (partition by v1), min(v2) over (partition by v1), max(v2) over (partition by v1), count(v2) over (partition by v1), sum(v2) over (partition by v1) from t2;
+----
+3 100 300 3 600
+3 100 300 3 600
+3 100 300 3 600
+2 400 500 2 900
+2 400 500 2 900
+
+# partition by combined with order by
+query rowsort
+select count(*) over (partition by v1 order by v2), min(v2) over (partition by v1 order by v2), max(v2) over (partition by v1 order by v2), count(v2) over (partition by v1 order by v2), sum(v2) over (partition by v1 order by v2) from t2;
+----
+1 100 100 1 100
+2 100 200 2 300
+3 100 300 3 600
+1 400 400 1 400
+2 400 500 2 900
+
+# different window functions should calculate separately
+query rowsort
+select sum(v2) over (partition by v1 order by v2), sum(v2) over (order by v2) from t2;
+----
+100 100
+300 300
+600 600
+400 1000
+900 1500

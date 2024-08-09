@@ -5,6 +5,8 @@
 namespace bustub {
 
 class BufferPoolManager;
+class ReadPageGuard;
+class WritePageGuard;
 
 class BasicPageGuard {
  public:
@@ -59,6 +61,28 @@ class BasicPageGuard {
    */
   ~BasicPageGuard();
 
+  /** TODO(P1): Add implementation
+   *
+   * @brief Upgrade a BasicPageGuard to a ReadPageGuard
+   *
+   * The protected page is not evicted from the buffer pool during the upgrade,
+   * and the basic page guard should be made invalid after calling this function.
+   *
+   * @return an upgraded ReadPageGuard
+   */
+  auto UpgradeRead() -> ReadPageGuard;
+
+  /** TODO(P1): Add implementation
+   *
+   * @brief Upgrade a BasicPageGuard to a WritePageGuard
+   *
+   * The protected page is not evicted from the buffer pool during the upgrade,
+   * and the basic page guard should be made invalid after calling this function.
+   *
+   * @return an upgraded WritePageGuard
+   */
+  auto UpgradeWrite() -> WritePageGuard;
+
   auto PageId() -> page_id_t { return page_->GetPageId(); }
 
   auto GetData() -> const char * { return page_->GetData(); }
@@ -90,7 +114,7 @@ class BasicPageGuard {
 class ReadPageGuard {
  public:
   ReadPageGuard() = default;
-  ReadPageGuard(BufferPoolManager *bpm, Page *page) : guard_(bpm, page) {}
+  ReadPageGuard(BufferPoolManager *bpm, Page *page);
   ReadPageGuard(const ReadPageGuard &) = delete;
   auto operator=(const ReadPageGuard &) -> ReadPageGuard & = delete;
 
@@ -150,7 +174,7 @@ class ReadPageGuard {
 class WritePageGuard {
  public:
   WritePageGuard() = default;
-  WritePageGuard(BufferPoolManager *bpm, Page *page) : guard_(bpm, page) {}
+  WritePageGuard(BufferPoolManager *bpm, Page *page);
   WritePageGuard(const WritePageGuard &) = delete;
   auto operator=(const WritePageGuard &) -> WritePageGuard & = delete;
 
