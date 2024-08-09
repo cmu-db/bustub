@@ -1,4 +1,5 @@
 add_subdirectory(shell)
+add_subdirectory(nc-shell)
 add_subdirectory(sqllogictest)
 add_subdirectory(wasm-shell)
 add_subdirectory(b_plus_tree_printer)
@@ -9,6 +10,7 @@ add_subdirectory(btree_bench)
 add_subdirectory(htable_bench)
 
 add_backward(shell)
+add_backward(nc-shell)
 add_backward(sqllogictest)
 add_backward(terrier-bench)
 add_backward(b_plus_tree_printer)

@@ -16,6 +16,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "fmt/format.h"
 
@@ -23,6 +24,8 @@
 #include "type/type.h"
 
 namespace bustub {
+
+class Column;
 
 inline auto GetCmpBool(bool boolean) -> CmpBool { return boolean ? CmpBool::CmpTrue : CmpBool::CmpFalse; }
 
@@ -42,6 +45,7 @@ class Value {
   friend class TimestampType;
   friend class BooleanType;
   friend class VarlenType;
+  friend class VectorType;
 
  public:
   explicit Value(const TypeId type) : manage_data_(false), type_id_(type) { size_.len_ = BUSTUB_VALUE_NULL; }
@@ -61,6 +65,7 @@ class Value {
   // VARCHAR
   Value(TypeId type, const char *data, uint32_t len, bool manage_data);
   Value(TypeId type, const std::string &data);
+  Value(TypeId type, const std::vector<double> &data);
 
   Value() : Value(TypeId::INVALID) {}
   Value(const Value &other);
@@ -80,8 +85,11 @@ class Value {
   // Get the type of this value
   inline auto GetTypeId() const -> TypeId { return type_id_; }
 
+  // Get the type of this value
+  auto GetColumn() const -> Column;
+
   // Get the length of the variable length data
-  inline auto GetLength() const -> uint32_t { return Type::GetInstance(type_id_)->GetLength(*this); }
+  inline auto GetStorageSize() const -> uint32_t { return Type::GetInstance(type_id_)->GetStorageSize(*this); }
   // Access the raw variable length data
   inline auto GetData() const -> const char * { return Type::GetInstance(type_id_)->GetData(*this); }
 
@@ -90,8 +98,17 @@ class Value {
     return *reinterpret_cast<const T *>(&value_);
   }
 
+  auto GetVector() const -> std::vector<double>;
+
   inline auto CastAs(const TypeId type_id) const -> Value {
     return Type::GetInstance(type_id_)->CastAs(*this, type_id);
+  }
+  // You will likely need this in project 4...
+  inline auto CompareExactlyEquals(const Value &o) const -> bool {
+    if (this->IsNull() && o.IsNull()) {
+      return true;
+    }
+    return (Type::GetInstance(type_id_)->CompareEquals(*this, o)) == CmpBool::CmpTrue;
   }
   // Comparison Methods
   inline auto CompareEquals(const Value &o) const -> CmpBool {

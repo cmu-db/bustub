@@ -16,6 +16,7 @@
 #include <utility>
 #include <vector>
 
+#include "catalog/column.h"
 #include "catalog/schema.h"
 #include "common/exception.h"
 #include "common/macros.h"
@@ -38,8 +39,10 @@ class LogicExpression : public AbstractExpression {
  public:
   /** Creates a new comparison expression representing (left comp_type right). */
   LogicExpression(AbstractExpressionRef left, AbstractExpressionRef right, LogicType logic_type)
-      : AbstractExpression({std::move(left), std::move(right)}, TypeId::BOOLEAN), logic_type_{logic_type} {
-    if (GetChildAt(0)->GetReturnType() != TypeId::BOOLEAN || GetChildAt(1)->GetReturnType() != TypeId::BOOLEAN) {
+      : AbstractExpression({std::move(left), std::move(right)}, Column{"<val>", TypeId::BOOLEAN}),
+        logic_type_{logic_type} {
+    if (GetChildAt(0)->GetReturnType().GetType() != TypeId::BOOLEAN ||
+        GetChildAt(1)->GetReturnType().GetType() != TypeId::BOOLEAN) {
       throw bustub::NotImplementedException("expect boolean from either side");
     }
   }

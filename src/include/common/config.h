@@ -16,6 +16,9 @@
 #include <chrono>  // NOLINT
 #include <cstdint>
 
+#define DISABLE_LOCK_MANAGER
+#define DISABLE_CHECKPOINT_MANAGER
+
 namespace bustub {
 
 /** Cycle detection is performed every CYCLE_DETECTION_INTERVAL milliseconds. */
@@ -39,10 +42,12 @@ static constexpr int LRUK_REPLACER_K = 10;  // lookback window for lru-k replace
 
 using frame_id_t = int32_t;    // frame id type
 using page_id_t = int32_t;     // page id type
-using txn_id_t = int32_t;      // transaction id type
+using txn_id_t = int64_t;      // transaction id type
 using lsn_t = int32_t;         // log sequence number type
 using slot_offset_t = size_t;  // slot offset type
 using oid_t = uint16_t;
+
+const txn_id_t TXN_START_ID = 1LL << 62;  // first txn id
 
 static constexpr int VARCHAR_DEFAULT_LENGTH = 128;  // default length for varchar when constructing the column
 

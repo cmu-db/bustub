@@ -21,6 +21,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "binder/binder.h"
+#include "binder/expressions/bound_window.h"
 
 namespace bustub {
 
@@ -839,4 +840,28 @@ auto Binder::NodeTagToString(duckdb_libpgquery::PGNodeTag type) -> std::string {
   }
 }  // LCOV_EXCL_STOP
 
+auto Binder::WindowBoundaryToString(WindowBoundary wb) -> std::string {
+  switch (wb) {
+    case WindowBoundary::INVALID:
+      return "INVALID";
+    case WindowBoundary::UNBOUNDED_PRECEDING:
+      return "UNBOUNDED PRECEDING";
+    case WindowBoundary::UNBOUNDED_FOLLOWING:
+      return "UNBOUNDED FOLLOWING";
+    case WindowBoundary::CURRENT_ROW_RANGE:
+      return "CURRENT ROW RANGE";
+    case WindowBoundary::CURRENT_ROW_ROWS:
+      return "CURRENT ROW ROWS";
+    case WindowBoundary::EXPR_FOLLOWING_ROWS:
+      return "EXPR FOLLOWING ROWS";
+    case WindowBoundary::EXPR_PRECEDING_ROWS:
+      return "EXPR PRECEDING ROWS";
+    case WindowBoundary::EXPR_FOLLOWING_RANGE:
+      return "EXPR FOLLOWING RANGE";
+    case WindowBoundary::EXPR_PRECEDING_RANGE:
+      return "EXPR PRECEDING RANGE";
+    default:
+      return "(UNKNOWN)";
+  }
+}  // LCOV_EXCL_STOP
 }  // namespace bustub

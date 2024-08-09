@@ -50,6 +50,9 @@ auto ParseInner(const std::string &filename, const std::string &script) -> std::
       line_iter++;
       continue;
     }
+    if (tokens[0] == "no" && tokens[1] == "test") {
+      return records;
+    }
     if (tokens[0] == "include") {
       if (tokens.size() == 2) {
         records.emplace_back(std::make_unique<IncludeRecord>(loc, tokens[1]));

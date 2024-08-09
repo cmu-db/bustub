@@ -17,9 +17,11 @@
 #include <utility>
 #include <vector>
 
+#include "catalog/column.h"
 #include "catalog/schema.h"
 #include "fmt/format.h"
 #include "storage/table/tuple.h"
+#include "type/type.h"
 
 #define BUSTUB_EXPR_CLONE_WITH_CHILDREN(cname)                                                                   \
   auto CloneWithChildren(std::vector<AbstractExpressionRef> children) const->std::unique_ptr<AbstractExpression> \
@@ -45,8 +47,8 @@ class AbstractExpression {
    * @param children the children of this abstract expression
    * @param ret_type the return type of this abstract expression when it is evaluated
    */
-  AbstractExpression(std::vector<AbstractExpressionRef> children, TypeId ret_type)
-      : children_{std::move(children)}, ret_type_{ret_type} {}
+  AbstractExpression(std::vector<AbstractExpressionRef> children, Column ret_type)
+      : children_{std::move(children)}, ret_type_{std::move(ret_type)} {}
 
   /** Virtual destructor. */
   virtual ~AbstractExpression() = default;
@@ -72,7 +74,7 @@ class AbstractExpression {
   auto GetChildren() const -> const std::vector<AbstractExpressionRef> & { return children_; }
 
   /** @return the type of this expression if it were to be evaluated */
-  virtual auto GetReturnType() const -> TypeId { return ret_type_; }
+  virtual auto GetReturnType() const -> Column { return ret_type_; }
 
   /** @return the string representation of the plan node and its children */
   virtual auto ToString() const -> std::string { return "<unknown>"; }
@@ -86,7 +88,7 @@ class AbstractExpression {
 
  private:
   /** The return type of this expression. */
-  TypeId ret_type_;
+  Column ret_type_;
 };
 
 }  // namespace bustub

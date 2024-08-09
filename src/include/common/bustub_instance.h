@@ -47,6 +47,7 @@ class IndexStatement;
 class VariableSetStatement;
 class VariableShowStatement;
 class ExplainStatement;
+class TransactionStatement;
 
 class ResultWriter {
  public:
@@ -61,6 +62,13 @@ class ResultWriter {
   virtual void EndRow() = 0;
   virtual void BeginTable(bool simplified_output) = 0;
   virtual void EndTable() = 0;
+  virtual void OneCell(const std::string &cell) {
+    BeginTable(true);
+    BeginRow();
+    WriteCell(cell);
+    EndRow();
+    EndTable();
+  }
 
   bool simplified_output_{false};
 };
@@ -104,6 +112,20 @@ class SimpleStreamWriter : public ResultWriter {
   bool disable_header_;
   std::ostream &stream_;
   std::string separator_;
+};
+
+class StringVectorWriter : public ResultWriter {
+ public:
+  void WriteCell(const std::string &cell) override { values_.back().push_back(cell); }
+  void WriteHeaderCell(const std::string &cell) override {}
+  void BeginHeader() override {}
+  void EndHeader() override {}
+  void BeginRow() override { values_.emplace_back(); }
+  void EndRow() override {}
+  void BeginTable(bool simplified_output) override { values_.clear(); }
+  void EndTable() override {}
+
+  std::vector<std::vector<std::string>> values_;
 };
 
 class HtmlWriter : public ResultWriter {
@@ -206,6 +228,7 @@ class FortTableWriter : public ResultWriter {
     tables_.emplace_back(table_.to_string());
     table_ = fort::utf8_table{};
   }
+  void OneCell(const std::string &cell) override { tables_.emplace_back(cell + "\n"); }
   fort::utf8_table table_;
   std::vector<std::string> tables_;
 };
@@ -218,9 +241,9 @@ class BustubInstance {
   auto MakeExecutorContext(Transaction *txn, bool is_modify) -> std::unique_ptr<ExecutorContext>;
 
  public:
-  explicit BustubInstance(const std::string &db_file_name);
+  explicit BustubInstance(const std::string &db_file_name, size_t bpm_size = 128);
 
-  BustubInstance();
+  explicit BustubInstance(size_t bpm_size = 128);
 
   ~BustubInstance();
 
@@ -235,6 +258,12 @@ class BustubInstance {
    */
   auto ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn,
                      std::shared_ptr<CheckOptions> check_options = nullptr) -> bool;
+
+  /** Enable managed txn mode on this BusTub instance, allowing statements like `BEGIN`. */
+  void EnableManagedTxn();
+
+  /** Get the current transaction. */
+  auto CurrentManagedTxn() -> Transaction *;
 
   /**
    * FOR TEST ONLY. Generate test tables in this BusTub instance.
@@ -255,6 +284,7 @@ class BustubInstance {
 
   std::unique_ptr<DiskManager> disk_manager_;
   std::unique_ptr<BufferPoolManager> buffer_pool_manager_;
+
   std::unique_ptr<LockManager> lock_manager_;
   std::unique_ptr<TransactionManager> txn_manager_;
   std::unique_ptr<LogManager> log_manager_;
@@ -278,6 +308,8 @@ class BustubInstance {
 
  private:
   void CmdDisplayTables(ResultWriter &writer);
+  void CmdDbgMvcc(const std::vector<std::string> &params, ResultWriter &writer);
+  void CmdTxn(const std::vector<std::string> &params, ResultWriter &writer);
   void CmdDisplayIndices(ResultWriter &writer);
   void CmdDisplayHelp(ResultWriter &writer);
   void WriteOneCell(const std::string &cell, ResultWriter &writer);
@@ -285,10 +317,13 @@ class BustubInstance {
   void HandleCreateStatement(Transaction *txn, const CreateStatement &stmt, ResultWriter &writer);
   void HandleIndexStatement(Transaction *txn, const IndexStatement &stmt, ResultWriter &writer);
   void HandleExplainStatement(Transaction *txn, const ExplainStatement &stmt, ResultWriter &writer);
+  void HandleTxnStatement(Transaction *txn, const TransactionStatement &stmt, ResultWriter &writer);
   void HandleVariableShowStatement(Transaction *txn, const VariableShowStatement &stmt, ResultWriter &writer);
   void HandleVariableSetStatement(Transaction *txn, const VariableSetStatement &stmt, ResultWriter &writer);
 
   std::unordered_map<std::string, std::string> session_variables_;
+  Transaction *current_txn_{nullptr};
+  bool managed_txn_mode_{false};
 };
 
 }  // namespace bustub
