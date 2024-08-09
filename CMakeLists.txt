@@ -138,7 +138,7 @@ set(BUSTUB_THIRD_PARTY_INCLUDE_DIR
         ${PROJECT_SOURCE_DIR}/third_party/libpg_query/include
         ${PROJECT_SOURCE_DIR}/third_party/argparse/include
         ${PROJECT_SOURCE_DIR}/third_party/cpp_random_distributions
-        ${PROJECT_SOURCE_DIR}/third_party/backward-cpp/include
+        ${PROJECT_SOURCE_DIR}/third_party/backward-cpp
 )
 
 include_directories(${BUSTUB_SRC_INCLUDE_DIR} ${BUSTUB_TEST_INCLUDE_DIR} ${BUSTUB_THIRD_PARTY_INCLUDE_DIR})
