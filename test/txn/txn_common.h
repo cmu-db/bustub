@@ -492,7 +492,7 @@ void QueryIndex(BustubInstance &instance, const std::string &txn_var_name, Trans
       }
       if (writer.values_[0] != VecToVecString(expected_rows[i])) {
         fmt::println(stderr, "{} expect {} = {} to be ({}), found ({})", StatusFail("ERROR:"), pk_column,
-                     expected_pk[i], fmt::join(expected_rows[0], ","), fmt::join(writer.values_[0], ","));
+                     expected_pk[i], fmt::join(expected_rows[i], ","), fmt::join(writer.values_[0], ","));
         std::terminate();
       }
     }
