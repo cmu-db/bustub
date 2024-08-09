@@ -46,6 +46,7 @@
 #include "fmt/ranges.h"
 #include "nodes/nodes.hpp"
 #include "nodes/primnodes.hpp"
+#include "nodes/value.hpp"
 #include "pg_definitions.hpp"
 #include "postgres_parser.hpp"
 #include "type/type_id.h"
@@ -84,6 +85,16 @@ auto Binder::BindColumnDefinition(duckdb_libpgquery::PGColumnDef *cdef) -> Colum
     const auto &varchar_max_length_val = dynamic_cast<const BoundConstant &>(*exprs[0]);
     uint32_t varchar_max_length = std::stoi(varchar_max_length_val.ToString());
     return {colname, TypeId::VARCHAR, varchar_max_length};
+  }
+
+  if (name == "vector") {
+    auto exprs = BindExpressionList(cdef->typeName->typmods);
+    if (exprs.size() != 1) {
+      throw bustub::Exception("should specify vector length");
+    }
+    const auto &vector_length_val = dynamic_cast<const BoundConstant &>(*exprs[0]);
+    uint32_t vector_length = std::stoi(vector_length_val.ToString());
+    return {colname, TypeId::VECTOR, vector_length};
   }
 
   throw NotImplementedException(fmt::format("unsupported type: {}", name));
@@ -156,6 +167,7 @@ auto Binder::BindCreate(duckdb_libpgquery::PGCreateStmt *pg_stmt) -> std::unique
 
 auto Binder::BindIndex(duckdb_libpgquery::PGIndexStmt *stmt) -> std::unique_ptr<IndexStatement> {
   std::vector<std::unique_ptr<BoundColumnRef>> cols;
+  std::vector<std::string> col_options;
   auto table = BindBaseTableRef(stmt->relation->relname, std::nullopt);
 
   for (auto cell = stmt->indexParams->head; cell != nullptr; cell = cell->next) {
@@ -163,12 +175,43 @@ auto Binder::BindIndex(duckdb_libpgquery::PGIndexStmt *stmt) -> std::unique_ptr<
     if (index_element->name != nullptr) {
       auto column_ref = ResolveColumn(*table, std::vector{std::string(index_element->name)});
       cols.emplace_back(std::make_unique<BoundColumnRef>(dynamic_cast<const BoundColumnRef &>(*column_ref)));
+      std::string opt;
+      if (index_element->opclass != nullptr) {
+        for (auto c = index_element->opclass->head; c != nullptr; c = lnext(c)) {
+          opt = reinterpret_cast<duckdb_libpgquery::PGValue *>(c->data.ptr_value)->val.str;
+          break;
+        }
+      }
+      col_options.emplace_back(opt);
     } else {
       throw NotImplementedException("create index by expr is not supported yet");
     }
   }
 
-  return std::make_unique<IndexStatement>(stmt->idxname, std::move(table), std::move(cols));
+  std::string index_type;
+
+  if (stmt->accessMethod != nullptr) {
+    index_type = stmt->accessMethod;
+    if (index_type == "art") {
+      index_type = "";
+    }
+  }
+
+  std::vector<std::pair<std::string, int>> options;
+
+  if (stmt->options != nullptr) {
+    for (auto c = stmt->options->head; c != nullptr; c = lnext(c)) {
+      auto def_elem = reinterpret_cast<duckdb_libpgquery::PGDefElem *>(c->data.ptr_value);
+      int val;
+      if (def_elem->arg != nullptr) {
+        val = reinterpret_cast<duckdb_libpgquery::PGValue *>(def_elem->arg)->val.ival;
+      }
+      options.emplace_back(def_elem->defname, val);
+    }
+  }
+
+  return std::make_unique<IndexStatement>(stmt->idxname, std::move(table), std::move(cols), std::move(index_type),
+                                          std::move(col_options), std::move(options));
 }
 
 }  // namespace bustub

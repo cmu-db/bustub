@@ -1,5 +1,5 @@
 query rowsort
-select day_of_week, upper(day_of_week), lower(day_of_week), has_lecture from __mock_table_schedule_2023;
+select day_of_week, upper(day_of_week), lower(day_of_week), has_lecture from __mock_table_schedule;
 ----
 Monday MONDAY monday 1 
 Tuesday TUESDAY tuesday 0 

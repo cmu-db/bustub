@@ -128,7 +128,7 @@ auto Planner::PlanSelectAgg(const SelectStatement &statement, AbstractPlanNodeRe
     agg_types.push_back(agg_type);
     output_col_names.emplace_back(fmt::format("agg#{}", term_idx));
     ctx_.expr_in_agg_.emplace_back(
-        std::make_unique<ColumnValueExpression>(0, agg_begin_idx + term_idx, TypeId::INTEGER));
+        std::make_unique<ColumnValueExpression>(0, agg_begin_idx + term_idx, Column("<agg_result>", TypeId::INTEGER)));
 
     term_idx += 1;
   }

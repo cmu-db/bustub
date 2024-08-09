@@ -57,5 +57,6 @@ select * from t1;
 ----
 
 # Index Scan
+query +ensure:index_scan
 select * from t1 where v1 = 1;
 ----

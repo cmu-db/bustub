@@ -65,7 +65,7 @@ TEST(TxnIndexTest, DISABLED_IndexConcurrentInsertTest) {  // NOLINT
       for (int j = 0; j < thread_cnt; j++) {
         if (operation_result[j][i]) {
           if (winner != -1) {
-            fmt::println(stderr, "multiple winner for inserting {}: [{}]", i, fmt::join(operation_result[j], ","));
+            fmt::println(stderr, "multiple winner for inserting {}", i);
             std::terminate();
           }
           winner = j;

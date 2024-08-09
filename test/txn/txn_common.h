@@ -206,12 +206,15 @@ void CheckUndoLogNum(BustubInstance &instance, const std::string &txn_var_name, 
 }
 
 void CheckUndoLogColumn(BustubInstance &instance, const std::string &txn_var_name, Transaction *txn,
-                        size_t expected_columns) {
+                        size_t expected_columns, bool enable_length_check = true) {
   fmt::println(stderr, "- {} var={} id={} status={} read_ts={}", Header("check_undo_log"), txn_var_name,
                txn->GetTransactionIdHumanReadable(), txn->GetTransactionState(), txn->GetReadTs());
   auto undo_log_num = txn->GetUndoLogNum();
   if (undo_log_num != 1) {
     fmt::println(stderr, "Error: expected to have {} undo logs in txn, found {}", 1, undo_log_num);
+    std::cerr << "hint: please refer to the writeup delete and update section. you should generate a partial tuple, "
+                 "keep adding things to the tuple when updating, and never remove things from it."
+              << std::endl;
     std::terminate();
   }
   auto undo_log = txn->GetUndoLog(0);
@@ -224,6 +227,16 @@ void CheckUndoLogColumn(BustubInstance &instance, const std::string &txn_var_nam
                  "keep adding things to the tuple when updating, and never remove things from it."
               << std::endl;
     std::terminate();
+  }
+  if (enable_length_check) {
+    if (undo_log.tuple_.GetLength() > expected_columns * 4 /* integer width */) {
+      fmt::println(stderr, "Error: tuple length not correct? expecting <column> * 4, found {} while having {} columns",
+                   undo_log.tuple_.GetLength(), cnt);
+      std::cerr << "hint: probably your implementation stores `modified_fields` correctly but did not actually "
+                   "use it in the tuple reconstruction process."
+                << std::endl;
+      std::terminate();
+    }
   }
 }
 
@@ -479,7 +492,7 @@ void QueryIndex(BustubInstance &instance, const std::string &txn_var_name, Trans
       }
       if (writer.values_[0] != VecToVecString(expected_rows[i])) {
         fmt::println(stderr, "{} expect {} = {} to be ({}), found ({})", StatusFail("ERROR:"), pk_column,
-                     expected_pk[i], fmt::join(expected_rows[0], ","), fmt::join(writer.values_[0], ","));
+                     expected_pk[i], fmt::join(expected_rows[i], ","), fmt::join(writer.values_[0], ","));
         std::terminate();
       }
     }
@@ -488,5 +501,6 @@ void QueryIndex(BustubInstance &instance, const std::string &txn_var_name, Trans
 }
 
 using IntResult = std::vector<std::vector<int>>;
+using AnyResult = std::vector<std::vector<std::string>>;
 
 }  // namespace bustub

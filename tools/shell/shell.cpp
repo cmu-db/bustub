@@ -83,11 +83,11 @@ auto main(int argc, char **argv) -> int {
           return 0;
         }
         query += query_c_str;
+        linenoiseFree(query_c_str);
         if (bustub::StringUtil::EndsWith(query, ";") || bustub::StringUtil::StartsWith(query, "\\")) {
           break;
         }
         query += " ";
-        linenoiseFree(query_c_str);
       } else {
         std::string query_line;
         std::cout << line_prompt;

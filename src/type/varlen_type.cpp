@@ -20,18 +20,18 @@
 namespace bustub {
 #define VARLEN_COMPARE_FUNC(OP)                                               \
   const char *str1 = left.GetData();                                          \
-  uint32_t len1 = GetLength(left) - 1;                                        \
+  uint32_t len1 = GetStorageSize(left) - 1;                                   \
   const char *str2;                                                           \
   uint32_t len2;                                                              \
   if (right.GetTypeId() == TypeId::VARCHAR) {                                 \
     str2 = right.GetData();                                                   \
-    len2 = GetLength(right) - 1;                                              \
+    len2 = GetStorageSize(right) - 1;                                         \
     /* NOLINTNEXTLINE */                                                      \
     return GetCmpBool(TypeUtil::CompareStrings(str1, len1, str2, len2) OP 0); \
   } else {                                                                    \
     auto r_value = right.CastAs(TypeId::VARCHAR);                             \
     str2 = r_value.GetData();                                                 \
-    len2 = GetLength(r_value) - 1;                                            \
+    len2 = GetStorageSize(r_value) - 1;                                       \
     /* NOLINTNEXTLINE */                                                      \
     return GetCmpBool(TypeUtil::CompareStrings(str1, len1, str2, len2) OP 0); \
   }
@@ -44,15 +44,12 @@ VarlenType::~VarlenType() = default;
 auto VarlenType::GetData(const Value &val) const -> const char * { return val.value_.varlen_; }
 
 // Get the length of the variable length data (including the length field)
-auto VarlenType::GetLength(const Value &val) const -> uint32_t { return val.size_.len_; }
+auto VarlenType::GetStorageSize(const Value &val) const -> uint32_t { return val.size_.len_; }
 
 auto VarlenType::CompareEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
-  }
-  if (GetLength(left) == BUSTUB_VARCHAR_MAX_LEN || GetLength(right) == BUSTUB_VARCHAR_MAX_LEN) {
-    return GetCmpBool(GetLength(left) == GetLength(right));
   }
 
   VARLEN_COMPARE_FUNC(==);  // NOLINT
@@ -63,9 +60,6 @@ auto VarlenType::CompareNotEquals(const Value &left, const Value &right) const -
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
   }
-  if (GetLength(left) == BUSTUB_VARCHAR_MAX_LEN || GetLength(right) == BUSTUB_VARCHAR_MAX_LEN) {
-    return GetCmpBool(GetLength(left) != GetLength(right));
-  }
 
   VARLEN_COMPARE_FUNC(!=);  // NOLINT
 }
@@ -74,9 +68,6 @@ auto VarlenType::CompareLessThan(const Value &left, const Value &right) const ->
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
-  }
-  if (GetLength(left) == BUSTUB_VARCHAR_MAX_LEN || GetLength(right) == BUSTUB_VARCHAR_MAX_LEN) {
-    return GetCmpBool(GetLength(left) < GetLength(right));
   }
 
   VARLEN_COMPARE_FUNC(<);  // NOLINT
@@ -87,9 +78,6 @@ auto VarlenType::CompareLessThanEquals(const Value &left, const Value &right) co
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
   }
-  if (GetLength(left) == BUSTUB_VARCHAR_MAX_LEN || GetLength(right) == BUSTUB_VARCHAR_MAX_LEN) {
-    return GetCmpBool(GetLength(left) <= GetLength(right));
-  }
 
   VARLEN_COMPARE_FUNC(<=);  // NOLINT
 }
@@ -99,9 +87,6 @@ auto VarlenType::CompareGreaterThan(const Value &left, const Value &right) const
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
   }
-  if (GetLength(left) == BUSTUB_VARCHAR_MAX_LEN || GetLength(right) == BUSTUB_VARCHAR_MAX_LEN) {
-    return GetCmpBool(GetLength(left) > GetLength(right));
-  }
 
   VARLEN_COMPARE_FUNC(>);  // NOLINT
 }
@@ -110,9 +95,6 @@ auto VarlenType::CompareGreaterThanEquals(const Value &left, const Value &right)
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
-  }
-  if (GetLength(left) == BUSTUB_VARCHAR_MAX_LEN || GetLength(right) == BUSTUB_VARCHAR_MAX_LEN) {
-    return GetCmpBool(GetLength(left) >= GetLength(right));
   }
 
   VARLEN_COMPARE_FUNC(>=);  // NOLINT
@@ -141,7 +123,7 @@ auto VarlenType::Max(const Value &left, const Value &right) const -> Value {
 }
 
 auto VarlenType::ToString(const Value &val) const -> std::string {
-  uint32_t len = GetLength(val);
+  uint32_t len = GetStorageSize(val);
 
   if (val.IsNull()) {
     return "varlen_null";
@@ -156,7 +138,7 @@ auto VarlenType::ToString(const Value &val) const -> std::string {
 }
 
 void VarlenType::SerializeTo(const Value &val, char *storage) const {
-  uint32_t len = GetLength(val);
+  uint32_t len = GetStorageSize(val);
   if (len == BUSTUB_VALUE_NULL) {
     memcpy(storage, &len, sizeof(uint32_t));
     return;

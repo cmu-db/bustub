@@ -106,15 +106,37 @@ void BustubInstance::HandleIndexStatement(Transaction *txn, const IndexStatement
   }
 
   std::unique_lock<std::shared_mutex> l(catalog_lock_);
-  auto info = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
-      txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, TWO_INTEGER_SIZE,
-      IntegerHashFunctionType{}, false, IndexType::HashTableIndex);
+  IndexInfo *info = nullptr;
+
+  if (stmt.index_type_.empty()) {
+    info = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
+        txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, TWO_INTEGER_SIZE,
+        IntegerHashFunctionType{}, false);  // create default index
+  } else if (stmt.index_type_ == "hash") {
+    info = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
+        txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, TWO_INTEGER_SIZE,
+        IntegerHashFunctionType{}, false, IndexType::HashTableIndex);
+  } else if (stmt.index_type_ == "bplustree") {
+    info = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
+        txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, TWO_INTEGER_SIZE,
+        IntegerHashFunctionType{}, false, IndexType::BPlusTreeIndex);
+  } else if (stmt.index_type_ == "stl_ordered") {
+    info = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
+        txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, TWO_INTEGER_SIZE,
+        IntegerHashFunctionType{}, false, IndexType::STLOrderedIndex);
+  } else if (stmt.index_type_ == "stl_unordered") {
+    info = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
+        txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, TWO_INTEGER_SIZE,
+        IntegerHashFunctionType{}, false, IndexType::STLUnorderedIndex);
+  } else {
+    UNIMPLEMENTED("unsupported index type " + stmt.index_type_);
+  }
   l.unlock();
 
   if (info == nullptr) {
     throw bustub::Exception("Failed to create index");
   }
-  WriteOneCell(fmt::format("Index created with id = {}", info->index_oid_), writer);
+  WriteOneCell(fmt::format("Index created with id = {} with type = {}", info->index_oid_, info->index_type_), writer);
 }
 
 void BustubInstance::HandleExplainStatement(Transaction *txn, const ExplainStatement &stmt, ResultWriter &writer) {

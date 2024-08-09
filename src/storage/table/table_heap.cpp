@@ -62,8 +62,6 @@ auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple, LockManag
 
     page_guard.Drop();
 
-    // acquire latch here as TSAN complains. Given we only have one insertion thread, this is fine.
-    npg->WLatch();
     auto next_page_guard = WritePageGuard{bpm_, npg};
 
     last_page_id_ = next_page_id;
@@ -116,7 +114,9 @@ auto TableHeap::MakeIterator() -> TableIterator {
 
   auto page_guard = bpm_->FetchPageRead(last_page_id);
   auto page = page_guard.As<TablePage>();
-  return {this, {first_page_id_, 0}, {last_page_id, page->GetNumTuples()}};
+  auto num_tuples = page->GetNumTuples();
+  page_guard.Drop();
+  return {this, {first_page_id_, 0}, {last_page_id, num_tuples}};
 }
 
 auto TableHeap::MakeEagerIterator() -> TableIterator { return {this, {first_page_id_, 0}, {INVALID_PAGE_ID, 0}}; }
@@ -143,12 +143,14 @@ void TableHeap::UpdateTupleInPlaceWithLockAcquired(const TupleMeta &meta, const 
   page->UpdateTupleInPlaceUnsafe(meta, tuple, rid);
 }
 
-auto TableHeap::GetTupleWithLockAcquired(RID rid, TablePage *page) -> std::pair<TupleMeta, Tuple> {
+auto TableHeap::GetTupleWithLockAcquired(RID rid, const TablePage *page) -> std::pair<TupleMeta, Tuple> {
   auto [meta, tuple] = page->GetTuple(rid);
   tuple.rid_ = rid;
   return std::make_pair(meta, std::move(tuple));
 }
 
-auto TableHeap::GetTupleMetaWithLockAcquired(RID rid, TablePage *page) -> TupleMeta { return page->GetTupleMeta(rid); }
+auto TableHeap::GetTupleMetaWithLockAcquired(RID rid, const TablePage *page) -> TupleMeta {
+  return page->GetTupleMeta(rid);
+}
 
 }  // namespace bustub

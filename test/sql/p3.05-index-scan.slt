@@ -45,6 +45,14 @@ select * from t1 where v2 = 40;
 ----
 2 40 721
 
+statement ok
+explain select * from t1 where v1 = 1 or v1 = 2;
+
+query rowsort +ensure:index_scan
+select * from t1 where v1 = 1 or v1 = 2;
+----
+1 50 645
+2 40 721
 
 query
 select * from t1 where v1 = 1 and v2 = 50;
@@ -99,6 +107,12 @@ select * from t1 where v2 = 20;
 ----
 4 20 445
 
+query rowsort +ensure:index_scan 
+select * from t1 where v1 = 7 or 3 = v1;
+----
+7 -10 645 
+3 30 645 
+
 query +ensure:index_scan
 select * from t1 where v2 = 40;
 ----
@@ -150,6 +164,38 @@ query +ensure:seq_scan
 select * from t1 where v2 = 0 and v3 = 721;
 ----
 6 0 721
+
+query +ensure:seq_scan
+select * from t1 where v1 = 7 or 10 = v2;
+----
+5 10 445 
+7 -10 645 
+
+query rowsort +ensure:index_scan
+select * from t1 where v1 = 7 or v1 = 3 or 5 = v1;
+----
+7 -10 645 
+3 30 645 
+5 10 445 
+
+query +ensure:index_scan
+select * from t1 where v1 = 3 or v1 = 3 or v1 = 3
+----
+3 30 645 
+
+query rowsort +ensure:index_scan
+select * from t1 where v1 = 3 or v1 = 5 or v1 = 1 or v1 = 5
+----
+5 10 445 
+1 50 645 
+3 30 645 
+
+query +ensure:seq_scan
+select * from t1 where v1 = 7 or v1 = 3 or 5 = v1 or 3 = v2;
+----
+5 10 445 
+3 30 645 
+7 -10 645
 
 # Delete some elements
 query

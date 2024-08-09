@@ -107,7 +107,7 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> AbstractPlanNodeRe
     std::vector<AbstractExpressionRef> distinct_exprs;
     size_t col_idx = 0;
     for (const auto &col : child->OutputSchema().GetColumns()) {
-      distinct_exprs.emplace_back(std::make_shared<ColumnValueExpression>(0, col_idx++, col.GetType()));
+      distinct_exprs.emplace_back(std::make_shared<ColumnValueExpression>(0, col_idx++, col));
     }
 
     plan = std::make_shared<AggregationPlanNode>(std::make_shared<Schema>(child->OutputSchema()), child,

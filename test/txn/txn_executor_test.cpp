@@ -420,6 +420,7 @@ TEST(TxnExecutorTest, DISABLED_UpdateConflict) {  // NOLINT
     auto txn0 = BeginTxn(*bustub, "txn0");
     WithTxn(txn0, ExecuteTxn(*bustub, _var, _txn, "INSERT INTO table1 VALUES (0, 0, 0)"));
     WithTxn(txn0, CommitTxn(*bustub, _var, _txn));
+    auto txn_ref = BeginTxn(*bustub, "txn_ref");
     TxnMgrDbg("after initialize", bustub->txn_manager_.get(), table_info, table_info->table_.get());
     auto txn1 = BeginTxn(*bustub, "txn1");
     auto txn2 = BeginTxn(*bustub, "txn2");
@@ -429,11 +430,37 @@ TEST(TxnExecutorTest, DISABLED_UpdateConflict) {  // NOLINT
     TxnMgrDbg("after txn tainted", bustub->txn_manager_.get(), table_info, table_info->table_.get());
     WithTxn(txn1, CommitTxn(*bustub, _var, _txn));
     TxnMgrDbg("after commit", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+    WithTxn(txn_ref, QueryShowResult(*bustub, _var, _txn, "SELECT * FROM table1", IntResult{{0, 0, 0}}));
     TableHeapEntryNoMoreThan(*bustub, table_info, 1);
   }
   {
     fmt::println(stderr, "--- UpdateConflict2: complex case with version chain ---");
-    // TODO(chi)
+    auto bustub = std::make_unique<BustubInstance>();
+    Execute(*bustub, "CREATE TABLE table1(a int, b int, c int)");
+    auto table_info = bustub->catalog_->GetTable("table1");
+    auto txn0 = BeginTxn(*bustub, "txn0");
+    WithTxn(txn0, ExecuteTxn(*bustub, _var, _txn, "INSERT INTO table1 VALUES (0, 0, 0), (1, 1, 1)"));
+    WithTxn(txn0, CommitTxn(*bustub, _var, _txn));
+    TxnMgrDbg("after initialize", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+    auto txn1 = BeginTxn(*bustub, "txn1");
+    auto txn2 = BeginTxn(*bustub, "txn2");
+    auto txn3 = BeginTxn(*bustub, "txn3");
+    auto txn4 = BeginTxn(*bustub, "txn4");
+    auto txn_ref = BeginTxn(*bustub, "txn_ref");
+    WithTxn(txn1, ExecuteTxn(*bustub, _var, _txn, "UPDATE table1 SET b = 233 WHERE a = 0"));
+    WithTxn(txn1, CommitTxn(*bustub, _var, _txn));
+    WithTxn(txn2, ExecuteTxn(*bustub, _var, _txn, "UPDATE table1 SET b = 2333 WHERE a = 1"));
+    TxnMgrDbg("after updates", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+    WithTxn(txn3, ExecuteTxnTainted(*bustub, _var, _txn, "UPDATE table1 SET b = 2 WHERE a = 0"));
+    TxnMgrDbg("after txn3 tainted", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+    WithTxn(txn4, ExecuteTxnTainted(*bustub, _var, _txn, "UPDATE table1 SET b = 2 WHERE a = 1"));
+    TxnMgrDbg("after txn4 tainted", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+    WithTxn(txn2, CommitTxn(*bustub, _var, _txn));
+    TxnMgrDbg("after commit", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+    WithTxn(txn_ref, QueryShowResult(*bustub, _var, _txn, "SELECT * FROM table1", IntResult{{0, 0, 0}, {1, 1, 1}}));
+    auto txn5 = BeginTxn(*bustub, "txn5");
+    WithTxn(txn5, QueryShowResult(*bustub, _var, _txn, "SELECT * FROM table1", IntResult{{0, 233, 0}, {1, 2333, 1}}));
+    TableHeapEntryNoMoreThan(*bustub, table_info, 2);
   }
 }
 

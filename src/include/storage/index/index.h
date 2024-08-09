@@ -184,7 +184,7 @@ class Index {
    */
   virtual void ScanKey(const Tuple &key, std::vector<RID> *result, Transaction *transaction) = 0;
 
- private:
+ protected:
   /** The Index structure owns its metadata */
   std::unique_ptr<IndexMetadata> metadata_;
 };

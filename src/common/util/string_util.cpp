@@ -42,6 +42,11 @@ void StringUtil::RTrim(std::string *str) {
   str->erase(std::find_if(str->rbegin(), str->rend(), [](int ch) { return std::isspace(ch) == 0; }).base(), str->end());
 }
 
+void StringUtil::LTrim(std::string *str) {
+  // remove leading ' ', \f, \n, \r, \t, \v
+  str->erase(str->begin(), std::find_if(str->begin(), str->end(), [](int ch) { return std::isspace(ch) == 0; }));
+}
+
 auto StringUtil::Indent(int num_indent) -> std::string { return std::string(num_indent, ' '); }  // NOLINT
 
 auto StringUtil::StartsWith(const std::string &str, const std::string &prefix) -> bool {
@@ -198,6 +203,16 @@ auto StringUtil::Split(const std::string &input, const std::string &split) -> st
     last = next + split_len;
   }
   return splits;
+}
+
+auto StringUtil::Count(const std::string &input, const std::string &str) -> size_t {
+  size_t count = 0;
+  size_t n_pos = input.find(str, 0);  // first occurrence
+  while (n_pos != std::string::npos) {
+    count++;
+    n_pos = input.find(str, n_pos + 1);
+  }
+  return count;
 }
 
 auto StringUtil::Strip(const std::string &str, char c) -> std::string {
