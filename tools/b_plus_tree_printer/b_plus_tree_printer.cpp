@@ -72,7 +72,7 @@ auto main(int argc, char **argv) -> int {
 
   GenericComparator<8> comparator(key_schema.get());
 
-  auto *disk_manager = new DiskManager("test.db");
+  auto *disk_manager = new DiskManager("test.bustub");
   auto *bpm = new BufferPoolManager(100, disk_manager);
   // create and fetch header_page
   page_id_t page_id;
@@ -136,7 +136,7 @@ auto main(int argc, char **argv) -> int {
   delete bpm;
   delete transaction;
   delete disk_manager;
-  remove("test.db");
+  remove("test.bustub");
   remove("test.log");
 
   return 0;

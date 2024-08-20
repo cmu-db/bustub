@@ -257,7 +257,7 @@ auto main(int argc, char **argv) -> int {  // NOLINT
   if (program.get<bool>("--in-memory")) {
     bustub = std::make_unique<bustub::BustubInstance>();
   } else {
-    bustub = std::make_unique<bustub::BustubInstance>("test.db");
+    bustub = std::make_unique<bustub::BustubInstance>("test.bustub");
   }
 
   bustub->GenerateMockTable();
