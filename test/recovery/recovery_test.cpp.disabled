@@ -36,21 +36,21 @@ class RecoveryTest : public ::testing::Test {
  protected:
   // This function is called before every test.
   void SetUp() override {
-    remove("test.db");
+    remove("test.bustub");
     remove("test.log");
   }
 
   // This function is called after every test.
   void TearDown() override {
     LOG_INFO("Tearing down the system..");
-    remove("test.db");
+    remove("test.bustub");
     remove("test.log");
   };
 };
 
 // NOLINTNEXTLINE
 TEST_F(RecoveryTest, DISABLED_RedoTest) {
-  auto *bustub_instance = new BustubInstance("test.db");
+  auto *bustub_instance = new BustubInstance("test.bustub");
 
   ASSERT_FALSE(enable_logging);
   LOG_INFO("Skip system recovering...");
@@ -92,7 +92,7 @@ TEST_F(RecoveryTest, DISABLED_RedoTest) {
   delete bustub_instance;
 
   LOG_INFO("System restart...");
-  bustub_instance = new BustubInstance("test.db");
+  bustub_instance = new BustubInstance("test.bustub");
 
   ASSERT_FALSE(enable_logging);
   LOG_INFO("Check if tuple is not in table before recovery");
@@ -139,7 +139,7 @@ TEST_F(RecoveryTest, DISABLED_RedoTest) {
 
 // NOLINTNEXTLINE
 TEST_F(RecoveryTest, DISABLED_UndoTest) {
-  auto *bustub_instance = new BustubInstance("test.db");
+  auto *bustub_instance = new BustubInstance("test.bustub");
 
   ASSERT_FALSE(enable_logging);
   LOG_INFO("Skip system recovering...");
@@ -176,7 +176,7 @@ TEST_F(RecoveryTest, DISABLED_UndoTest) {
   delete bustub_instance;
 
   LOG_INFO("System restarted..");
-  bustub_instance = new BustubInstance("test.db");
+  bustub_instance = new BustubInstance("test.bustub");
 
   LOG_INFO("Check if tuple exists before recovery");
   Tuple old_tuple;
@@ -218,7 +218,7 @@ TEST_F(RecoveryTest, DISABLED_UndoTest) {
 
 // NOLINTNEXTLINE
 TEST_F(RecoveryTest, DISABLED_CheckpointTest) {
-  auto *bustub_instance = new BustubInstance("test.db");
+  auto *bustub_instance = new BustubInstance("test.bustub");
 
   EXPECT_FALSE(enable_logging);
   LOG_INFO("Skip system recovering...");

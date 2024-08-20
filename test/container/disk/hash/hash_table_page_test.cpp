@@ -24,7 +24,7 @@
 
 // // NOLINTNEXTLINE
 // TEST(HashTablePageTest, DISABLED_DirectoryPageSampleTest) {
-//   auto *disk_manager = new DiskManager("test.db");
+//   auto *disk_manager = new DiskManager("test.bustub");
 //   auto *bpm = new BufferPoolManager(5, disk_manager);
 
 //   // get a directory page from the BufferPoolManager
@@ -50,14 +50,14 @@
 //   // unpin the directory page now that we are done
 //   bpm->UnpinPage(directory_page_id, true);
 //   disk_manager->ShutDown();
-//   remove("test.db");
+//   remove("test.bustub");
 //   delete disk_manager;
 //   delete bpm;
 // }
 
 // // NOLINTNEXTLINE
 // TEST(HashTablePageTest, DISABLED_BucketPageSampleTest) {
-//   auto *disk_manager = new DiskManager("test.db");
+//   auto *disk_manager = new DiskManager("test.bustub");
 //   auto *bpm = new BufferPoolManager(5, disk_manager);
 
 //   // get a bucket page from the BufferPoolManager
@@ -108,7 +108,7 @@
 //   // unpin the directory page now that we are done
 //   bpm->UnpinPage(bucket_page_id, true);
 //   disk_manager->ShutDown();
-//   remove("test.db");
+//   remove("test.bustub");
 //   delete disk_manager;
 //   delete bpm;
 // }

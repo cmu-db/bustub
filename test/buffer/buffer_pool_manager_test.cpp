@@ -24,7 +24,7 @@ namespace bustub {
 // NOLINTNEXTLINE
 // Check whether pages containing terminal characters can be recovered
 TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
-  const std::string db_name = "test.db";
+  const std::string db_name = "test.bustub";
   const size_t buffer_pool_size = 10;
   const size_t k = 5;
 
@@ -90,7 +90,7 @@ TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
 
   // Shutdown the disk manager and remove the temporary file we created.
   disk_manager->ShutDown();
-  remove("test.db");
+  remove("test.bustub");
 
   delete bpm;
   delete disk_manager;
@@ -98,7 +98,7 @@ TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
 
 // NOLINTNEXTLINE
 TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
-  const std::string db_name = "test.db";
+  const std::string db_name = "test.bustub";
   const size_t buffer_pool_size = 10;
   const size_t k = 5;
 
@@ -148,7 +148,7 @@ TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
 
   // Shutdown the disk manager and remove the temporary file we created.
   disk_manager->ShutDown();
-  remove("test.db");
+  remove("test.bustub");
 
   delete bpm;
   delete disk_manager;
