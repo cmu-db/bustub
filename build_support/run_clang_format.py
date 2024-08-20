@@ -98,7 +98,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Runs clang format on all of the source "
         "files. If --fix is specified,  and compares the output "
-        "with the existing file, outputting a unifiied diff if "
+        "with the existing file, outputting a unified diff if "
         "there are any necessary changes")
     parser.add_argument("clang_format_binary",
                         help="Path to the clang-format binary")
