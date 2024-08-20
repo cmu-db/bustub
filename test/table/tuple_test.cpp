@@ -37,7 +37,7 @@ TEST(TupleTest, DISABLED_TableHeapTest) {
   Tuple tuple = ConstructTuple(&schema);
 
   // create transaction
-  auto *disk_manager = new DiskManager("test.db");
+  auto *disk_manager = new DiskManager("test.bustub");
   auto *buffer_pool_manager = new BufferPoolManager(50, disk_manager);
   auto *table = new TableHeap(buffer_pool_manager);
 
@@ -54,7 +54,7 @@ TEST(TupleTest, DISABLED_TableHeapTest) {
   }
 
   disk_manager->ShutDown();
-  remove("test.db");  // remove db file
+  remove("test.bustub");  // remove db file
   remove("test.log");
   delete table;
   delete buffer_pool_manager;
