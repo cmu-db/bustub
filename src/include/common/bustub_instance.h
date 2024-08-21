@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -241,7 +242,7 @@ class BusTubInstance {
   auto MakeExecutorContext(Transaction *txn, bool is_modify) -> std::unique_ptr<ExecutorContext>;
 
  public:
-  explicit BusTubInstance(const std::string &db_file_name, size_t bpm_size = 128);
+  explicit BusTubInstance(const std::filesystem::path &db_file_name, size_t bpm_size = 128);
 
   explicit BusTubInstance(size_t bpm_size = 128);
 

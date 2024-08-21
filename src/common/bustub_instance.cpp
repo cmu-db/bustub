@@ -45,7 +45,7 @@ auto BusTubInstance::MakeExecutorContext(Transaction *txn, bool is_modify) -> st
                                            lock_manager_.get(), is_modify);
 }
 
-BusTubInstance::BusTubInstance(const std::string &db_file_name, size_t bpm_size) {
+BusTubInstance::BusTubInstance(const std::filesystem::path &db_file_name, size_t bpm_size) {
   enable_logging = false;
 
   // Storage related.

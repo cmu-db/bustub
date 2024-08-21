@@ -24,7 +24,7 @@ namespace bustub {
 // NOLINTNEXTLINE
 // Check whether pages containing terminal characters can be recovered
 TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
-  const std::string db_name = "test.bustub";
+  const std::filesystem::path db_name("test.bustub");
   const size_t buffer_pool_size = 10;
   const size_t k = 5;
 
@@ -98,7 +98,7 @@ TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
 
 // NOLINTNEXTLINE
 TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
-  const std::string db_name = "test.bustub";
+  const std::filesystem::path db_name("test.bustub");
   const size_t buffer_pool_size = 10;
   const size_t k = 5;
 
