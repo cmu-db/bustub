@@ -96,7 +96,7 @@ struct BpmMetrics {
   }
 };
 
-struct BustubBenchPageHeader {
+struct BusTubBenchPageHeader {
   uint64_t seed_;
   uint64_t page_id_;
   char data_[0];
@@ -104,7 +104,7 @@ struct BustubBenchPageHeader {
 
 /// Modify the page and save some data inside
 auto ModifyPage(char *data, size_t page_idx, uint64_t seed) -> void {
-  auto *pg = reinterpret_cast<BustubBenchPageHeader *>(data);
+  auto *pg = reinterpret_cast<BusTubBenchPageHeader *>(data);
   pg->seed_ = seed;
   pg->page_id_ = page_idx;
   pg->data_[pg->seed_ % 4000] = pg->seed_ % 256;
@@ -112,7 +112,7 @@ auto ModifyPage(char *data, size_t page_idx, uint64_t seed) -> void {
 
 /// Check the page and verify the data inside
 auto CheckPageConsistentNoSeed(const char *data, size_t page_idx) -> void {
-  const auto *pg = reinterpret_cast<const BustubBenchPageHeader *>(data);
+  const auto *pg = reinterpret_cast<const BusTubBenchPageHeader *>(data);
   if (pg->page_id_ != page_idx) {
     fmt::println(stderr, "page header not consistent: page_id_={} page_idx={}", pg->page_id_, page_idx);
     std::terminate();
@@ -127,7 +127,7 @@ auto CheckPageConsistentNoSeed(const char *data, size_t page_idx) -> void {
 
 /// Check the page and verify the data inside
 auto CheckPageConsistent(const char *data, size_t page_idx, uint64_t seed) -> void {
-  const auto *pg = reinterpret_cast<const BustubBenchPageHeader *>(data);
+  const auto *pg = reinterpret_cast<const BusTubBenchPageHeader *>(data);
   if (pg->seed_ != seed) {
     fmt::println(stderr, "page seed not consistent: seed_={} seed={}", pg->seed_, seed);
     std::terminate();

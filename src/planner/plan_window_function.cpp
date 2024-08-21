@@ -98,7 +98,7 @@ auto Planner::PlanSelectWindow(const SelectStatement &statement, AbstractPlanNod
     if (window_call.start_ != WindowBoundary::UNBOUNDED_PRECEDING ||
         (window_call.end_ != WindowBoundary::CURRENT_ROW_ROWS &&
          window_call.end_ != WindowBoundary::CURRENT_ROW_RANGE)) {
-      throw Exception("Bustub currently only support window function with default window frame settings");
+      throw Exception("BusTub currently only support window function with default window frame settings");
     }
     std::vector<AbstractExpressionRef> partition_by;
     for (auto &item : window_call.partition_by_) {
