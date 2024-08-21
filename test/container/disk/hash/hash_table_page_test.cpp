@@ -24,7 +24,7 @@
 
 // // NOLINTNEXTLINE
 // TEST(HashTablePageTest, DISABLED_DirectoryPageSampleTest) {
-//   std::filesystem::path fname("test.bustub");    
+//   std::filesystem::path fname("test.bustub");
 //   auto *disk_manager = new DiskManager(fname);
 //   auto *bpm = new BufferPoolManager(5, disk_manager);
 
@@ -58,7 +58,7 @@
 
 // // NOLINTNEXTLINE
 // TEST(HashTablePageTest, DISABLED_BucketPageSampleTest) {
-//   std::filesystem::path fname("test.bustub");   
+//   std::filesystem::path fname("test.bustub");
 //   auto *disk_manager = new DiskManager(fname);
 //   auto *bpm = new BufferPoolManager(5, disk_manager);
 
