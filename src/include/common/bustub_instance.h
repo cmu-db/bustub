@@ -233,7 +233,7 @@ class FortTableWriter : public ResultWriter {
   std::vector<std::string> tables_;
 };
 
-class BustubInstance {
+class BusTubInstance {
  private:
   /**
    * Get the executor context from the BusTub instance.
@@ -241,11 +241,11 @@ class BustubInstance {
   auto MakeExecutorContext(Transaction *txn, bool is_modify) -> std::unique_ptr<ExecutorContext>;
 
  public:
-  explicit BustubInstance(const std::string &db_file_name, size_t bpm_size = 128);
+  explicit BusTubInstance(const std::string &db_file_name, size_t bpm_size = 128);
 
-  explicit BustubInstance(size_t bpm_size = 128);
+  explicit BusTubInstance(size_t bpm_size = 128);
 
-  ~BustubInstance();
+  ~BusTubInstance();
 
   /**
    * Execute a SQL query in the BusTub instance.
