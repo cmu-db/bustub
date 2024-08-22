@@ -37,7 +37,7 @@ class DiskManagerTest : public ::testing::Test {
 TEST_F(DiskManagerTest, ReadWritePageTest) {
   char buf[BUSTUB_PAGE_SIZE] = {0};
   char data[BUSTUB_PAGE_SIZE] = {0};
-  std::string db_file("test.bustub");
+  std::filesystem::path db_file("test.bustub");
   auto dm = DiskManager(db_file);
   std::strncpy(data, "A test string.", sizeof(data));
 
@@ -59,7 +59,7 @@ TEST_F(DiskManagerTest, ReadWritePageTest) {
 TEST_F(DiskManagerTest, ReadWriteLogTest) {
   char buf[16] = {0};
   char data[16] = {0};
-  std::string db_file("test.bustub");
+  std::filesystem::path db_file("test.bustub");
   auto dm = DiskManager(db_file);
   std::strncpy(data, "A test string.", sizeof(data));
 

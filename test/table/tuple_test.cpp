@@ -37,7 +37,8 @@ TEST(TupleTest, DISABLED_TableHeapTest) {
   Tuple tuple = ConstructTuple(&schema);
 
   // create transaction
-  auto *disk_manager = new DiskManager("test.bustub");
+  std::filesystem::path fname("test.bustub");
+  auto *disk_manager = new DiskManager(fname);
   auto *buffer_pool_manager = new BufferPoolManager(50, disk_manager);
   auto *table = new TableHeap(buffer_pool_manager);
 
