@@ -29,7 +29,7 @@ auto GetWidthOfUtf8(const void *beg, const void *end, size_t *width) -> int {
 auto main(int argc, char **argv) -> int {
   ft_set_u8strwid_func(&GetWidthOfUtf8);
 
-  auto bustub = std::make_unique<bustub::BustubInstance>("test.bustub");
+  auto bustub = std::make_unique<bustub::BusTubInstance>("test.bustub");
 
   auto default_prompt = "bustub> ";
   auto emoji_prompt = "\U0001f6c1> ";  // the bathtub emoji

@@ -62,7 +62,7 @@ auto ResultCompare(const std::string &produced_result, const std::string &expect
   return cmp_result;
 }
 
-auto ProcessExtraOptions(const std::string &sql, bustub::BustubInstance &instance,
+auto ProcessExtraOptions(const std::string &sql, bustub::BusTubInstance &instance,
                          const std::vector<std::string> &extra_options, bool verbose,
                          std::shared_ptr<bustub::CheckOptions> &check_options) -> bool {
   for (const auto &opt : extra_options) {
@@ -252,12 +252,12 @@ auto main(int argc, char **argv) -> int {  // NOLINT
     return 0;
   }
 
-  std::unique_ptr<bustub::BustubInstance> bustub;
+  std::unique_ptr<bustub::BusTubInstance> bustub;
 
   if (program.get<bool>("--in-memory")) {
-    bustub = std::make_unique<bustub::BustubInstance>();
+    bustub = std::make_unique<bustub::BusTubInstance>();
   } else {
-    bustub = std::make_unique<bustub::BustubInstance>("test.bustub");
+    bustub = std::make_unique<bustub::BusTubInstance>("test.bustub");
   }
 
   bustub->GenerateMockTable();

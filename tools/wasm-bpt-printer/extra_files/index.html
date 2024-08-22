@@ -78,8 +78,8 @@
     const viz = new Viz()
 
     Module['onRuntimeInitialized'] = function () {
-        const initialize = Module.cwrap('BustubInit', 'number', ['number', 'number'])
-        const executeQuery = Module.cwrap('BustubApplyCommand', 'number', ['string', 'number', 'number'])
+        const initialize = Module.cwrap('BusTubInit', 'number', ['number', 'number'])
+        const executeQuery = Module.cwrap('BusTubApplyCommand', 'number', ['string', 'number', 'number'])
         window.executeQuery = (x) => {
             const bufferSize = 64 * 1024
             let output = "\0".repeat(bufferSize)

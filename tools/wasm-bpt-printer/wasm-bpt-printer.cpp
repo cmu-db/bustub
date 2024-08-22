@@ -46,7 +46,7 @@ std::unique_ptr<bustub::Schema> key_schema = nullptr;
 
 extern "C" {
 
-auto BustubInit(int leaf_max_size, int internal_max_size) -> int {
+auto BusTubInit(int leaf_max_size, int internal_max_size) -> int {
   // create KeyComparator and index schema
   std::string create_stmt = "a bigint";
   try {
@@ -68,7 +68,7 @@ auto BustubInit(int leaf_max_size, int internal_max_size) -> int {
   return 0;
 }
 
-auto BustubApplyCommand(const char *input, char *output, uint16_t len) -> int {
+auto BusTubApplyCommand(const char *input, char *output, uint16_t len) -> int {
   GenericKey<8> index_key;
   int64_t key = 0;
   RID rid;
