@@ -23,6 +23,9 @@
 #include "storage/table/tuple.h"
 
 namespace bustub {
+
+static std::filesystem::path db_fname("test.bustub");
+
 // NOLINTNEXTLINE
 TEST(TupleTest, DISABLED_TableHeapTest) {
   // test1: parse create sql statement
@@ -37,8 +40,7 @@ TEST(TupleTest, DISABLED_TableHeapTest) {
   Tuple tuple = ConstructTuple(&schema);
 
   // create transaction
-  std::filesystem::path fname("test.bustub");
-  auto *disk_manager = new DiskManager(fname);
+  auto *disk_manager = new DiskManager(db_fname);
   auto *buffer_pool_manager = new BufferPoolManager(50, disk_manager);
   auto *table = new TableHeap(buffer_pool_manager);
 
@@ -55,8 +57,8 @@ TEST(TupleTest, DISABLED_TableHeapTest) {
   }
 
   disk_manager->ShutDown();
-  remove("test.bustub");  // remove db file
-  remove("test.log");
+  remove(db_fname);  // remove db file
+  remove(disk_manager->GetLogFileName());
   delete table;
   delete buffer_pool_manager;
   delete disk_manager;

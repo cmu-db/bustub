@@ -93,6 +93,9 @@ class DiskManager {
   /** Checks if the non-blocking flush future was set. */
   inline auto HasFlushLogFuture() -> bool { return flush_log_f_ != nullptr; }
 
+  /** @brief returns the log file name */
+  inline auto GetLogFileName() const -> std::filesystem::path { return log_name_; }
+
  protected:
   auto GetFileSize(const std::string &file_name) -> int;
   // stream to write log file
