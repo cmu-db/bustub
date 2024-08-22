@@ -244,7 +244,6 @@ class BusTubInstance {
  public:
   explicit BusTubInstance(const std::filesystem::path &db_file_name, size_t bpm_size = 128);
 
-
   explicit BusTubInstance(size_t bpm_size = 128);
 
   ~BusTubInstance();
