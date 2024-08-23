@@ -13,6 +13,7 @@
 #include "buffer/buffer_pool_manager.h"
 
 #include <cstdio>
+#include <filesystem>
 #include <limits>
 #include <random>
 #include <string>
@@ -21,10 +22,11 @@
 
 namespace bustub {
 
+static std::filesystem::path db_fname("test.bustub");
+
 // NOLINTNEXTLINE
 // Check whether pages containing terminal characters can be recovered
 TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
-  const std::filesystem::path db_name("test.bustub");
   const size_t buffer_pool_size = 10;
   const size_t k = 5;
 
@@ -37,7 +39,7 @@ TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
   static_assert(upper_bound - lower_bound == 255);
   std::uniform_int_distribution<int> uniform_dist(lower_bound, upper_bound);
 
-  auto *disk_manager = new DiskManager(db_name);
+  auto *disk_manager = new DiskManager(db_fname);
   auto *bpm = new BufferPoolManager(buffer_pool_size, disk_manager, k);
 
   page_id_t page_id_temp;
@@ -90,7 +92,7 @@ TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
 
   // Shutdown the disk manager and remove the temporary file we created.
   disk_manager->ShutDown();
-  remove("test.bustub");
+  remove(db_fname);
 
   delete bpm;
   delete disk_manager;
@@ -98,11 +100,10 @@ TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
 
 // NOLINTNEXTLINE
 TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
-  const std::filesystem::path db_name("test.bustub");
   const size_t buffer_pool_size = 10;
   const size_t k = 5;
 
-  auto *disk_manager = new DiskManager(db_name);
+  auto *disk_manager = new DiskManager(db_fname);
   auto *bpm = new BufferPoolManager(buffer_pool_size, disk_manager, k);
 
   page_id_t page_id_temp;
@@ -148,7 +149,7 @@ TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
 
   // Shutdown the disk manager and remove the temporary file we created.
   disk_manager->ShutDown();
-  remove("test.bustub");
+  remove(db_fname);
 
   delete bpm;
   delete disk_manager;

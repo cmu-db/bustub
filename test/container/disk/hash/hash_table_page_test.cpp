@@ -51,7 +51,7 @@
 //   // unpin the directory page now that we are done
 //   bpm->UnpinPage(directory_page_id, true);
 //   disk_manager->ShutDown();
-//   remove("test.bustub");
+//   remove(fname);
 //   delete disk_manager;
 //   delete bpm;
 // }
@@ -110,7 +110,7 @@
 //   // unpin the directory page now that we are done
 //   bpm->UnpinPage(bucket_page_id, true);
 //   disk_manager->ShutDown();
-//   remove("test.bustub");
+//   remove(fname);
 //   delete disk_manager;
 //   delete bpm;
 // }

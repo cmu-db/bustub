@@ -113,7 +113,7 @@
 //   ht.VerifyIntegrity();
 
 //   disk_manager->ShutDown();
-//   remove("test.bustub");
+//   remove(fname);
 //   delete disk_manager;
 //   delete bpm;
 // }
