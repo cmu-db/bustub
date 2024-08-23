@@ -1,0 +1,5 @@
+if(EXISTS "/Users/votinhluombikip/Documents/bustub-private/build_rel/test/disk_manager_test[1]_tests.cmake")
+  include("/Users/votinhluombikip/Documents/bustub-private/build_rel/test/disk_manager_test[1]_tests.cmake")
+else()
+  add_test(disk_manager_test_NOT_BUILT disk_manager_test_NOT_BUILT)
+endif()

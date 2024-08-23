@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc ../../lib/libbustub_murmur3.a CMakeFiles/bustub_murmur3.dir/MurmurHash3.cpp.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib ../../lib/libbustub_murmur3.a

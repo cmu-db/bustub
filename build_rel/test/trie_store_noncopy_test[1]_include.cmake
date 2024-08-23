@@ -1,0 +1,5 @@
+if(EXISTS "/Users/votinhluombikip/Documents/bustub-private/build_rel/test/trie_store_noncopy_test[1]_tests.cmake")
+  include("/Users/votinhluombikip/Documents/bustub-private/build_rel/test/trie_store_noncopy_test[1]_tests.cmake")
+else()
+  add_test(trie_store_noncopy_test_NOT_BUILT trie_store_noncopy_test_NOT_BUILT)
+endif()

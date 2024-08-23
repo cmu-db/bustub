@@ -138,7 +138,7 @@ set(BUSTUB_THIRD_PARTY_INCLUDE_DIR
         ${PROJECT_SOURCE_DIR}/third_party/libpg_query/include
         ${PROJECT_SOURCE_DIR}/third_party/argparse/include
         ${PROJECT_SOURCE_DIR}/third_party/cpp_random_distributions
-        ${PROJECT_SOURCE_DIR}/third_party/backward-cpp
+        ${PROJECT_SOURCE_DIR}/third_party/backward-cpp/include
 )
 
 include_directories(${BUSTUB_SRC_INCLUDE_DIR} ${BUSTUB_TEST_INCLUDE_DIR} ${BUSTUB_THIRD_PARTY_INCLUDE_DIR})
@@ -250,12 +250,14 @@ add_custom_target(fix-clang-tidy-diff
 # hardcode some files to check here for each project.
 # ##########################################################
 set(P0_FILES
+        "src/include/primer/trie_answer.h"
+        "src/include/primer/trie_store.h"
+        "src/include/primer/trie.h"
+        "src/primer/trie_store.cpp"
+        "src/primer/trie.cpp"
         "src/planner/plan_func_call.cpp"
         "src/include/execution/expressions/string_expression.h"
-        "src/include/primer/orset.h"
-        "src/primer/orset.cpp"
 )
-
 add_custom_target(check-clang-tidy-p0
         ${BUSTUB_BUILD_SUPPORT_DIR}/run_clang_tidy.py # run LLVM's clang-tidy script
         -clang-tidy-binary ${CLANG_TIDY_BIN} # using our clang-tidy binary
@@ -275,8 +277,6 @@ set(P1_FILES
         "src/buffer/buffer_pool_manager.cpp"
         "src/include/storage/disk/disk_scheduler.h"
         "src/storage/disk/disk_scheduler.cpp"
-        "src/storage/page/page_guard.cpp"
-        "src/include/storage/page/page_guard.h"
 )
 add_custom_target(check-clang-tidy-p1
         ${BUSTUB_BUILD_SUPPORT_DIR}/run_clang_tidy.py # run LLVM's clang-tidy script
@@ -351,7 +351,6 @@ set(P3_FILES
         "src/optimizer/sort_limit_as_topn.cpp"
         "src/optimizer/optimizer_internal.cpp"
         "src/optimizer/seqscan_as_indexscan.cpp"
-        "src/optimizer/column_pruning.cpp"
         "src/common/bustub_ddl.cpp"
         "src/include/execution/plans/topn_per_group_plan.h"
         ${P2_FILES}
@@ -370,12 +369,11 @@ add_custom_target(submit-p3
 )
 
 set(P4_FILES
+        "src/include/concurrency/lock_manager.h"
+        "src/concurrency/lock_manager.cpp"
         "src/include/concurrency/transaction_manager.h"
         "src/concurrency/transaction_manager.cpp"
-        "src/include/concurrency/watermark.h"
-        "src/concurrency/watermark.cpp"
-        "src/include/execution/execution_common.h"
-        "src/execution/execution_common.cpp"
+        "tools/terrier_bench/terrier_bench_config.h"
         ${P3_FILES}
 )
 

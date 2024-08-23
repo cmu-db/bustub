@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc ../../lib/libbackward.a CMakeFiles/backward.dir/backward.cpp.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib ../../lib/libbackward.a

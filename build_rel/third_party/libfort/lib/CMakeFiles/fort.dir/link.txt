@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc ../../../lib/libfort.a CMakeFiles/fort.dir/fort.c.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib ../../../lib/libfort.a
