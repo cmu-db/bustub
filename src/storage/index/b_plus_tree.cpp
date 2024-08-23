@@ -121,7 +121,7 @@ auto BPLUSTREE_TYPE::GetRootPageId() -> page_id_t { return 0; }
  * Read data from file and insert one by one
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPLUSTREE_TYPE::InsertFromFile(const std::string &file_name, Transaction *txn) {
+void BPLUSTREE_TYPE::InsertFromFile(const std::filesystem::path &file_name, Transaction *txn) {
   int64_t key;
   std::ifstream input(file_name);
   while (input >> key) {
@@ -136,7 +136,7 @@ void BPLUSTREE_TYPE::InsertFromFile(const std::string &file_name, Transaction *t
  * Read data from file and remove one by one
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPLUSTREE_TYPE::RemoveFromFile(const std::string &file_name, Transaction *txn) {
+void BPLUSTREE_TYPE::RemoveFromFile(const std::filesystem::path &file_name, Transaction *txn) {
   int64_t key;
   std::ifstream input(file_name);
   while (input >> key) {
@@ -151,7 +151,7 @@ void BPLUSTREE_TYPE::RemoveFromFile(const std::string &file_name, Transaction *t
  * Read data from file and insert/remove one by one
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPLUSTREE_TYPE::BatchOpsFromFile(const std::string &file_name, Transaction *txn) {
+void BPLUSTREE_TYPE::BatchOpsFromFile(const std::filesystem::path &file_name, Transaction *txn) {
   int64_t key;
   char instruction;
   std::ifstream input(file_name);
@@ -222,7 +222,7 @@ void BPLUSTREE_TYPE::PrintTree(page_id_t page_id, const BPlusTreePage *page) {
  * This method is used for debug only, You don't need to modify
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPLUSTREE_TYPE::Draw(BufferPoolManager *bpm, const std::string &outf) {
+void BPLUSTREE_TYPE::Draw(BufferPoolManager *bpm, const std::filesystem::path &outf) {
   if (IsEmpty()) {
     LOG_WARN("Drawing an empty tree");
     return;

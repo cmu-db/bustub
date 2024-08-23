@@ -25,7 +25,8 @@
 
 // // NOLINTNEXTLINE
 // TEST(HashTableTest, DISABLED_SampleTest) {
-//   auto *disk_manager = new DiskManager("test.db");
+//   std::filesystem::path fname("test.bustub");
+//   auto *disk_manager = new DiskManager(fname);
 //   auto *bpm = new BufferPoolManager(50, disk_manager);
 //   DiskExtendibleHashTable<int, int, IntComparator> ht("blah", bpm, IntComparator(), HashFunction<int>());
 
@@ -112,7 +113,7 @@
 //   ht.VerifyIntegrity();
 
 //   disk_manager->ShutDown();
-//   remove("test.db");
+//   remove("test.bustub");
 //   delete disk_manager;
 //   delete bpm;
 // }

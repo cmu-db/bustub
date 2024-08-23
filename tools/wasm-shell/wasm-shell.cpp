@@ -12,13 +12,13 @@
 #include "linenoise/linenoise.h"
 #include "utf8proc/utf8proc.h"
 
-static std::unique_ptr<bustub::BustubInstance> instance = nullptr;
+static std::unique_ptr<bustub::BusTubInstance> instance = nullptr;
 
 extern "C" {
 
-auto BustubInit() -> int {
+auto BusTubInit() -> int {
   std::cout << "Initialize BusTub..." << std::endl;
-  auto bustub = std::make_unique<bustub::BustubInstance>();
+  auto bustub = std::make_unique<bustub::BusTubInstance>();
   bustub->GenerateMockTable();
 
   if (bustub->buffer_pool_manager_ != nullptr) {
@@ -31,7 +31,7 @@ auto BustubInit() -> int {
   return 0;
 }
 
-auto BustubExecuteQuery(const char *input, char *prompt, char *output, uint16_t len) -> int {
+auto BusTubExecuteQuery(const char *input, char *prompt, char *output, uint16_t len) -> int {
   std::string input_string(input);
   std::cout << input_string << std::endl;
   std::string output_string;

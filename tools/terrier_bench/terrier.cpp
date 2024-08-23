@@ -141,7 +141,7 @@ auto ExtractOneCell(const bustub::StringVectorWriter &writer) -> std::string {
 }
 
 void Bench1TaskTransfer(const int thread_id, const int terrier_num, const uint64_t duration_ms,
-                        const bustub::IsolationLevel iso_lvl, bustub::BustubInstance *bustub,
+                        const bustub::IsolationLevel iso_lvl, bustub::BusTubInstance *bustub,
                         TerrierTotalMetrics &total_metrics) {
   const int max_transfer_amount = 1000;
   std::random_device r;
@@ -199,7 +199,7 @@ void Bench1TaskTransfer(const int thread_id, const int terrier_num, const uint64
 }
 
 void Bench2TaskTransfer(const int thread_id, const int terrier_num, const uint64_t duration_ms,
-                        const bustub::IsolationLevel iso_lvl, bustub::BustubInstance *bustub,
+                        const bustub::IsolationLevel iso_lvl, bustub::BusTubInstance *bustub,
                         TerrierTotalMetrics &total_metrics, std::atomic<int> &token_adjustment) {
   const int max_transfer_amount = 1000;
   std::random_device r;
@@ -280,7 +280,7 @@ void Bench2TaskTransfer(const int thread_id, const int terrier_num, const uint64
 }
 
 void Bench2TaskJoin(const int thread_id, const int terrier_num, const uint64_t duration_ms,
-                    const bustub::IsolationLevel iso_lvl, bustub::BustubInstance *bustub,
+                    const bustub::IsolationLevel iso_lvl, bustub::BusTubInstance *bustub,
                     TerrierTotalMetrics &total_metrics, std::atomic<int> &token_adjustment) {
   std::random_device r;
   std::default_random_engine gen(r());
@@ -425,7 +425,7 @@ void Bench2TaskJoin(const int thread_id, const int terrier_num, const uint64_t d
   total_metrics.ReportJoin(metrics.aborted_txn_cnt_, metrics.committed_txn_cnt_);
 }
 
-auto ComputeDbSize(bustub::BustubInstance *bustub, const std::string &table_name) {
+auto ComputeDbSize(bustub::BusTubInstance *bustub, const std::string &table_name) {
   auto table_info = bustub->catalog_->GetTable(table_name);
   auto iter = table_info->table_->MakeEagerIterator();
   int cnt = 0;
@@ -443,7 +443,7 @@ auto ComputeDbSize(bustub::BustubInstance *bustub, const std::string &table_name
   return cnt + undo_cnt;
 }
 
-void TaskComputeDbSize(const uint64_t duration_ms, std::atomic<int> &db_size, bustub::BustubInstance *bustub,
+void TaskComputeDbSize(const uint64_t duration_ms, std::atomic<int> &db_size, bustub::BusTubInstance *bustub,
                        const std::string &table_name) {
   TerrierMetrics metrics("Compute Size", duration_ms);
   metrics.Begin();
@@ -456,7 +456,7 @@ void TaskComputeDbSize(const uint64_t duration_ms, std::atomic<int> &db_size, bu
   }
 }
 
-void PrintPlan(bustub::BustubInstance &instance, const std::string &query, bool ensure_index_scan = true) {
+void PrintPlan(bustub::BusTubInstance &instance, const std::string &query, bool ensure_index_scan = true) {
   {
     std::stringstream ss;
     bustub::SimpleStreamWriter writer_ss(ss);
@@ -501,7 +501,7 @@ auto main(int argc, char **argv) -> int {
     return 1;
   }
 
-  auto bustub = std::make_unique<bustub::BustubInstance>(bpm_size);
+  auto bustub = std::make_unique<bustub::BusTubInstance>(bpm_size);
   auto writer = bustub::SimpleStreamWriter(std::cerr);
 
   if (program.present("--terriers")) {

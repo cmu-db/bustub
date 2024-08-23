@@ -10,7 +10,7 @@ namespace bustub {
 TEST(TxnBonusTest, DISABLED_SerializableTest) {  // NOLINT
   fmt::println(stderr, "--- SerializableTest2: Serializable ---");
   {
-    auto bustub = std::make_unique<BustubInstance>();
+    auto bustub = std::make_unique<BusTubInstance>();
     EnsureIndexScan(*bustub);
     Execute(*bustub, "CREATE TABLE maintable(a int, b int primary key)");
     auto table_info = bustub->catalog_->GetTable("maintable");
@@ -37,7 +37,7 @@ TEST(TxnBonusTest, DISABLED_ConcurrentSerializableTest) {  // NOLINT
   fmt::println(stderr, "--- SerializableTest2: Concurrent Serializable ---");
   {
     for (int i = 0; i < 10; i++) {
-      auto bustub = std::make_unique<BustubInstance>();
+      auto bustub = std::make_unique<BusTubInstance>();
       EnsureIndexScan(*bustub);
       Execute(*bustub, "CREATE TABLE maintable(a int, b int primary key)");
       auto table_info = bustub->catalog_->GetTable("maintable");
@@ -90,7 +90,7 @@ TEST(TxnBonusTest, DISABLED_ConcurrentSerializableTest) {  // NOLINT
 TEST(TxnBonusTest, DISABLED_AbortTest) {  // NOLINT
   fmt::println(stderr, "--- AbortTest1: Simple Abort ---");
   {
-    auto bustub = std::make_unique<BustubInstance>();
+    auto bustub = std::make_unique<BusTubInstance>();
     EnsureIndexScan(*bustub);
     Execute(*bustub, "CREATE TABLE maintable(a int primary key, b int)");
     auto table_info = bustub->catalog_->GetTable("maintable");

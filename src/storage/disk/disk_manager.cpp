@@ -30,13 +30,8 @@ static char *buffer_used;
  * Constructor: open/create a single database file & log file
  * @input db_file: database file name
  */
-DiskManager::DiskManager(const std::string &db_file) : file_name_(db_file) {
-  std::string::size_type n = file_name_.rfind('.');
-  if (n == std::string::npos) {
-    LOG_DEBUG("wrong file format");
-    return;
-  }
-  log_name_ = file_name_.substr(0, n) + ".log";
+DiskManager::DiskManager(const std::filesystem::path &db_file) : file_name_(db_file) {
+  log_name_ = file_name_.filename().stem().string() + ".log";
 
   log_io_.open(log_name_, std::ios::binary | std::ios::in | std::ios::app | std::ios::out);
   // directory or file does not exist
