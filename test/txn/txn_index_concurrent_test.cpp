@@ -22,7 +22,7 @@ TEST(TxnIndexTest, DISABLED_IndexConcurrentInsertTest) {  // NOLINT
   };
   const int trials = 50;
   for (int n = 0; n < trials; n++) {
-    auto bustub = std::make_unique<BustubInstance>();
+    auto bustub = std::make_unique<BusTubInstance>();
     Execute(*bustub, "CREATE TABLE maintable(a int primary key, b int)");
     std::vector<std::thread> insert_threads;
     const int thread_cnt = 8;
@@ -119,7 +119,7 @@ TEST(TxnIndexTest, DISABLED_IndexConcurrentUpdateTest) {  // NOLINT
   };
   const int trials = 50;
   for (int n = 0; n < trials; n++) {
-    auto bustub = std::make_unique<BustubInstance>();
+    auto bustub = std::make_unique<BusTubInstance>();
     EnsureIndexScan(*bustub);
     Execute(*bustub, "CREATE TABLE maintable(a int primary key, b int)");
     std::vector<std::thread> update_threads;
@@ -209,7 +209,7 @@ TEST(TxnIndexTest, DISABLED_IndexConcurrentUpdateAbortTest) {  // NOLINT
   const int trials = 10;
   const int operation_cnt = 100;
   for (int n = 0; n < trials; n++) {
-    auto bustub = std::make_unique<BustubInstance>();
+    auto bustub = std::make_unique<BusTubInstance>();
     EnsureIndexScan(*bustub);
     Execute(*bustub, "CREATE TABLE maintable(a int primary key, b int)");
     std::vector<std::thread> update_threads;

@@ -33,7 +33,7 @@ auto GetWidthOfUtf8(const void *beg, const void *end, size_t *width) -> int {
   return 0;
 }
 
-void Serve(int socket, bustub::BustubInstance *bustub, bool use_serializable_iso_lvl) {
+void Serve(int socket, bustub::BusTubInstance *bustub, bool use_serializable_iso_lvl) {
   const std::string prompt = "bustub> ";
   char buffer[1024] = {0};
 
@@ -110,7 +110,7 @@ void Serve(int socket, bustub::BustubInstance *bustub, bool use_serializable_iso
   }
 }
 
-void Cli(bustub::BustubInstance *bustub) {
+void Cli(bustub::BusTubInstance *bustub) {
   const std::string prompt = "bustub> ";
 
   std::cout << "Welcome to the BusTub shell! Type \\help to learn more.\n";
@@ -154,7 +154,7 @@ auto main(int argc, char **argv) -> int {
 
   ft_set_u8strwid_func(&GetWidthOfUtf8);
 
-  auto bustub = std::make_unique<bustub::BustubInstance>("db.bustub");
+  auto bustub = std::make_unique<bustub::BusTubInstance>("db.bustub");
 
   argparse::ArgumentParser program("bustub-nc-shell");
   program.add_argument("--port").help("the port of the server");

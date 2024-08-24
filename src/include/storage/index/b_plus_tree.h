@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <deque>
+#include <filesystem>
 #include <iostream>
 #include <optional>
 #include <queue>
@@ -95,7 +96,7 @@ class BPlusTree {
   void Print(BufferPoolManager *bpm);
 
   // Draw the B+ tree
-  void Draw(BufferPoolManager *bpm, const std::string &outf);
+  void Draw(BufferPoolManager *bpm, const std::filesystem::path &outf);
 
   /**
    * @brief draw a B+ tree, below is a printed
@@ -111,10 +112,10 @@ class BPlusTree {
   auto DrawBPlusTree() -> std::string;
 
   // read data from file and insert one by one
-  void InsertFromFile(const std::string &file_name, Transaction *txn = nullptr);
+  void InsertFromFile(const std::filesystem::path &file_name, Transaction *txn = nullptr);
 
   // read data from file and remove one by one
-  void RemoveFromFile(const std::string &file_name, Transaction *txn = nullptr);
+  void RemoveFromFile(const std::filesystem::path &file_name, Transaction *txn = nullptr);
 
   /**
    * @brief Read batch operations from input file, below is a sample file format
@@ -125,7 +126,7 @@ class BPlusTree {
    *                 (3)                (7)
    *            (1,2)    (3,4)    (5,6)    (7,10,30) //  The output tree example
    */
-  void BatchOpsFromFile(const std::string &file_name, Transaction *txn = nullptr);
+  void BatchOpsFromFile(const std::filesystem::path &file_name, Transaction *txn = nullptr);
 
  private:
   /* Debug Routines for FREE!! */

@@ -104,7 +104,7 @@ TEST(TxnScanTest, DISABLED_TupleReconstructTest) {  // NOLINT
 }
 
 TEST(TxnScanTest, DISABLED_ScanTest) {  // NOLINT
-  auto bustub = std::make_unique<BustubInstance>();
+  auto bustub = std::make_unique<BusTubInstance>();
   auto schema = ParseCreateStatement("a integer,b double,c boolean");
   auto modify_schema = ParseCreateStatement("a integer");
   auto empty_schema = ParseCreateStatement("");

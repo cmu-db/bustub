@@ -15,7 +15,7 @@ namespace bustub {
 // NOLINTBEGIN(bugprone-unchecked-optional-access)
 
 TEST(TxnIndexTest, DISABLED_IndexInsertTest) {  // NOLINT
-  auto bustub = std::make_unique<BustubInstance>();
+  auto bustub = std::make_unique<BusTubInstance>();
   const std::string query = "SELECT * FROM maintable";
 
   Execute(*bustub, "CREATE TABLE maintable(a int primary key, b int)");
@@ -86,7 +86,7 @@ TEST(TxnIndexTest, DISABLED_IndexInsertTest) {  // NOLINT
 TEST(TxnIndexTest, DISABLED_InsertDeleteTest) {  // NOLINT
   const std::string query = "SELECT * FROM maintable";
 
-  auto bustub = std::make_unique<BustubInstance>();
+  auto bustub = std::make_unique<BusTubInstance>();
   EnsureIndexScan(*bustub);
   Execute(*bustub, "CREATE TABLE maintable(col1 int primary key, col2 int)");
   auto table_info = bustub->catalog_->GetTable("maintable");
@@ -119,7 +119,7 @@ TEST(TxnIndexTest, DISABLED_UpdateTest) {  // NOLINT
   const std::string query = "SELECT * FROM maintable";
 
   const auto prepare =
-      [](std::unique_ptr<BustubInstance> &bustub) -> std::tuple<Transaction *, Transaction *, Transaction *> {
+      [](std::unique_ptr<BusTubInstance> &bustub) -> std::tuple<Transaction *, Transaction *, Transaction *> {
     auto table_info = bustub->catalog_->GetTable("maintable");
     auto txn1 = BeginTxn(*bustub, "txn1");
     WithTxn(txn1, ExecuteTxn(*bustub, _var, _txn, "INSERT INTO maintable VALUES (1, 0), (2, 0)"));
@@ -141,7 +141,7 @@ TEST(TxnIndexTest, DISABLED_UpdateTest) {  // NOLINT
     return {txn1_reverify, txn2_reverify, txn3};
   };
 
-  const auto reverify = [](std::unique_ptr<BustubInstance> &bustub, Transaction *txn1_reverify,
+  const auto reverify = [](std::unique_ptr<BusTubInstance> &bustub, Transaction *txn1_reverify,
                            Transaction *txn2_reverify, const std::string &query) {
     WithTxn(txn1_reverify, QueryShowResult(*bustub, _var, _txn, query, IntResult{{1, 0}, {2, 0}}));
     WithTxn(txn1_reverify, QueryIndex(*bustub, _var, _txn, query, "col1", std::vector<int>{1, 2, 3, 4, 5, 6},
@@ -153,7 +153,7 @@ TEST(TxnIndexTest, DISABLED_UpdateTest) {  // NOLINT
 
   {
     fmt::println(stderr, "---- UpdateTest1: insert, update, and commit ----");
-    auto bustub = std::make_unique<BustubInstance>();
+    auto bustub = std::make_unique<BusTubInstance>();
     EnsureIndexScan(*bustub);
     Execute(*bustub, "CREATE TABLE maintable(col1 int primary key, col2 int)");
     auto table_info = bustub->catalog_->GetTable("maintable");
@@ -215,7 +215,7 @@ TEST(TxnIndexTest, DISABLED_UpdateTest) {  // NOLINT
 TEST(GradingTxnIndexTest, DISABLED_IndexUpdateConflictTest) {  // NOLINT
   const std::string query = "SELECT * FROM maintable";
 
-  auto bustub = std::make_unique<BustubInstance>();
+  auto bustub = std::make_unique<BusTubInstance>();
   EnsureIndexScan(*bustub);
   Execute(*bustub, "CREATE TABLE maintable(col1 int primary key, col2 int)");
   auto table_info = bustub->catalog_->GetTable("maintable");
@@ -239,7 +239,7 @@ TEST(GradingTxnIndexTest, DISABLED_IndexUpdateConflictTest) {  // NOLINT
 TEST(TxnIndexTest, DISABLED_UpdatePrimaryKeyTest) {  // NOLINT
   const std::string query = "SELECT * FROM maintable";
 
-  auto bustub = std::make_unique<BustubInstance>();
+  auto bustub = std::make_unique<BusTubInstance>();
   EnsureIndexScan(*bustub);
   Execute(*bustub, "CREATE TABLE maintable(col1 int primary key, col2 int)");
   auto table_info = bustub->catalog_->GetTable("maintable");
