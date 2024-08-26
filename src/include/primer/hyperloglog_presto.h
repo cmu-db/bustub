@@ -30,7 +30,7 @@ class HyperLogLogPresto {
   HyperLogLogPresto() = delete;
 
   /** @brief parameterized constructor */
-  explicit HyperLogLogPresto(int16_t n_leading_bits) {}
+  explicit HyperLogLogPresto(int16_t n_leading_bits) : cardinality_(0) {}
 
   /** @brief returns the dense_bucket_ data structure*/
   auto GetDenseBucket() const -> std::vector<std::bitset<BUCKET_SIZE>> { return dense_bucket_; }

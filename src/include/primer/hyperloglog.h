@@ -23,7 +23,8 @@ class HyperLogLog {
  public:
   HyperLogLog() = delete;
 
-  explicit HyperLogLog(int16_t n_bits) {}
+  explicit HyperLogLog(int16_t n_bits) : cardinality_(0)  {
+  }
 
   /**
    * @brief getter value for cardinality
