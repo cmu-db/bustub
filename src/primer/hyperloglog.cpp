@@ -11,7 +11,7 @@ auto inline HyperLogLog<T>::CalculateHash(T val) -> hash_t {
 template <typename T>
 auto HyperLogLog<T>::ComputeBinary(const hash_t &hash) const -> std::bitset<MAX_BITS> {
   /** @todo student - implement the function */
-  return NULL;
+  return std::bitset<MAX_BITS>(0);
 }
 
 template <typename T>
