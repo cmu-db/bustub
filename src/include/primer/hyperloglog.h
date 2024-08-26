@@ -12,10 +12,10 @@
 
 namespace bustub {
 
-/** @brief hash value type */
+/** @brief Hash value type. */
 using hash_t = uint64_t;
 
-/** @brief constant */
+/** @brief Constant for HLL. */
 static const double CONSTANT = 0.79402;
 
 template <typename T>
@@ -26,27 +26,27 @@ class HyperLogLog {
   explicit HyperLogLog(int16_t n_bits) : cardinality_(0) {}
 
   /**
-   * @brief getter value for cardinality
+   * @brief Getter value for cardinality.
    *
    * @returns cardinality value
    */
   auto GetCardinality() { return cardinality_; }
 
   /**
-   * @brief adds a value into the HyperLogLog
+   * @brief Ddds a value into the HyperLogLog.
    *
    * @param[in] val - value that's added into hyperloglog
    */
   auto AddElem(T val) -> void;
 
   /**
-   * @brief function that computes cardinality
+   * @brief Function that computes cardinality.
    */
   auto ComputeCardinality() -> void;
 
  private:
   /**
-   * @brief Calculates Hash of a given value
+   * @brief Calculates Hash of a given value.
    *
    * @param[in] val - value
    * @returns hash integer of given input value
@@ -54,7 +54,7 @@ class HyperLogLog {
   inline auto CalculateHash(T val) -> hash_t;
 
   /**
-   * @brief function that computes binary
+   * @brief Function that computes binary.
    *
    *
    * @param[in] hash
@@ -63,17 +63,17 @@ class HyperLogLog {
   auto ComputeBinary(const hash_t &hash) const -> std::bitset<MAX_BITS>;
 
   /**
-   * @brief function that computes leading zeros
+   * @brief Function that computes leading zeros.
    *
    * @param[in] bset - binary values of a given bitset
    * @returns leading zeros of given binary set
    */
   auto PositionOfLeftmostOne(const std::bitset<MAX_BITS> &bset) const -> uint64_t;
 
-  /** @brief cardinality value*/
+  /** @brief Cardinality value. */
   size_t cardinality_;
 
-  /** @todo Students must add their data structures that support HyperLogLog */
+  /** @todo (student) can add their data structures that support HyperLogLog */
 };
 
 }  // namespace bustub
