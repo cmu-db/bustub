@@ -73,9 +73,6 @@ class HyperLogLog {
   /** @brief cardinality value*/
   size_t cardinality_;
 
-  /** @brief number of counters */
-  uint64_t counters_;
-
   /** @todo Students must add their data structures that support HyperLogLog */
 };
 
