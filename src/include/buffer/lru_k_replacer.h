@@ -15,6 +15,7 @@
 #include <limits>
 #include <list>
 #include <mutex>  // NOLINT
+#include <optional>
 #include <unordered_map>
 #include <vector>
 
@@ -83,7 +84,7 @@ class LRUKReplacer {
    * @param[out] frame_id id of frame that is evicted.
    * @return true if a frame is evicted successfully, false if no frames can be evicted.
    */
-  auto Evict(frame_id_t *frame_id) -> bool;
+  auto Evict() -> std::optional<frame_id_t>;
 
   /**
    * TODO(P1): Add implementation
