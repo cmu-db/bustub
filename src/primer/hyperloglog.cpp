@@ -3,12 +3,6 @@
 namespace bustub {
 
 template <typename T>
-auto inline HyperLogLog<T>::CalculateHash(T val) -> hash_t {
-  /** @todo student -  implement the function */
-  return 0;
-}
-
-template <typename T>
 auto HyperLogLog<T>::ComputeBinary(const hash_t &hash) const -> std::bitset<MAX_BITS> {
   /** @todo student - implement the function */
   return {0};

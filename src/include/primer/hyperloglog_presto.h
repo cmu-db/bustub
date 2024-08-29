@@ -1,12 +1,15 @@
 #pragma once
 
 #include <bitset>
-#include <functional>
 #include <memory>
 #include <mutex>  // NOLINT
+#include <sstream>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
+
+#include "primer/primer_hash.h"
 
 #define BUCKET_SIZE 4UL
 #define CONSTANT 0.79402
@@ -30,7 +33,8 @@ class HyperLogLogPresto {
   HyperLogLogPresto() = delete;
 
   /** @brief Parameterized constructor. */
-  explicit HyperLogLogPresto(int16_t n_leading_bits) : cardinality_(0) {}
+  explicit HyperLogLogPresto(int16_t n_leading_bits, const PrimerHashFunction<T> &hash_fn)
+      : cardinality_(0), hash_fn_(std::move(hash_fn)) {}
 
   /** @brief Returns the dense_bucket_ data structure. */
   auto GetDenseBucket() const -> std::vector<std::bitset<BUCKET_SIZE>> { return dense_bucket_; }
@@ -54,7 +58,20 @@ class HyperLogLogPresto {
    *
    * @returns hash value
    */
-  inline auto CalculateHash(T val) -> hash_t { return std::hash<T>{}(val); }
+  inline auto CalculateHash(T val) -> hash_t {
+    if (std::is_same<T, std::string>::value) {
+      return hash_fn_.GetHash(val);
+    }
+    /** @brief Convert into output stream */
+    std::ostringstream o_stream;
+
+    o_stream << val;  // output stream
+
+    /** @brief Output stream result. */
+    std::string res = o_stream.str();
+
+    return static_cast<hash_t>(std::stoul(res));
+  }
 
   /** @brief Structure holding dense buckets (or also known as registers). */
   std::vector<std::bitset<BUCKET_SIZE>> dense_bucket_;
@@ -64,6 +81,9 @@ class HyperLogLogPresto {
 
   /** @brief Storing cardinality value */
   uint64_t cardinality_;
+
+  /** @brief Hash Function. */
+  PrimerHashFunction<T> hash_fn_;
 
   // TODO(student) - can add more data structures as required
 };

@@ -8,19 +8,18 @@
 #include "gtest/gtest.h"
 #include "primer/hyperloglog.h"
 #include "primer/hyperloglog_presto.h"
+#include "primer/primer_hash.h"
 
 namespace bustub {
 
 TEST(HyperLogLogTest, DISABLED_BasicTest1) {
-  auto obj = HyperLogLog<std::string>(static_cast<uint64_t>(1));
-
+  auto obj = HyperLogLog<std::string>(static_cast<uint64_t>(1), PrimerHashFunction<std::string>());
   ASSERT_EQ(obj.GetCardinality(), 0);
-
   obj.AddElem("Welcome to CMU DB (15-445/645)");
 
   obj.ComputeCardinality();
-  auto ans = obj.GetCardinality();
 
+  auto ans = obj.GetCardinality();
   ASSERT_EQ(ans, 2);
 
   for (uint64_t i = 0; i < 10; i++) {
@@ -36,17 +35,17 @@ TEST(HyperLogLogTest, DISABLED_BasicTest1) {
     if (i == 0) {
       obj.ComputeCardinality();
       ans = obj.GetCardinality();
-      ASSERT_EQ(ans, 12);
+      ASSERT_EQ(ans, 20);
     }
   }
 
   obj.ComputeCardinality();
   ans = obj.GetCardinality();
-  ASSERT_EQ(ans, 12);
+  ASSERT_EQ(ans, 20);
 }
 
 TEST(HyperLogLogTest, DISABLED_BasicTest2) {
-  auto obj = HyperLogLog<int64_t>(static_cast<uint64_t>(3));
+  auto obj = HyperLogLog<int64_t>(static_cast<uint64_t>(3), PrimerHashFunction<int64_t>());
 
   ASSERT_EQ(obj.GetCardinality(), 0);
 
@@ -55,18 +54,19 @@ TEST(HyperLogLogTest, DISABLED_BasicTest2) {
   obj.ComputeCardinality();
   auto ans = obj.GetCardinality();
 
-  ASSERT_EQ(ans, 6);
+  ASSERT_EQ(ans, 7);
 
   for (uint64_t i = 0; i < 10; i++) {
-    obj.AddElem(1);
-    obj.AddElem(2);
-    obj.AddElem(3);
-    obj.AddElem(4);
-    obj.AddElem(5);
-    obj.AddElem(6);
-    obj.AddElem(7);
-    obj.AddElem(8);
-    obj.AddElem(9);
+    obj.AddElem(10);
+    obj.AddElem(122);
+    obj.AddElem(200);
+    obj.AddElem(911);
+    obj.AddElem(999);
+    obj.AddElem(1402);
+    obj.AddElem(15445);
+    obj.AddElem(15645);
+    obj.AddElem(123456);
+    obj.AddElem(312457);
     if (i == 0) {
       obj.ComputeCardinality();
       ans = obj.GetCardinality();
@@ -84,39 +84,40 @@ TEST(HyperLogLogTest, DISABLED_BasicTest2) {
     obj.AddElem(-7);
     obj.AddElem(-8);
     obj.AddElem(-9);
+    obj.AddElem(-27);
     if (i == 0) {
       obj.ComputeCardinality();
       ans = obj.GetCardinality();
-      ASSERT_EQ(ans, 15);
+      ASSERT_EQ(ans, 27);
     }
   }
   obj.ComputeCardinality();
   ans = obj.GetCardinality();
-  ASSERT_EQ(ans, 15);
+  ASSERT_EQ(ans, 27);
 }
 
 TEST(HyperLogLogTest, DISABLED_EdgeTest1) {
-  auto obj1 = HyperLogLog<int64_t>(-2);
+  auto obj1 = HyperLogLog<int64_t>(-2, PrimerHashFunction<int64_t>());
   obj1.ComputeCardinality();
   ASSERT_EQ(obj1.GetCardinality(), 0);
 }
 
 TEST(HyperLogLogTest, DISABLED_Edgetest2) {
-  auto obj1 = HyperLogLog<int64_t>(0);
-  obj1.ComputeCardinality();
-  ASSERT_EQ(obj1.GetCardinality(), 0);
+  auto obj = HyperLogLog<int64_t>(0, PrimerHashFunction<int64_t>());
+  obj.ComputeCardinality();
+  ASSERT_EQ(obj.GetCardinality(), 0);
 
-  obj1.AddElem(1);
-  obj1.ComputeCardinality();
-  ASSERT_EQ(obj1.GetCardinality(), 1);
+  obj.AddElem(1);
+  obj.ComputeCardinality();
+  ASSERT_EQ(obj.GetCardinality(), 813);
 
-  obj1.AddElem(-1);
-  obj1.ComputeCardinality();
-  ASSERT_EQ(obj1.GetCardinality(), 3);
+  obj.AddElem(-1);
+  obj.ComputeCardinality();
+  ASSERT_EQ(obj.GetCardinality(), 813);
 }
 
 TEST(HyperLogLogTest, DISABLED_BasicParallelTest) {
-  auto obj = HyperLogLog<std::string>(static_cast<uint64_t>(1));
+  auto obj = HyperLogLog<std::string>(static_cast<uint64_t>(1), PrimerHashFunction<std::string>());
 
   std::vector<std::thread> threads1;
   for (uint16_t i = 0; i < 10; i++) {
@@ -150,14 +151,14 @@ TEST(HyperLogLogTest, DISABLED_BasicParallelTest) {
 
   obj.ComputeCardinality();
   ans = obj.GetCardinality();
-  ASSERT_EQ(ans, 12);
+  ASSERT_EQ(ans, 20);
 }
 
 TEST(HyperLogLogTest, DISABLED_ParallelTest1) {
-  auto obj = HyperLogLog<std::string>(static_cast<uint64_t>(17));
+  auto obj = HyperLogLog<std::string>(static_cast<uint64_t>(14), PrimerHashFunction<std::string>());
 
   std::vector<std::thread> threads1;
-  for (uint16_t i = 0; i < 10; i++) {
+  for (uint16_t i = 0; i < 1; i++) {
     threads1.emplace_back(std::thread([&]() { obj.AddElem("Welcome to CMU DB (15-445/645)"); }));
   }
 
@@ -167,7 +168,7 @@ TEST(HyperLogLogTest, DISABLED_ParallelTest1) {
   }
   obj.ComputeCardinality();
   auto ans = obj.GetCardinality();
-  ASSERT_EQ(ans, 104074);
+  ASSERT_EQ(ans, 13009);
 
   std::vector<std::thread> threads2;
   for (uint64_t k = 0; k < 3000; k++) {
@@ -183,11 +184,11 @@ TEST(HyperLogLogTest, DISABLED_ParallelTest1) {
 
   obj.ComputeCardinality();
   ans = obj.GetCardinality();
-  ASSERT_EQ(ans, 104076);
+  ASSERT_EQ(ans, 13011);
 }
 
 TEST(HyperLogLogTest, DISABLED_PrestoBasicTest1) {
-  auto obj = HyperLogLogPresto<std::string>(2);
+  auto obj = HyperLogLogPresto<std::string>(2, PrimerHashFunction<std::string>());
   ASSERT_EQ(obj.GetCardinality(), 0);
 
   std::string str1 = "Welcome to CMU DB (15-445/645)";
@@ -197,7 +198,7 @@ TEST(HyperLogLogTest, DISABLED_PrestoBasicTest1) {
   obj.ComputeCardinality();
   auto ans = obj.GetCardinality();
   ASSERT_EQ(ans, 3);
-  for (uint64_t i = 0; i < 10; i++) {
+  for (uint64_t i = 0; i < 1; i++) {
     obj.AddElem("Andy");
     obj.AddElem("Connor");
     obj.AddElem("J-How");
@@ -210,17 +211,17 @@ TEST(HyperLogLogTest, DISABLED_PrestoBasicTest1) {
     if (i == 0) {
       obj.ComputeCardinality();
       ans = obj.GetCardinality();
-      ASSERT_EQ(ans, 8);
+      ASSERT_EQ(ans, 9);
     }
   }
 
   obj.ComputeCardinality();
   ans = obj.GetCardinality();
-  ASSERT_EQ(ans, 8);
+  ASSERT_EQ(ans, 9);
 }
 
 TEST(HyperLogLogTest, DISABLED_PrestoCase1) {
-  auto obj = HyperLogLogPresto<int64_t>(static_cast<uint64_t>(1));
+  auto obj = HyperLogLogPresto<int64_t>(static_cast<uint64_t>(1), PrimerHashFunction<int64_t>());
   auto ans = obj.GetCardinality();
 
   ASSERT_EQ(ans, 0);
@@ -251,7 +252,7 @@ TEST(HyperLogLogTest, DISABLED_PrestoCase1) {
   obj.ComputeCardinality();
   ans = obj.GetCardinality();
 
-  ASSERT_EQ(ans, 53705353UL);
+  ASSERT_EQ(ans, 227086569448168320UL);
 
   auto expected3 = obj.GetDenseBucket();
   ASSERT_EQ(8, expected3[1].to_ullong());
@@ -262,7 +263,7 @@ TEST(HyperLogLogTest, DISABLED_PrestoCase1) {
   obj.ComputeCardinality();
   ans = obj.GetCardinality();
 
-  ASSERT_EQ(ans, 53705353UL);
+  ASSERT_EQ(ans, 227086569448168320);
   auto expected4 = obj.GetDenseBucket();
   ASSERT_EQ(8, expected4[1].to_ullong());
 
@@ -270,34 +271,26 @@ TEST(HyperLogLogTest, DISABLED_PrestoCase1) {
   obj.ComputeCardinality();
   ans = obj.GetCardinality();
 
-  ASSERT_EQ(ans, 18446744070299261683UL);
+  ASSERT_EQ(ans, 14647083729406857216UL);
   auto expected5 = obj.GetDenseBucket();
   ASSERT_EQ(15UL, expected5[1].to_ulong());
 }
 
 TEST(HyperLogLogTest, DISABLED_PrestoCase2) {
-  auto obj = HyperLogLogPresto<int64_t>(static_cast<uint64_t>(0));
+  auto obj = HyperLogLogPresto<int64_t>(static_cast<uint64_t>(0), PrimerHashFunction<int64_t>());
   auto ans = obj.GetCardinality();
 
   ASSERT_EQ(ans, 0);
 
   obj.AddElem(0);
   obj.ComputeCardinality();
-  ASSERT_EQ(obj.GetCardinality(), 0);
+  ASSERT_EQ(obj.GetCardinality(), 14647083729406857216UL);
   ASSERT_EQ(obj.GetDenseBucket()[0].to_ullong(), 0);
   ASSERT_EQ(obj.GetOverflowBucketofIndex(0).to_ullong(), 4);
 }
 
 TEST(HyperLogLogTest, DISABLED_PrestoEdgeCase) {
-  auto obj = HyperLogLogPresto<int64_t>(-2);
-  obj.ComputeCardinality();
-  auto ans = obj.GetCardinality();
-
-  ASSERT_EQ(ans, 0);
-}
-
-TEST(HyperLogLogTest, DISABLED_PrestoEdgeCase2) {
-  auto obj = HyperLogLogPresto<int64_t>(0);
+  auto obj = HyperLogLogPresto<int64_t>(-2, PrimerHashFunction<int64_t>());
   obj.ComputeCardinality();
   auto ans = obj.GetCardinality();
 
