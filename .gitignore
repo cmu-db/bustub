@@ -215,7 +215,7 @@ io_file
 Makefile.config
 
 # build, distribute, and bins (+ python proto bindings)
-build
+build*
 .build_debug/*
 .build_release/*
 distribute/*
