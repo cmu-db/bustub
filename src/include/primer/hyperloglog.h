@@ -7,7 +7,7 @@
 #include <utility>
 #include <vector>
 
-#include "primer/primer_hash.h"
+#include "common/util/hash_util.h"
 
 #define MAX_BITS 64
 #define DEFAULT_CARDINALITY 0
@@ -25,8 +25,7 @@ class HyperLogLog {
  public:
   HyperLogLog() = delete;
 
-  explicit HyperLogLog(int16_t n_bits, const PrimerHashFunction<T> &hash_fn)
-      : cardinality_(0), hash_fn_(std::move(hash_fn)) {}
+  explicit HyperLogLog(int16_t n_bits) : cardinality_(0) {}
 
   /**
    * @brief Getter value for cardinality.
@@ -54,7 +53,15 @@ class HyperLogLog {
    * @param[in] val - value
    * @returns hash integer of given input value
    */
-  inline auto CalculateHash(T val) -> hash_t { return hash_fn_.GetHash(val); }
+  inline auto CalculateHash(T val) -> hash_t {
+    Value val_obj;
+    if constexpr (std::is_same<T, std::string>::value) {
+      val_obj = Value(VARCHAR, val);
+    } else {
+      val_obj = Value(BIGINT, val);
+    }
+    return bustub::HashUtil::HashValue(&val_obj);
+  }
 
   /**
    * @brief Function that computes binary.
@@ -75,9 +82,6 @@ class HyperLogLog {
 
   /** @brief Cardinality value. */
   size_t cardinality_;
-
-  /** @brief HashFunction. */
-  PrimerHashFunction<T> hash_fn_;
 
   /** @todo (student) can add their data structures that support HyperLogLog */
 };
