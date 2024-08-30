@@ -14,9 +14,6 @@
 
 namespace bustub {
 
-/** @brief Hash value type. */
-using hash_t = uint64_t;
-
 /** @brief Constant for HLL. */
 static const double CONSTANT = 0.79402;
 

@@ -25,9 +25,6 @@ class HyperLogLogPresto {
    * data structure.
    */
 
-  /** @brief Hash type. */
-  using hash_t = uint64_t;
-
  public:
   /** @brief Disabling default constructor. */
   HyperLogLogPresto() = delete;
