@@ -9,20 +9,22 @@
 
 #include "common/util/hash_util.h"
 
-#define MAX_BITS 64
-#define DEFAULT_CARDINALITY 0
+/** @brief Capacity of the bitset stream. */
+#define BITSET_CAPACITY 64
 
 namespace bustub {
 
 /** @brief Constant for HLL. */
 static const double CONSTANT = 0.79402;
 
-template <typename T>
+template <typename KeyType>
 class HyperLogLog {
  public:
+  /** @brief Disable default constructor. */
   HyperLogLog() = delete;
 
-  explicit HyperLogLog(int16_t n_bits) : cardinality_(0) {}
+  /** @brief Parameterized constructor. */
+  explicit HyperLogLog(int16_t n_bits);
 
   /**
    * @brief Getter value for cardinality.
@@ -36,7 +38,7 @@ class HyperLogLog {
    *
    * @param[in] val - value that's added into hyperloglog
    */
-  auto AddElem(T val) -> void;
+  auto AddElem(KeyType val) -> void;
 
   /**
    * @brief Function that computes cardinality.
@@ -50,9 +52,9 @@ class HyperLogLog {
    * @param[in] val - value
    * @returns hash integer of given input value
    */
-  inline auto CalculateHash(T val) -> hash_t {
+  inline auto CalculateHash(KeyType val) -> hash_t {
     Value val_obj;
-    if constexpr (std::is_same<T, std::string>::value) {
+    if constexpr (std::is_same<KeyType, std::string>::value) {
       val_obj = Value(VARCHAR, val);
     } else {
       val_obj = Value(BIGINT, val);
@@ -67,7 +69,7 @@ class HyperLogLog {
    * @param[in] hash
    * @returns binary of a given hash
    */
-  auto ComputeBinary(const hash_t &hash) const -> std::bitset<MAX_BITS>;
+  auto ComputeBinary(const hash_t &hash) const -> std::bitset<BITSET_CAPACITY>;
 
   /**
    * @brief Function that computes leading zeros.
@@ -75,7 +77,7 @@ class HyperLogLog {
    * @param[in] bset - binary values of a given bitset
    * @returns leading zeros of given binary set
    */
-  auto PositionOfLeftmostOne(const std::bitset<MAX_BITS> &bset) const -> uint64_t;
+  auto PositionOfLeftmostOne(const std::bitset<BITSET_CAPACITY> &bset) const -> uint64_t;
 
   /** @brief Cardinality value. */
   size_t cardinality_;
