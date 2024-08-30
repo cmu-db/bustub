@@ -14,12 +14,14 @@
 
 namespace bustub {
 
-/** @brief Constant for HLL. */
-static const double CONSTANT = 0.79402;
-
 template <typename KeyType>
 class HyperLogLog {
+
+ /** @brief Constant for HLL. */
+ static constexpr double CONSTANT = 0.79402;
+
  public:
+
   /** @brief Disable default constructor. */
   HyperLogLog() = delete;
 

@@ -21,9 +21,6 @@
 
 namespace bustub {
 
-/** @brief Constant for HLL. */
-static const double CONSTANT = 0.79402;
-
 template <typename KeyType>
 class HyperLogLogPresto {
   /**
@@ -31,6 +28,9 @@ class HyperLogLogPresto {
    * hence SHOULD NOT be deleted. It's essential to use the dense_bucket_
    * data structure.
    */
+
+ /** @brief Constant for HLL. */
+ static constexpr double CONSTANT = 0.79402; 
 
  public:
   /** @brief Disabling default constructor. */
