@@ -19,10 +19,10 @@
 /** @brief Total bucket size. */
 #define TOTAL_BUCKET_SIZE (DENSE_BUCKET_SIZE + OVERFLOW_BUCKET_SIZE)
 
-/** @brief Constant value. */
-#define CONSTANT 0.79402
-
 namespace bustub {
+
+/** @brief Constant for HLL. */
+static const double CONSTANT = 0.79402;
 
 template <typename KeyType>
 class HyperLogLogPresto {
