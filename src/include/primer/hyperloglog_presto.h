@@ -29,8 +29,8 @@ class HyperLogLogPresto {
    * data structure.
    */
 
- /** @brief Constant for HLL. */
- static constexpr double CONSTANT = 0.79402; 
+  /** @brief Constant for HLL. */
+  static constexpr double CONSTANT = 0.79402;
 
  public:
   /** @brief Disabling default constructor. */
