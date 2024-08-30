@@ -22,25 +22,25 @@ TEST(HyperLogLogTest, DISABLED_BasicTest1) {
   ASSERT_EQ(ans, 2);
 
   for (uint64_t i = 0; i < 10; i++) {
-    obj.AddElem("Andy Pavlo");
-    obj.AddElem("Connor Tsui");
-    obj.AddElem("J-How Huang");
-    obj.AddElem("Kunle Li");
-    obj.AddElem("Lan Lou");
-    obj.AddElem("Prashanth Duvvada");
-    obj.AddElem("William Zhang");
-    obj.AddElem("Yash Kothari");
-    obj.AddElem("Yuanxin Cao");
+    obj.AddElem("Andy");
+    obj.AddElem("Connor");
+    obj.AddElem("J-How");
+    obj.AddElem("Kunle");
+    obj.AddElem("Lan");
+    obj.AddElem("Prashanth");
+    obj.AddElem("William");
+    obj.AddElem("Yash");
+    obj.AddElem("Yuanxin");
     if (i == 0) {
       obj.ComputeCardinality();
       ans = obj.GetCardinality();
-      ASSERT_EQ(ans, 12);
+      ASSERT_EQ(ans, 6);
     }
   }
 
   obj.ComputeCardinality();
   ans = obj.GetCardinality();
-  ASSERT_EQ(ans, 12);
+  ASSERT_EQ(ans, 6);
 }
 
 TEST(HyperLogLogTest, DISABLED_BasicTest2) {
@@ -133,15 +133,15 @@ TEST(HyperLogLogTest, DISABLED_BasicParallelTest) {
 
   std::vector<std::thread> threads2;
   for (uint16_t k = 0; k < 10; k++) {
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Andy Pavlo"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Connor Tsui"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("J-How Huang"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Kunle Li"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Lan Lou"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Prashanth Duvvada"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("William Zhang"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Yash Kothari"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Yuanxin Cao"); }));
+    threads2.emplace_back(std::thread([&]() { obj.AddElem("Andy"); }));
+    threads2.emplace_back(std::thread([&]() { obj.AddElem("Connor"); }));
+    threads2.emplace_back(std::thread([&]() { obj.AddElem("J-How"); }));
+    threads2.emplace_back(std::thread([&]() { obj.AddElem("Kunle"); }));
+    threads2.emplace_back(std::thread([&]() { obj.AddElem("Lan"); }));
+    threads2.emplace_back(std::thread([&]() { obj.AddElem("Prashanth"); }));
+    threads2.emplace_back(std::thread([&]() { obj.AddElem("William"); }));
+    threads2.emplace_back(std::thread([&]() { obj.AddElem("Yash"); }));
+    threads2.emplace_back(std::thread([&]() { obj.AddElem("Yuanxin"); }));
   }
 
   for (auto &thread : threads2) {
@@ -150,14 +150,14 @@ TEST(HyperLogLogTest, DISABLED_BasicParallelTest) {
 
   obj.ComputeCardinality();
   ans = obj.GetCardinality();
-  ASSERT_EQ(ans, 12);
+  ASSERT_EQ(ans, 6);
 }
 
 TEST(HyperLogLogTest, DISABLED_ParallelTest1) {
   auto obj = HyperLogLog<std::string>(static_cast<uint64_t>(14));
 
   std::vector<std::thread> threads1;
-  for (uint16_t i = 0; i < 1; i++) {
+  for (uint16_t i = 0; i < 10; i++) {
     threads1.emplace_back(std::thread([&]() { obj.AddElem("Welcome to CMU DB (15-445/645)"); }));
   }
 
@@ -198,25 +198,25 @@ TEST(HyperLogLogTest, DISABLED_PrestoBasicTest1) {
   auto ans = obj.GetCardinality();
   ASSERT_EQ(ans, 3);
   for (uint64_t i = 0; i < 10; i++) {
-    obj.AddElem("Andy P");
-    obj.AddElem("Connor T");
-    obj.AddElem("J-How H");
-    obj.AddElem("Kunle L");
-    obj.AddElem("Lan L");
-    obj.AddElem("Prashanth D");
-    obj.AddElem("William Z");
-    obj.AddElem("Yash K");
-    obj.AddElem("Yuanxin C");
+    obj.AddElem("Andy");
+    obj.AddElem("Connor");
+    obj.AddElem("J-How");
+    obj.AddElem("Kunle");
+    obj.AddElem("Lan");
+    obj.AddElem("Prashanth");
+    obj.AddElem("William");
+    obj.AddElem("Yash");
+    obj.AddElem("Yuanxin");
     if (i == 0) {
       obj.ComputeCardinality();
       ans = obj.GetCardinality();
-      ASSERT_EQ(ans, 5);
+      ASSERT_EQ(ans, 4);
     }
   }
 
   obj.ComputeCardinality();
   ans = obj.GetCardinality();
-  ASSERT_EQ(ans, 5);
+  ASSERT_EQ(ans, 4);
 }
 
 TEST(HyperLogLogTest, DISABLED_PrestoCase1) {
