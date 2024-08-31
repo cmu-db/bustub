@@ -2,32 +2,29 @@
 
 namespace bustub {
 
-template <typename T>
-auto inline HyperLogLog<T>::CalculateHash(T val) -> hash_t {
-  /** @todo student -  implement the function */
-  return 0;
-}
+template <typename KeyType>
+HyperLogLog<KeyType>::HyperLogLog(int16_t n_bits) : cardinality_(0) {}
 
-template <typename T>
-auto HyperLogLog<T>::ComputeBinary(const hash_t &hash) const -> std::bitset<MAX_BITS> {
-  /** @todo student - implement the function */
+template <typename KeyType>
+auto HyperLogLog<KeyType>::ComputeBinary(const hash_t &hash) const -> std::bitset<BITSET_CAPACITY> {
+  /** @TODO(student) Implement this function! */
   return {0};
 }
 
-template <typename T>
-auto HyperLogLog<T>::PositionOfLeftmostOne(const std::bitset<MAX_BITS> &bset) const -> uint64_t {
-  /** @todo student - implement the function*/
+template <typename KeyType>
+auto HyperLogLog<KeyType>::PositionOfLeftmostOne(const std::bitset<BITSET_CAPACITY> &bset) const -> uint64_t {
+  /** @TODO(student) Implement this function! */
   return 0;
 }
 
-template <typename T>
-auto HyperLogLog<T>::AddElem(T val) -> void {
-  /** @todo implement the function */
+template <typename KeyType>
+auto HyperLogLog<KeyType>::AddElem(KeyType val) -> void {
+  /** @TODO(student) Implement this function! */
 }
 
-template <typename T>
-auto HyperLogLog<T>::ComputeCardinality() -> void {
-  /** @todo - student implement the function */
+template <typename KeyType>
+auto HyperLogLog<KeyType>::ComputeCardinality() -> void {
+  /** @TODO(student) Implement this function! */
 }
 
 template class HyperLogLog<int64_t>;
