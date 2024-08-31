@@ -101,7 +101,7 @@ TEST(HyperLogLogTest, DISABLED_EdgeTest1) {
   ASSERT_EQ(obj1.GetCardinality(), 0);
 }
 
-TEST(HyperLogLogTest, DISABLED_Edgetest2) {
+TEST(HyperLogLogTest, DISABLED_EdgeTest2) {
   auto obj = HyperLogLog<int64_t>(static_cast<int16_t>(0));
   obj.ComputeCardinality();
   ASSERT_EQ(obj.GetCardinality(), 0);
