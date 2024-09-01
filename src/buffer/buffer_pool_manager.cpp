@@ -36,7 +36,7 @@ BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager
       "BufferPoolManager is not implemented yet. If you have finished implementing BPM, please remove the throw "
       "exception line in `buffer_pool_manager.cpp`.");
 
-  // TODO why is this public??
+  // TODO(cjtsui) why is this public??
 
   // we allocate a consecutive memory space for the buffer pool
   pages_ = new Page[pool_size_];
