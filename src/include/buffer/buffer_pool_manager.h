@@ -66,7 +66,7 @@ class BufferPoolManager {
    *
    * TODO(cjtsui) We should probably rename this. These are technically not pages but frames.
    * We should probably also get rename the `Page` class to `FrameHeader` as well and makes changes there too.
-  */
+   */
   Page *pages_;
 
   /** @brief A pointer to the disk scheduler. */
