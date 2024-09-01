@@ -130,9 +130,9 @@ class BPlusTree {
 
  private:
   /* Debug Routines for FREE!! */
-  void ToGraph(page_id_t page_id, const BPlusTreePage *page, std::ofstream &out);
+  void ToGraph(page_id_t page_id, const BPlusTreePage *page, std::ofstream &out) const;
 
-  void PrintTree(page_id_t page_id, const BPlusTreePage *page);
+  void PrintTree(page_id_t page_id, const BPlusTreePage *page) const;
 
   /**
    * @brief Convert A B+ tree into a Printable B+ tree

@@ -204,15 +204,12 @@ auto main(int argc, char **argv) -> int {
              bustub_page_cnt, duration_ms, enable_latency, lru_k_size, bustub_bpm_size, scan_thread_n, get_thread_n);
 
   for (size_t i = 0; i < bustub_page_cnt; i++) {
-    page_id_t page_id;
-    auto *page = bpm->NewPage(&page_id);
-    if (page == nullptr) {
-      throw std::runtime_error("new page failed");
-    }
+    page_id_t page_id = bpm->NewPage();
+    auto guard = bpm->FetchPageWrite(page_id);
 
-    ModifyPage(page->GetData(), i, 0);
+    ModifyPage(guard.GetDataMut(), i, 0);
+    guard.Drop();
 
-    bpm->UnpinPage(page_id, true);
     page_ids.push_back(page_id);
   }
 

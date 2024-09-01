@@ -73,7 +73,7 @@ auto BufferPoolManager::Size() -> size_t { return pool_size_; }
  *
  * @return The page ID of the new page.
  */
-auto BufferPoolManager::NewPage() -> page_id_t { return 0; }
+auto BufferPoolManager::NewPage() -> page_id_t { return INVALID_PAGE_ID; }
 
 /**
  * @brief Removes a page from the database, both on disk and in memory.
