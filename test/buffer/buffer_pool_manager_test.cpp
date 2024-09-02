@@ -22,6 +22,10 @@
 
 namespace bustub {
 
+// TODO(cjtsui): Update public tests.
+
+/*
+
 static std::filesystem::path db_fname("test.bustub");
 
 // NOLINTNEXTLINE
@@ -154,5 +158,7 @@ TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
   delete bpm;
   delete disk_manager;
 }
+
+*/
 
 }  // namespace bustub

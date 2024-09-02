@@ -129,11 +129,10 @@ TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest1) {
 
   auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
   auto *bpm = new BufferPoolManager(50, disk_manager.get());
-  // create and fetch header_page
-  page_id_t page_id;
-  auto header_page = bpm->NewPage(&page_id);
+  // allocate header_page
+  page_id_t page_id = bpm->NewPage();
   // create b+ tree
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", header_page->GetPageId(), bpm, comparator);
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator);
   // keys to Insert
   std::vector<int64_t> keys;
   int64_t scale_factor = 100;
@@ -176,11 +175,10 @@ TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest2) {
   GenericComparator<8> comparator(key_schema.get());
   auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
   auto *bpm = new BufferPoolManager(50, disk_manager.get());
-  // create and fetch header_page
-  page_id_t page_id;
-  auto header_page = bpm->NewPage(&page_id);
+  // allocate header_page
+  page_id_t page_id = bpm->NewPage();
   // create b+ tree
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", header_page->GetPageId(), bpm, comparator);
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator);
   // keys to Insert
   std::vector<int64_t> keys;
   int64_t scale_factor = 100;
@@ -226,11 +224,10 @@ TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest1) {
   auto *bpm = new BufferPoolManager(50, disk_manager.get());
 
   GenericKey<8> index_key;
-  // create and fetch header_page
-  page_id_t page_id;
-  auto header_page = bpm->NewPage(&page_id);
+  // allocate header_page
+  page_id_t page_id = bpm->NewPage();
   // create b+ tree
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", header_page->GetPageId(), bpm, comparator);
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator);
   // sequential insert
   std::vector<int64_t> keys = {1, 2, 3, 4, 5};
   InsertHelper(&tree, keys);
@@ -264,11 +261,10 @@ TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest2) {
   auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
   auto *bpm = new BufferPoolManager(50, disk_manager.get());
   GenericKey<8> index_key;
-  // create and fetch header_page
-  page_id_t page_id;
-  auto header_page = bpm->NewPage(&page_id);
+  // allocate header_page
+  page_id_t page_id = bpm->NewPage();
   // create b+ tree
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", header_page->GetPageId(), bpm, comparator);
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator);
 
   // sequential insert
   std::vector<int64_t> keys = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -303,11 +299,10 @@ TEST(BPlusTreeConcurrentTest, DISABLED_MixTest1) {
   auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
   auto *bpm = new BufferPoolManager(50, disk_manager.get());
 
-  // create and fetch header_page
-  page_id_t page_id;
-  auto header_page = bpm->NewPage(&page_id);
+  // allocate header_page
+  page_id_t page_id = bpm->NewPage();
   // create b+ tree
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", header_page->GetPageId(), bpm, comparator);
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator);
   GenericKey<8> index_key;
   // first, populate index
   std::vector<int64_t> keys = {1, 2, 3, 4, 5};
@@ -344,10 +339,8 @@ TEST(BPlusTreeConcurrentTest, DISABLED_MixTest2) {
   auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
   auto *bpm = new BufferPoolManager(50, disk_manager.get());
 
-  // create and fetch header_page
-  page_id_t page_id;
-  auto *header_page = bpm->NewPage(&page_id);
-  (void)header_page;
+  // allocate header_page
+  page_id_t page_id = bpm->NewPage();
 
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator);

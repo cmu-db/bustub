@@ -22,6 +22,10 @@
 
 namespace bustub {
 
+// TODO(cjtsui) Update public tests.
+
+/*
+
 // NOLINTNEXTLINE
 TEST(PageGuardTest, DISABLED_SampleTest) {
   const size_t buffer_pool_size = 5;
@@ -51,5 +55,7 @@ TEST(PageGuardTest, DISABLED_SampleTest) {
   // Shutdown the disk manager and remove the temporary file we created.
   disk_manager->ShutDown();
 }
+
+*/
 
 }  // namespace bustub
