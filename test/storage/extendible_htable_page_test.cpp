@@ -35,7 +35,8 @@ TEST(ExtendibleHTableTest, DISABLED_BucketPageSampleTest) {
 
   page_id_t bucket_page_id = INVALID_PAGE_ID;
   {
-    BasicPageGuard guard = bpm->NewPageGuarded(&bucket_page_id);
+    page_id_t bucket_page_id = bpm->NewPage();
+    auto guard = bpm->FetchPageWrite(bucket_page_id);
     auto bucket_page = guard.AsMut<ExtendibleHTableBucketPage<GenericKey<8>, RID, GenericComparator<8>>>();
     bucket_page->Init(10);
 
@@ -99,7 +100,8 @@ TEST(ExtendibleHTableTest, DISABLED_HeaderDirectoryPageSampleTest) {
   page_id_t bucket_page_id_4 = INVALID_PAGE_ID;
   {
     /************************ HEADER PAGE TEST ************************/
-    BasicPageGuard header_guard = bpm->NewPageGuarded(&header_page_id);
+    page_id_t header_page_id = bpm->NewPage();
+    auto header_guard = bpm->FetchPageWrite(header_page_id);
     auto header_page = header_guard.AsMut<ExtendibleHTableHeaderPage>();
     header_page->Init(2);
 
@@ -119,23 +121,28 @@ TEST(ExtendibleHTableTest, DISABLED_HeaderDirectoryPageSampleTest) {
     header_guard.Drop();
 
     /************************ DIRECTORY PAGE TEST ************************/
-    BasicPageGuard directory_guard = bpm->NewPageGuarded(&directory_page_id);
+    page_id_t directory_page_id = bpm->NewPage();
+    auto directory_guard = bpm->FetchPageWrite(directory_page_id);
     auto directory_page = directory_guard.AsMut<ExtendibleHTableDirectoryPage>();
     directory_page->Init(3);
 
-    BasicPageGuard bucket_guard_1 = bpm->NewPageGuarded(&bucket_page_id_1);
+    page_id_t bucket_page_id_1 = bpm->NewPage();
+    auto bucket_guard_1 = bpm->FetchPageWrite(bucket_page_id_1);
     auto bucket_page_1 = bucket_guard_1.AsMut<ExtendibleHTableBucketPage<GenericKey<8>, RID, GenericComparator<8>>>();
     bucket_page_1->Init(10);
 
-    BasicPageGuard bucket_guard_2 = bpm->NewPageGuarded(&bucket_page_id_2);
+    page_id_t bucket_page_id_2 = bpm->NewPage();
+    auto bucket_guard_2 = bpm->FetchPageWrite(bucket_page_id_2);
     auto bucket_page_2 = bucket_guard_2.AsMut<ExtendibleHTableBucketPage<GenericKey<8>, RID, GenericComparator<8>>>();
     bucket_page_2->Init(10);
 
-    BasicPageGuard bucket_guard_3 = bpm->NewPageGuarded(&bucket_page_id_3);
+    page_id_t bucket_page_id_3 = bpm->NewPage();
+    auto bucket_guard_3 = bpm->FetchPageWrite(bucket_page_id_3);
     auto bucket_page_3 = bucket_guard_3.AsMut<ExtendibleHTableBucketPage<GenericKey<8>, RID, GenericComparator<8>>>();
     bucket_page_3->Init(10);
 
-    BasicPageGuard bucket_guard_4 = bpm->NewPageGuarded(&bucket_page_id_4);
+    page_id_t bucket_page_id_4 = bpm->NewPage();
+    auto bucket_guard_4 = bpm->FetchPageWrite(bucket_page_id_4);
     auto bucket_page_4 = bucket_guard_4.AsMut<ExtendibleHTableBucketPage<GenericKey<8>, RID, GenericComparator<8>>>();
     bucket_page_4->Init(10);
 
