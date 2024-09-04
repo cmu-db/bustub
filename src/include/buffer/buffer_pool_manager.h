@@ -50,11 +50,11 @@ class BufferPoolManager {
   auto UnpinPage(page_id_t page_id, bool is_dirty, AccessType access_type = AccessType::Unknown) -> bool;
 
  private:
+  /** @brief The next page ID to be allocated.  */
+  std::atomic<page_id_t> next_page_id_;
+
   /** @brief The number of frames in the buffer pool. */
   const size_t pool_size_;
-
-  /** @brief The next page ID to be allocated.  */
-  std::atomic<page_id_t> next_page_id_ = 0;
 
   /**
    * @brief The latch protecting most of the `BufferPoolManager`'s shared data structures.
@@ -96,18 +96,9 @@ class BufferPoolManager {
    */
   LogManager *log_manager_ __attribute__((__unused__));
 
-  /**
-   * @brief Deallocates a page on disk. The caller should acquire the `BufferPoolManager` latch before calling this
-   * function.
-   *
-   * Note: You should look at the documentation for `DeletePage` before using this method.
-   *
-   * @param page_id The page ID of the page to deallocate from disk.
-   */
-  void DeallocatePage(__attribute__((unused)) page_id_t page_id) {
-    // Note that this is a no-op without a more complex data structure to track deallocated pages.
-  }
+  // TODO(cjtsui) this should probably be a method on the disk scheduler.
+  void DeallocatePage(page_id_t page_id);
 
-  /** TODO(student): You may add additional private members and helper functions */
+  /** TODO(student): You may add additional private members and helper functions. */
 };
 }  // namespace bustub

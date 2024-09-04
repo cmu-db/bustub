@@ -30,7 +30,10 @@ namespace bustub {
  */
 BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager, size_t replacer_k,
                                      LogManager *log_manager)
-    : pool_size_(pool_size), disk_scheduler_(std::make_unique<DiskScheduler>(disk_manager)), log_manager_(log_manager) {
+    : next_page_id_(0),
+      pool_size_(pool_size),
+      disk_scheduler_(std::make_unique<DiskScheduler>(disk_manager)),
+      log_manager_(log_manager) {
   // TODO(students): remove this line after you have implemented the buffer pool manager
   throw NotImplementedException(
       "BufferPoolManager is not implemented yet. If you have finished implementing BPM, please remove the throw "
@@ -180,11 +183,25 @@ auto BufferPoolManager::FlushPage(page_id_t page_id) -> bool { return false; }
  */
 void BufferPoolManager::FlushAllPages() {}
 
+/**
+ * @brief Deallocates a page on disk. The caller should acquire the `BufferPoolManager` latch before calling this
+ * function.
+ *
+ * Note: You should look at the documentation for `DeletePage` before using this method.
+ * Also note: This is a no-op without a more complex data structure to track deallocated pages.
+ *
+ * @param page_id The page ID of the page to deallocate from disk.
+ */
+void BufferPoolManager::DeallocatePage(page_id_t page_id) {}
+
 /**********************************************************************************************************************/
 /**********************************************************************************************************************/
 /**********************************************************************************************************************/
 
-// TODO(2024 tas) Remove this function from the rest of the BusTub.
+// Below there be dragons...
+
+// TODO(2024 tas) Remove these function from the rest of the BusTub.
+
 auto BufferPoolManager::FetchPageRead(page_id_t page_id, AccessType access_type) -> ReadPageGuard {
   auto guard_opt = ReadPage(page_id, access_type);
   BUSTUB_ASSERT(guard_opt.has_value(), "TODO(2024 tas) Using deprecated `FetchPageRead`");
@@ -193,7 +210,6 @@ auto BufferPoolManager::FetchPageRead(page_id_t page_id, AccessType access_type)
   return std::move(guard_opt).value();
 }
 
-// TODO(2024 tas) Remove this function from the rest of the BusTub.
 auto BufferPoolManager::FetchPageWrite(page_id_t page_id, AccessType access_type) -> WritePageGuard {
   auto guard_opt = WritePage(page_id, access_type);
   BUSTUB_ASSERT(guard_opt.has_value(), "TODO(2024 tas) Using deprecated `FetchPageWrite`");
@@ -203,8 +219,6 @@ auto BufferPoolManager::FetchPageWrite(page_id_t page_id, AccessType access_type
 }
 
 /**
- * TODO(cjtsui): This entire function should probably be removed.
- *
  * @brief Fetch the requested page from the buffer pool. Return nullptr if page_id needs to be fetched from the disk
  * but all frames are currently in use and not evictable (in another word, pinned).
  *
@@ -224,8 +238,6 @@ auto BufferPoolManager::FetchPage(page_id_t page_id, [[maybe_unused]] AccessType
 }
 
 /**
- * TODO(cjtsui): This entire function should probably be removed.
- *
  * @brief Unpin the target page from the buffer pool. If page_id is not in the buffer pool or its pin count is already
  * 0, return false.
  *
