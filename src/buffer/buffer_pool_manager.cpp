@@ -21,7 +21,7 @@ namespace bustub {
 /**
  * @brief Creates a new `BufferPoolManager` instance.
  *
- * TODO more docs.
+ * TODO(cjtsui) Write documentation.
  *
  * @param pool_size the size of the buffer pool
  * @param disk_manager the disk manager
@@ -35,8 +35,6 @@ BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager
   throw NotImplementedException(
       "BufferPoolManager is not implemented yet. If you have finished implementing BPM, please remove the throw "
       "exception line in `buffer_pool_manager.cpp`.");
-
-  // TODO(cjtsui) why is this public??
 
   // we allocate a consecutive memory space for the buffer pool
   pages_ = new Page[pool_size_];
@@ -113,18 +111,19 @@ auto BufferPoolManager::DeletePage(page_id_t page_id) -> bool { return false; }
  * However, all data access must be immutable. If a user wants to mutate the page's data, they must acquire a
  * `WritePageGuard` with `FetchPageWrite` instead.
  *
- * # Implementation
+ * ### Implementation
  *
- * TODO(cjtsui)
+ * TODO(cjtsui): Write documentation.
  *
  * TODO(P1): Add implementation.
  *
  * @param page_id
  * @param access_type The type of page access.
- * @return ReadPageGuard A latch guard ensuring shared and read-only access to a page's data.
+ * @return std::optional<ReadPageGuard> An optional latch guard where if there are no more free frames (out of memory)
+ * returns `std::nullopt`, otherwise returns a `ReadPageGuard` ensuring shared and read-only access to a page's data.
  */
-auto BufferPoolManager::FetchPageRead(page_id_t page_id, AccessType access_type) -> ReadPageGuard {
-  return {this, nullptr};
+auto BufferPoolManager::ReadPage(page_id_t page_id, AccessType access_type) -> std::optional<ReadPageGuard> {
+  return ReadPageGuard{this, nullptr};
 }
 
 /**
@@ -139,25 +138,26 @@ auto BufferPoolManager::FetchPageRead(page_id_t page_id, AccessType access_type)
  * want. If a user wants to have multiple threads reading the page at the same time, they must acquire a `ReadPageGuard`
  * with `FetchPageRead` instead.
  *
- * # Implementation
+ * ### Implementation
  *
- * TODO(cjtsui)
+ * TODO(cjtsui): Write documentation.
  *
  * TODO(P1): Add implementation.
  *
  * @param page_id
  * @param access_type The type of page access.
- * @return WritePageGuard A latch guard ensuring exclusive and mutable access to a page's data.
+ * @return std::optional<WritePageGuard> An optional latch guard where if there are no more free frames (out of memory)
+ * returns `std::nullopt`, otherwise returns a `WritePageGuard` ensuring exclusive and mutable access to a page's data.
  */
-auto BufferPoolManager::FetchPageWrite(page_id_t page_id, AccessType access_type) -> WritePageGuard {
-  return {this, nullptr};
+auto BufferPoolManager::WritePage(page_id_t page_id, AccessType access_type) -> std::optional<WritePageGuard> {
+  return WritePageGuard{this, nullptr};
 }
 
 /**
  * @brief Flushes the input page's data to disk and returns `true`. If the page is not in memory, this function does
  * nothing and returns `false`.
  *
- * # Implementation
+ * ### Implementation
  *
  * You will want to use the `WritePage` method on `DiskManager` to flush a page's data to disk, **regardless** of if the
  * dirty flag for the frame is set or not. Make sure the dirty flag of the frame is correct after flushing.
@@ -172,9 +172,35 @@ auto BufferPoolManager::FlushPage(page_id_t page_id) -> bool { return false; }
 /**
  * @brief Flushes all of the pages in the buffer pool manager to disk.
  *
+ * ### Implementation
+ *
+ * It is up to you on how you would like to implement this function!
+ *
  * TODO(P1): Add implementation.
  */
 void BufferPoolManager::FlushAllPages() {}
+
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+
+// TODO(2024 tas) Remove this function from the rest of the BusTub.
+auto BufferPoolManager::FetchPageRead(page_id_t page_id, AccessType access_type) -> ReadPageGuard {
+  auto guard_opt = ReadPage(page_id, access_type);
+  BUSTUB_ASSERT(guard_opt.has_value(), "TODO(2024 tas) Using deprecated `FetchPageRead`");
+
+  // Simply calling `.value()` only returns a reference, so we must move it out of the option.
+  return std::move(guard_opt).value();
+}
+
+// TODO(2024 tas) Remove this function from the rest of the BusTub.
+auto BufferPoolManager::FetchPageWrite(page_id_t page_id, AccessType access_type) -> WritePageGuard {
+  auto guard_opt = WritePage(page_id, access_type);
+  BUSTUB_ASSERT(guard_opt.has_value(), "TODO(2024 tas) Using deprecated `FetchPageWrite`");
+
+  // Simply calling `.value()` only returns a reference, so we must move it out of the option.
+  return std::move(guard_opt).value();
+}
 
 /**
  * TODO(cjtsui): This entire function should probably be removed.

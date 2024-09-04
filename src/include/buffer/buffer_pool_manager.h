@@ -38,14 +38,15 @@ class BufferPoolManager {
   auto Size() -> size_t;
   auto NewPage() -> page_id_t;
   auto DeletePage(page_id_t page_id) -> bool;
-  auto FetchPageRead(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> ReadPageGuard;
-  auto FetchPageWrite(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> WritePageGuard;
+  auto ReadPage(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> std::optional<ReadPageGuard>;
+  auto WritePage(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> std::optional<WritePageGuard>;
   auto FlushPage(page_id_t page_id) -> bool;
   void FlushAllPages();
 
-  // TODO(cjtsui) This entire function should probably be removed. Leaving it in for now so it doesn't break everything.
+  // TODO(cjtsui) deprecate everything under this comment. Leaving it in for now so it doesn't break everything.
+  auto FetchPageRead(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> ReadPageGuard;
+  auto FetchPageWrite(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> WritePageGuard;
   auto FetchPage(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> Page *;
-  // TODO(cjtsui) This entire function should probably be removed. Leaving it in for now so it doesn't break everything.
   auto UnpinPage(page_id_t page_id, bool is_dirty, AccessType access_type = AccessType::Unknown) -> bool;
 
  private:
