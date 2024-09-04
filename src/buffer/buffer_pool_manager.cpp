@@ -12,10 +12,6 @@
 
 #include "buffer/buffer_pool_manager.h"
 
-#include "common/exception.h"
-#include "common/macros.h"
-#include "storage/page/page_guard.h"
-
 namespace bustub {
 
 /**
