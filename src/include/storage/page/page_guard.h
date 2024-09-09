@@ -43,18 +43,6 @@ class ReadPageGuard {
    * this default constructor is to enable placing an "uninitialized" guard on the stack that we can later move assign
    * via `=`.
    *
-   * One use case would look similar to this, where we use move assignment to override the invalid guard:
-   *
-   * ```
-   * ReadPageGuard guard;
-   *
-   * if (is_happy(person)) {
-   *   guard = bpm->ReadPage(happy_book_id);
-   * } else {
-   *   guard = bpm->ReadPage(sad_book_id);
-   * }
-   * ```
-   *
    * **Use of an uninitialized page guard is undefined behavior.**
    *
    * In other words, the only way to get a valid `ReadPageGuard` is through the buffer pool manager.
@@ -148,18 +136,6 @@ class WritePageGuard {
    * Note that we do not EVER want use a guard that has only been default constructed. The only reason we even define
    * this default constructor is to enable placing an "uninitialized" guard on the stack that we can later move assign
    * via `=`.
-   *
-   * One use case would look similar to this, where we use move assignment to override the invalid guard:
-   *
-   * ```
-   * WritePageGuard guard;
-   *
-   * if (is_happy(person)) {
-   *   guard = bpm->WritePage(happy_book_id);
-   * } else {
-   *   guard = bpm->WritePage(sad_book_id);
-   * }
-   * ```
    *
    * **Use of an uninitialized page guard is undefined behavior.**
    *
