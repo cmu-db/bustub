@@ -6,7 +6,7 @@
 //
 // Identification: src/buffer/buffer_pool_manager.cpp
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2024-2024, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -15,45 +15,94 @@
 namespace bustub {
 
 /**
- * @brief Creates a new `BufferPoolManager` instance.
+ * @brief The constructor for a `FrameHeader` that initializes all fields to default values.
  *
- * TODO(cjtsui) Write documentation.
+ * See the documentation for `FrameHeader` in "buffer/buffer_pool_manager.h" for more information.
  *
- * @param pool_size the size of the buffer pool
- * @param disk_manager the disk manager
- * @param replacer_k the LookBack constant k for the LRU-K replacer
- * @param log_manager the log manager (for testing only: nullptr = disable logging). Please ignore this for P1.
+ * @param frame_id The frame ID / index of the frame we are creating a header for.
  */
-BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager, size_t replacer_k,
+FrameHeader::FrameHeader(frame_id_t frame_id) : frame_id_(frame_id), data_(BUSTUB_PAGE_SIZE, 0) { Reset(); }
+
+/**
+ * @brief Get a raw const pointer to the frame's data.
+ *
+ * @return const char* A pointer to immutable data that the frame stores.
+ */
+auto FrameHeader::GetData() const -> const char * { return data_.data(); }
+
+/**
+ * @brief Get a raw mutable pointer to the frame's data.
+ *
+ * @return char* A pointer to mutable data that the frame stores.
+ */
+auto FrameHeader::GetDataMut() -> char * { return data_.data(); }
+
+/**
+ * @brief Resets a `FrameHeader`'s member fields.
+ */
+void FrameHeader::Reset() {
+  std::fill(data_.begin(), data_.end(), 0);
+  pin_count_.store(0);
+  is_dirty_ = false;
+}
+
+/**
+ * @brief Creates a new `BufferPoolManager` instance and initializes all fields.
+ *
+ * See the documentation for `BufferPoolManager` in "buffer/buffer_pool_manager.h" for more information.
+ *
+ * ### Implementation
+ *
+ * We have implemented the constructor for you in a way that makes sense with our reference solution. You are free to
+ * change anything you would like here if it doesn't fit with you implementation.
+ *
+ * Be warned, though! If you stray too far away from our guidance, it will be much harder for us to help you. Our
+ * recommendation would be to first implement the buffer pool manager using the stepping stones we have provided.
+ *
+ * Once you have a fully working solution (all Gradescope test cases pass), then you can try more interesting things!
+ *
+ * @param num_frames The size of the buffer pool.
+ * @param disk_manager The disk manager.
+ * @param k_dist The backward k-distance for the LRU-K replacer.
+ * @param log_manager The log manager. Please ignore this for P1.
+ */
+BufferPoolManager::BufferPoolManager(size_t num_frames, DiskManager *disk_manager, size_t k_dist,
                                      LogManager *log_manager)
-    : next_page_id_(0),
-      pool_size_(pool_size),
+    : num_frames_(num_frames),
+      next_page_id_(0),
+      bpm_latch_(std::make_shared<std::mutex>()),
+      replacer_(std::make_shared<LRUKReplacer>(num_frames, k_dist)),
       disk_scheduler_(std::make_unique<DiskScheduler>(disk_manager)),
       log_manager_(log_manager) {
-  // TODO(students): remove this line after you have implemented the buffer pool manager
-  throw NotImplementedException(
-      "BufferPoolManager is not implemented yet. If you have finished implementing BPM, please remove the throw "
-      "exception line in `buffer_pool_manager.cpp`.");
+  // Not strictly necessary...
+  std::scoped_lock latch(*bpm_latch_);
 
-  // we allocate a consecutive memory space for the buffer pool
-  pages_ = new Page[pool_size_];
-  replacer_ = std::make_unique<LRUKReplacer>(pool_size, replacer_k);
+  // Initialize the monotonically increasing counter at 0.
+  next_page_id_.store(0);
 
-  // Initially, every page is in the free list.
-  for (size_t i = 0; i < pool_size_; ++i) {
-    free_list_.emplace_back(static_cast<int>(i));
+  // Allocate all of the in-memory frames up front.
+  frames_.reserve(num_frames_);
+
+  // The page table should have exactly `num_frames_` slots, corresponding to exactly `num_frames_` frames.
+  page_table_.reserve(num_frames_);
+
+  // Initialize all of the frame headers, and fill the free frame list with all possible frame IDs (since all frames are
+  // initially free).
+  for (size_t i = 0; i < num_frames_; i++) {
+    frames_.push_back(std::make_shared<FrameHeader>(i));
+    free_frames_.push_back(static_cast<int>(i));
   }
 }
 
 /**
  * @brief Destroys the `BufferPoolManager`, freeing up all memory that the buffer pool was using.
  */
-BufferPoolManager::~BufferPoolManager() { delete[] pages_; }
+BufferPoolManager::~BufferPoolManager() = default;
 
 /**
  * @brief Returns the number of frames that this buffer pool manages.
  */
-auto BufferPoolManager::Size() -> size_t { return pool_size_; }
+auto BufferPoolManager::Size() const -> size_t { return num_frames_; }
 
 /**
  * @brief Allocates a new page on disk.
@@ -64,21 +113,28 @@ auto BufferPoolManager::Size() -> size_t { return pool_size_; }
  * See the documentation on [atomics](https://en.cppreference.com/w/cpp/atomic/atomic) for more information.
  *
  * Also, make sure to read the documentation for `DeletePage`! You can assume that you will never run out of disk
- * space, so this function _cannot_ fail.
+ * space (via `DiskScheduler::IncreaseDiskSpace`), so this function _cannot_ fail.
+ *
+ * Once you have allocated the new page via the counter, make sure to call `DiskScheduler::IncreaseDiskSpace` so you
+ * have enough space on disk!
  *
  * TODO(P1): Add implementation.
  *
- * @return The page ID of the new page.
+ * @return The page ID of the newly allocated page.
  */
-auto BufferPoolManager::NewPage() -> page_id_t { return INVALID_PAGE_ID; }
+auto BufferPoolManager::NewPage() -> page_id_t { UNIMPLEMENTED("TODO(P1): Add implementation."); }
 
 /**
  * @brief Removes a page from the database, both on disk and in memory.
  *
  * If the page is pinned in the buffer pool, this function does nothing and returns `false`. Otherwise, this function
- * removes the page from memory (if possible) and disk, returning `true`.
+ * removes the page from both disk and memory (if it is still in the buffer pool), returning `true`.
  *
  * ### Implementation
+ *
+ * Think about all of the places a page or a page's metadata could be, and use that to guide you on implementing this
+ * function. You will probably want to implement this function _after_ you have implemented `CheckedReadPage` and
+ * `CheckedWritePage`.
  *
  * Ideally, we would want to ensure that all space on disk is used efficiently. That would mean the space that deleted
  * pages on disk used to occupy should somehow be made available to new pages allocated by `NewPage`.
@@ -89,44 +145,17 @@ auto BufferPoolManager::NewPage() -> page_id_t { return INVALID_PAGE_ID; }
  * For (nonexistent) style points, you can still call `DeallocatePage` in case you want to implement something slightly
  * more space-efficient in the future.
  *
- * Think about all of the places a page or a page's metadata could be, and use that to guide you on implementing this
- * function.
- *
  * TODO(P1): Add implementation.
  *
  * @param page_id The page ID of the page we want to delete.
  * @return `false` if the page exists but could not be deleted, `true` if the page didn't exist or deletion succeeded.
  */
-auto BufferPoolManager::DeletePage(page_id_t page_id) -> bool { return false; }
+auto BufferPoolManager::DeletePage(page_id_t page_id) -> bool { UNIMPLEMENTED("TODO(P1): Add implementation."); }
 
 /**
- * @brief Acquires a read-locked guard over a page of data. The user can specify an `AccessType` if needed.
+ * @brief Acquires an optional write-locked guard over a page of data. The user can specify an `AccessType` if needed.
  *
- * Page data can _only_ be accessed via page guards. Users of this `BufferPoolManager` are expected to acquire either a
- * `ReadPageGuard` or a `WritePageGuard` depending on the mode in which they would like to access the data, which
- * ensures that any access of data is thread-safe.
- *
- * There can be any number of `ReadPageGuard`s reading the same page of data at a time across different threads.
- * However, all data access must be immutable. If a user wants to mutate the page's data, they must acquire a
- * `WritePageGuard` with `FetchPageWrite` instead.
- *
- * ### Implementation
- *
- * TODO(cjtsui): Write documentation.
- *
- * TODO(P1): Add implementation.
- *
- * @param page_id
- * @param access_type The type of page access.
- * @return std::optional<ReadPageGuard> An optional latch guard where if there are no more free frames (out of memory)
- * returns `std::nullopt`, otherwise returns a `ReadPageGuard` ensuring shared and read-only access to a page's data.
- */
-auto BufferPoolManager::ReadPage(page_id_t page_id, AccessType access_type) -> std::optional<ReadPageGuard> {
-  return ReadPageGuard{this, nullptr};
-}
-
-/**
- * @brief Acquires a write-locked guard over a page of data. The user can specify an `AccessType` if needed.
+ * If it is not possible to bring the page of data into memory, this function will return a `std::nullopt`.
  *
  * Page data can _only_ be accessed via page guards. Users of this `BufferPoolManager` are expected to acquire either a
  * `ReadPageGuard` or a `WritePageGuard` depending on the mode in which they would like to access the data, which
@@ -135,60 +164,172 @@ auto BufferPoolManager::ReadPage(page_id_t page_id, AccessType access_type) -> s
  * There can only be 1 `WritePageGuard` reading/writing a page at a time. This allows data access to be both immutable
  * and mutable, meaning the thread that owns the `WritePageGuard` is allowed to manipulate the page's data however they
  * want. If a user wants to have multiple threads reading the page at the same time, they must acquire a `ReadPageGuard`
- * with `FetchPageRead` instead.
+ * with `CheckedReadPage` instead.
  *
  * ### Implementation
  *
- * TODO(cjtsui): Write documentation.
+ * There are 3 main cases that you will have to implement. The first two are relatively simple: one is when there is
+ * plenty of available memory, and the other is when we don't actually need to perform any additional I/O. Think about
+ * what exactly these two cases entail.
+ *
+ * The third case is the trickiest, and it is when we do not have any _easily_ available memory at our disposal. The
+ * buffer pool is tasked with finding memory that it can use to bring in a page of memory, using the replacement
+ * algorithm you implemented previously to find candidate frames for eviction.
+ *
+ * Once the buffer pool has identified a frame for eviction, several I/O operations may be necessary to bring in the
+ * page of data we want into the frame.
+ *
+ * There is likely going to be a lot of shared code with `CheckedReadPage`, so you may find creating helper functions
+ * useful.
+ *
+ * These two functions are the crux of this project, so we won't give you more hints than this. Good luck!
  *
  * TODO(P1): Add implementation.
  *
- * @param page_id
+ * @param page_id The ID of the page we want to write to.
  * @param access_type The type of page access.
  * @return std::optional<WritePageGuard> An optional latch guard where if there are no more free frames (out of memory)
  * returns `std::nullopt`, otherwise returns a `WritePageGuard` ensuring exclusive and mutable access to a page's data.
  */
-auto BufferPoolManager::WritePage(page_id_t page_id, AccessType access_type) -> std::optional<WritePageGuard> {
-  return WritePageGuard{this, nullptr};
+auto BufferPoolManager::CheckedWritePage(page_id_t page_id, AccessType access_type) -> std::optional<WritePageGuard> {
+  UNIMPLEMENTED("TODO(P1): Add implementation.");
 }
 
 /**
- * @brief Flushes the input page's data to disk and returns `true`. If the page is not in memory, this function does
- * nothing and returns `false`.
+ * @brief Acquires an optional read-locked guard over a page of data. The user can specify an `AccessType` if needed.
+ *
+ * If it is not possible to bring the page of data into memory, this function will return a `std::nullopt`.
+ *
+ * Page data can _only_ be accessed via page guards. Users of this `BufferPoolManager` are expected to acquire either a
+ * `ReadPageGuard` or a `WritePageGuard` depending on the mode in which they would like to access the data, which
+ * ensures that any access of data is thread-safe.
+ *
+ * There can be any number of `ReadPageGuard`s reading the same page of data at a time across different threads.
+ * However, all data access must be immutable. If a user wants to mutate the page's data, they must acquire a
+ * `WritePageGuard` with `CheckedWritePage` instead.
  *
  * ### Implementation
  *
- * You will want to use the `WritePage` method on `DiskManager` to flush a page's data to disk, **regardless** of if the
- * dirty flag for the frame is set or not. Make sure the dirty flag of the frame is correct after flushing.
+ * See the implementation details of `CheckedWritePage`.
  *
  * TODO(P1): Add implementation.
  *
- * @param page_id id of page to be flushed, cannot be INVALID_PAGE_ID
- * @return false if the page could not be found in the page table, true otherwise
+ * @param page_id The ID of the page we want to read.
+ * @param access_type The type of page access.
+ * @return std::optional<ReadPageGuard> An optional latch guard where if there are no more free frames (out of memory)
+ * returns `std::nullopt`, otherwise returns a `ReadPageGuard` ensuring shared and read-only access to a page's data.
  */
-auto BufferPoolManager::FlushPage(page_id_t page_id) -> bool { return false; }
+auto BufferPoolManager::CheckedReadPage(page_id_t page_id, AccessType access_type) -> std::optional<ReadPageGuard> {
+  UNIMPLEMENTED("TODO(P1): Add implementation.");
+}
 
 /**
- * @brief Flushes all of the pages in the buffer pool manager to disk.
+ * @brief A wrapper around `CheckedWritePage` that unwraps the inner value if it exists.
+ *
+ * If `CheckedWritePage` returns a `std::nullopt`, **this function aborts the entire process.**
+ *
+ * This function should **only** be used for testing and ergonomic's sake. If it is at all possible that the buffer pool
+ * manager might run out of memory, then use `CheckedPageWrite` to allow you to handle that case.
+ *
+ * See the documentation for `CheckedPageWrite` for more information about implementation.
+ *
+ * @param page_id The ID of the page we want to read.
+ * @param access_type The type of page access.
+ * @return WritePageGuard A page guard ensuring exclusive and mutable access to a page's data.
+ */
+auto BufferPoolManager::WritePage(page_id_t page_id, AccessType access_type) -> WritePageGuard {
+  auto guard_opt = CheckedWritePage(page_id, access_type);
+
+  if (!guard_opt.has_value()) {
+    std::cerr << fmt::format("\n`CheckedPageWrite` failed to bring in page {}\n\n", page_id);
+    std::abort();
+  }
+
+  return std::move(guard_opt).value();
+}
+
+/**
+ * @brief A wrapper around `CheckedReadPage` that unwraps the inner value if it exists.
+ *
+ * If `CheckedReadPage` returns a `std::nullopt`, **this function aborts the entire process.**
+ *
+ * This function should **only** be used for testing and ergonomic's sake. If it is at all possible that the buffer pool
+ * manager might run out of memory, then use `CheckedPageWrite` to allow you to handle that case.
+ *
+ * See the documentation for `CheckedPageRead` for more information about implementation.
+ *
+ * @param page_id The ID of the page we want to read.
+ * @param access_type The type of page access.
+ * @return ReadPageGuard A page guard ensuring shared and read-only access to a page's data.
+ */
+auto BufferPoolManager::ReadPage(page_id_t page_id, AccessType access_type) -> ReadPageGuard {
+  auto guard_opt = CheckedReadPage(page_id, access_type);
+
+  if (!guard_opt.has_value()) {
+    std::cerr << fmt::format("\n`CheckedPageRead` failed to bring in page {}\n\n", page_id);
+    std::abort();
+  }
+
+  return std::move(guard_opt).value();
+}
+
+/**
+ * @brief Flushes a page's data out to disk.
+ *
+ * This function will write out a page's data to disk if it has been modified. If the given page is not in memory, this
+ * function will return `false`.
  *
  * ### Implementation
  *
- * It is up to you on how you would like to implement this function!
+ * You should probably leave implementing this function until after you have completed `CheckedReadPage` and
+ * `CheckedWritePage`, as it will likely be much easier to understand what to do.
  *
- * TODO(P1): Add implementation.
+ * TODO(P1): Add implementation
+ *
+ * @param page_id The page ID of the page to be flushed.
+ * @return `false` if the page could not be found in the page table, otherwise `true`.
  */
-void BufferPoolManager::FlushAllPages() {}
+auto BufferPoolManager::FlushPage(page_id_t page_id) -> bool { UNIMPLEMENTED("TODO(P1): Add implementation."); }
 
 /**
- * @brief Deallocates a page on disk. The caller should acquire the `BufferPoolManager` latch before calling this
- * function.
+ * @brief Flushes all page data that is in memory to disk.
  *
- * Note: You should look at the documentation for `DeletePage` before using this method.
- * Also note: This is a no-op without a more complex data structure to track deallocated pages.
+ * ### Implementation
  *
- * @param page_id The page ID of the page to deallocate from disk.
+ * You should probably leave implementing this function until after you have completed `CheckedReadPage`,
+ * `CheckedWritePage`, and `FlushPage`, as it will likely be much easier to understand what to do.
+ *
+ * TODO(P1): Add implementation
  */
-void BufferPoolManager::DeallocatePage(page_id_t page_id) {}
+void BufferPoolManager::FlushAllPages() { UNIMPLEMENTED("TODO(P1): Add implementation."); }
+
+/**
+ * @brief Retrieves the pin count of a page. If the page does not exist in memory, return `std::nullopt`.
+ *
+ * This function is thread safe. Callers may invoke this function in a multi-threaded environment where multiple threads
+ * access the same page.
+ *
+ * This function is intended for testing purposes. If this function is implemented incorrectly, it will definitely cause
+ * problems with the test suite and autograder.
+ *
+ * # Implementation
+ *
+ * We will use this function to test if your buffer pool manager is managing pin counts correctly. Since the
+ * `pin_count_` field in `FrameHeader` is an atomic type, you do not need to take the latch on the frame that holds the
+ * page we want to look at. Instead, you can simply use an atomic `load` to safely load the value stored. You will still
+ * need to take the buffer pool latch, however.
+ *
+ * Again, if you are unfamiliar with atomic types, see the official C++ docs
+ * [here](https://en.cppreference.com/w/cpp/atomic/atomic).
+ *
+ * TODO(P1): Add implementation
+ *
+ * @param page_id The page ID of the page we want to get the pin count of.
+ * @return std::optional<size_t> The pin count if the page exists, otherwise `std::nullopt`.
+ */
+auto BufferPoolManager::GetPinCount(page_id_t page_id) -> std::optional<size_t> {
+  UNIMPLEMENTED("TODO(P1): Add implementation.");
+}
 
 /**********************************************************************************************************************/
 /**********************************************************************************************************************/
@@ -198,55 +339,29 @@ void BufferPoolManager::DeallocatePage(page_id_t page_id) {}
 
 // TODO(2024 tas) Remove these function from the rest of the BusTub.
 
-auto BufferPoolManager::FetchPageRead(page_id_t page_id, AccessType access_type) -> ReadPageGuard {
-  auto guard_opt = ReadPage(page_id, access_type);
-  BUSTUB_ASSERT(guard_opt.has_value(), "TODO(2024 tas) Using deprecated `FetchPageRead`");
-
-  // Simply calling `.value()` only returns a reference, so we must move it out of the option.
-  return std::move(guard_opt).value();
-}
-
-auto BufferPoolManager::FetchPageWrite(page_id_t page_id, AccessType access_type) -> WritePageGuard {
-  auto guard_opt = WritePage(page_id, access_type);
-  BUSTUB_ASSERT(guard_opt.has_value(), "TODO(2024 tas) Using deprecated `FetchPageWrite`");
-
-  // Simply calling `.value()` only returns a reference, so we must move it out of the option.
-  return std::move(guard_opt).value();
-}
-
 /**
- * @brief Fetch the requested page from the buffer pool. Return nullptr if page_id needs to be fetched from the disk
- * but all frames are currently in use and not evictable (in another word, pinned).
- *
- * First search for page_id in the buffer pool. If not found, pick a replacement frame from either the free list or
- * the replacer (always find from the free list first), read the page from disk by scheduling a read DiskRequest with
- * disk_scheduler_->Schedule(), and replace the old page in the frame. Similar to NewPage(), if the old page is dirty,
- * you need to write it back to disk and update the metadata of the new page
- *
- * In addition, remember to disable eviction and record the access history of the frame like you did for NewPage().
- *
- * @param page_id id of page to be fetched
- * @param access_type type of access to the page, only needed for leaderboard tests.
- * @return nullptr if page_id cannot be fetched, otherwise pointer to the requested page
+ * 1. search hash table.
+ *  1.1 if exist, pin the page and return immediately
+ *  1.2 if no exist, find a replacement entry from either free list or lru
+ *      replacer. (NOTE: always find from free list first)
+ * 2. If the entry chosen for replacement is dirty, write it back to disk.
+ * 3. Delete the entry for the old page from the hash table and insert an
+ * entry for the new page.
+ * 4. Update page metadata, read page content from disk file and return page
+ * pointer
  */
 auto BufferPoolManager::FetchPage(page_id_t page_id, [[maybe_unused]] AccessType access_type) -> Page * {
-  return nullptr;
+  UNIMPLEMENTED("TODO(2024 tas): Attempt to use deprecated buffer pool manager API");
 }
 
-/**
- * @brief Unpin the target page from the buffer pool. If page_id is not in the buffer pool or its pin count is already
- * 0, return false.
- *
- * Decrement the pin count of a page. If the pin count reaches 0, the frame should be evictable by the replacer.
- * Also, set the dirty flag on the page to indicate if the page was modified.
- *
- * @param page_id id of page to be unpinned
- * @param is_dirty true if the page should be marked as dirty, false otherwise
- * @param access_type type of access to the page, only needed for leaderboard tests.
- * @return false if the page is not in the page table or its pin count is <= 0 before this call, true otherwise
+/*
+ * Implementation of unpin page
+ * if pin_count>0, decrement it and if it becomes zero, put it back to
+ * replacer if pin_count<=0 before this call, return false. is_dirty: set the
+ * dirty flag of this page
  */
 auto BufferPoolManager::UnpinPage(page_id_t page_id, bool is_dirty, [[maybe_unused]] AccessType access_type) -> bool {
-  return false;
+  UNIMPLEMENTED("TODO(2024 tas): Attempt to use deprecated buffer pool manager API");
 }
 
 }  // namespace bustub
