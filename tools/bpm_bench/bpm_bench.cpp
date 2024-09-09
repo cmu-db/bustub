@@ -236,19 +236,14 @@ auto main(int argc, char **argv) -> int {
       size_t page_idx = page_idx_start;
 
       while (!metrics.ShouldFinish()) {
-        auto *page = bpm->FetchPage(page_ids[page_idx], AccessType::Scan);
-        if (page == nullptr) {
-          continue;
+        {
+          auto page = bpm->WritePage(page_ids[page_idx], AccessType::Lookup);
+          auto &seed = records[page_idx];
+          CheckPageConsistent(page.GetData(), page_idx, seed);
+          seed = seed + 1;
+          ModifyPage(page.GetDataMut(), page_idx, seed);
         }
 
-        page->WLatch();
-        auto &seed = records[page_idx];
-        CheckPageConsistent(page->GetData(), page_idx, seed);
-        seed = seed + 1;
-        ModifyPage(page->GetData(), page_idx, seed);
-        page->WUnlatch();
-
-        bpm->UnpinPage(page->GetPageId(), true, AccessType::Scan);
         page_idx += 1;
         if (page_idx >= page_idx_end) {
           page_idx = page_idx_start;
@@ -272,17 +267,11 @@ auto main(int argc, char **argv) -> int {
 
       while (!metrics.ShouldFinish()) {
         auto page_idx = dist(gen);
-        auto *page = bpm->FetchPage(page_ids[page_idx], AccessType::Lookup);
-        if (page == nullptr) {
-          fmt::println(stderr, "cannot fetch page");
-          std::terminate();
+        {
+          auto page = bpm->ReadPage(page_ids[page_idx], AccessType::Scan);
+          CheckPageConsistentNoSeed(page.GetData(), page_idx);
         }
 
-        page->RLatch();
-        CheckPageConsistentNoSeed(page->GetData(), page_idx);
-        page->RUnlatch();
-
-        bpm->UnpinPage(page->GetPageId(), false, AccessType::Lookup);
         metrics.Tick();
         metrics.Report();
       }
