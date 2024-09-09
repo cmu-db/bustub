@@ -27,7 +27,8 @@ namespace bustub {
  * @param bpm_latch A shared pointer to the buffer pool manager's latch.
  */
 ReadPageGuard::ReadPageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> frame,
-                             std::shared_ptr<LRUKReplacer> replacer, std::shared_ptr<std::mutex> bpm_latch) {
+                             std::shared_ptr<LRUKReplacer> replacer, std::shared_ptr<std::mutex> bpm_latch)
+    : page_id_(page_id), frame_(std::move(frame)), replacer_(std::move(replacer)), bpm_latch_(std::move(bpm_latch)) {
   UNIMPLEMENTED("TODO(P1): Add implementation.");
 }
 
@@ -46,7 +47,7 @@ ReadPageGuard::ReadPageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> fra
  *
  * @param that The other page guard.
  */
-ReadPageGuard::ReadPageGuard(ReadPageGuard &&that) noexcept { return; }
+ReadPageGuard::ReadPageGuard(ReadPageGuard &&that) noexcept {}
 
 /**
  * @brief The move assignment operator for `ReadPageGuard`.
@@ -124,7 +125,8 @@ ReadPageGuard::~ReadPageGuard() { Drop(); }
  * @param bpm_latch A shared pointer to the buffer pool manager's latch.
  */
 WritePageGuard::WritePageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> frame,
-                               std::shared_ptr<LRUKReplacer> replacer, std::shared_ptr<std::mutex> bpm_latch) {
+                               std::shared_ptr<LRUKReplacer> replacer, std::shared_ptr<std::mutex> bpm_latch)
+    : page_id_(page_id), frame_(std::move(frame)), replacer_(std::move(replacer)), bpm_latch_(std::move(bpm_latch)) {
   UNIMPLEMENTED("TODO(P1): Add implementation.");
 }
 
@@ -143,7 +145,7 @@ WritePageGuard::WritePageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> f
  *
  * @param that The other page guard.
  */
-WritePageGuard::WritePageGuard(WritePageGuard &&that) noexcept { return; }
+WritePageGuard::WritePageGuard(WritePageGuard &&that) noexcept {}
 
 /**
  * @brief The move assignment operator for `WritePageGuard`.
