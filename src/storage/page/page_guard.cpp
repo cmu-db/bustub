@@ -47,7 +47,7 @@ ReadPageGuard::ReadPageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> fra
  *
  * @param that The other page guard.
  */
-ReadPageGuard::ReadPageGuard(ReadPageGuard &&that) noexcept { UNIMPLEMENTED("TODO(P1): Add implementation."); }
+ReadPageGuard::ReadPageGuard(ReadPageGuard &&that) noexcept { return; }
 
 /**
  * @brief The move assignment operator for `ReadPageGuard`.
@@ -66,9 +66,7 @@ ReadPageGuard::ReadPageGuard(ReadPageGuard &&that) noexcept { UNIMPLEMENTED("TOD
  * @param that The other page guard.
  * @return ReadPageGuard& The newly valid `ReadPageGuard`.
  */
-auto ReadPageGuard::operator=(ReadPageGuard &&that) noexcept -> ReadPageGuard & {
-  UNIMPLEMENTED("TODO(P1): Add implementation.");
-}
+auto ReadPageGuard::operator=(ReadPageGuard &&that) noexcept -> ReadPageGuard & { return *this; }
 
 /**
  * @brief Gets the page ID of the page this guard is protecting.
@@ -146,7 +144,7 @@ WritePageGuard::WritePageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> f
  *
  * @param that The other page guard.
  */
-WritePageGuard::WritePageGuard(WritePageGuard &&that) noexcept { UNIMPLEMENTED("TODO(P1): Add implementation."); }
+WritePageGuard::WritePageGuard(WritePageGuard &&that) noexcept { return; }
 
 /**
  * @brief The move assignment operator for `WritePageGuard`.
@@ -165,9 +163,7 @@ WritePageGuard::WritePageGuard(WritePageGuard &&that) noexcept { UNIMPLEMENTED("
  * @param that The other page guard.
  * @return WritePageGuard& The newly valid `WritePageGuard`.
  */
-auto WritePageGuard::operator=(WritePageGuard &&that) noexcept -> WritePageGuard & {
-  UNIMPLEMENTED("TODO(P1): Add implementation.");
-}
+auto WritePageGuard::operator=(WritePageGuard &&that) noexcept -> WritePageGuard & { return *this; }
 
 /**
  * @brief Gets the page ID of the page this guard is protecting.
