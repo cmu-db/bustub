@@ -42,6 +42,12 @@ class DiskManagerMemory : public DiskManager {
   ~DiskManagerMemory() override { delete[] memory_; }
 
   /**
+   * This function should increase the disk space, but since we have a fixed amount of memory we just check that the
+   * pages are in bounds.
+   */
+  void IncreaseDiskSpace(size_t pages) override;
+
+  /**
    * Write a page to the database file.
    * @param page_id id of the page
    * @param page_data raw page data
@@ -56,6 +62,7 @@ class DiskManagerMemory : public DiskManager {
   void ReadPage(page_id_t page_id, char *page_data) override;
 
  private:
+  size_t pages_;
   char *memory_;
 };
 
@@ -66,6 +73,11 @@ class DiskManagerMemory : public DiskManager {
 class DiskManagerUnlimitedMemory : public DiskManager {
  public:
   DiskManagerUnlimitedMemory() { std::fill(recent_access_.begin(), recent_access_.end(), -1); }
+
+  /**
+   * This function should increase the disk space, but since this is memory we just resize the vector.
+   */
+  void IncreaseDiskSpace(size_t pages) override { data_.resize(pages + 1, std::make_shared<ProtectedPage>()); }
 
   /**
    * Write a page to the database file.

@@ -205,7 +205,7 @@ auto main(int argc, char **argv) -> int {
 
   for (size_t i = 0; i < bustub_page_cnt; i++) {
     page_id_t page_id = bpm->NewPage();
-    auto guard = bpm->FetchPageWrite(page_id);
+    auto guard = bpm->WritePage(page_id);
 
     ModifyPage(guard.GetDataMut(), i, 0);
     guard.Drop();

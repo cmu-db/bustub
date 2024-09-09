@@ -6,7 +6,7 @@
 //
 // Identification: src/include/storage/disk/disk_scheduler.h
 //
-// Copyright (c) 2015-2023, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2024, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -82,6 +82,25 @@ class DiskScheduler {
    * @return std::promise<bool>
    */
   auto CreatePromise() -> DiskSchedulerPromise { return {}; };
+
+  /**
+   * @brief Increases the size of the database file to fit the specified number of pages.
+   *
+   * This function works like a dynamic array, where the capacity is doubled until all pages can fit.
+   *
+   * @param pages The number of pages the caller wants the file used for storage to support.
+   */
+  void IncreaseDiskSpace(size_t pages) { disk_manager_->IncreaseDiskSpace(pages); }
+
+  /**
+   * @brief Deallocates a page on disk.
+   *
+   * Note: You should look at the documentation for `DeletePage` in `BufferPoolManager` before using this method.
+   * Also note: This is a no-op without a more complex data structure to track deallocated pages.
+   *
+   * @param page_id The page ID of the page to deallocate from disk.
+   */
+  void DeallocatePage(page_id_t page_id) {}
 
  private:
   /** Pointer to the disk manager. */

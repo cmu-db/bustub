@@ -39,9 +39,6 @@ static constexpr int LOG_BUFFER_SIZE = ((BUFFER_POOL_SIZE + 1) * BUSTUB_PAGE_SIZ
 static constexpr int BUCKET_SIZE = 50;                                               // size of extendible hash bucket
 static constexpr int LRUK_REPLACER_K = 10;  // default lookback window for lru-k replacer
 
-// TODO(cjtsui) what is this HEADER_PAGE_ID???
-static constexpr int HEADER_PAGE_ID = 0;  // the header page id
-
 using frame_id_t = int32_t;    // frame id type
 using page_id_t = int32_t;     // page id type
 using txn_id_t = int64_t;      // transaction id type

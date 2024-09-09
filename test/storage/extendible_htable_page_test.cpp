@@ -34,7 +34,7 @@ TEST(ExtendibleHTableTest, DISABLED_BucketPageSampleTest) {
   auto bpm = std::make_unique<BufferPoolManager>(5, disk_mgr.get());
 
   page_id_t bucket_page_id = bpm->NewPage();
-  auto guard = bpm->FetchPageWrite(bucket_page_id);
+  auto guard = bpm->WritePage(bucket_page_id);
   auto bucket_page = guard.AsMut<ExtendibleHTableBucketPage<GenericKey<8>, RID, GenericComparator<8>>>();
   bucket_page->Init(10);
 
@@ -92,7 +92,7 @@ TEST(ExtendibleHTableTest, DISABLED_HeaderDirectoryPageSampleTest) {
 
   /************************ HEADER PAGE TEST ************************/
   page_id_t header_page_id = bpm->NewPage();
-  auto header_guard = bpm->FetchPageWrite(header_page_id);
+  auto header_guard = bpm->WritePage(header_page_id);
   auto header_page = header_guard.AsMut<ExtendibleHTableHeaderPage>();
   header_page->Init(2);
 
@@ -113,27 +113,27 @@ TEST(ExtendibleHTableTest, DISABLED_HeaderDirectoryPageSampleTest) {
 
   /************************ DIRECTORY PAGE TEST ************************/
   page_id_t directory_page_id = bpm->NewPage();
-  auto directory_guard = bpm->FetchPageWrite(directory_page_id);
+  auto directory_guard = bpm->WritePage(directory_page_id);
   auto directory_page = directory_guard.AsMut<ExtendibleHTableDirectoryPage>();
   directory_page->Init(3);
 
   page_id_t bucket_page_id_1 = bpm->NewPage();
-  auto bucket_guard_1 = bpm->FetchPageWrite(bucket_page_id_1);
+  auto bucket_guard_1 = bpm->WritePage(bucket_page_id_1);
   auto bucket_page_1 = bucket_guard_1.AsMut<ExtendibleHTableBucketPage<GenericKey<8>, RID, GenericComparator<8>>>();
   bucket_page_1->Init(10);
 
   page_id_t bucket_page_id_2 = bpm->NewPage();
-  auto bucket_guard_2 = bpm->FetchPageWrite(bucket_page_id_2);
+  auto bucket_guard_2 = bpm->WritePage(bucket_page_id_2);
   auto bucket_page_2 = bucket_guard_2.AsMut<ExtendibleHTableBucketPage<GenericKey<8>, RID, GenericComparator<8>>>();
   bucket_page_2->Init(10);
 
   page_id_t bucket_page_id_3 = bpm->NewPage();
-  auto bucket_guard_3 = bpm->FetchPageWrite(bucket_page_id_3);
+  auto bucket_guard_3 = bpm->WritePage(bucket_page_id_3);
   auto bucket_page_3 = bucket_guard_3.AsMut<ExtendibleHTableBucketPage<GenericKey<8>, RID, GenericComparator<8>>>();
   bucket_page_3->Init(10);
 
   page_id_t bucket_page_id_4 = bpm->NewPage();
-  auto bucket_guard_4 = bpm->FetchPageWrite(bucket_page_id_4);
+  auto bucket_guard_4 = bpm->WritePage(bucket_page_id_4);
   auto bucket_page_4 = bucket_guard_4.AsMut<ExtendibleHTableBucketPage<GenericKey<8>, RID, GenericComparator<8>>>();
   bucket_page_4->Init(10);
 

@@ -165,7 +165,6 @@ TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest1) {
 
   EXPECT_EQ(current_key, keys.size() + 1);
 
-  bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete bpm;
 }
 
@@ -211,7 +210,6 @@ TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest2) {
 
   EXPECT_EQ(current_key, keys.size() + 1);
 
-  bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete bpm;
 }
 
@@ -249,7 +247,6 @@ TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest1) {
 
   EXPECT_EQ(size, 1);
 
-  bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete bpm;
 }
 
@@ -287,7 +284,6 @@ TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest2) {
 
   EXPECT_EQ(size, 4);
 
-  bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete bpm;
 }
 
@@ -327,7 +323,6 @@ TEST(BPlusTreeConcurrentTest, DISABLED_MixTest1) {
 
   EXPECT_EQ(size, 5);
 
-  bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete bpm;
 }
 
@@ -391,7 +386,6 @@ TEST(BPlusTreeConcurrentTest, DISABLED_MixTest2) {
 
   ASSERT_EQ(size, perserved_keys.size());
 
-  bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete bpm;
 }
 

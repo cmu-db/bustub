@@ -71,7 +71,6 @@ TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
     ASSERT_EQ(rids[0].GetSlotNum(), value);
   }
 
-  bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete transaction;
   delete bpm;
 }

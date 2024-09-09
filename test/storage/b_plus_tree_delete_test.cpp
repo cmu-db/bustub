@@ -84,7 +84,6 @@ TEST(BPlusTreeTests, DISABLED_DeleteTest1) {
 
   EXPECT_EQ(size, 3);
 
-  bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete transaction;
   delete bpm;
 }
@@ -150,7 +149,6 @@ TEST(BPlusTreeTests, DISABLED_DeleteTest2) {
 
   EXPECT_EQ(size, 1);
 
-  bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete transaction;
   delete bpm;
 }

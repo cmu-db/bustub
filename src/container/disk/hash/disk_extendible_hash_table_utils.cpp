@@ -40,7 +40,7 @@ template <typename K, typename V, typename KC>
 void DiskExtendibleHashTable<K, V, KC>::PrintHT() const {
   std::cout << "\n";
   std::cout << "==================== PRINT! ====================\n";
-  ReadPageGuard header_guard = bpm_->FetchPageRead(header_page_id_);
+  ReadPageGuard header_guard = bpm_->ReadPage(header_page_id_);
   const auto *header = header_guard.As<ExtendibleHTableHeaderPage>();
 
   header->PrintHeader();
@@ -51,7 +51,7 @@ void DiskExtendibleHashTable<K, V, KC>::PrintHT() const {
       std::cout << "Directory " << idx << ", page id: " << directory_page_id << "\n";
       continue;
     }
-    ReadPageGuard directory_guard = bpm_->FetchPageRead(directory_page_id);
+    ReadPageGuard directory_guard = bpm_->ReadPage(directory_page_id);
     const auto *directory = directory_guard.As<ExtendibleHTableDirectoryPage>();
 
     std::cout << "Directory " << idx << ", page id: " << directory_page_id << "\n";
@@ -59,7 +59,7 @@ void DiskExtendibleHashTable<K, V, KC>::PrintHT() const {
 
     for (uint32_t idx2 = 0; idx2 < directory->Size(); idx2++) {
       page_id_t bucket_page_id = directory->GetBucketPageId(idx2);
-      ReadPageGuard bucket_guard = bpm_->FetchPageRead(bucket_page_id);
+      ReadPageGuard bucket_guard = bpm_->ReadPage(bucket_page_id);
       const auto *bucket = bucket_guard.As<ExtendibleHTableBucketPage<K, V, KC>>();
 
       std::cout << "Bucket " << idx2 << ", page id: " << bucket_page_id << "\n";
@@ -77,14 +77,14 @@ void DiskExtendibleHashTable<K, V, KC>::PrintHT() const {
 template <typename K, typename V, typename KC>
 void DiskExtendibleHashTable<K, V, KC>::VerifyIntegrity() const {
   BUSTUB_ASSERT(header_page_id_ != INVALID_PAGE_ID, "header page id is invalid");
-  ReadPageGuard header_guard = bpm_->FetchPageRead(header_page_id_);
+  ReadPageGuard header_guard = bpm_->ReadPage(header_page_id_);
   const auto *header = header_guard.As<ExtendibleHTableHeaderPage>();
 
   // for each of the directory pages, check their integrity using directory page VerifyIntegrity
   for (uint32_t idx = 0; idx < header->MaxSize(); idx++) {
     auto directory_page_id = header->GetDirectoryPageId(idx);
     if (static_cast<int>(directory_page_id) != INVALID_PAGE_ID) {
-      ReadPageGuard directory_guard = bpm_->FetchPageRead(directory_page_id);
+      ReadPageGuard directory_guard = bpm_->ReadPage(directory_page_id);
       const auto *directory = directory_guard.As<ExtendibleHTableDirectoryPage>();
       directory->VerifyIntegrity();
     }
