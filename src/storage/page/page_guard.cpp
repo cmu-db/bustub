@@ -72,7 +72,7 @@ auto ReadPageGuard::operator=(ReadPageGuard &&that) noexcept -> ReadPageGuard & 
  * @brief Gets the page ID of the page this guard is protecting.
  */
 auto ReadPageGuard::GetPageId() const -> page_id_t {
-  BUSTUB_ASSERT(is_valid_, "tried to use an invalid read guard");
+  BUSTUB_ENSURE(is_valid_, "tried to use an invalid read guard");
   return page_id_;
 }
 
@@ -80,7 +80,7 @@ auto ReadPageGuard::GetPageId() const -> page_id_t {
  * @brief Gets a `const` pointer to the page of data this guard is protecting.
  */
 auto ReadPageGuard::GetData() const -> const char * {
-  BUSTUB_ASSERT(is_valid_, "tried to use an invalid read guard");
+  BUSTUB_ENSURE(is_valid_, "tried to use an invalid read guard");
   return frame_->GetData();
 }
 
@@ -88,7 +88,7 @@ auto ReadPageGuard::GetData() const -> const char * {
  * @brief Returns whether the page is dirty (modified but not flushed to the disk).
  */
 auto ReadPageGuard::IsDirty() const -> bool {
-  BUSTUB_ASSERT(is_valid_, "tried to use an invalid read guard");
+  BUSTUB_ENSURE(is_valid_, "tried to use an invalid read guard");
   return frame_->is_dirty_;
 }
 
@@ -170,7 +170,7 @@ auto WritePageGuard::operator=(WritePageGuard &&that) noexcept -> WritePageGuard
  * @brief Gets the page ID of the page this guard is protecting.
  */
 auto WritePageGuard::GetPageId() const -> page_id_t {
-  BUSTUB_ASSERT(is_valid_, "tried to use an invalid write guard");
+  BUSTUB_ENSURE(is_valid_, "tried to use an invalid write guard");
   return page_id_;
 }
 
@@ -178,7 +178,7 @@ auto WritePageGuard::GetPageId() const -> page_id_t {
  * @brief Gets a `const` pointer to the page of data this guard is protecting.
  */
 auto WritePageGuard::GetData() const -> const char * {
-  BUSTUB_ASSERT(is_valid_, "tried to use an invalid write guard");
+  BUSTUB_ENSURE(is_valid_, "tried to use an invalid write guard");
   return frame_->GetData();
 }
 
@@ -186,7 +186,7 @@ auto WritePageGuard::GetData() const -> const char * {
  * @brief Gets a mutable pointer to the page of data this guard is protecting.
  */
 auto WritePageGuard::GetDataMut() -> char * {
-  BUSTUB_ASSERT(is_valid_, "tried to use an invalid write guard");
+  BUSTUB_ENSURE(is_valid_, "tried to use an invalid write guard");
   return frame_->GetDataMut();
 }
 
@@ -194,7 +194,7 @@ auto WritePageGuard::GetDataMut() -> char * {
  * @brief Returns whether the page is dirty (modified but not flushed to the disk).
  */
 auto WritePageGuard::IsDirty() const -> bool {
-  BUSTUB_ASSERT(is_valid_, "tried to use an invalid write guard");
+  BUSTUB_ENSURE(is_valid_, "tried to use an invalid write guard");
   return frame_->is_dirty_;
 }
 
