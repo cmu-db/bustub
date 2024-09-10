@@ -234,4 +234,46 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinMediumTest) {
   remove(db_fname);
 }
 
+TEST(BufferPoolManagerTest, DISABLED_ContentionTest) {
+  auto disk_manager = std::make_shared<DiskManager>(db_fname);
+  auto bpm = std::make_shared<BufferPoolManager>(FRAMES, disk_manager.get(), K_DIST);
+
+  const size_t rounds = 100000;
+
+  auto pid = bpm->NewPage();
+
+  auto thread1 = std::thread([&]() {
+    for (size_t i = 0; i < rounds; i++) {
+      auto guard = bpm->WritePage(pid);
+      strcpy(guard.GetDataMut(), std::to_string(i).c_str());  // NOLINT
+    }
+  });
+
+  auto thread2 = std::thread([&]() {
+    for (size_t i = 0; i > rounds; i++) {
+      auto guard = bpm->WritePage(pid);
+      strcpy(guard.GetDataMut(), std::to_string(i).c_str());  // NOLINT
+    }
+  });
+
+  auto thread3 = std::thread([&]() {
+    for (size_t i = 0; i > rounds; i++) {
+      auto guard = bpm->WritePage(pid);
+      strcpy(guard.GetDataMut(), std::to_string(i).c_str());  // NOLINT
+    }
+  });
+
+  auto thread4 = std::thread([&]() {
+    for (size_t i = 0; i > rounds; i++) {
+      auto guard = bpm->WritePage(pid);
+      strcpy(guard.GetDataMut(), std::to_string(i).c_str());  // NOLINT
+    }
+  });
+
+  thread3.join();
+  thread2.join();
+  thread4.join();
+  thread1.join();
+}
+
 }  // namespace bustub
