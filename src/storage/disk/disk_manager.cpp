@@ -33,7 +33,8 @@ static const size_t DEFAULT_DB_IO_SIZE = 16;
  * Constructor: open/create a single database file & log file
  * @input db_file: database file name
  */
-DiskManager::DiskManager(const std::filesystem::path &db_file) : file_name_(db_file) {
+DiskManager::DiskManager(const std::filesystem::path &db_file)
+    : file_name_(db_file), pages_(0), page_capacity_(DEFAULT_DB_IO_SIZE) {
   log_name_ = file_name_.filename().stem().string() + ".log";
 
   log_io_.open(log_name_, std::ios::binary | std::ios::in | std::ios::app | std::ios::out);
@@ -60,9 +61,6 @@ DiskManager::DiskManager(const std::filesystem::path &db_file) : file_name_(db_f
   }
 
   // Initialize the database file.
-  pages_ = 0;
-  page_capacity_ = DEFAULT_DB_IO_SIZE;
-
   std::filesystem::resize_file(db_file, (page_capacity_ + 1) * BUSTUB_PAGE_SIZE);
   assert(static_cast<size_t>(GetFileSize(file_name_)) >= page_capacity_ * BUSTUB_PAGE_SIZE);
 
@@ -84,11 +82,11 @@ void DiskManager::ShutDown() {
  * @brief Increases the size of the file to fit the specified number of pages.
  */
 void DiskManager::IncreaseDiskSpace(size_t pages) {
+  std::scoped_lock scoped_db_io_latch(db_io_latch_);
+
   if (pages < pages_) {
     return;
   }
-
-  std::scoped_lock scoped_db_io_latch(db_io_latch_);
 
   pages_ = pages;
   while (page_capacity_ < pages_) {

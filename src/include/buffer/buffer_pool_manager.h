@@ -22,7 +22,6 @@
 #include "common/config.h"
 #include "recovery/log_manager.h"
 #include "storage/disk/disk_scheduler.h"
-#include "storage/disk/write_back_cache.h"
 #include "storage/page/page.h"
 #include "storage/page/page_guard.h"
 
@@ -154,13 +153,6 @@ class BufferPoolManager {
 
   /** @brief A pointer to the disk scheduler. */
   std::unique_ptr<DiskScheduler> disk_scheduler_;
-
-  /**
-   * @brief A write-back cache.
-   *
-   * Note: You may want to use this cache to optimize the write requests for the leaderboard task.
-   */
-  WriteBackCache write_back_cache_ __attribute__((__unused__));
 
   /**
    * @brief A pointer to the log manager.
