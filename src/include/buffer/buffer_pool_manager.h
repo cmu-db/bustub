@@ -126,10 +126,6 @@ class BufferPoolManager {
   void FlushAllPages();
   auto GetPinCount(page_id_t page_id) -> std::optional<size_t>;
 
-  // TODO(cjtsui) deprecate everything under this comment. Leaving it in for now so it doesn't break everything.
-  auto FetchPage(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> Page *;
-  auto UnpinPage(page_id_t page_id, bool is_dirty, AccessType access_type = AccessType::Unknown) -> bool;
-
  private:
   /** @brief The number of frames in the buffer pool. */
   const size_t num_frames_;

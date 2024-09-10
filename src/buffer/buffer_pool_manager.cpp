@@ -331,37 +331,4 @@ auto BufferPoolManager::GetPinCount(page_id_t page_id) -> std::optional<size_t> 
   UNIMPLEMENTED("TODO(P1): Add implementation.");
 }
 
-/**********************************************************************************************************************/
-/**********************************************************************************************************************/
-/**********************************************************************************************************************/
-
-// Below there be dragons...
-
-// TODO(2024 tas) Remove these function from the rest of the BusTub.
-
-/**
- * 1. search hash table.
- *  1.1 if exist, pin the page and return immediately
- *  1.2 if no exist, find a replacement entry from either free list or lru
- *      replacer. (NOTE: always find from free list first)
- * 2. If the entry chosen for replacement is dirty, write it back to disk.
- * 3. Delete the entry for the old page from the hash table and insert an
- * entry for the new page.
- * 4. Update page metadata, read page content from disk file and return page
- * pointer
- */
-auto BufferPoolManager::FetchPage(page_id_t page_id, [[maybe_unused]] AccessType access_type) -> Page * {
-  UNIMPLEMENTED("TODO(2024 tas): Attempt to use deprecated buffer pool manager API");
-}
-
-/*
- * Implementation of unpin page
- * if pin_count>0, decrement it and if it becomes zero, put it back to
- * replacer if pin_count<=0 before this call, return false. is_dirty: set the
- * dirty flag of this page
- */
-auto BufferPoolManager::UnpinPage(page_id_t page_id, bool is_dirty, [[maybe_unused]] AccessType access_type) -> bool {
-  UNIMPLEMENTED("TODO(2024 tas): Attempt to use deprecated buffer pool manager API");
-}
-
 }  // namespace bustub
