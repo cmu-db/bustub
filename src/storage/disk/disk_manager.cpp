@@ -26,11 +26,15 @@ namespace bustub {
 
 static char *buffer_used;
 
+/** @brief The default size of the database file. */
+static const size_t DEFAULT_DB_IO_SIZE = 16;
+
 /**
  * Constructor: open/create a single database file & log file
  * @input db_file: database file name
  */
-DiskManager::DiskManager(const std::filesystem::path &db_file) : file_name_(db_file) {
+DiskManager::DiskManager(const std::filesystem::path &db_file)
+    : file_name_(db_file), pages_(0), page_capacity_(DEFAULT_DB_IO_SIZE) {
   log_name_ = file_name_.filename().stem().string() + ".log";
 
   log_io_.open(log_name_, std::ios::binary | std::ios::in | std::ios::app | std::ios::out);
@@ -55,6 +59,11 @@ DiskManager::DiskManager(const std::filesystem::path &db_file) : file_name_(db_f
       throw Exception("can't open db file");
     }
   }
+
+  // Initialize the database file.
+  std::filesystem::resize_file(db_file, (page_capacity_ + 1) * BUSTUB_PAGE_SIZE);
+  assert(static_cast<size_t>(GetFileSize(file_name_)) >= page_capacity_ * BUSTUB_PAGE_SIZE);
+
   buffer_used = nullptr;
 }
 
@@ -70,21 +79,43 @@ void DiskManager::ShutDown() {
 }
 
 /**
+ * @brief Increases the size of the file to fit the specified number of pages.
+ */
+void DiskManager::IncreaseDiskSpace(size_t pages) {
+  std::scoped_lock scoped_db_io_latch(db_io_latch_);
+
+  if (pages < pages_) {
+    return;
+  }
+
+  pages_ = pages;
+  while (page_capacity_ < pages_) {
+    page_capacity_ *= 2;
+  }
+
+  std::filesystem::resize_file(file_name_, (page_capacity_ + 1) * BUSTUB_PAGE_SIZE);
+
+  assert(static_cast<size_t>(GetFileSize(file_name_)) >= page_capacity_ * BUSTUB_PAGE_SIZE);
+}
+
+/**
  * Write the contents of the specified page into disk file
  */
 void DiskManager::WritePage(page_id_t page_id, const char *page_data) {
   std::scoped_lock scoped_db_io_latch(db_io_latch_);
   size_t offset = static_cast<size_t>(page_id) * BUSTUB_PAGE_SIZE;
-  // set write cursor to offset
+
+  // Set the write cursor to the page offset.
   num_writes_ += 1;
   db_io_.seekp(offset);
   db_io_.write(page_data, BUSTUB_PAGE_SIZE);
-  // check for I/O error
+
   if (db_io_.bad()) {
     LOG_DEBUG("I/O error while writing");
     return;
   }
-  // needs to flush to keep disk file in sync
+
+  // Flush the write to disk.
   db_io_.flush();
 }
 
@@ -94,26 +125,29 @@ void DiskManager::WritePage(page_id_t page_id, const char *page_data) {
 void DiskManager::ReadPage(page_id_t page_id, char *page_data) {
   std::scoped_lock scoped_db_io_latch(db_io_latch_);
   int offset = page_id * BUSTUB_PAGE_SIZE;
-  // check if read beyond file length
+
+  // Check if we have read beyond the file length.
   if (offset > GetFileSize(file_name_)) {
-    LOG_DEBUG("I/O error reading past end of file");
-    // std::cerr << "I/O error while reading" << std::endl;
-  } else {
-    // set read cursor to offset
-    db_io_.seekp(offset);
-    db_io_.read(page_data, BUSTUB_PAGE_SIZE);
-    if (db_io_.bad()) {
-      LOG_DEBUG("I/O error while reading");
-      return;
-    }
-    // if file ends before reading BUSTUB_PAGE_SIZE
-    int read_count = db_io_.gcount();
-    if (read_count < BUSTUB_PAGE_SIZE) {
-      LOG_DEBUG("Read less than a page");
-      db_io_.clear();
-      // std::cerr << "Read less than a page" << std::endl;
-      memset(page_data + read_count, 0, BUSTUB_PAGE_SIZE - read_count);
-    }
+    LOG_DEBUG("I/O error: Read past the end of file at offset %d", offset);
+    return;
+  }
+
+  // Set the read cursor to the page offset.
+  db_io_.seekg(offset);
+  db_io_.read(page_data, BUSTUB_PAGE_SIZE);
+
+  if (db_io_.bad()) {
+    LOG_DEBUG("I/O error while reading");
+    return;
+  }
+
+  // Check if the file ended before we could read a full page.
+  int read_count = db_io_.gcount();
+  if (read_count < BUSTUB_PAGE_SIZE) {
+    LOG_DEBUG("I/O error: Read hit the end of file at offset %d, missing %d bytes", offset,
+              BUSTUB_PAGE_SIZE - read_count);
+    db_io_.clear();
+    memset(page_data + read_count, 0, BUSTUB_PAGE_SIZE - read_count);
   }
 }
 

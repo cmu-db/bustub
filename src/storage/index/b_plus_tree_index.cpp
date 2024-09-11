@@ -18,8 +18,7 @@ namespace bustub {
 INDEX_TEMPLATE_ARGUMENTS
 BPLUSTREE_INDEX_TYPE::BPlusTreeIndex(std::unique_ptr<IndexMetadata> &&metadata, BufferPoolManager *buffer_pool_manager)
     : Index(std::move(metadata)), comparator_(GetMetadata()->GetKeySchema()) {
-  page_id_t header_page_id;
-  buffer_pool_manager->NewPage(&header_page_id);
+  page_id_t header_page_id = buffer_pool_manager->NewPage();
   container_ = std::make_shared<BPlusTree<KeyType, ValueType, KeyComparator>>(GetMetadata()->GetName(), header_page_id,
                                                                               buffer_pool_manager, comparator_);
 }

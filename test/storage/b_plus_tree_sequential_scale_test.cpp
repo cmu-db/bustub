@@ -35,10 +35,8 @@ TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
   auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
   auto *bpm = new BufferPoolManager(30, disk_manager.get());
 
-  // create and fetch header_page
-  page_id_t page_id;
-  auto *header_page = bpm->NewPage(&page_id);
-  (void)header_page;
+  // allocate header_page
+  page_id_t page_id = bpm->NewPage();
 
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, 2, 3);
@@ -73,7 +71,6 @@ TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
     ASSERT_EQ(rids[0].GetSlotNum(), value);
   }
 
-  bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete transaction;
   delete bpm;
 }

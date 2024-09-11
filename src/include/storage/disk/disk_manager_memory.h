@@ -9,7 +9,11 @@
 // Copyright (c) 2015-2020, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
+
+#include "storage/disk/disk_manager.h"
+
 #include <array>
+#include <cassert>
 #include <chrono>  // NOLINT
 #include <cstring>
 #include <fstream>
@@ -27,9 +31,11 @@
 #include "common/exception.h"
 #include "common/logger.h"
 #include "fmt/core.h"
-#include "storage/disk/disk_manager.h"
 
 namespace bustub {
+
+/** @brief The default size of the database file. */
+static const size_t DEFAULT_DB_IO_SIZE = 16;
 
 /**
  * DiskManagerMemory replicates the utility of DiskManager on memory. It is primarily used for
@@ -40,6 +46,12 @@ class DiskManagerMemory : public DiskManager {
   explicit DiskManagerMemory(size_t pages);
 
   ~DiskManagerMemory() override { delete[] memory_; }
+
+  /**
+   * This function should increase the disk space, but since we have a fixed amount of memory we just check that the
+   * pages are in bounds.
+   */
+  void IncreaseDiskSpace(size_t pages) override;
 
   /**
    * Write a page to the database file.
@@ -56,6 +68,7 @@ class DiskManagerMemory : public DiskManager {
   void ReadPage(page_id_t page_id, char *page_data) override;
 
  private:
+  size_t pages_;
   char *memory_;
 };
 
@@ -65,7 +78,31 @@ class DiskManagerMemory : public DiskManager {
  */
 class DiskManagerUnlimitedMemory : public DiskManager {
  public:
-  DiskManagerUnlimitedMemory() { std::fill(recent_access_.begin(), recent_access_.end(), -1); }
+  DiskManagerUnlimitedMemory() {
+    std::scoped_lock l(mutex_);
+    while (data_.size() < pages_ + 1) {
+      data_.push_back(std::make_shared<ProtectedPage>());
+    }
+    std::fill(recent_access_.begin(), recent_access_.end(), -1);
+  }
+
+  /**
+   * This function should increase the disk space, but since this is memory we just resize the vector.
+   */
+  void IncreaseDiskSpace(size_t pages) override {
+    std::scoped_lock l(mutex_);
+
+    if (pages < pages_) {
+      return;
+    }
+
+    while (data_.size() < pages + 1) {
+      data_.push_back(std::make_shared<ProtectedPage>());
+    }
+    assert(data_.size() == pages + 1);
+
+    pages_ = pages;
+  }
 
   /**
    * Write a page to the database file.
@@ -112,7 +149,7 @@ class DiskManagerUnlimitedMemory : public DiskManager {
       return;
     }
     if (data_[page_id] == nullptr) {
-      fmt::println(stderr, "page {} not exist", page_id);
+      fmt::println(stderr, "page {} not exist", page_id, pages_);
       std::terminate();
       return;
     }
@@ -174,6 +211,8 @@ class DiskManagerUnlimitedMemory : public DiskManager {
   std::mutex mutex_;
   std::optional<std::thread::id> thread_id_;
   std::vector<std::shared_ptr<ProtectedPage>> data_;
+
+  size_t pages_{DEFAULT_DB_IO_SIZE};
 };
 
 }  // namespace bustub

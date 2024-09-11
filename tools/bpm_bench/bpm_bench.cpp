@@ -204,15 +204,11 @@ auto main(int argc, char **argv) -> int {
              bustub_page_cnt, duration_ms, enable_latency, lru_k_size, bustub_bpm_size, scan_thread_n, get_thread_n);
 
   for (size_t i = 0; i < bustub_page_cnt; i++) {
-    page_id_t page_id;
-    auto *page = bpm->NewPage(&page_id);
-    if (page == nullptr) {
-      throw std::runtime_error("new page failed");
+    page_id_t page_id = bpm->NewPage();
+    {
+      auto guard = bpm->WritePage(page_id);
+      ModifyPage(guard.GetDataMut(), i, 0);
     }
-
-    ModifyPage(page->GetData(), i, 0);
-
-    bpm->UnpinPage(page_id, true);
     page_ids.push_back(page_id);
   }
 
@@ -229,8 +225,6 @@ auto main(int argc, char **argv) -> int {
 
   for (size_t thread_id = 0; thread_id < scan_thread_n; thread_id++) {
     threads.emplace_back([bustub_page_cnt, scan_thread_n, thread_id, &page_ids, &bpm, duration_ms, &total_metrics] {
-      ModifyRecord records;
-
       BpmMetrics metrics(fmt::format("scan {:>2}", thread_id), duration_ms);
       metrics.Begin();
 
@@ -239,19 +233,11 @@ auto main(int argc, char **argv) -> int {
       size_t page_idx = page_idx_start;
 
       while (!metrics.ShouldFinish()) {
-        auto *page = bpm->FetchPage(page_ids[page_idx], AccessType::Scan);
-        if (page == nullptr) {
-          continue;
+        {
+          auto page = bpm->ReadPage(page_ids[page_idx], AccessType::Scan);
+          CheckPageConsistentNoSeed(page.GetData(), page_idx);
         }
 
-        page->WLatch();
-        auto &seed = records[page_idx];
-        CheckPageConsistent(page->GetData(), page_idx, seed);
-        seed = seed + 1;
-        ModifyPage(page->GetData(), page_idx, seed);
-        page->WUnlatch();
-
-        bpm->UnpinPage(page->GetPageId(), true, AccessType::Scan);
         page_idx += 1;
         if (page_idx >= page_idx_end) {
           page_idx = page_idx_start;
@@ -265,27 +251,26 @@ auto main(int argc, char **argv) -> int {
   }
 
   for (size_t thread_id = 0; thread_id < get_thread_n; thread_id++) {
-    threads.emplace_back([thread_id, &page_ids, &bpm, bustub_page_cnt, duration_ms, &total_metrics] {
+    threads.emplace_back([thread_id, &page_ids, &bpm, bustub_page_cnt, get_thread_n, duration_ms, &total_metrics] {
       std::random_device r;
       std::default_random_engine gen(r());
       zipfian_int_distribution<size_t> dist(0, bustub_page_cnt - 1, 0.8);
+      ModifyRecord records;
 
-      BpmMetrics metrics(fmt::format("get  {:>2}", thread_id), duration_ms);
+      BpmMetrics metrics(fmt::format("get {:>2}", thread_id), duration_ms);
       metrics.Begin();
 
       while (!metrics.ShouldFinish()) {
-        auto page_idx = dist(gen);
-        auto *page = bpm->FetchPage(page_ids[page_idx], AccessType::Lookup);
-        if (page == nullptr) {
-          fmt::println(stderr, "cannot fetch page");
-          std::terminate();
+        auto rand = dist(gen);
+        auto page_idx = std::min(rand / get_thread_n * get_thread_n + thread_id, bustub_page_cnt - 1);
+        {
+          auto page = bpm->WritePage(page_ids[page_idx], AccessType::Lookup);
+          auto &seed = records[page_idx];
+          CheckPageConsistent(page.GetData(), page_idx, seed);
+          seed = seed + 1;
+          ModifyPage(page.GetDataMut(), page_idx, seed);
         }
 
-        page->RLatch();
-        CheckPageConsistentNoSeed(page->GetData(), page_idx);
-        page->RUnlatch();
-
-        bpm->UnpinPage(page->GetPageId(), false, AccessType::Lookup);
         metrics.Tick();
         metrics.Report();
       }

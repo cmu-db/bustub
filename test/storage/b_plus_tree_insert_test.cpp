@@ -30,12 +30,10 @@ TEST(BPlusTreeTests, DISABLED_InsertTest1) {
 
   auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
   auto *bpm = new BufferPoolManager(50, disk_manager.get());
-  // create and fetch header_page
-  page_id_t page_id;
-  auto header_page = bpm->NewPage(&page_id);
-  ASSERT_EQ(page_id, HEADER_PAGE_ID);
+  // allocate header_page
+  page_id_t page_id = bpm->NewPage();
   // create b+ tree
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", header_page->GetPageId(), bpm, comparator, 2, 3);
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, 2, 3);
   GenericKey<8> index_key;
   RID rid;
   // create transaction
@@ -48,16 +46,15 @@ TEST(BPlusTreeTests, DISABLED_InsertTest1) {
   tree.Insert(index_key, rid, transaction);
 
   auto root_page_id = tree.GetRootPageId();
-  auto root_page = reinterpret_cast<BPlusTreePage *>(bpm->FetchPage(root_page_id)->GetData());
+  auto root_page_guard = bpm->ReadPage(root_page_id);
+  auto root_page = root_page_guard.As<BPlusTreePage>();
   ASSERT_NE(root_page, nullptr);
   ASSERT_TRUE(root_page->IsLeafPage());
 
-  auto root_as_leaf = reinterpret_cast<BPlusTreeLeafPage<GenericKey<8>, RID, GenericComparator<8>> *>(root_page);
+  auto root_as_leaf = root_page_guard.As<BPlusTreeLeafPage<GenericKey<8>, RID, GenericComparator<8>>>();
   ASSERT_EQ(root_as_leaf->GetSize(), 1);
   ASSERT_EQ(comparator(root_as_leaf->KeyAt(0), index_key), 0);
 
-  bpm->UnpinPage(root_page_id, false);
-  bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete transaction;
   delete bpm;
 }
@@ -69,11 +66,10 @@ TEST(BPlusTreeTests, DISABLED_InsertTest2) {
 
   auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
   auto *bpm = new BufferPoolManager(50, disk_manager.get());
-  // create and fetch header_page
-  page_id_t page_id;
-  auto header_page = bpm->NewPage(&page_id);
+  // allocate header_page
+  page_id_t page_id = bpm->NewPage();
   // create b+ tree
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", header_page->GetPageId(), bpm, comparator, 2, 3);
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, 2, 3);
   GenericKey<8> index_key;
   RID rid;
   // create transaction
@@ -115,7 +111,6 @@ TEST(BPlusTreeTests, DISABLED_InsertTest2) {
 
   EXPECT_EQ(size, keys.size());
 
-  bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete transaction;
   delete bpm;
 }
@@ -127,13 +122,10 @@ TEST(BPlusTreeTests, DISABLED_InsertTest3) {
 
   auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
   auto *bpm = new BufferPoolManager(50, disk_manager.get());
-  // create and fetch header_page
-  page_id_t page_id;
-  auto header_page = bpm->NewPage(&page_id);
-  ASSERT_EQ(page_id, HEADER_PAGE_ID);
-
+  // allocate header_page
+  page_id_t page_id = bpm->NewPage();
   // create b+ tree
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", header_page->GetPageId(), bpm, comparator);
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator);
   GenericKey<8> index_key;
   RID rid;
   // create transaction
@@ -180,7 +172,6 @@ TEST(BPlusTreeTests, DISABLED_InsertTest3) {
     current_key = current_key + 1;
   }
 
-  bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete transaction;
   delete bpm;
 }

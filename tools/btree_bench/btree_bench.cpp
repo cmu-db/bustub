@@ -142,8 +142,7 @@ auto main(int argc, char **argv) -> int {
   auto key_schema = bustub::ParseCreateStatement("a bigint");
   bustub::GenericComparator<8> comparator(key_schema.get());
 
-  page_id_t page_id;
-  auto header_page = bpm->NewPageGuarded(&page_id);
+  page_id_t page_id = bpm->NewPage();
 
   bustub::BPlusTree<bustub::GenericKey<8>, bustub::RID, bustub::GenericComparator<8>> index("foo_pk", page_id,
                                                                                             bpm.get(), comparator);
