@@ -46,6 +46,15 @@ class DiskManager {
   void ShutDown();
 
   /**
+   * @brief Increases the size of the database file.
+   *
+   * This function works like a dynamic array, where the capacity is doubled until all pages can fit.
+   *
+   * @param pages The number of pages the caller wants the file used for storage to support.
+   */
+  virtual void IncreaseDiskSpace(size_t pages);
+
+  /**
    * Write a page to the database file.
    * @param page_id id of the page
    * @param page_data raw page data
@@ -110,6 +119,11 @@ class DiskManager {
   std::future<void> *flush_log_f_{nullptr};
   // With multiple buffer pool instances, need to protect file access
   std::mutex db_io_latch_;
+
+  /** @brief The number of pages allocated to the DBMS on disk. */
+  size_t pages_;
+  /** @brief The capacity of the file used for storage on disk. */
+  size_t page_capacity_;
 };
 
 }  // namespace bustub

@@ -27,7 +27,7 @@ TableIterator::TableIterator(TableHeap *table_heap, RID rid, RID stop_at_rid)
   if (rid.GetPageId() == INVALID_PAGE_ID) {
     rid_ = RID{INVALID_PAGE_ID, 0};
   } else {
-    auto page_guard = table_heap_->bpm_->FetchPageRead(rid_.GetPageId());
+    auto page_guard = table_heap_->bpm_->ReadPage(rid_.GetPageId());
     auto page = page_guard.As<TablePage>();
     if (rid_.GetSlotNum() >= page->GetNumTuples()) {
       rid_ = RID{INVALID_PAGE_ID, 0};
@@ -42,7 +42,7 @@ auto TableIterator::GetRID() -> RID { return rid_; }
 auto TableIterator::IsEnd() -> bool { return rid_.GetPageId() == INVALID_PAGE_ID; }
 
 auto TableIterator::operator++() -> TableIterator & {
-  auto page_guard = table_heap_->bpm_->FetchPageRead(rid_.GetPageId());
+  auto page_guard = table_heap_->bpm_->ReadPage(rid_.GetPageId());
   auto page = page_guard.As<TablePage>();
   auto next_tuple_id = rid_.GetSlotNum() + 1;
 

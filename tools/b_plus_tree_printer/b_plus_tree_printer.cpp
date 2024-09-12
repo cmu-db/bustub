@@ -74,11 +74,11 @@ auto main(int argc, char **argv) -> int {
 
   auto *disk_manager = new DiskManager("test.bustub");
   auto *bpm = new BufferPoolManager(100, disk_manager);
+
   // create and fetch header_page
-  page_id_t page_id;
-  auto header_page = bpm->NewPage(&page_id);
+  page_id_t root_pid = bpm->NewPage();
   // create b+ tree
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, leaf_max_size,
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", root_pid, bpm, comparator, leaf_max_size,
                                                            internal_max_size);
   // create transaction
   auto *transaction = new Transaction(0);
@@ -132,7 +132,9 @@ auto main(int argc, char **argv) -> int {
         break;
     }
   }
-  bpm->UnpinPage(header_page->GetPageId(), true);
+
+  BUSTUB_ASSERT(bpm->DeletePage(root_pid), "Unable to delete root page for some reason");
+
   delete bpm;
   delete transaction;
   delete disk_manager;

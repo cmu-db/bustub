@@ -1,241 +1,216 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// page_guard.h
+//
+// Identification: src/include/storage/page/page_guard.h
+//
+// Copyright (c) 2024-2024, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #pragma once
 
+#include <memory>
+
+#include "buffer/buffer_pool_manager.h"
 #include "storage/page/page.h"
 
 namespace bustub {
 
 class BufferPoolManager;
-class ReadPageGuard;
-class WritePageGuard;
+class FrameHeader;
 
-class BasicPageGuard {
+/**
+ * @brief An RAII object that grants thread-safe read access to a page of data.
+ *
+ * The _only_ way that the BusTub system should interact with the buffer pool's page data is via page guards. Since
+ * `ReadPageGuard` is an RAII object, the system never has to manually lock and unlock a page's latch.
+ *
+ * With `ReadPageGuard`s, there can be multiple threads that share read access to a page's data. However, the existence
+ * of any `ReadPageGuard` on a page implies that no thread can be mutating the page's data.
+ */
+class ReadPageGuard {
+  /** @brief Only the buffer pool manager is allowed to construct a valid `ReadPageGuard.` */
+  friend class BufferPoolManager;
+
  public:
-  BasicPageGuard() = default;
-
-  BasicPageGuard(BufferPoolManager *bpm, Page *page) : bpm_(bpm), page_(page) {}
-
-  BasicPageGuard(const BasicPageGuard &) = delete;
-  auto operator=(const BasicPageGuard &) -> BasicPageGuard & = delete;
-
-  /** TODO(P1): Add implementation
+  /**
+   * @brief The default constructor for a `ReadPageGuard`.
    *
-   * @brief Move constructor for BasicPageGuard
+   * Note that we do not EVER want use a guard that has only been default constructed. The only reason we even define
+   * this default constructor is to enable placing an "uninitialized" guard on the stack that we can later move assign
+   * via `=`.
    *
-   * When you call BasicPageGuard(std::move(other_guard)), you
-   * expect that the new guard will behave exactly like the other
-   * one. In addition, the old page guard should not be usable. For
-   * example, it should not be possible to call .Drop() on both page
-   * guards and have the pin count decrease by 2.
+   * **Use of an uninitialized page guard is undefined behavior.**
+   *
+   * In other words, the only way to get a valid `ReadPageGuard` is through the buffer pool manager.
    */
-  BasicPageGuard(BasicPageGuard &&that) noexcept;
+  ReadPageGuard() = default;
 
-  /** TODO(P1): Add implementation
-   *
-   * @brief Drop a page guard
-   *
-   * Dropping a page guard should clear all contents
-   * (so that the page guard is no longer useful), and
-   * it should tell the BPM that we are done using this page,
-   * per the specification in the writeup.
-   */
-  void Drop();
-
-  /** TODO(P1): Add implementation
-   *
-   * @brief Move assignment for BasicPageGuard
-   *
-   * Similar to a move constructor, except that the move
-   * assignment assumes that BasicPageGuard already has a page
-   * being guarded. Think carefully about what should happen when
-   * a guard replaces its held page with a different one, given
-   * the purpose of a page guard.
-   */
-  auto operator=(BasicPageGuard &&that) noexcept -> BasicPageGuard &;
-
-  /** TODO(P1): Add implementation
-   *
-   * @brief Destructor for BasicPageGuard
-   *
-   * When a page guard goes out of scope, it should behave as if
-   * the page guard was dropped.
-   */
-  ~BasicPageGuard();
-
-  /** TODO(P1): Add implementation
-   *
-   * @brief Upgrade a BasicPageGuard to a ReadPageGuard
-   *
-   * The protected page is not evicted from the buffer pool during the upgrade,
-   * and the basic page guard should be made invalid after calling this function.
-   *
-   * @return an upgraded ReadPageGuard
-   */
-  auto UpgradeRead() -> ReadPageGuard;
-
-  /** TODO(P1): Add implementation
-   *
-   * @brief Upgrade a BasicPageGuard to a WritePageGuard
-   *
-   * The protected page is not evicted from the buffer pool during the upgrade,
-   * and the basic page guard should be made invalid after calling this function.
-   *
-   * @return an upgraded WritePageGuard
-   */
-  auto UpgradeWrite() -> WritePageGuard;
-
-  auto PageId() -> page_id_t { return page_->GetPageId(); }
-
-  auto GetData() -> const char * { return page_->GetData(); }
-
+  ReadPageGuard(const ReadPageGuard &) = delete;
+  auto operator=(const ReadPageGuard &) -> ReadPageGuard & = delete;
+  ReadPageGuard(ReadPageGuard &&that) noexcept;
+  auto operator=(ReadPageGuard &&that) noexcept -> ReadPageGuard &;
+  auto GetPageId() const -> page_id_t;
+  auto GetData() const -> const char *;
   template <class T>
-  auto As() -> const T * {
+  auto As() const -> const T * {
     return reinterpret_cast<const T *>(GetData());
   }
+  auto IsDirty() const -> bool;
+  void Drop();
+  ~ReadPageGuard();
 
-  auto GetDataMut() -> char * {
-    is_dirty_ = true;
-    return page_->GetData();
+ private:
+  /** @brief Only the buffer pool manager is allowed to construct a valid `ReadPageGuard.` */
+  explicit ReadPageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> frame, std::shared_ptr<LRUKReplacer> replacer,
+                         std::shared_ptr<std::mutex> bpm_latch);
+
+  /** @brief The page ID of the page we are guarding. */
+  page_id_t page_id_;
+
+  /**
+   * @brief The frame that holds the page this guard is protecting.
+   *
+   * Almost all operations of this page guard should be done via this shared pointer to a `FrameHeader`.
+   */
+  std::shared_ptr<FrameHeader> frame_;
+
+  /**
+   * @brief A shared pointer to the buffer pool's replacer.
+   *
+   * Since the buffer pool cannot know when this `ReadPageGuard` gets destructed, we maintain a pointer to the buffer
+   * pool's replacer in order to set the frame as evictable on destruction.
+   */
+  std::shared_ptr<LRUKReplacer> replacer_;
+
+  /**
+   * @brief A shared pointer to the buffer pool's latch.
+   *
+   * Since the buffer pool cannot know when this `ReadPageGuard` gets destructed, we maintain a pointer to the buffer
+   * pool's latch for when we need to update the frame's eviction state in the buffer pool replacer.
+   */
+  std::shared_ptr<std::mutex> bpm_latch_;
+
+  /**
+   * @brief The validity flag for this `ReadPageGuard`.
+   *
+   * Since we must allow for the construction of invalid page guards (see the documentation above), we must maintain
+   * some sort of state that tells us if this page guard is valid or not. Note that the default constructor will
+   * automatically set this field to `false`.
+   *
+   * If we did not maintain this flag, then the move constructor / move assignment operators could attempt to destruct
+   * or `Drop()` invalid members, causing a segmentation fault.
+   */
+  bool is_valid_{false};
+
+  /**
+   * TODO(P1): You may add any fields under here that you think are necessary.
+   *
+   * If you want extra (non-existent) style points, and you want to be extra fancy, then you can look into the
+   * `std::shared_lock` type and use that for the latching mechanism instead of manually calling `lock` and `unlock`.
+   */
+};
+
+/**
+ * @brief An RAII object that grants thread-safe write access to a page of data.
+ *
+ * The _only_ way that the BusTub system should interact with the buffer pool's page data is via page guards. Since
+ * `WritePageGuard` is an RAII object, the system never has to manually lock and unlock a page's latch.
+ *
+ * With a `WritePageGuard`, there can be only be 1 thread that has exclusive ownership over the page's data. This means
+ * that the owner of the `WritePageGuard` can mutate the page's data as much as they want. However, the existence of a
+ * `WritePageGuard` implies that no other `WritePageGuard` or any `ReadPageGuard`s for the same page can exist at the
+ * same time.
+ */
+class WritePageGuard {
+  /** @brief Only the buffer pool manager is allowed to construct a valid `WritePageGuard.` */
+  friend class BufferPoolManager;
+
+ public:
+  /**
+   * @brief The default constructor for a `WritePageGuard`.
+   *
+   * Note that we do not EVER want use a guard that has only been default constructed. The only reason we even define
+   * this default constructor is to enable placing an "uninitialized" guard on the stack that we can later move assign
+   * via `=`.
+   *
+   * **Use of an uninitialized page guard is undefined behavior.**
+   *
+   * In other words, the only way to get a valid `WritePageGuard` is through the buffer pool manager.
+   */
+  WritePageGuard() = default;
+
+  WritePageGuard(const WritePageGuard &) = delete;
+  auto operator=(const WritePageGuard &) -> WritePageGuard & = delete;
+  WritePageGuard(WritePageGuard &&that) noexcept;
+  auto operator=(WritePageGuard &&that) noexcept -> WritePageGuard &;
+  auto GetPageId() const -> page_id_t;
+  auto GetData() const -> const char *;
+  template <class T>
+  auto As() const -> const T * {
+    return reinterpret_cast<const T *>(GetData());
   }
-
+  auto GetDataMut() -> char *;
   template <class T>
   auto AsMut() -> T * {
     return reinterpret_cast<T *>(GetDataMut());
   }
-
- private:
-  friend class ReadPageGuard;
-  friend class WritePageGuard;
-
-  [[maybe_unused]] BufferPoolManager *bpm_{nullptr};
-  Page *page_{nullptr};
-  bool is_dirty_{false};
-};
-
-class ReadPageGuard {
- public:
-  ReadPageGuard() = default;
-  ReadPageGuard(BufferPoolManager *bpm, Page *page);
-  ReadPageGuard(const ReadPageGuard &) = delete;
-  auto operator=(const ReadPageGuard &) -> ReadPageGuard & = delete;
-
-  /** TODO(P1): Add implementation
-   *
-   * @brief Move constructor for ReadPageGuard
-   *
-   * Very similar to BasicPageGuard. You want to create
-   * a ReadPageGuard using another ReadPageGuard. Think
-   * about if there's any way you can make this easier for yourself...
-   */
-  ReadPageGuard(ReadPageGuard &&that) noexcept;
-
-  /** TODO(P1): Add implementation
-   *
-   * @brief Move assignment for ReadPageGuard
-   *
-   * Very similar to BasicPageGuard. Given another ReadPageGuard,
-   * replace the contents of this one with that one.
-   */
-  auto operator=(ReadPageGuard &&that) noexcept -> ReadPageGuard &;
-
-  /** TODO(P1): Add implementation
-   *
-   * @brief Drop a ReadPageGuard
-   *
-   * ReadPageGuard's Drop should behave similarly to BasicPageGuard,
-   * except that ReadPageGuard has an additional resource - the latch!
-   * However, you should think VERY carefully about in which order you
-   * want to release these resources.
-   */
+  auto IsDirty() const -> bool;
   void Drop();
-
-  /** TODO(P1): Add implementation
-   *
-   * @brief Destructor for ReadPageGuard
-   *
-   * Just like with BasicPageGuard, this should behave
-   * as if you were dropping the guard.
-   */
-  ~ReadPageGuard();
-
-  auto PageId() -> page_id_t { return guard_.PageId(); }
-
-  auto GetData() -> const char * { return guard_.GetData(); }
-
-  template <class T>
-  auto As() -> const T * {
-    return guard_.As<T>();
-  }
-
- private:
-  // You may choose to get rid of this and add your own private variables.
-  BasicPageGuard guard_;
-};
-
-class WritePageGuard {
- public:
-  WritePageGuard() = default;
-  WritePageGuard(BufferPoolManager *bpm, Page *page);
-  WritePageGuard(const WritePageGuard &) = delete;
-  auto operator=(const WritePageGuard &) -> WritePageGuard & = delete;
-
-  /** TODO(P1): Add implementation
-   *
-   * @brief Move constructor for WritePageGuard
-   *
-   * Very similar to BasicPageGuard. You want to create
-   * a WritePageGuard using another WritePageGuard. Think
-   * about if there's any way you can make this easier for yourself...
-   */
-  WritePageGuard(WritePageGuard &&that) noexcept;
-
-  /** TODO(P1): Add implementation
-   *
-   * @brief Move assignment for WritePageGuard
-   *
-   * Very similar to BasicPageGuard. Given another WritePageGuard,
-   * replace the contents of this one with that one.
-   */
-  auto operator=(WritePageGuard &&that) noexcept -> WritePageGuard &;
-
-  /** TODO(P1): Add implementation
-   *
-   * @brief Drop a WritePageGuard
-   *
-   * WritePageGuard's Drop should behave similarly to BasicPageGuard,
-   * except that WritePageGuard has an additional resource - the latch!
-   * However, you should think VERY carefully about in which order you
-   * want to release these resources.
-   */
-  void Drop();
-
-  /** TODO(P1): Add implementation
-   *
-   * @brief Destructor for WritePageGuard
-   *
-   * Just like with BasicPageGuard, this should behave
-   * as if you were dropping the guard.
-   */
   ~WritePageGuard();
 
-  auto PageId() -> page_id_t { return guard_.PageId(); }
-
-  auto GetData() -> const char * { return guard_.GetData(); }
-
-  template <class T>
-  auto As() -> const T * {
-    return guard_.As<T>();
-  }
-
-  auto GetDataMut() -> char * { return guard_.GetDataMut(); }
-
-  template <class T>
-  auto AsMut() -> T * {
-    return guard_.AsMut<T>();
-  }
-
  private:
-  // You may choose to get rid of this and add your own private variables.
-  BasicPageGuard guard_;
+  /** @brief Only the buffer pool manager is allowed to construct a valid `WritePageGuard.` */
+  explicit WritePageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> frame, std::shared_ptr<LRUKReplacer> replacer,
+                          std::shared_ptr<std::mutex> bpm_latch);
+
+  /** @brief The page ID of the page we are guarding. */
+  page_id_t page_id_;
+
+  /**
+   * @brief The frame that holds the page this guard is protecting.
+   *
+   * Almost all operations of this page guard should be done via this shared pointer to a `FrameHeader`.
+   */
+  std::shared_ptr<FrameHeader> frame_;
+
+  /**
+   * @brief A shared pointer to the buffer pool's replacer.
+   *
+   * Since the buffer pool cannot know when this `WritePageGuard` gets destructed, we maintain a pointer to the buffer
+   * pool's replacer in order to set the frame as evictable on destruction.
+   */
+  std::shared_ptr<LRUKReplacer> replacer_;
+
+  /**
+   * @brief A shared pointer to the buffer pool's latch.
+   *
+   * Since the buffer pool cannot know when this `WritePageGuard` gets destructed, we maintain a pointer to the buffer
+   * pool's latch for when we need to update the frame's eviction state in the buffer pool replacer.
+   */
+  std::shared_ptr<std::mutex> bpm_latch_;
+
+  /**
+   * @brief The validity flag for this `WritePageGuard`.
+   *
+   * Since we must allow for the construction of invalid page guards (see the documentation above), we must maintain
+   * some sort of state that tells us if this page guard is valid or not. Note that the default constructor will
+   * automatically set this field to `false`.
+   *
+   * If we did not maintain this flag, then the move constructor / move assignment operators could attempt to destruct
+   * or `Drop()` invalid members, causing a segmentation fault.
+   */
+  bool is_valid_{false};
+
+  /**
+   * TODO(P1): You may add any fields under here that you think are necessary.
+   *
+   * If you want extra (non-existent) style points, and you want to be extra fancy, then you can look into the
+   * `std::unique_lock` type and use that for the latching mechanism instead of manually calling `lock` and `unlock`.
+   */
 };
 
 }  // namespace bustub
