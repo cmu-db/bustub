@@ -276,4 +276,44 @@ TEST(BufferPoolManagerTest, DISABLED_ContentionTest) {
   thread1.join();
 }
 
+TEST(BufferPoolManagerTest, DISABLED_DeadlockTest) {
+  auto disk_manager = std::make_shared<DiskManager>(db_fname);
+  auto bpm = std::make_shared<BufferPoolManager>(FRAMES, disk_manager.get(), K_DIST);
+
+  auto pid0 = bpm->NewPage();
+  auto pid1 = bpm->NewPage();
+
+  auto guard0 = bpm->WritePage(pid0);
+
+  // A crude way of synchronizing threads, but works for this small case.
+  std::atomic<bool> start = false;
+
+  auto child = std::thread([&]() {
+    // Acknowledge that we can begin the test.
+    start.store(true);
+
+    // Attempt to write to page 0.
+    auto guard0 = bpm->WritePage(pid0);
+  });
+
+  // Wait for the other thread to begin before we start the test.
+  while (!start.load()) {
+  }
+
+  // Make the other thread wait for a bit.
+  // This mimics the main thread doing some work while holding the write latch on page 0.
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+  // If your latching mechanism is incorrect, the next line of code will deadlock.
+  // Think about what might happen if you hold a certain "all-encompassing" latch for too long...
+
+  // While holding page 0, take the latch on page 1.
+  auto guard1 = bpm->WritePage(pid1);
+
+  // Let the child thread have the page 0 since we're done with it.
+  guard0.Drop();
+
+  child.join();
+}
+
 }  // namespace bustub
