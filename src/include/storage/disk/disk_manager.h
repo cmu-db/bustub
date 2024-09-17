@@ -121,9 +121,9 @@ class DiskManager {
   std::mutex db_io_latch_;
 
   /** @brief The number of pages allocated to the DBMS on disk. */
-  size_t pages_;
+  size_t pages_{0};
   /** @brief The capacity of the file used for storage on disk. */
-  size_t page_capacity_;
+  size_t page_capacity_{DEFAULT_DB_IO_SIZE};
 };
 
 }  // namespace bustub

@@ -6,7 +6,7 @@
 //
 // Identification: src/include/storage/disk/disk_manager_memory.h
 //
-// Copyright (c) 2015-2020, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2024, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -33,9 +33,6 @@
 #include "fmt/core.h"
 
 namespace bustub {
-
-/** @brief The default size of the database file. */
-static const size_t DEFAULT_DB_IO_SIZE = 16;
 
 /**
  * DiskManagerMemory replicates the utility of DiskManager on memory. It is primarily used for
@@ -99,7 +96,6 @@ class DiskManagerUnlimitedMemory : public DiskManager {
     while (data_.size() < pages + 1) {
       data_.push_back(std::make_shared<ProtectedPage>());
     }
-    assert(data_.size() == pages + 1);
 
     pages_ = pages;
   }

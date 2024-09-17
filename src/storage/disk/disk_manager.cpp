@@ -18,6 +18,7 @@
 #include <string>
 #include <thread>  // NOLINT
 
+#include "common/config.h"
 #include "common/exception.h"
 #include "common/logger.h"
 #include "storage/disk/disk_manager.h"
@@ -26,15 +27,11 @@ namespace bustub {
 
 static char *buffer_used;
 
-/** @brief The default size of the database file. */
-static const size_t DEFAULT_DB_IO_SIZE = 16;
-
 /**
  * Constructor: open/create a single database file & log file
  * @input db_file: database file name
  */
-DiskManager::DiskManager(const std::filesystem::path &db_file)
-    : file_name_(db_file), pages_(0), page_capacity_(DEFAULT_DB_IO_SIZE) {
+DiskManager::DiskManager(const std::filesystem::path &db_file) : file_name_(db_file) {
   log_name_ = file_name_.filename().stem().string() + ".log";
 
   log_io_.open(log_name_, std::ios::binary | std::ios::in | std::ios::app | std::ios::out);
