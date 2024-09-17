@@ -241,7 +241,7 @@ auto BufferPoolManager::WritePage(page_id_t page_id, AccessType access_type) -> 
   auto guard_opt = CheckedWritePage(page_id, access_type);
 
   if (!guard_opt.has_value()) {
-    std::cerr << fmt::format("\n`CheckedPageWrite` failed to bring in page {}\n\n", page_id);
+    fmt::println(stderr, "\n`CheckedWritePage` failed to bring in page {}\n", page_id);
     std::abort();
   }
 
@@ -266,7 +266,7 @@ auto BufferPoolManager::ReadPage(page_id_t page_id, AccessType access_type) -> R
   auto guard_opt = CheckedReadPage(page_id, access_type);
 
   if (!guard_opt.has_value()) {
-    std::cerr << fmt::format("\n`CheckedPageRead` failed to bring in page {}\n\n", page_id);
+    fmt::println(stderr, "\n`CheckedReadPage` failed to bring in page {}\n", page_id);
     std::abort();
   }
 
