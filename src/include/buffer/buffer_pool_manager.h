@@ -167,8 +167,8 @@ class BufferPoolManager {
    * There will likely be a lot of code duplication between the different modes of accessing a page.
    *
    * We would recommend implementing a helper function that returns the ID of a frame that is free and has nothing
-   * stored inside of it. Additionally, you may also want to implement a helper function that returns a shared pointer
-   * to a `FrameHeader` that already has a page's data stored inside of it.
+   * stored inside of it. Additionally, you may also want to implement a helper function that returns either a shared
+   * pointer to a `FrameHeader` that already has a page's data stored inside of it, or an index to said `FrameHeader`.
    */
 };
 }  // namespace bustub
