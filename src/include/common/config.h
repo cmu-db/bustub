@@ -30,10 +30,10 @@ extern std::atomic<bool> enable_logging;
 /** If ENABLE_LOGGING is true, the log should be flushed to disk every LOG_TIMEOUT. */
 extern std::chrono::duration<int64_t> log_timeout;
 
-static constexpr int INVALID_FRAME_ID = -1;                                          // invalid frame id
-static constexpr int INVALID_PAGE_ID = -1;                                           // invalid page id
-static constexpr int INVALID_TXN_ID = -1;                                            // invalid transaction id
-static constexpr int INVALID_LSN = -1;                                               // invalid log sequence number
+static constexpr int INVALID_FRAME_ID = -1;  // invalid frame id
+static constexpr int INVALID_PAGE_ID = -1;   // invalid page id
+static constexpr int INVALID_TXN_ID = -1;    // invalid transaction id
+static constexpr int INVALID_LSN = -1;       // invalid log sequence number
 
 static constexpr int BUSTUB_PAGE_SIZE = 4096;                                        // size of a data page in byte
 static constexpr int BUFFER_POOL_SIZE = 10;                                          // size of buffer pool
