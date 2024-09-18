@@ -316,4 +316,75 @@ TEST(BufferPoolManagerTest, DISABLED_DeadlockTest) {
   child.join();
 }
 
+TEST(BufferPoolManagerTest, DISABLED_EvictableTest) {
+  // Test if the evictable status of a frame is always correct.
+  size_t rounds = 1000;
+  size_t num_readers = 8;
+
+  auto disk_manager = std::make_shared<DiskManager>(db_fname);
+  // Only allocate 1 frame of memory to the buffer pool manager.
+  auto bpm = std::make_shared<BufferPoolManager>(1, disk_manager.get(), K_DIST);
+
+  for (size_t i = 0; i < rounds; i++) {
+    std::mutex mutex;
+    std::condition_variable cv;
+
+    // This signal tells the readers that they can start reading after the main thread has already taken the read latch.
+    bool signal = false;
+
+    // This page will be loaded into the only available frame.
+    page_id_t winner_pid = bpm->NewPage();
+    // We will attempt to load this page into the occupied frame, and it should fail every time.
+    page_id_t loser_pid = bpm->NewPage();
+
+    std::vector<std::thread> readers;
+    for (size_t j = 0; j < num_readers; j++) {
+      readers.emplace_back([&]() {
+        std::unique_lock<std::mutex> lock(mutex);
+
+        // Wait until the main thread has taken a read latch on the page.
+        while (!signal) {
+          cv.wait(lock);
+        }
+
+        // Read the page in shared mode.
+        auto read_guard = bpm->ReadPage(winner_pid);
+
+        // Since the only frame is pinned, no thread should be able to bring in a new page.
+        ASSERT_FALSE(bpm->CheckedReadPage(loser_pid).has_value());
+      });
+    }
+
+    std::unique_lock<std::mutex> lock(mutex);
+
+    if (i % 2 == 0) {
+      // Take the read latch on the page and pin it.
+      auto read_guard = bpm->ReadPage(winner_pid);
+
+      // Wake up all of the readers.
+      signal = true;
+      cv.notify_all();
+      lock.unlock();
+
+      // Allow other threads to read.
+      read_guard.Drop();
+    } else {
+      // Take the read latch on the page and pin it.
+      auto write_guard = bpm->WritePage(winner_pid);
+
+      // Wake up all of the readers.
+      signal = true;
+      cv.notify_all();
+      lock.unlock();
+
+      // Allow other threads to read.
+      write_guard.Drop();
+    }
+
+    for (size_t i = 0; i < num_readers; i++) {
+      readers[i].join();
+    }
+  }
+}
+
 }  // namespace bustub
