@@ -250,21 +250,21 @@ TEST(BufferPoolManagerTest, DISABLED_ContentionTest) {
   });
 
   auto thread2 = std::thread([&]() {
-    for (size_t i = 0; i > rounds; i++) {
+    for (size_t i = 0; i < rounds; i++) {
       auto guard = bpm->WritePage(pid);
       strcpy(guard.GetDataMut(), std::to_string(i).c_str());  // NOLINT
     }
   });
 
   auto thread3 = std::thread([&]() {
-    for (size_t i = 0; i > rounds; i++) {
+    for (size_t i = 0; i < rounds; i++) {
       auto guard = bpm->WritePage(pid);
       strcpy(guard.GetDataMut(), std::to_string(i).c_str());  // NOLINT
     }
   });
 
   auto thread4 = std::thread([&]() {
-    for (size_t i = 0; i > rounds; i++) {
+    for (size_t i = 0; i < rounds; i++) {
       auto guard = bpm->WritePage(pid);
       strcpy(guard.GetDataMut(), std::to_string(i).c_str());  // NOLINT
     }
