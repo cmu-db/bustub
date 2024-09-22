@@ -153,7 +153,7 @@ auto main(int argc, char **argv) -> int {
     uint32_t value = key;
     rid.Set(value, value);
     index_key.SetFromInteger(key);
-    index.Insert(index_key, rid, nullptr);
+    index.Insert(index_key, rid);
   }
 
   fmt::print(stderr, "[info] benchmark start\n");
@@ -164,7 +164,7 @@ auto main(int argc, char **argv) -> int {
   std::vector<std::thread> threads;
 
   for (size_t thread_id = 0; thread_id < BUSTUB_READ_THREAD; thread_id++) {
-    threads.emplace_back(std::thread([thread_id, &index, duration_ms, &total_metrics] {
+    threads.emplace_back([thread_id, &index, duration_ms, &total_metrics] {
       BTreeMetrics metrics(fmt::format("read  {:>2}", thread_id), duration_ms);
       metrics.Begin();
 
@@ -206,11 +206,11 @@ auto main(int argc, char **argv) -> int {
       }
 
       total_metrics.ReportRead(metrics.cnt_);
-    }));
+    });
   }
 
   for (size_t thread_id = 0; thread_id < BUSTUB_WRITE_THREAD; thread_id++) {
-    threads.emplace_back(std::thread([thread_id, &index, duration_ms, &total_metrics] {
+    threads.emplace_back([thread_id, &index, duration_ms, &total_metrics] {
       BTreeMetrics metrics(fmt::format("write {:>2}", thread_id), duration_ms);
       metrics.Begin();
 
@@ -234,9 +234,9 @@ auto main(int argc, char **argv) -> int {
             rid.Set(value, value);
             index_key.SetFromInteger(key);
             if (do_insert) {
-              index.Insert(index_key, rid, nullptr);
+              index.Insert(index_key, rid);
             } else {
-              index.Remove(index_key, nullptr);
+              index.Remove(index_key);
             }
             metrics.Tick();
             metrics.Report();
@@ -244,7 +244,7 @@ auto main(int argc, char **argv) -> int {
             uint32_t value = key;
             rid.Set(value, dis(gen));
             index_key.SetFromInteger(key);
-            index.Insert(index_key, rid, nullptr);
+            index.Insert(index_key, rid);
             metrics.Tick();
             metrics.Report();
           }
@@ -253,7 +253,7 @@ auto main(int argc, char **argv) -> int {
       }
 
       total_metrics.ReportWrite(metrics.cnt_);
-    }));
+    });
   }
 
   for (auto &thread : threads) {
