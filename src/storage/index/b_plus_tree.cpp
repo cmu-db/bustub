@@ -37,7 +37,7 @@ auto BPLUSTREE_TYPE::IsEmpty() const -> bool { return true; }
  * @return : true means key exists
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto BPLUSTREE_TYPE::GetValue(const KeyType &key, std::vector<ValueType> *result, Transaction *txn) -> bool {
+auto BPLUSTREE_TYPE::GetValue(const KeyType &key, std::vector<ValueType> *result) -> bool {
   // Declaration of context instance.
   Context ctx;
   (void)ctx;
@@ -55,7 +55,7 @@ auto BPLUSTREE_TYPE::GetValue(const KeyType &key, std::vector<ValueType> *result
  * keys return false, otherwise return true.
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto BPLUSTREE_TYPE::Insert(const KeyType &key, const ValueType &value, Transaction *txn) -> bool {
+auto BPLUSTREE_TYPE::Insert(const KeyType &key, const ValueType &value) -> bool {
   // Declaration of context instance.
   Context ctx;
   (void)ctx;
@@ -73,7 +73,7 @@ auto BPLUSTREE_TYPE::Insert(const KeyType &key, const ValueType &value, Transact
  * necessary.
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPLUSTREE_TYPE::Remove(const KeyType &key, Transaction *txn) {
+void BPLUSTREE_TYPE::Remove(const KeyType &key) {
   // Declaration of context instance.
   Context ctx;
   (void)ctx;
@@ -121,14 +121,14 @@ auto BPLUSTREE_TYPE::GetRootPageId() -> page_id_t { return 0; }
  * Read data from file and insert one by one
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPLUSTREE_TYPE::InsertFromFile(const std::filesystem::path &file_name, Transaction *txn) {
+void BPLUSTREE_TYPE::InsertFromFile(const std::filesystem::path &file_name) {
   int64_t key;
   std::ifstream input(file_name);
   while (input >> key) {
     KeyType index_key;
     index_key.SetFromInteger(key);
     RID rid(key);
-    Insert(index_key, rid, txn);
+    Insert(index_key, rid);
   }
 }
 /*
@@ -136,13 +136,13 @@ void BPLUSTREE_TYPE::InsertFromFile(const std::filesystem::path &file_name, Tran
  * Read data from file and remove one by one
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPLUSTREE_TYPE::RemoveFromFile(const std::filesystem::path &file_name, Transaction *txn) {
+void BPLUSTREE_TYPE::RemoveFromFile(const std::filesystem::path &file_name) {
   int64_t key;
   std::ifstream input(file_name);
   while (input >> key) {
     KeyType index_key;
     index_key.SetFromInteger(key);
-    Remove(index_key, txn);
+    Remove(index_key);
   }
 }
 
@@ -151,7 +151,7 @@ void BPLUSTREE_TYPE::RemoveFromFile(const std::filesystem::path &file_name, Tran
  * Read data from file and insert/remove one by one
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPLUSTREE_TYPE::BatchOpsFromFile(const std::filesystem::path &file_name, Transaction *txn) {
+void BPLUSTREE_TYPE::BatchOpsFromFile(const std::filesystem::path &file_name) {
   int64_t key;
   char instruction;
   std::ifstream input(file_name);
@@ -162,10 +162,10 @@ void BPLUSTREE_TYPE::BatchOpsFromFile(const std::filesystem::path &file_name, Tr
     index_key.SetFromInteger(key);
     switch (instruction) {
       case 'i':
-        Insert(index_key, rid, txn);
+        Insert(index_key, rid);
         break;
       case 'd':
-        Remove(index_key, txn);
+        Remove(index_key);
         break;
       default:
         break;
