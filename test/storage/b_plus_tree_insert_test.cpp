@@ -36,14 +36,12 @@ TEST(BPlusTreeTests, DISABLED_InsertTest1) {
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, 2, 3);
   GenericKey<8> index_key;
   RID rid;
-  // create transaction
-  auto *transaction = new Transaction(0);
 
   int64_t key = 42;
   int64_t value = key & 0xFFFFFFFF;
   rid.Set(static_cast<int32_t>(key), value);
   index_key.SetFromInteger(key);
-  tree.Insert(index_key, rid, transaction);
+  tree.Insert(index_key, rid);
 
   auto root_page_id = tree.GetRootPageId();
   auto root_page_guard = bpm->ReadPage(root_page_id);
@@ -55,7 +53,6 @@ TEST(BPlusTreeTests, DISABLED_InsertTest1) {
   ASSERT_EQ(root_as_leaf->GetSize(), 1);
   ASSERT_EQ(comparator(root_as_leaf->KeyAt(0), index_key), 0);
 
-  delete transaction;
   delete bpm;
 }
 
@@ -72,15 +69,13 @@ TEST(BPlusTreeTests, DISABLED_InsertTest2) {
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, 2, 3);
   GenericKey<8> index_key;
   RID rid;
-  // create transaction
-  auto *transaction = new Transaction(0);
 
   std::vector<int64_t> keys = {1, 2, 3, 4, 5};
   for (auto key : keys) {
     int64_t value = key & 0xFFFFFFFF;
     rid.Set(static_cast<int32_t>(key >> 32), value);
     index_key.SetFromInteger(key);
-    tree.Insert(index_key, rid, transaction);
+    tree.Insert(index_key, rid);
   }
 
   std::vector<RID> rids;
@@ -108,10 +103,7 @@ TEST(BPlusTreeTests, DISABLED_InsertTest2) {
     EXPECT_EQ(rids[0].GetSlotNum(), key);
     size = size + 1;
   }
-
   EXPECT_EQ(size, keys.size());
-
-  delete transaction;
   delete bpm;
 }
 
@@ -128,15 +120,13 @@ TEST(BPlusTreeTests, DISABLED_InsertTest3) {
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator);
   GenericKey<8> index_key;
   RID rid;
-  // create transaction
-  auto *transaction = new Transaction(0);
 
   std::vector<int64_t> keys = {5, 4, 3, 2, 1};
   for (auto key : keys) {
     int64_t value = key & 0xFFFFFFFF;
     rid.Set(static_cast<int32_t>(key >> 32), value);
     index_key.SetFromInteger(key);
-    tree.Insert(index_key, rid, transaction);
+    tree.Insert(index_key, rid);
   }
 
   std::vector<RID> rids;
@@ -171,8 +161,6 @@ TEST(BPlusTreeTests, DISABLED_InsertTest3) {
     EXPECT_EQ(location.GetSlotNum(), current_key);
     current_key = current_key + 1;
   }
-
-  delete transaction;
   delete bpm;
 }
 }  // namespace bustub

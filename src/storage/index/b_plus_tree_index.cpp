@@ -29,7 +29,7 @@ auto BPLUSTREE_INDEX_TYPE::InsertEntry(const Tuple &key, RID rid, Transaction *t
   KeyType index_key;
   index_key.SetFromKey(key);
 
-  return container_->Insert(index_key, rid, transaction);
+  return container_->Insert(index_key, rid);
 }
 
 INDEX_TEMPLATE_ARGUMENTS
@@ -38,7 +38,7 @@ void BPLUSTREE_INDEX_TYPE::DeleteEntry(const Tuple &key, RID rid, Transaction *t
   KeyType index_key;
   index_key.SetFromKey(key);
 
-  container_->Remove(index_key, transaction);
+  container_->Remove(index_key);
 }
 
 INDEX_TEMPLATE_ARGUMENTS
@@ -47,7 +47,7 @@ void BPLUSTREE_INDEX_TYPE::ScanKey(const Tuple &key, std::vector<RID> *result, T
   KeyType index_key;
   index_key.SetFromKey(key);
 
-  container_->GetValue(index_key, result, transaction);
+  container_->GetValue(index_key, result);
 }
 
 INDEX_TEMPLATE_ARGUMENTS

@@ -42,8 +42,6 @@ TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, 2, 3);
   GenericKey<8> index_key;
   RID rid;
-  // create transaction
-  auto *transaction = new Transaction(0);
 
   int64_t scale = 5000;
   std::vector<int64_t> keys;
@@ -58,7 +56,7 @@ TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
     int64_t value = key & 0xFFFFFFFF;
     rid.Set(static_cast<int32_t>(key >> 32), value);
     index_key.SetFromInteger(key);
-    tree.Insert(index_key, rid, transaction);
+    tree.Insert(index_key, rid);
   }
   std::vector<RID> rids;
   for (auto key : keys) {
@@ -71,7 +69,6 @@ TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
     ASSERT_EQ(rids[0].GetSlotNum(), value);
   }
 
-  delete transaction;
   delete bpm;
 }
 }  // namespace bustub

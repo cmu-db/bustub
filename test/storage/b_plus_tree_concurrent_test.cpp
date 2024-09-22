@@ -46,15 +46,12 @@ void InsertHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, con
                   __attribute__((unused)) uint64_t thread_itr = 0) {
   GenericKey<8> index_key;
   RID rid;
-  // create transaction
-  auto *transaction = new Transaction(0);
   for (auto key : keys) {
     int64_t value = key & 0xFFFFFFFF;
     rid.Set(static_cast<int32_t>(key >> 32), value);
     index_key.SetFromInteger(key);
-    tree->Insert(index_key, rid, transaction);
+    tree->Insert(index_key, rid);
   }
-  delete transaction;
 }
 
 // helper function to seperate insert
@@ -62,30 +59,24 @@ void InsertHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree
                        int total_threads, __attribute__((unused)) uint64_t thread_itr) {
   GenericKey<8> index_key;
   RID rid;
-  // create transaction
-  auto *transaction = new Transaction(0);
   for (auto key : keys) {
     if (static_cast<uint64_t>(key) % total_threads == thread_itr) {
       int64_t value = key & 0xFFFFFFFF;
       rid.Set(static_cast<int32_t>(key >> 32), value);
       index_key.SetFromInteger(key);
-      tree->Insert(index_key, rid, transaction);
+      tree->Insert(index_key, rid);
     }
   }
-  delete transaction;
 }
 
 // helper function to delete
 void DeleteHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, const std::vector<int64_t> &remove_keys,
                   __attribute__((unused)) uint64_t thread_itr = 0) {
   GenericKey<8> index_key;
-  // create transaction
-  auto *transaction = new Transaction(0);
   for (auto key : remove_keys) {
     index_key.SetFromInteger(key);
-    tree->Remove(index_key, transaction);
+    tree->Remove(index_key);
   }
-  delete transaction;
 }
 
 // helper function to seperate delete
@@ -93,20 +84,16 @@ void DeleteHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree
                        const std::vector<int64_t> &remove_keys, int total_threads,
                        __attribute__((unused)) uint64_t thread_itr) {
   GenericKey<8> index_key;
-  // create transaction
-  auto *transaction = new Transaction(0);
   for (auto key : remove_keys) {
     if (static_cast<uint64_t>(key) % total_threads == thread_itr) {
       index_key.SetFromInteger(key);
-      tree->Remove(index_key, transaction);
+      tree->Remove(index_key);
     }
   }
-  delete transaction;
 }
 
 void LookupHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, const std::vector<int64_t> &keys,
                   uint64_t tid, __attribute__((unused)) uint64_t thread_itr = 0) {
-  auto *transaction = new Transaction(static_cast<txn_id_t>(tid));
   GenericKey<8> index_key;
   RID rid;
   for (auto key : keys) {
@@ -114,12 +101,11 @@ void LookupHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, con
     rid.Set(static_cast<int32_t>(key >> 32), value);
     index_key.SetFromInteger(key);
     std::vector<RID> result;
-    bool res = tree->GetValue(index_key, &result, transaction);
+    bool res = tree->GetValue(index_key, &result);
     ASSERT_EQ(res, true);
     ASSERT_EQ(result.size(), 1);
     ASSERT_EQ(result[0], rid);
   }
-  delete transaction;
 }
 
 TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest1) {
@@ -368,7 +354,7 @@ TEST(BPlusTreeConcurrentTest, DISABLED_MixTest2) {
 
   size_t num_threads = 6;
   for (size_t i = 0; i < num_threads; i++) {
-    threads.emplace_back(std::thread{tasks[i % tasks.size()], i});
+    threads.emplace_back(tasks[i % tasks.size()], i);
   }
   for (size_t i = 0; i < num_threads; i++) {
     threads[i].join();

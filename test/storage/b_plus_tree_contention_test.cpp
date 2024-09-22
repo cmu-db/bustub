@@ -43,7 +43,6 @@ bool BPlusTreeLockBenchmarkCall(size_t num_threads, int leaf_node_size, bool wit
     auto func = [&tree, &mtx, i, keys_per_thread, with_global_mutex]() {
       GenericKey<8> index_key;
       RID rid;
-      auto *transaction = new Transaction(static_cast<txn_id_t>(i + 1));
       const auto end_key = keys_stride * i + keys_per_thread;
       for (auto key = i * keys_stride; key < end_key; key++) {
         int64_t value = key & 0xFFFFFFFF;
@@ -52,12 +51,11 @@ bool BPlusTreeLockBenchmarkCall(size_t num_threads, int leaf_node_size, bool wit
         if (with_global_mutex) {
           mtx.lock();
         }
-        tree.Insert(index_key, rid, transaction);
+        tree.Insert(index_key, rid);
         if (with_global_mutex) {
           mtx.unlock();
         }
       }
-      delete transaction;
     };
     auto t = std::thread(std::move(func));
     threads.emplace_back(std::move(t));
