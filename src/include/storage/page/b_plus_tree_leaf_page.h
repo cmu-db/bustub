@@ -5,7 +5,7 @@
 //
 // Identification: src/include/page/b_plus_tree_leaf_page.h
 //
-// Copyright (c) 2018, Carnegie Mellon University Database Group
+// Copyright (c) 2018-2024, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 #pragma once
@@ -83,8 +83,10 @@ class BPlusTreeLeafPage : public BPlusTreePage {
 
  private:
   page_id_t next_page_id_;
-  // Flexible array member for page data.
-  MappingType array_[0];
+  // Flexible array members for page data.
+  KeyType key_array_[LEAF_PAGE_SIZE];
+  ValueType value_array_[LEAF_PAGE_SIZE];
+  // (Fall 2024) Feel free to add more fields and helper functions below if needed
 };
 
 }  // namespace bustub
