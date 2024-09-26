@@ -13,6 +13,7 @@
  * For range scan of b+ tree
  */
 #pragma once
+#include <utility>
 #include "storage/page/b_plus_tree_leaf_page.h"
 
 namespace bustub {
