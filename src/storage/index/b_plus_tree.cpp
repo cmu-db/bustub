@@ -5,7 +5,7 @@
 #include "common/logger.h"
 #include "common/rid.h"
 #include "storage/index/b_plus_tree.h"
-#include "storage/index/b_plus_tree_utils.h"
+#include "storage/index/b_plus_tree_debug.h"
 
 namespace bustub {
 
