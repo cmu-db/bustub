@@ -218,7 +218,7 @@ auto BPLUSTREE_TYPE::DrawBPlusTree() -> std::string {
  * Read data from file and insert/remove one by one
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPLUSTREE_TYPE::BatchOpsFromFile(const std::string &file_name) {
+void BPLUSTREE_TYPE::BatchOpsFromFile(const std::filesystem::path &file_name) {
   int64_t key;
   char instruction;
   std::ifstream input(file_name);
