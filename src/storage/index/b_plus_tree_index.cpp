@@ -5,7 +5,7 @@
 //
 // Identification: src/index/b_plus_tree_index.cpp
 //
-// Copyright (c) 2018, Carnegie Mellon University Database Group
+// Copyright (c) 2018-2024, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
