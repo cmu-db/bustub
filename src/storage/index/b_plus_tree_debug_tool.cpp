@@ -25,7 +25,7 @@ namespace bustub {
  * Read data from file and insert one by one
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPLUSTREE_TYPE::InsertFromFile(const std::string &file_name) {
+void BPLUSTREE_TYPE::InsertFromFile(const std::filesystem::path &file_name) {
   int64_t key;
   std::ifstream input(file_name);
   while (input) {
@@ -42,7 +42,7 @@ void BPLUSTREE_TYPE::InsertFromFile(const std::string &file_name) {
  * Read data from file and remove one by one
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPLUSTREE_TYPE::RemoveFromFile(const std::string &file_name) {
+void BPLUSTREE_TYPE::RemoveFromFile(const std::filesystem::path &file_name) {
   int64_t key;
   std::ifstream input(file_name);
   while (input) {
