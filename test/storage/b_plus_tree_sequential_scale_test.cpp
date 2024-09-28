@@ -25,7 +25,7 @@ namespace bustub {
 using bustub::DiskManagerUnlimitedMemory;
 
 /**
- * (Fall 2024) You should pass this test after finishing Task 1 and 2.a in P2.
+ * (Fall 2024) You should pass this test after finishing insertion and point search.
  */
 TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
   // create KeyComparator and index schema
