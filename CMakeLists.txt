@@ -291,16 +291,17 @@ add_custom_target(submit-p1
 )
 
 set(P2_FILES
-        "src/include/storage/page/page_guard.h"
-        "src/storage/page/page_guard.cpp"
-        "src/include/storage/page/extendible_htable_bucket_page.h"
-        "src/storage/page/extendible_htable_bucket_page.cpp"
-        "src/include/storage/page/extendible_htable_directory_page.h"
-        "src/storage/page/extendible_htable_directory_page.cpp"
-        "src/include/storage/page/extendible_htable_header_page.h"
-        "src/storage/page/extendible_htable_header_page.cpp"
-        "src/include/container/disk/hash/disk_extendible_hash_table.h"
-        "src/container/disk/hash/disk_extendible_hash_table.cpp"
+        "src/include/storage/page/b_plus_tree_page.h"
+        "src/storage/page/b_plus_tree_page.cpp"
+        "src/include/storage/page/b_plus_tree_internal_page.h"
+        "src/storage/page/b_plus_tree_internal_page.cpp"
+        "src/include/storage/page/b_plus_tree_leaf_page.h"
+        "src/storage/page/b_plus_tree_leaf_page.cpp"
+        "src/include/storage/index/index_iterator.h"
+        "src/storage/index/index_iterator.cpp"
+        "src/include/storage/index/b_plus_tree.h"
+        "src/include/storage/index/b_plus_tree_debug.h"
+        "src/storage/index/b_plus_tree.cpp"
         ${P1_FILES}
 )
 add_custom_target(check-clang-tidy-p2
