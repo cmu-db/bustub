@@ -25,7 +25,7 @@ namespace bustub {
 using bustub::DiskManagerUnlimitedMemory;
 
 /**
- * This test should be passing with your Checkpoint 1 submission.
+ * (Fall 2024) You should pass this test after finishing Task 1 and 2.a in P2.
  */
 TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
   // create KeyComparator and index schema
@@ -44,10 +44,8 @@ TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
   RID rid;
 
   int64_t scale = 5000;
-  std::vector<int64_t> keys;
-  for (int64_t key = 1; key < scale; key++) {
-    keys.push_back(key);
-  }
+  std::vector<int64_t> keys(scale);
+  std::iota(keys.begin(), keys.end(), 1);
 
   // randomized the insertion order
   auto rng = std::default_random_engine{};
@@ -68,7 +66,6 @@ TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
     int64_t value = key & 0xFFFFFFFF;
     ASSERT_EQ(rids[0].GetSlotNum(), value);
   }
-
   delete bpm;
 }
 }  // namespace bustub

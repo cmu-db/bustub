@@ -78,19 +78,8 @@ TEST(BPlusTreeTests, DISABLED_InsertTest2) {
     tree.Insert(index_key, rid);
   }
 
-  std::vector<RID> rids;
-  for (auto key : keys) {
-    rids.clear();
-    index_key.SetFromInteger(key);
-    tree.GetValue(index_key, &rids);
-    EXPECT_EQ(rids.size(), 1);
-
-    int64_t value = key & 0xFFFFFFFF;
-    EXPECT_EQ(rids[0].GetSlotNum(), value);
-  }
-
-  int64_t size = 0;
   bool is_present;
+  std::vector<RID> rids;
 
   for (auto key : keys) {
     rids.clear();
@@ -100,10 +89,9 @@ TEST(BPlusTreeTests, DISABLED_InsertTest2) {
     EXPECT_EQ(is_present, true);
     EXPECT_EQ(rids.size(), 1);
     EXPECT_EQ(rids[0].GetPageId(), 0);
-    EXPECT_EQ(rids[0].GetSlotNum(), key);
-    size = size + 1;
+    int64_t value = key & 0xFFFFFFFF;
+    EXPECT_EQ(rids[0].GetSlotNum(), value);
   }
-  EXPECT_EQ(size, keys.size());
   delete bpm;
 }
 
@@ -147,7 +135,7 @@ TEST(BPlusTreeTests, DISABLED_InsertTest3) {
     auto location = (*iterator).second;
     EXPECT_EQ(location.GetPageId(), 0);
     EXPECT_EQ(location.GetSlotNum(), current_key);
-    current_key = current_key + 1;
+    ++current_key;
   }
 
   EXPECT_EQ(current_key, keys.size() + 1);
@@ -159,7 +147,7 @@ TEST(BPlusTreeTests, DISABLED_InsertTest3) {
     auto location = (*iterator).second;
     EXPECT_EQ(location.GetPageId(), 0);
     EXPECT_EQ(location.GetSlotNum(), current_key);
-    current_key = current_key + 1;
+    ++current_key;
   }
   delete bpm;
 }
