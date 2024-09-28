@@ -12,7 +12,9 @@
 
 #include <chrono>  // NOLINT
 #include <cstdio>
+#include <filesystem>
 #include <functional>
+#include <future>  // NOLINT
 #include <thread>  // NOLINT
 
 #include "buffer/buffer_pool_manager.h"
@@ -27,12 +29,12 @@ using bustub::DiskManagerUnlimitedMemory;
 
 // helper function to launch multiple threads
 template <typename... Args>
-void LaunchParallelTest(uint64_t num_threads, Args &&...args) {
+void LaunchParallelTest(uint64_t num_threads, uint64_t txn_id_start, Args &&...args) {
   std::vector<std::thread> thread_group;
 
   // Launch a group of threads
   for (uint64_t thread_itr = 0; thread_itr < num_threads; ++thread_itr) {
-    thread_group.push_back(std::thread(args..., thread_itr));
+    thread_group.push_back(std::thread(args..., txn_id_start + thread_itr, thread_itr));
   }
 
   // Join the threads with the main thread
@@ -43,9 +45,10 @@ void LaunchParallelTest(uint64_t num_threads, Args &&...args) {
 
 // helper function to insert
 void InsertHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, const std::vector<int64_t> &keys,
-                  __attribute__((unused)) uint64_t thread_itr = 0) {
+                  uint64_t tid, __attribute__((unused)) uint64_t thread_itr = 0) {
   GenericKey<8> index_key;
   RID rid;
+
   for (auto key : keys) {
     int64_t value = key & 0xFFFFFFFF;
     rid.Set(static_cast<int32_t>(key >> 32), value);
@@ -56,9 +59,10 @@ void InsertHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, con
 
 // helper function to seperate insert
 void InsertHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, const std::vector<int64_t> &keys,
-                       int total_threads, __attribute__((unused)) uint64_t thread_itr) {
+                       int total_threads, uint64_t tid, __attribute__((unused)) uint64_t thread_itr) {
   GenericKey<8> index_key;
   RID rid;
+
   for (auto key : keys) {
     if (static_cast<uint64_t>(key) % total_threads == thread_itr) {
       int64_t value = key & 0xFFFFFFFF;
@@ -71,8 +75,9 @@ void InsertHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree
 
 // helper function to delete
 void DeleteHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, const std::vector<int64_t> &remove_keys,
-                  __attribute__((unused)) uint64_t thread_itr = 0) {
+                  uint64_t tid, __attribute__((unused)) uint64_t thread_itr = 0) {
   GenericKey<8> index_key;
+
   for (auto key : remove_keys) {
     index_key.SetFromInteger(key);
     tree->Remove(index_key);
@@ -81,9 +86,10 @@ void DeleteHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, con
 
 // helper function to seperate delete
 void DeleteHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree,
-                       const std::vector<int64_t> &remove_keys, int total_threads,
+                       const std::vector<int64_t> &remove_keys, int total_threads, uint64_t tid,
                        __attribute__((unused)) uint64_t thread_itr) {
   GenericKey<8> index_key;
+
   for (auto key : remove_keys) {
     if (static_cast<uint64_t>(key) % total_threads == thread_itr) {
       index_key.SetFromInteger(key);
