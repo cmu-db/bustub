@@ -50,7 +50,7 @@ class BPlusTreePage {
 
   auto GetSize() const -> int;
   void SetSize(int size);
-  void IncreaseSize(int amount);
+  void ChangeSizeBy(int amount);
 
   auto GetMaxSize() const -> int;
   void SetMaxSize(int max_size);
@@ -59,7 +59,9 @@ class BPlusTreePage {
  private:
   // Member variables, attributes that both internal and leaf page share
   IndexPageType page_type_ __attribute__((__unused__));
+  // Number of key & value pairs in a page
   int size_ __attribute__((__unused__));
+  // Max number of key & value pairs in a page
   int max_size_ __attribute__((__unused__));
 };
 

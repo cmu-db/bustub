@@ -92,7 +92,7 @@ class BPlusTreeLeafPage : public BPlusTreePage {
 
  private:
   page_id_t next_page_id_;
-  // Flexible array members for page data.
+  // Array members for page data.
   KeyType key_array_[LEAF_PAGE_SIZE];
   ValueType value_array_[LEAF_PAGE_SIZE];
   // (Fall 2024) Feel free to add more fields and helper functions below if needed

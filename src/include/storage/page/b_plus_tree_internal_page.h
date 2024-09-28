@@ -19,14 +19,15 @@ namespace bustub {
 
 #define B_PLUS_TREE_INTERNAL_PAGE_TYPE BPlusTreeInternalPage<KeyType, ValueType, KeyComparator>
 #define INTERNAL_PAGE_HEADER_SIZE 12
-#define INTERNAL_PAGE_SIZE ((BUSTUB_PAGE_SIZE - INTERNAL_PAGE_HEADER_SIZE) / ((int)(sizeof(KeyType) + sizeof(ValueType))))  // NOLINT
+#define INTERNAL_PAGE_SIZE \
+  ((BUSTUB_PAGE_SIZE - INTERNAL_PAGE_HEADER_SIZE) / ((int)(sizeof(KeyType) + sizeof(ValueType))))  // NOLINT
 
 /**
  * Store `n` indexed keys and `n + 1` child pointers (page_id) within internal page.
  * Pointer PAGE_ID(i) points to a subtree in which all keys K satisfy:
  * K(i) <= K < K(i+1).
  * NOTE: Since the number of keys does not equal to number of child pointers,
- * the first key always remains invalid. That is to say, any search / lookup
+ * the first key in key_array_ always remains invalid. That is to say, any search / lookup
  * should ignore the first key.
  *
  * Internal page format (keys are stored in increasing order):
@@ -105,7 +106,7 @@ class BPlusTreeInternalPage : public BPlusTreePage {
   }
 
  private:
-  // Flexible array members for page data.
+  // Array members for page data.
   KeyType key_array_[INTERNAL_PAGE_SIZE];
   ValueType value_array_[INTERNAL_PAGE_SIZE];
   // (Fall 2024) Feel free to add more fields and helper functions below if needed
