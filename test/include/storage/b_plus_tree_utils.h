@@ -36,7 +36,7 @@ bool TreeValuesMatch(BPlusTree<KeyType, KeyValue, KeyComparator> &tree, std::vec
     rids.clear();
     index_key.SetFromInteger(key);
     tree.GetValue(index_key, &rids);
-    if (rids.size() != 0) {
+    if (!rids.empty()) {
       return false;
     }
   }
