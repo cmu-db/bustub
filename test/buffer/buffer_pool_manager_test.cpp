@@ -235,6 +235,44 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinMediumTest) {
   remove(db_fname);
 }
 
+TEST(BufferPoolManagerTest, DISABLED_PageAccessTest) {
+  const size_t rounds = 50;
+
+  auto disk_manager = std::make_shared<DiskManager>(db_fname);
+  auto bpm = std::make_shared<BufferPoolManager>(1, disk_manager.get(), K_DIST);
+
+  auto pid = bpm->NewPage();
+  char buf[BUSTUB_PAGE_SIZE];
+
+  auto thread = std::thread([&]() {
+    // The writer can keep writing to the same page.
+    for (size_t i = 0; i < rounds; i++) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
+      auto guard = bpm->WritePage(pid);
+      strcpy(guard.GetDataMut(), std::to_string(i).c_str());  // NOLINT
+    }
+  });
+
+  for (size_t i = 0; i < rounds; i++) {
+    // Wait for a bit before taking the latch, allowing the writer to write some stuff.
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    // While we are reading, nobody should be able to modify the data.
+    auto guard = bpm->ReadPage(pid);
+
+    // Save the data we observe.
+    memcpy(buf, guard.GetData(), BUSTUB_PAGE_SIZE);
+
+    // Sleep for a bit. If latching is working properly, nothing should be writing to the page.
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    // Check that the data is unmodified.
+    EXPECT_EQ(0, strcmp(guard.GetData(), buf));
+  }
+
+  thread.join();
+}
+
 TEST(BufferPoolManagerTest, DISABLED_ContentionTest) {
   auto disk_manager = std::make_shared<DiskManager>(db_fname);
   auto bpm = std::make_shared<BufferPoolManager>(FRAMES, disk_manager.get(), K_DIST);
