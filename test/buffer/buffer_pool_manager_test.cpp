@@ -169,12 +169,13 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinMediumTest) {
   snprintf(page0.GetDataMut(), BUSTUB_PAGE_SIZE, "Hello");
   EXPECT_EQ(0, strcmp(page0.GetDataMut(), "Hello"));
 
+  page0.Drop();
+
   // Create a vector of unique pointers to page guards, which prevents the guards from getting destructed.
-  std::deque<WritePageGuard> pages;
-  pages.push_back(std::move(page0));
+  std::vector<WritePageGuard> pages;
 
   // Scenario: We should be able to create new pages until we fill up the buffer pool.
-  for (size_t i = 1; i < FRAMES; i++) {
+  for (size_t i = 0; i < FRAMES; i++) {
     auto pid = bpm->NewPage();
     auto page = bpm->WritePage(pid);
     pages.push_back(std::move(page));
@@ -187,17 +188,17 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinMediumTest) {
   }
 
   // Scenario: Once the buffer pool is full, we should not be able to create any new pages.
-  for (size_t i = 0; i < 10; i++) {
+  for (size_t i = 0; i < FRAMES; i++) {
     auto pid = bpm->NewPage();
     auto fail = bpm->CheckedWritePage(pid);
     ASSERT_FALSE(fail.has_value());
   }
 
   // Scenario: Drop the first 5 pages to unpin them.
-  for (size_t i = 0; i < 5; i++) {
+  for (size_t i = 0; i < FRAMES / 2; i++) {
     page_id_t pid = pages[0].GetPageId();
     EXPECT_EQ(1, bpm->GetPinCount(pid));
-    pages.pop_front();
+    pages.erase(pages.begin());
     EXPECT_EQ(0, bpm->GetPinCount(pid));
   }
 
@@ -207,9 +208,9 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinMediumTest) {
     EXPECT_EQ(1, bpm->GetPinCount(pid));
   }
 
-  // Scenario: After unpinning pages {0, 1, 2, 3, 4}, we should be able to create 4 new pages and bring them into
-  // memory. Bringing those 4 pages into memory should evict the first 4 pages {0, 1, 2, 3} because of LRU.
-  for (size_t i = 0; i < 4; i++) {
+  // Scenario: After unpinning pages {1, 2, 3, 4, 5}, we should be able to create 4 new pages and bring them into
+  // memory. Bringing those 4 pages into memory should evict the first 4 pages {1, 2, 3, 4} because of LRU.
+  for (size_t i = 0; i < ((FRAMES / 2) - 1); i++) {
     auto pid = bpm->NewPage();
     auto page = bpm->WritePage(pid);
     pages.push_back(std::move(page));
@@ -232,6 +233,44 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinMediumTest) {
   // Shutdown the disk manager and remove the temporary file we created.
   disk_manager->ShutDown();
   remove(db_fname);
+}
+
+TEST(BufferPoolManagerTest, DISABLED_PageAccessTest) {
+  const size_t rounds = 50;
+
+  auto disk_manager = std::make_shared<DiskManager>(db_fname);
+  auto bpm = std::make_shared<BufferPoolManager>(1, disk_manager.get(), K_DIST);
+
+  auto pid = bpm->NewPage();
+  char buf[BUSTUB_PAGE_SIZE];
+
+  auto thread = std::thread([&]() {
+    // The writer can keep writing to the same page.
+    for (size_t i = 0; i < rounds; i++) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
+      auto guard = bpm->WritePage(pid);
+      strcpy(guard.GetDataMut(), std::to_string(i).c_str());  // NOLINT
+    }
+  });
+
+  for (size_t i = 0; i < rounds; i++) {
+    // Wait for a bit before taking the latch, allowing the writer to write some stuff.
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    // While we are reading, nobody should be able to modify the data.
+    auto guard = bpm->ReadPage(pid);
+
+    // Save the data we observe.
+    memcpy(buf, guard.GetData(), BUSTUB_PAGE_SIZE);
+
+    // Sleep for a bit. If latching is working properly, nothing should be writing to the page.
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    // Check that the data is unmodified.
+    EXPECT_EQ(0, strcmp(guard.GetData(), buf));
+  }
+
+  thread.join();
 }
 
 TEST(BufferPoolManagerTest, DISABLED_ContentionTest) {
