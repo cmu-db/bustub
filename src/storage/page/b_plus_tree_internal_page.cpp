@@ -5,7 +5,7 @@
 //
 // Identification: src/page/b_plus_tree_internal_page.cpp
 //
-// Copyright (c) 2018, Carnegie Mellon University Database Group
+// Copyright (c) 2018-2024, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -26,21 +26,17 @@ namespace bustub {
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::Init(int max_size) {}
 /*
- * Helper method to get/set the key associated with input "index"(a.k.a
+ * Helper method to get/set the key associated with input "index" (a.k.a
  * array offset)
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto B_PLUS_TREE_INTERNAL_PAGE_TYPE::KeyAt(int index) const -> KeyType {
-  // replace with your own code
-  KeyType key{};
-  return key;
-}
+auto B_PLUS_TREE_INTERNAL_PAGE_TYPE::KeyAt(int index) const -> KeyType { return {}; }
 
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::SetKeyAt(int index, const KeyType &key) {}
 
 /*
- * Helper method to get the value associated with input "index"(a.k.a array
+ * Helper method to get the value associated with input "index" (a.k.a array
  * offset)
  */
 INDEX_TEMPLATE_ARGUMENTS

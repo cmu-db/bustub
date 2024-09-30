@@ -5,7 +5,7 @@
 //
 // Identification: src/include/page/b_plus_tree_leaf_page.h
 //
-// Copyright (c) 2018, Carnegie Mellon University Database Group
+// Copyright (c) 2018-2024, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 #pragma once
@@ -20,7 +20,7 @@ namespace bustub {
 
 #define B_PLUS_TREE_LEAF_PAGE_TYPE BPlusTreeLeafPage<KeyType, ValueType, KeyComparator>
 #define LEAF_PAGE_HEADER_SIZE 16
-#define LEAF_PAGE_SIZE ((BUSTUB_PAGE_SIZE - LEAF_PAGE_HEADER_SIZE) / sizeof(MappingType))
+#define LEAF_PAGE_SLOT_CNT ((BUSTUB_PAGE_SIZE - LEAF_PAGE_HEADER_SIZE) / (sizeof(KeyType) + sizeof(ValueType)))
 
 /**
  * Store indexed key and record id (record id = page id combined with slot id,
@@ -28,14 +28,23 @@ namespace bustub {
  * page. Only support unique key.
  *
  * Leaf page format (keys are stored in order):
- * -----------------------------------------------------------------------
- * | HEADER | KEY(1) + RID(1) | KEY(2) + RID(2) | ... | KEY(n) + RID(n)  |
- * -----------------------------------------------------------------------
+ *  ---------
+ * | HEADER |
+ *  ---------
+ *  ---------------------------------
+ * | KEY(1) | KEY(2) | ... | KEY(n) |
+ *  ---------------------------------
+ *  ---------------------------------
+ * | RID(1) | RID(2) | ... | RID(n) |
+ *  ---------------------------------
  *
- * Header format (size in byte, 16 bytes in total):
- * -----------------------------------------------------------------------
- * | PageType (4) | CurrentSize (4) | MaxSize (4) | NextPageId (4) | ... |
- * -----------------------------------------------------------------------
+ *  Header format (size in byte, 16 bytes in total):
+ *  -----------------------------------------------
+ * | PageType (4) | CurrentSize (4) | MaxSize (4) |
+ *  -----------------------------------------------
+ *  -----------------
+ * | NextPageId (4) |
+ *  -----------------
  */
 INDEX_TEMPLATE_ARGUMENTS
 class BPlusTreeLeafPage : public BPlusTreePage {
@@ -49,7 +58,7 @@ class BPlusTreeLeafPage : public BPlusTreePage {
    * method to set default values
    * @param max_size Max size of the leaf node
    */
-  void Init(int max_size = LEAF_PAGE_SIZE);
+  void Init(int max_size = LEAF_PAGE_SLOT_CNT);
 
   // Helper methods
   auto GetNextPageId() const -> page_id_t;
@@ -83,8 +92,10 @@ class BPlusTreeLeafPage : public BPlusTreePage {
 
  private:
   page_id_t next_page_id_;
-  // Flexible array member for page data.
-  MappingType array_[0];
+  // Array members for page data.
+  KeyType key_array_[LEAF_PAGE_SLOT_CNT];
+  ValueType rid_array_[LEAF_PAGE_SLOT_CNT];
+  // (Fall 2024) Feel free to add more fields and helper functions below if needed
 };
 
 }  // namespace bustub

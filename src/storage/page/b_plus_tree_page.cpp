@@ -26,7 +26,7 @@ void BPlusTreePage::SetPageType(IndexPageType page_type) {}
  */
 auto BPlusTreePage::GetSize() const -> int { return 0; }
 void BPlusTreePage::SetSize(int size) {}
-void BPlusTreePage::IncreaseSize(int amount) {}
+void BPlusTreePage::ChangeSizeBy(int amount) {}
 
 /*
  * Helper methods to get/set max size (capacity) of the page
@@ -37,6 +37,7 @@ void BPlusTreePage::SetMaxSize(int size) {}
 /*
  * Helper method to get min page size
  * Generally, min page size == max page size / 2
+ * But whether you will take ceil() or floor() depends on your implementation
  */
 auto BPlusTreePage::GetMinSize() const -> int { return 0; }
 
