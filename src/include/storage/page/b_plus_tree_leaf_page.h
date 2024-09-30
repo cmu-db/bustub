@@ -94,7 +94,7 @@ class BPlusTreeLeafPage : public BPlusTreePage {
   page_id_t next_page_id_;
   // Array members for page data.
   KeyType key_array_[LEAF_PAGE_SLOT_CNT];
-  ValueType value_array_[LEAF_PAGE_SLOT_CNT];
+  ValueType rid_array_[LEAF_PAGE_SLOT_CNT];
   // (Fall 2024) Feel free to add more fields and helper functions below if needed
 };
 

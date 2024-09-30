@@ -35,7 +35,9 @@ auto ClockMs() -> uint64_t {
 static const size_t BUSTUB_READ_THREAD = 4;
 static const size_t BUSTUB_WRITE_THREAD = 2;
 static const size_t LRU_K_SIZE = 4;
-static const size_t BUSTUB_BPM_SIZE = 256;
+// We should keep the BPM size large enough to hold all pages in memory, to minimize the dependency on P1.
+// There will be roughly 500 leaf pages and tens of internal pages. Thus, 1024 should be enough.
+static const size_t BUSTUB_BPM_SIZE = 1024;
 static const size_t TOTAL_KEYS = 100000;
 static const size_t KEY_MODIFY_RANGE = 2048;
 
