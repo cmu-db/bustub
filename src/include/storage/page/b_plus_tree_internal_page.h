@@ -19,7 +19,7 @@ namespace bustub {
 
 #define B_PLUS_TREE_INTERNAL_PAGE_TYPE BPlusTreeInternalPage<KeyType, ValueType, KeyComparator>
 #define INTERNAL_PAGE_HEADER_SIZE 12
-#define INTERNAL_PAGE_SIZE \
+#define INTERNAL_PAGE_SLOT_CNT \
   ((BUSTUB_PAGE_SIZE - INTERNAL_PAGE_HEADER_SIZE) / ((int)(sizeof(KeyType) + sizeof(ValueType))))  // NOLINT
 
 /**
@@ -34,9 +34,9 @@ namespace bustub {
  *  ---------
  * | HEADER |
  *  ---------
- *  ---------------------------------
- * | KEY(1) | KEY(2) | ... | KEY(n) |
- *  ---------------------------------
+ *  ------------------------------------------
+ * | KEY(1)(INVALID) | KEY(2) | ... | KEY(n) |
+ *  ------------------------------------------
  *  ---------------------------------------------
  * | PAGE_ID(1) | PAGE_ID(2) | ... | PAGE_ID(n) |
  *  ---------------------------------------------
@@ -53,7 +53,7 @@ class BPlusTreeInternalPage : public BPlusTreePage {
    * the creation of a new page to make a valid `BPlusTreeInternalPage`
    * @param max_size Maximal size of the page
    */
-  void Init(int max_size = INTERNAL_PAGE_SIZE);
+  void Init(int max_size = INTERNAL_PAGE_SLOT_CNT);
 
   /**
    * @param index The index of the key to get. Index must be non-zero.
@@ -107,8 +107,8 @@ class BPlusTreeInternalPage : public BPlusTreePage {
 
  private:
   // Array members for page data.
-  KeyType key_array_[INTERNAL_PAGE_SIZE];
-  ValueType value_array_[INTERNAL_PAGE_SIZE];
+  KeyType key_array_[INTERNAL_PAGE_SLOT_CNT];
+  ValueType value_array_[INTERNAL_PAGE_SLOT_CNT];
   // (Fall 2024) Feel free to add more fields and helper functions below if needed
 };
 

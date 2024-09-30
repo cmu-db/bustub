@@ -29,12 +29,12 @@ using bustub::DiskManagerUnlimitedMemory;
 
 // helper function to launch multiple threads
 template <typename... Args>
-void LaunchParallelTest(uint64_t num_threads, uint64_t txn_id_start, Args &&...args) {
+void LaunchParallelTest(uint64_t num_threads, Args &&...args) {
   std::vector<std::thread> thread_group;
 
   // Launch a group of threads
   for (uint64_t thread_itr = 0; thread_itr < num_threads; ++thread_itr) {
-    thread_group.push_back(std::thread(args..., txn_id_start + thread_itr, thread_itr));
+    thread_group.push_back(std::thread(args..., thread_itr));
   }
 
   // Join the threads with the main thread
@@ -45,7 +45,7 @@ void LaunchParallelTest(uint64_t num_threads, uint64_t txn_id_start, Args &&...a
 
 // helper function to insert
 void InsertHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, const std::vector<int64_t> &keys,
-                  uint64_t tid, __attribute__((unused)) uint64_t thread_itr = 0) {
+                  __attribute__((unused)) uint64_t thread_itr = 0) {
   GenericKey<8> index_key;
   RID rid;
 
@@ -59,7 +59,7 @@ void InsertHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, con
 
 // helper function to seperate insert
 void InsertHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, const std::vector<int64_t> &keys,
-                       int total_threads, uint64_t tid, __attribute__((unused)) uint64_t thread_itr) {
+                       int total_threads, __attribute__((unused)) uint64_t thread_itr) {
   GenericKey<8> index_key;
   RID rid;
 
@@ -75,7 +75,7 @@ void InsertHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree
 
 // helper function to delete
 void DeleteHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, const std::vector<int64_t> &remove_keys,
-                  uint64_t tid, __attribute__((unused)) uint64_t thread_itr = 0) {
+                  __attribute__((unused)) uint64_t thread_itr = 0) {
   GenericKey<8> index_key;
 
   for (auto key : remove_keys) {
@@ -86,7 +86,7 @@ void DeleteHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, con
 
 // helper function to seperate delete
 void DeleteHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree,
-                       const std::vector<int64_t> &remove_keys, int total_threads, uint64_t tid,
+                       const std::vector<int64_t> &remove_keys, int total_threads,
                        __attribute__((unused)) uint64_t thread_itr) {
   GenericKey<8> index_key;
 
@@ -99,7 +99,7 @@ void DeleteHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree
 }
 
 void LookupHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, const std::vector<int64_t> &keys,
-                  uint64_t tid, __attribute__((unused)) uint64_t thread_itr = 0) {
+                  __attribute__((unused)) uint64_t thread_itr = 0) {
   GenericKey<8> index_key;
   RID rid;
   for (auto key : keys) {
@@ -139,7 +139,7 @@ void InsertTest1Call() {
     for (int64_t key = 1; key < scale_factor; key++) {
       keys.push_back(key);
     }
-    LaunchParallelTest(2, 0, InsertHelper, &tree, keys);
+    LaunchParallelTest(2, InsertHelper, &tree, keys);
 
     std::vector<RID> rids;
     GenericKey<8> index_key;
@@ -194,7 +194,7 @@ void InsertTest2Call() {
     for (int64_t key = 1; key < scale_factor; key++) {
       keys.push_back(key);
     }
-    LaunchParallelTest(2, 0, InsertHelperSplit, &tree, keys, 2);
+    LaunchParallelTest(2, InsertHelperSplit, &tree, keys, 2);
 
     std::vector<RID> rids;
     GenericKey<8> index_key;
@@ -245,10 +245,10 @@ void DeleteTest1Call() {
 
     // sequential insert
     std::vector<int64_t> keys = {1, 2, 3, 4, 5};
-    InsertHelper(&tree, keys, 1);
+    InsertHelper(&tree, keys);
 
     std::vector<int64_t> remove_keys = {1, 5, 3, 4};
-    LaunchParallelTest(2, 1, DeleteHelper, &tree, remove_keys);
+    LaunchParallelTest(2, DeleteHelper, &tree, remove_keys);
 
     int64_t start_key = 2;
     int64_t current_key = start_key;
@@ -289,10 +289,10 @@ void DeleteTest2Call() {
 
     // sequential insert
     std::vector<int64_t> keys = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    InsertHelper(&tree, keys, 1);
+    InsertHelper(&tree, keys);
 
     std::vector<int64_t> remove_keys = {1, 4, 3, 2, 5, 6};
-    LaunchParallelTest(2, 1, DeleteHelperSplit, &tree, remove_keys, 2);
+    LaunchParallelTest(2, DeleteHelperSplit, &tree, remove_keys, 2);
 
     int64_t start_key = 7;
     int64_t current_key = start_key;
@@ -344,10 +344,10 @@ void MixTest1Call() {
       }
     }
     // Insert all the keys to delete
-    InsertHelper(&tree, for_delete, 1);
+    InsertHelper(&tree, for_delete);
 
-    auto insert_task = [&](int tid) { InsertHelper(&tree, for_insert, tid); };
-    auto delete_task = [&](int tid) { DeleteHelper(&tree, for_delete, tid); };
+    auto insert_task = [&](int tid) { InsertHelper(&tree, for_insert); };
+    auto delete_task = [&](int tid) { DeleteHelper(&tree, for_delete); };
     std::vector<std::function<void(int)>> tasks;
     tasks.emplace_back(insert_task);
     tasks.emplace_back(delete_task);
@@ -404,13 +404,13 @@ void MixTest2Call() {
         dynamic_keys.push_back(i);
       }
     }
-    InsertHelper(&tree, perserved_keys, 1);
-    // Check there are 1000 keys in there
+    InsertHelper(&tree, perserved_keys);
+
     size_t size;
 
-    auto insert_task = [&](int tid) { InsertHelper(&tree, dynamic_keys, tid); };
-    auto delete_task = [&](int tid) { DeleteHelper(&tree, dynamic_keys, tid); };
-    auto lookup_task = [&](int tid) { LookupHelper(&tree, perserved_keys, tid); };
+    auto insert_task = [&](int tid) { InsertHelper(&tree, dynamic_keys); };
+    auto delete_task = [&](int tid) { DeleteHelper(&tree, dynamic_keys); };
+    auto lookup_task = [&](int tid) { LookupHelper(&tree, perserved_keys); };
 
     std::vector<std::thread> threads;
     std::vector<std::function<void(int)>> tasks;

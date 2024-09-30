@@ -20,7 +20,7 @@ namespace bustub {
 
 #define B_PLUS_TREE_LEAF_PAGE_TYPE BPlusTreeLeafPage<KeyType, ValueType, KeyComparator>
 #define LEAF_PAGE_HEADER_SIZE 16
-#define LEAF_PAGE_SIZE ((BUSTUB_PAGE_SIZE - LEAF_PAGE_HEADER_SIZE) / (sizeof(KeyType) + sizeof(ValueType)))
+#define LEAF_PAGE_SLOT_CNT ((BUSTUB_PAGE_SIZE - LEAF_PAGE_HEADER_SIZE) / (sizeof(KeyType) + sizeof(ValueType)))
 
 /**
  * Store indexed key and record id (record id = page id combined with slot id,
@@ -58,7 +58,7 @@ class BPlusTreeLeafPage : public BPlusTreePage {
    * method to set default values
    * @param max_size Max size of the leaf node
    */
-  void Init(int max_size = LEAF_PAGE_SIZE);
+  void Init(int max_size = LEAF_PAGE_SLOT_CNT);
 
   // Helper methods
   auto GetNextPageId() const -> page_id_t;
@@ -93,8 +93,8 @@ class BPlusTreeLeafPage : public BPlusTreePage {
  private:
   page_id_t next_page_id_;
   // Array members for page data.
-  KeyType key_array_[LEAF_PAGE_SIZE];
-  ValueType value_array_[LEAF_PAGE_SIZE];
+  KeyType key_array_[LEAF_PAGE_SLOT_CNT];
+  ValueType value_array_[LEAF_PAGE_SLOT_CNT];
   // (Fall 2024) Feel free to add more fields and helper functions below if needed
 };
 
