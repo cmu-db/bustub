@@ -21,6 +21,11 @@
 
 namespace bustub {
 
+/*
+ * All the methods in this file are used for test and debug only.
+ * You don't need to modify them.
+ */
+
 /*****************************************************************************
  * UTILITIES AND DEBUG
  *****************************************************************************/
@@ -91,7 +96,11 @@ void BPLUSTREE_TYPE::PrintTree(page_id_t page_id, const BPlusTreePage *page) {
     // Print the contents of the internal page.
     std::cout << "Contents: ";
     for (int i = 0; i < internal->GetSize(); i++) {
-      std::cout << internal->KeyAt(i) << ": " << internal->ValueAt(i);
+      if (i == 0) {
+        std::cout << internal->ValueAt(i);
+      } else {
+        std::cout << internal->KeyAt(i) << ": " << internal->ValueAt(i);
+      }
       if ((i + 1) < internal->GetSize()) {
         std::cout << ", ";
       }
@@ -105,9 +114,6 @@ void BPLUSTREE_TYPE::PrintTree(page_id_t page_id, const BPlusTreePage *page) {
   }
 }
 
-/**
- * This method is used for debug only, You don't need to modify
- */
 INDEX_TEMPLATE_ARGUMENTS
 void BPLUSTREE_TYPE::Draw(BufferPoolManager *bpm, const std::filesystem::path &outf) {
   if (IsEmpty()) {
@@ -124,9 +130,6 @@ void BPLUSTREE_TYPE::Draw(BufferPoolManager *bpm, const std::filesystem::path &o
   out.close();
 }
 
-/**
- * This method is used for debug only, You don't need to modify
- */
 INDEX_TEMPLATE_ARGUMENTS
 void BPLUSTREE_TYPE::ToGraph(page_id_t page_id, const BPlusTreePage *page, std::ofstream &out) {
   std::string leaf_prefix("LEAF_");
