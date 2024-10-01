@@ -41,7 +41,6 @@ auto UsageMessage() -> std::string {
 using BPT = BPlusTree<GenericKey<8>, RID, GenericComparator<8>>;
 BPT *tree = nullptr;
 BufferPoolManager *bpm = nullptr;
-Transaction *transaction = nullptr;
 std::unique_ptr<bustub::Schema> key_schema = nullptr;
 
 extern "C" {
@@ -60,11 +59,9 @@ auto BusTubInit(int leaf_max_size, int internal_max_size) -> int {
   auto *disk_manager = new DiskManager("test.bustub");
   bpm = new BufferPoolManager(100, disk_manager);
   // create header_page
-  page_id_t page_id;
-  bpm->NewPage(&page_id);
+  auto page_id = bpm->NewPage();
   // create b+ tree
   tree = new BPT("foo_pk", page_id, bpm, comparator, leaf_max_size, internal_max_size);
-  transaction = new Transaction(0);
   return 0;
 }
 
@@ -87,7 +84,7 @@ auto BusTubApplyCommand(const char *input, char *output, uint16_t len) -> int {
         return 1;
       }
       index_key.SetFromInteger(key);
-      tree->Remove(index_key, transaction);
+      tree->Remove(index_key);
       break;
     case 'i':
       ss >> key;
@@ -96,7 +93,7 @@ auto BusTubApplyCommand(const char *input, char *output, uint16_t len) -> int {
       }
       rid.Set(static_cast<int32_t>(key >> 32), static_cast<int>(key & 0xFFFFFFFF));
       index_key.SetFromInteger(key);
-      tree->Insert(index_key, rid, transaction);
+      tree->Insert(index_key, rid);
       break;
     case '?':
       std::cout << UsageMessage();
