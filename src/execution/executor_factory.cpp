@@ -18,6 +18,7 @@
 #include "execution/executors/abstract_executor.h"
 #include "execution/executors/aggregation_executor.h"
 #include "execution/executors/delete_executor.h"
+#include "execution/executors/external_merge_sort_executor.h"
 #include "execution/executors/filter_executor.h"
 #include "execution/executors/hash_join_executor.h"
 #include "execution/executors/index_scan_executor.h"
@@ -166,7 +167,7 @@ auto ExecutorFactory::CreateExecutor(ExecutorContext *exec_ctx, const AbstractPl
     case PlanType::Sort: {
       const auto *sort_plan = dynamic_cast<const SortPlanNode *>(plan.get());
       auto child = ExecutorFactory::CreateExecutor(exec_ctx, sort_plan->GetChildPlan());
-      return std::make_unique<SortExecutor>(exec_ctx, sort_plan, std::move(child));
+      return std::make_unique<ExternalMergeSortExecutor<2>>(exec_ctx, sort_plan, std::move(child));
     }
 
       // Create a new topN executor
