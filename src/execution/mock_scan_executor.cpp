@@ -407,7 +407,7 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
       return Tuple{values, &plan->OutputSchema()};
     };
   }
-  // select * from __mock_external_merge_sort_input order by v2 desc, v3 asc limit 100;
+
   if (table == "__mock_external_merge_sort_input") {
     return [plan](size_t cursor) {
       std::vector<Value> values{};
