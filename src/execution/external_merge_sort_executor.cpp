@@ -22,7 +22,7 @@ namespace bustub {
 template <size_t K>
 ExternalMergeSortExecutor<K>::ExternalMergeSortExecutor(ExecutorContext *exec_ctx, const SortPlanNode *plan,
                                                         std::unique_ptr<AbstractExecutor> &&child_executor)
-    : AbstractExecutor(exec_ctx) {}
+    : AbstractExecutor(exec_ctx), cmp_(plan->GetOrderBy()) {}
 
 template <size_t K>
 void ExternalMergeSortExecutor<K>::Init() {

@@ -31,17 +31,20 @@ namespace bustub {
  */
 class SortPage {
  public:
-  /** TODO: Define your methods for reading data from and writing data to the sort page here. */
+  /**
+   * TODO: Define and implement the methods for reading data from and writing data to the sort
+   * page. Feel free to add other helper methods.
+   */
  private:
   /**
-   * TODO: Define the private members here. You may want to have some necessary metadata for
+   * TODO: Define the private members. You may want to have some necessary metadata for
    * the sort page before the start of the actual data.
    */
 };
 
 /**
  * A data structure that holds the sorted tuples as a run during external merge sort.
- * Tuples might be stored in multiple pages, and data are ordered both within one page
+ * Tuples might be stored in multiple pages, and tuples are ordered both within one page
  * and across pages.
  */
 class MergeSortRun {
@@ -90,7 +93,6 @@ class MergeSortRun {
     auto operator!=(const Iterator &other) const -> bool { return false; }
 
    private:
-    /** TODO: You may want to add additional initilizers to initialize your data members. */
     explicit Iterator(const MergeSortRun *run) : run_(run) {}
 
     /** The sorted run that the iterator is iterating on. */
@@ -98,17 +100,22 @@ class MergeSortRun {
 
     /**
      * TODO: Add your own private members here. You may want something to record your current
-     * position in the sorted run.
+     * position in the sorted run. Also feel free to add additional initializers to initialize
+     * your private members.
      */
   };
 
   /**
    * Get an iterator pointing to the beginning of the sorted run, i.e. the first tuple.
+   *
+   * TODO: Implement this method.
    */
   auto Begin() -> Iterator { return {}; }
 
   /**
    * Get an iterator pointing to the end of the sorted run, i.e. the position after the last tuple.
+   *
+   * TODO: Implement this method.
    */
   auto End() -> Iterator { return {}; }
 
@@ -149,7 +156,10 @@ class ExternalMergeSortExecutor : public AbstractExecutor {
   /** The sort plan node to be executed */
   const SortPlanNode *plan_;
 
-  /** TODO: You may want to add your own data members here. */
+  /** Compares tuples based on the order-bys */
+  TupleComparator cmp_;
+
+  /** TODO: You will want to add your own private members here. */
 };
 
 }  // namespace bustub
