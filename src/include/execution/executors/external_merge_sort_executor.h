@@ -27,6 +27,7 @@ namespace bustub {
 
 /**
  * Page to hold the intermediate data for external merge sort.
+ *
  * Only fixed-length data will be supported in Fall 2024.
  */
 class SortPage {
@@ -131,6 +132,8 @@ class MergeSortRun {
 
 /**
  * ExternalMergeSortExecutor executes an external merge sort.
+ *
+ * In Fall 2024, only 2-way external merge sort is required.
  */
 template <size_t K>
 class ExternalMergeSortExecutor : public AbstractExecutor {
