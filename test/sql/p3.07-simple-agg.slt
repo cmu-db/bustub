@@ -2,9 +2,9 @@
 
 # How many TAs are there in 2024 Spring?
 query
-select count(*) from __mock_table_tas_2024;
+select count(*) from __mock_table_tas_2024_fall;
 ----
-10
+8
 
 # The real test process begins...
 

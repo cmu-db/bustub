@@ -65,6 +65,9 @@ class Tuple {
   // constructor for creating a new tuple based on input value
   Tuple(std::vector<Value> values, const Schema *schema);
 
+  // constructor for creating a new tuple by copying fron existing bytes
+  Tuple(RID rid, const char *data, uint32_t size);
+
   Tuple(const Tuple &other) = default;
 
   // move constructor

@@ -18,6 +18,7 @@
 #include "execution/executors/abstract_executor.h"
 #include "execution/executors/aggregation_executor.h"
 #include "execution/executors/delete_executor.h"
+#include "execution/executors/external_merge_sort_executor.h"
 #include "execution/executors/filter_executor.h"
 #include "execution/executors/hash_join_executor.h"
 #include "execution/executors/index_scan_executor.h"
