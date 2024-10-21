@@ -228,7 +228,12 @@ auto main(int argc, char **argv) -> int {  // NOLINT
   program.add_argument("--bpm-size")
       .help("size of the buffer pool")
       .default_value(std::to_string(bustub::BUFFER_POOL_SIZE));
-  program.add_argument("--check-min-disk-write").help("the minimum disk write threshold to be checked at the end");
+  program.add_argument("--check-min-disk-write")
+      .help("the minimum disk write threshold to be checked at the end of the program");
+  program.add_argument("--check-max-disk-write")
+      .help("the maximum disk write threshold to be checked at the end of the program");
+  program.add_argument("--check-min-disk-delete")
+      .help("the maximum disk deletion threshold to be checked at the end of the program");
 
   try {
     program.parse_args(argc, argv);
@@ -377,7 +382,23 @@ auto main(int argc, char **argv) -> int {  // NOLINT
     int min_disk_write_num = std::stoi(program.get("--check-min-disk-write"));
     int actual_disk_write_num = bustub->disk_manager_->GetNumWrites();
     if (actual_disk_write_num < min_disk_write_num) {
-      fmt::print("test incurred {} times of disk write, which does not meet the requirement\n", actual_disk_write_num);
+      fmt::print("test incurred {} times of disk write, which is too low\n", actual_disk_write_num);
+      return 1;
+    }
+  }
+  if (program.is_used("--check-max-disk-write")) {
+    int max_disk_write_num = std::stoi(program.get("--check-max-disk-write"));
+    int actual_disk_write_num = bustub->disk_manager_->GetNumWrites();
+    if (actual_disk_write_num > max_disk_write_num) {
+      fmt::print("test incurred {} times of disk write, which is too high\n", actual_disk_write_num);
+      return 1;
+    }
+  }
+  if (program.is_used("--check-min-disk-delete")) {
+    int min_disk_delete_num = std::stoi(program.get("--check-min-disk-delete"));
+    int actual_disk_delete_num = bustub->disk_manager_->GetNumDeletes();
+    if (actual_disk_delete_num < min_disk_delete_num) {
+      fmt::print("test incurred {} times of disk deletion, which is too low\n", actual_disk_delete_num);
       return 1;
     }
   }

@@ -149,6 +149,12 @@ void DiskManager::ReadPage(page_id_t page_id, char *page_data) {
 }
 
 /**
+ * Note: This is a no-op for now without a more complex data structure to
+ * track deallocated pages.
+ */
+void DiskManager::DeletePage(page_id_t page_id) { num_deletes_ += 1; }
+
+/**
  * Write the contents of the log into disk file
  * Only return when sync is done, and only perform sequence write
  */
@@ -216,14 +222,19 @@ auto DiskManager::ReadLog(char *log_data, int size, int offset) -> bool {
 auto DiskManager::GetNumFlushes() const -> int { return num_flushes_; }
 
 /**
+ * Returns true if the log is currently being flushed
+ */
+auto DiskManager::GetFlushState() const -> bool { return flush_log_; }
+
+/**
  * Returns number of Writes made so far
  */
 auto DiskManager::GetNumWrites() const -> int { return num_writes_; }
 
 /**
- * Returns true if the log is currently being flushed
+ * Returns number of deletions made so far
  */
-auto DiskManager::GetFlushState() const -> bool { return flush_log_; }
+auto DiskManager::GetNumDeletes() const -> int { return num_deletes_; }
 
 /**
  * Private helper function to get disk file size
