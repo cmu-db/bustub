@@ -10,6 +10,7 @@
 
 #include "argparse/argparse.hpp"
 #include "common/bustub_instance.h"
+#include "common/config.h"
 #include "common/exception.h"
 #include "common/util/string_util.h"
 #include "execution/check_options.h"
@@ -137,30 +138,30 @@ auto ProcessExtraOptions(const std::string &sql, bustub::BusTubInstance &instanc
         auto expected_cols_proj = std::stoi(args[2]);
         auto expected_cols_agg = std::stoi(args[3]);
         // find agg & proj plan and test if the output schema has the expected number of columns
-          auto lines = bustub::StringUtil::Split(result.str(), "\n");
-          for (auto &line : lines) {
-            bustub::StringUtil::LTrim(&line);
-            if (bustub::StringUtil::StartsWith(line, "Agg")) {
-              auto cols = bustub::StringUtil::Split(line, "],");
-              if (cols.size() != 3) {
-                fmt::print("Agg plan wrong formatting!\n");
-                return false;
-              }
-              for (int i = 0; i < 2; i++) {
-                if (bustub::StringUtil::Count(cols[i], "\",")+1 > static_cast<size_t>(expected_cols_agg)) {
-                  fmt::print("Agg wrong column pruning count!\n");
-                  return false;
-                }
-              }
-              break;
+        auto lines = bustub::StringUtil::Split(result.str(), "\n");
+        for (auto &line : lines) {
+          bustub::StringUtil::LTrim(&line);
+          if (bustub::StringUtil::StartsWith(line, "Agg")) {
+            auto cols = bustub::StringUtil::Split(line, "],");
+            if (cols.size() != 3) {
+              fmt::print("Agg plan wrong formatting!\n");
+              return false;
             }
-            if (bustub::StringUtil::StartsWith(line, "Projection")) {
-              if (bustub::StringUtil::Count(line, "\",")+1 > static_cast<size_t>(expected_cols_proj)) {
-                fmt::print("Projection wrong column pruning count!\n");
+            for (int i = 0; i < 2; i++) {
+              if (bustub::StringUtil::Count(cols[i], "\",") + 1 > static_cast<size_t>(expected_cols_agg)) {
+                fmt::print("Agg wrong column pruning count!\n");
                 return false;
               }
+            }
+            break;
+          }
+          if (bustub::StringUtil::StartsWith(line, "Projection")) {
+            if (bustub::StringUtil::Count(line, "\",") + 1 > static_cast<size_t>(expected_cols_proj)) {
+              fmt::print("Projection wrong column pruning count!\n");
+              return false;
             }
           }
+        }
       } else {
         throw bustub::NotImplementedException(fmt::format("unsupported extra option: {}", opt));
       }
@@ -224,6 +225,15 @@ auto main(int argc, char **argv) -> int {  // NOLINT
   program.add_argument("--verbose").help("increase output verbosity").default_value(false).implicit_value(true);
   program.add_argument("-d", "--diff").help("write diff file").default_value(false).implicit_value(true);
   program.add_argument("--in-memory").help("use in-memory backend").default_value(false).implicit_value(true);
+  program.add_argument("--bpm-size")
+      .help("size of the buffer pool")
+      .default_value(std::to_string(bustub::BUFFER_POOL_SIZE));
+  program.add_argument("--check-min-disk-write")
+      .help("the minimum disk write threshold to be checked at the end of the program");
+  program.add_argument("--check-max-disk-write")
+      .help("the maximum disk write threshold to be checked at the end of the program");
+  program.add_argument("--check-min-disk-delete")
+      .help("the maximum disk deletion threshold to be checked at the end of the program");
 
   try {
     program.parse_args(argc, argv);
@@ -235,6 +245,8 @@ auto main(int argc, char **argv) -> int {  // NOLINT
 
   bool verbose = program.get<bool>("verbose");
   bool diff = program.get<bool>("diff");
+  auto check_min_disk_write = program.present("check-min-disk-write");
+
   std::string filename = program.get<std::string>("file");
   std::ifstream t(filename);
 
@@ -253,11 +265,12 @@ auto main(int argc, char **argv) -> int {  // NOLINT
   }
 
   std::unique_ptr<bustub::BusTubInstance> bustub;
+  size_t bpm_size = std::stoul(program.get<std::string>("bpm-size"));
 
   if (program.get<bool>("--in-memory")) {
-    bustub = std::make_unique<bustub::BusTubInstance>();
+    bustub = std::make_unique<bustub::BusTubInstance>(bpm_size);
   } else {
-    bustub = std::make_unique<bustub::BusTubInstance>("test.bustub");
+    bustub = std::make_unique<bustub::BusTubInstance>("test.bustub", bpm_size);
   }
 
   bustub->GenerateMockTable();
@@ -362,6 +375,31 @@ auto main(int argc, char **argv) -> int {  // NOLINT
       }
       default:
         throw bustub::Exception("unsupported record");
+    }
+  }
+
+  if (program.is_used("--check-min-disk-write")) {
+    int min_disk_write_num = std::stoi(program.get("--check-min-disk-write"));
+    int actual_disk_write_num = bustub->disk_manager_->GetNumWrites();
+    if (actual_disk_write_num < min_disk_write_num) {
+      fmt::print("test incurred {} times of disk write, which is too low\n", actual_disk_write_num);
+      return 1;
+    }
+  }
+  if (program.is_used("--check-max-disk-write")) {
+    int max_disk_write_num = std::stoi(program.get("--check-max-disk-write"));
+    int actual_disk_write_num = bustub->disk_manager_->GetNumWrites();
+    if (actual_disk_write_num > max_disk_write_num) {
+      fmt::print("test incurred {} times of disk write, which is too high\n", actual_disk_write_num);
+      return 1;
+    }
+  }
+  if (program.is_used("--check-min-disk-delete")) {
+    int min_disk_delete_num = std::stoi(program.get("--check-min-disk-delete"));
+    int actual_disk_delete_num = bustub->disk_manager_->GetNumDeletes();
+    if (actual_disk_delete_num < min_disk_delete_num) {
+      fmt::print("test incurred {} times of disk deletion, which is too low\n", actual_disk_delete_num);
+      return 1;
     }
   }
 

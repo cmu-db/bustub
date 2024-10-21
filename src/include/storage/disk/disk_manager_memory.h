@@ -123,6 +123,7 @@ class DiskManagerUnlimitedMemory : public DiskManager {
     l.unlock();
 
     memcpy(ptr->first.data(), page_data, BUSTUB_PAGE_SIZE);
+    num_writes_ += 1;
 
     PostProcessLatency(page_id);
   }
@@ -157,6 +158,14 @@ class DiskManagerUnlimitedMemory : public DiskManager {
 
     PostProcessLatency(page_id);
   }
+
+  /**
+   * Delete a page from the database file. Reclaim the disk space.
+   * Note: This is a no-op for now without a more complex data structure to
+   * track deallocated pages.
+   * @param page_id id of the page
+   */
+  void DeletePage(page_id_t page_id) override { num_deletes_ += 1; }
 
   void ProcessLatency(page_id_t page_id) {
     uint64_t sleep_micro_sec = 1000;  // for random access, 1ms latency
