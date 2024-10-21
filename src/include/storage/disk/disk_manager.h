@@ -69,6 +69,12 @@ class DiskManager {
   virtual void ReadPage(page_id_t page_id, char *page_data);
 
   /**
+   * Delete a page from the database file. Reclaim the disk space.
+   * @param page_id id of the page
+   */
+  virtual void DeletePage(page_id_t page_id);
+
+  /**
    * Flush the entire log buffer into disk.
    * @param log_data raw log data
    * @param size size of log entry
@@ -93,6 +99,9 @@ class DiskManager {
   /** @return the number of disk writes */
   auto GetNumWrites() const -> int;
 
+  /** @return the number of deletions */
+  auto GetNumDeletes() const -> int;
+
   /**
    * Sets the future which is used to check for non-blocking flushes.
    * @param f the non-blocking flush check
@@ -115,6 +124,7 @@ class DiskManager {
   std::filesystem::path file_name_;
   int num_flushes_{0};
   int num_writes_{0};
+  int num_deletes_{0};
   bool flush_log_{false};
   std::future<void> *flush_log_f_{nullptr};
   // With multiple buffer pool instances, need to protect file access
