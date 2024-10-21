@@ -418,6 +418,16 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
     };
   }
 
+  if (table == "__mock_external_merge_sort_input") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.push_back(ValueFactory::GetIntegerValue(cursor));
+      values.push_back(ValueFactory::GetIntegerValue((cursor + 1777) % 15000));
+      values.push_back(ValueFactory::GetIntegerValue((cursor + 3) % 111));
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
   if (table == "__mock_table_123") {
     return [plan](size_t cursor) {
       std::vector<Value> values{};
