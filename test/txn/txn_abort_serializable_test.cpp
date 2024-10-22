@@ -24,7 +24,7 @@ TEST(TxnBonusTest, DISABLED_SerializableTest) {  // NOLINT
     auto txn_read = BeginTxnSerializable(*bustub, "txn_read");
     WithTxn(txn2, ExecuteTxn(*bustub, _var, _txn, "UPDATE maintable SET a = 0 WHERE a = 1"));
     WithTxn(txn3, ExecuteTxn(*bustub, _var, _txn, "UPDATE maintable SET a = 1 WHERE a = 0"));
-    TxnMgrDbg("after two updates", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+    TxnMgrDbg("after two updates", bustub->txn_manager_.get(), table_info.get(), table_info->table_.get());
     WithTxn(txn_read, ExecuteTxn(*bustub, _var, _txn, "SELECT * FROM maintable WHERE a = 0"));
     WithTxn(txn2, CommitTxn(*bustub, _var, _txn));
     WithTxn(txn3, CommitTxn(*bustub, _var, _txn, EXPECT_FAIL));
@@ -56,7 +56,7 @@ TEST(TxnBonusTest, DISABLED_ConcurrentSerializableTest) {  // NOLINT
       auto txn3 = BeginTxnSerializable(*bustub, "txn3");
       WithTxn(txn3, ExecuteTxn(*bustub, _var, _txn, "UPDATE maintable SET a = 1 WHERE a = 0"));
       WithTxn(txn2, ExecuteTxn(*bustub, _var, _txn, "UPDATE maintable SET a = 0 WHERE a = 1"));
-      TxnMgrDbg("after two updates", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+      TxnMgrDbg("after two updates", bustub->txn_manager_.get(), table_info.get(), table_info->table_.get());
 
       std::vector<std::thread> commit_threads;
       const int thread_cnt = 2;
@@ -97,7 +97,7 @@ TEST(TxnBonusTest, DISABLED_AbortTest) {  // NOLINT
     auto txn1 = BeginTxn(*bustub, "txn1");
     WithTxn(txn1, ExecuteTxn(*bustub, _var, _txn, "INSERT INTO maintable VALUES (1, 233), (2, 2333)"));
     WithTxn(txn1, AbortTxn(*bustub, _var, _txn));
-    TxnMgrDbg("after abort", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+    TxnMgrDbg("after abort", bustub->txn_manager_.get(), table_info.get(), table_info->table_.get());
     auto txn2 = BeginTxn(*bustub, "txn2");
     WithTxn(txn2, ExecuteTxn(*bustub, _var, _txn, "INSERT INTO maintable VALUES (1, 2333), (2, 23333), (3, 233)"));
     WithTxn(txn2, QueryShowResult(*bustub, _var, _txn, "SELECT * FROM maintable",
@@ -106,9 +106,9 @@ TEST(TxnBonusTest, DISABLED_AbortTest) {  // NOLINT
                                       {2, 23333},
                                       {3, 233},
                                   }));
-    TxnMgrDbg("after insert", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+    TxnMgrDbg("after insert", bustub->txn_manager_.get(), table_info.get(), table_info->table_.get());
     WithTxn(txn2, CommitTxn(*bustub, _var, _txn));
-    TxnMgrDbg("after commit", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+    TxnMgrDbg("after commit", bustub->txn_manager_.get(), table_info.get(), table_info->table_.get());
     auto txn3 = BeginTxn(*bustub, "txn3");
     WithTxn(txn3, QueryShowResult(*bustub, _var, _txn, "SELECT * FROM maintable",
                                   IntResult{
@@ -116,7 +116,7 @@ TEST(TxnBonusTest, DISABLED_AbortTest) {  // NOLINT
                                       {2, 23333},
                                       {3, 233},
                                   }));
-    TableHeapEntryNoMoreThan(*bustub, table_info, 3);
+    TableHeapEntryNoMoreThan(*bustub, table_info.get(), 3);
     // test continues on Gradescope...
   }
 }
