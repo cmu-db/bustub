@@ -101,7 +101,7 @@ class MergeSortRun {
 
     /**
      * TODO: Add your own private members here. You may want something to record your current
-     * position in the sorted run. Also feel free to add additional initializers to initialize
+     * position in the sorted run. Also feel free to add additional constructors to initialize
      * your private members.
      */
   };
