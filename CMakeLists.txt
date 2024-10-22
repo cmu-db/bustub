@@ -371,8 +371,6 @@ set(P4_FILES
         "src/concurrency/transaction_manager.cpp"
         "src/include/concurrency/watermark.h"
         "src/concurrency/watermark.cpp"
-        "src/include/execution/execution_common.h"
-        "src/execution/execution_common.cpp"
         ${P3_FILES}
 )
 
