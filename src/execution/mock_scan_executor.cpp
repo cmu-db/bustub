@@ -125,8 +125,11 @@ auto GetMockTableSchemaOf(const std::string &table) -> Schema {
   }
 
   if (table == "__mock_graph") {
+    // Note(f24): Make `src_label` and `dst_label` INTEGER because the current external merge sort implementation
+    // only supports sorting on fixed-length data. Should be VARCHAR(8) if var-length data sorting is supported in
+    // the future.
     return Schema{std::vector{Column{"src", TypeId::INTEGER}, Column{"dst", TypeId::INTEGER},
-                              Column{"src_label", TypeId::VARCHAR, 8}, Column{"dst_label", TypeId::VARCHAR, 8},
+                              Column{"src_label", TypeId::INTEGER}, Column{"dst_label", TypeId::INTEGER},
                               Column{"distance", TypeId::INTEGER}}};
   }
 
@@ -433,8 +436,9 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
       int dst = cursor / GRAPH_NODE_CNT;
       values.push_back(ValueFactory::GetIntegerValue(src));
       values.push_back(ValueFactory::GetIntegerValue(dst));
-      values.push_back(ValueFactory::GetVarcharValue(fmt::format("{:03}", src)));
-      values.push_back(ValueFactory::GetVarcharValue(fmt::format("{:03}", dst)));
+      // Note(f24): Use INTEGER for `src_label` and `dst_label` based on current external merge sort.
+      values.push_back(ValueFactory::GetIntegerValue(src * 100));
+      values.push_back(ValueFactory::GetIntegerValue(dst * 100));
       if (src == dst) {
         values.push_back(ValueFactory::GetNullValueByType(TypeId::INTEGER));
       } else {
