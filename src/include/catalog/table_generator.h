@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -101,7 +102,7 @@ class TableGenerator {
         : name_(name), num_rows_(num_rows), col_meta_(std::move(col_meta)) {}
   };
 
-  void FillTable(TableInfo *info, TableInsertMeta *table_meta);
+  void FillTable(const std::shared_ptr<TableInfo> &info, TableInsertMeta *table_meta);
 
   auto MakeValues(ColumnInsertMeta *col_meta, uint32_t count) -> std::vector<Value>;
 

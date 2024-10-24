@@ -28,14 +28,13 @@ namespace bustub {
 
 // TODO(chi): clang-tidy on macOS will suggest changing it to const reference. Looks like a bug.
 
-void CheckOrderByCompatible(
-    const std::vector<std::vector<std::pair<OrderByType, AbstractExpressionRef>>> &order_by_exprs) {
+void CheckOrderByCompatible(const std::vector<std::vector<OrderBy>> &order_by_exprs) {
   if (order_by_exprs.empty()) {
     // either or window functions not having order by clause
     return;
   }
   // or all order by clause are the same
-  std::vector<std::pair<OrderByType, AbstractExpressionRef>> first_order_by = order_by_exprs[0];
+  std::vector<OrderBy> first_order_by = order_by_exprs[0];
   for (auto &order_by : order_by_exprs) {
     if (order_by.size() != first_order_by.size()) {
       throw Exception("order by clause of window functions are not compatible");
@@ -63,7 +62,7 @@ auto Planner::PlanSelectWindow(const SelectStatement &statement, AbstractPlanNod
   std::vector<uint32_t> window_func_indexes;
   std::vector<WindowFunctionType> window_func_types;
   std::vector<std::vector<AbstractExpressionRef>> partition_by_exprs;
-  std::vector<std::vector<std::pair<OrderByType, AbstractExpressionRef>>> order_by_exprs;
+  std::vector<std::vector<OrderBy>> order_by_exprs;
   std::vector<AbstractExpressionRef> arg_exprs;
 
   for (uint32_t i = 0; i < statement.select_list_.size(); i++) {
@@ -111,7 +110,7 @@ auto Planner::PlanSelectWindow(const SelectStatement &statement, AbstractPlanNod
       throw Exception("order by clause is mandatory for rank function");
     }
 
-    std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_by;
+    std::vector<OrderBy> order_by;
     for (const auto &item : window_call.order_bys_) {
       auto [_, expr] = PlanExpression(*item->expr_, {child});
       auto abstract_expr = std::move(expr);

@@ -62,7 +62,7 @@ auto TableGenerator::MakeValues(ColumnInsertMeta *col_meta, uint32_t count) -> s
   }
 }
 
-void TableGenerator::FillTable(TableInfo *info, TableInsertMeta *table_meta) {
+void TableGenerator::FillTable(const std::shared_ptr<TableInfo> &info, TableInsertMeta *table_meta) {
   uint32_t num_inserted = 0;
   uint32_t batch_size = 128;
   while (num_inserted < table_meta->num_rows_) {

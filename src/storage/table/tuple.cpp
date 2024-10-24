@@ -12,6 +12,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <cstring>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -58,6 +59,12 @@ Tuple::Tuple(std::vector<Value> values, const Schema *schema) {
       values[i].SerializeTo(data_.data() + col.GetOffset());
     }
   }
+}
+
+Tuple::Tuple(RID rid, const char *data, uint32_t size) {
+  rid_ = rid;
+  data_.resize(size);
+  memcpy(data_.data(), data, size);
 }
 
 auto Tuple::GetValue(const Schema *schema, const uint32_t column_idx) const -> Value {

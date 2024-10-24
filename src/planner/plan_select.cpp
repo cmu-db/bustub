@@ -117,7 +117,7 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> AbstractPlanNodeRe
 
   // Plan ORDER BY
   if (!statement.sort_.empty()) {
-    std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys;
+    std::vector<OrderBy> order_bys;
     for (const auto &order_by : statement.sort_) {
       auto [_, expr] = PlanExpression(*order_by->expr_, {plan});
       auto abstract_expr = std::move(expr);

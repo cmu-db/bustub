@@ -24,9 +24,11 @@ select count(distance) from __mock_graph;
 ----
 90
 
+# Fall 2024: Remove the ORDER BY in the query since it sorts var-length data, which is not supported in the current external merge sort.
 query
 -- initialize the result set
-INSERT INTO result SELECT src, src as dst, src_label, src_label as dst_label, 0, 0 FROM __mock_graph GROUP BY src, src_label ORDER BY src;
+-- INSERT INTO result SELECT src, src as dst, src_label, src_label as dst_label, 0, 0 FROM __mock_graph GROUP BY src, src_label ORDER BY src;
+INSERT INTO result SELECT src, src as dst, src_label, src_label as dst_label, 0, 0 FROM __mock_graph GROUP BY src, src_label;
 ----
 10
 
@@ -120,8 +122,10 @@ INSERT INTO tmp SELECT * FROM (
 statement ok
 INSERT INTO result SELECT * FROM tmp; DELETE FROM tmp; SELECT count(*) FROM result;
 
+# Fall 2024: Remove the ORDER BY in the query since it sorts var-length data, which is not supported in the current external merge sort.
 query rowsort +explain:o
-SELECT src, src_label, dst, dst_label, count(*), min(distance), max(distance), min(steps), max(steps) FROM result WHERE src = 1 GROUP BY src, src_label, dst, dst_label ORDER BY dst;
+-- SELECT src, src_label, dst, dst_label, count(*), min(distance), max(distance), min(steps), max(steps) FROM result WHERE src = 1 GROUP BY src, src_label, dst, dst_label ORDER BY dst;
+SELECT src, src_label, dst, dst_label, count(*), min(distance), max(distance), min(steps), max(steps) FROM result WHERE src = 1 GROUP BY src, src_label, dst, dst_label;
 ----
 1 001 0 000 1000 1 4 1 4 
 1 001 1 001 1000 0 4 0 4 

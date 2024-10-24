@@ -38,7 +38,7 @@ class TopNPerGroupPlanNode : public AbstractPlanNode {
    * @param n Retain n elements.
    */
   TopNPerGroupPlanNode(SchemaRef output, AbstractPlanNodeRef child, std::vector<AbstractExpressionRef> group_bys,
-                       std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys, std::size_t n)
+                       std::vector<OrderBy> order_bys, std::size_t n)
       : AbstractPlanNode(std::move(output), {std::move(child)}),
         order_bys_(std::move(order_bys)),
         group_bys_(std::move(group_bys)),
@@ -51,7 +51,7 @@ class TopNPerGroupPlanNode : public AbstractPlanNode {
   auto GetN() const -> size_t { return n_; }
 
   /** @return Get order by expressions */
-  auto GetOrderBy() const -> const std::vector<std::pair<OrderByType, AbstractExpressionRef>> & { return order_bys_; }
+  auto GetOrderBy() const -> const std::vector<OrderBy> & { return order_bys_; }
 
   /** @return Get group by expressions */
   auto GetGroupBy() const -> const std::vector<AbstractExpressionRef> & { return group_bys_; }
@@ -64,7 +64,7 @@ class TopNPerGroupPlanNode : public AbstractPlanNode {
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(TopNPerGroupPlanNode);
 
-  std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys_;
+  std::vector<OrderBy> order_bys_;
   std::vector<AbstractExpressionRef> group_bys_;
   std::size_t n_;
 

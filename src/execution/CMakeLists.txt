@@ -4,6 +4,7 @@ add_library(
         aggregation_executor.cpp
         delete_executor.cpp
         execution_common.cpp
+        external_merge_sort_executor.cpp
         executor_factory.cpp
         filter_executor.cpp
         fmt_impl.cpp

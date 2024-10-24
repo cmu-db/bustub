@@ -72,7 +72,9 @@ auto UpdatePlanNode::PlanNodeToString() const -> std::string {
 }
 
 auto SortPlanNode::PlanNodeToString() const -> std::string {
-  return fmt::format("Sort {{ order_bys={} }}", order_bys_);
+  // Note(f24): A sort plan node will be converted to an external merge sort executor in
+  // Fall 2024. So `ExternalMergeSort` is returned instead of `Sort`.
+  return fmt::format("ExternalMergeSort {{ order_bys={} }}", order_bys_);
 }
 
 auto LimitPlanNode::PlanNodeToString() const -> std::string { return fmt::format("Limit {{ limit={} }}", limit_); }

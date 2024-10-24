@@ -10,6 +10,19 @@
 
 namespace bustub {
 
+TupleComparator::TupleComparator(std::vector<OrderBy> order_bys) : order_bys_(std::move(order_bys)) {}
+
+auto TupleComparator::operator()(const SortEntry &entry_a, const SortEntry &entry_b) const -> bool { return false; }
+
+auto GenerateSortKey(const Tuple &tuple, const std::vector<OrderBy> &order_bys, const Schema &schema) -> SortKey {
+  return {};
+}
+
+/**
+ * Above are all you need for P3.
+ * You can ignore the remaining part of this file until P4.
+ */
+
 auto ReconstructTuple(const Schema *schema, const Tuple &base_tuple, const TupleMeta &base_meta,
                       const std::vector<UndoLog> &undo_logs) -> std::optional<Tuple> {
   UNIMPLEMENTED("not implemented");

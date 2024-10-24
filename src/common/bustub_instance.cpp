@@ -162,7 +162,7 @@ void BusTubInstance::CmdDbgMvcc(const std::vector<std::string> &params, ResultWr
     writer.OneCell("table " + table + " not found");
     return;
   }
-  TxnMgrDbg("\\dbgmvcc", txn_manager_.get(), table_info, table_info->table_.get());
+  TxnMgrDbg("\\dbgmvcc", txn_manager_.get(), table_info.get(), table_info->table_.get());
 }
 
 void BusTubInstance::CmdDisplayTables(ResultWriter &writer) {
@@ -175,7 +175,7 @@ void BusTubInstance::CmdDisplayTables(ResultWriter &writer) {
   writer.EndHeader();
   for (const auto &name : table_names) {
     writer.BeginRow();
-    const auto *table_info = catalog_->GetTable(name);
+    const auto table_info = catalog_->GetTable(name);
     writer.WriteCell(fmt::format("{}", table_info->oid_));
     writer.WriteCell(table_info->name_);
     writer.WriteCell(table_info->schema_.ToString());
@@ -194,7 +194,7 @@ void BusTubInstance::CmdDisplayIndices(ResultWriter &writer) {
   writer.WriteHeaderCell("index_cols");
   writer.EndHeader();
   for (const auto &table_name : table_names) {
-    for (const auto *index_info : catalog_->GetTableIndexes(table_name)) {
+    for (const auto &index_info : catalog_->GetTableIndexes(table_name)) {
       writer.BeginRow();
       writer.WriteCell(table_name);
       writer.WriteCell(fmt::format("{}", index_info->index_oid_));

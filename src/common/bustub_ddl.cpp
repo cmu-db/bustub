@@ -45,7 +45,7 @@ namespace bustub {
 void BusTubInstance::HandleCreateStatement(Transaction *txn, const CreateStatement &stmt, ResultWriter &writer) {
   std::unique_lock<std::shared_mutex> l(catalog_lock_);
   auto info = catalog_->CreateTable(txn, stmt.table_, Schema(stmt.columns_));
-  IndexInfo *index = nullptr;
+  std::shared_ptr<IndexInfo> index = nullptr;
   if (!stmt.primary_key_.empty()) {
     std::vector<uint32_t> col_ids;
     for (const auto &col : stmt.primary_key_) {
@@ -106,7 +106,7 @@ void BusTubInstance::HandleIndexStatement(Transaction *txn, const IndexStatement
   }
 
   std::unique_lock<std::shared_mutex> l(catalog_lock_);
-  IndexInfo *info = nullptr;
+  std::shared_ptr<IndexInfo> info = nullptr;
 
   if (stmt.index_type_.empty()) {
     info = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(

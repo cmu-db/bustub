@@ -242,7 +242,7 @@ class BusTubInstance {
   auto MakeExecutorContext(Transaction *txn, bool is_modify) -> std::unique_ptr<ExecutorContext>;
 
  public:
-  explicit BusTubInstance(const std::filesystem::path &db_file_name, size_t bpm_size = 128);
+  explicit BusTubInstance(const std::filesystem::path &db_file_name, size_t bpm_size = BUFFER_POOL_SIZE);
 
   explicit BusTubInstance(size_t bpm_size = 128);
 

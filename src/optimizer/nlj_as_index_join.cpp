@@ -24,7 +24,7 @@ namespace bustub {
 auto Optimizer::MatchIndex(const std::string &table_name, uint32_t index_key_idx)
     -> std::optional<std::tuple<index_oid_t, std::string>> {
   const auto key_attrs = std::vector{index_key_idx};
-  for (const auto *index_info : catalog_.GetTableIndexes(table_name)) {
+  for (const auto &index_info : catalog_.GetTableIndexes(table_name)) {
     if (key_attrs == index_info->index_->GetKeyAttrs()) {
       return std::make_optional(std::make_tuple(index_info->index_oid_, index_info->name_));
     }
