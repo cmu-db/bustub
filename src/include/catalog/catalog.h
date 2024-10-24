@@ -113,11 +113,10 @@ struct IndexInfo {
 class Catalog {
  public:
   /** Indicates that an operation returning a `std::shared_ptr<TableInfo>` failed */
-  static inline const std::shared_ptr<TableInfo> NULL_TABLE_INFO{nullptr};
+  const std::shared_ptr<TableInfo> NULL_TABLE_INFO{nullptr};
 
   /** Indicates that an operation returning a `std::shared_ptr<IndexInfo>` failed */
-  // const std::shared_ptr<IndexInfo> NULL_INDEX_INFO{nullptr};
-  static inline const std::shared_ptr<IndexInfo> NULL_INDEX_INFO{nullptr};
+  const std::shared_ptr<IndexInfo> NULL_INDEX_INFO{nullptr};
 
   /**
    * Construct a new Catalog instance.
@@ -136,8 +135,8 @@ class Catalog {
    * @param create_table_heap whether to create a table heap for the new table
    * @return A shared pointer to the metadata for the table
    */
-  auto CreateTable(Transaction *txn, const std::string &table_name, const Schema &schema, bool create_table_heap = true)
-      -> std::shared_ptr<TableInfo> {
+  auto CreateTable(Transaction *txn, const std::string &table_name, const Schema &schema,
+                   bool create_table_heap = true) -> std::shared_ptr<TableInfo> {
     if (table_names_.count(table_name) != 0) {
       return NULL_TABLE_INFO;
     }
@@ -372,7 +371,11 @@ class Catalog {
   [[maybe_unused]] LockManager *lock_manager_;
   [[maybe_unused]] LogManager *log_manager_;
 
-  /** Map table identifier -> table metadata. */
+  /**
+   * Map table identifier -> table metadata.
+   *
+   * NOTE: `tables_` owns all table metadata.
+   */
   std::unordered_map<table_oid_t, std::shared_ptr<TableInfo>> tables_;
 
   /** Map table name -> table identifiers. */
@@ -381,7 +384,11 @@ class Catalog {
   /** The next table identifier to be used. */
   std::atomic<table_oid_t> next_table_oid_{0};
 
-  /** Map index identifier -> index metadata. */
+  /**
+   * Map index identifier -> index metadata.
+   *
+   * NOTE: that `indexes_` owns all index metadata.
+   */
   std::unordered_map<index_oid_t, std::shared_ptr<IndexInfo>> indexes_;
 
   /** Map table name -> index names -> index identifiers. */
