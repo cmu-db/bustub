@@ -199,7 +199,7 @@ TEST(TxnScanTest, DISABLED_ScanTest) {  // NOLINT
                                                Tuple{{IntNull(), DoubleNull(), BoolNull()}, schema.get()});
   bustub->txn_manager_->UpdateUndoLink(rid4, prev_log_5, nullptr);
 
-  TxnMgrDbg("before verify scan", bustub->txn_manager_.get(), table_info, table_info->table_.get());
+  TxnMgrDbg("before verify scan", bustub->txn_manager_.get(), table_info.get(), table_info->table_.get());
 
   auto query = "SELECT * FROM maintable";
   fmt::println(stderr, "A: Verify txn0");

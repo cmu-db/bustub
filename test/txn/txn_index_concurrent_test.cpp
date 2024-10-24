@@ -86,7 +86,7 @@ TEST(TxnIndexTest, DISABLED_IndexConcurrentInsertTest) {  // NOLINT
     }
     auto query_txn = BeginTxn(*bustub, "query_txn");
     WithTxn(query_txn, QueryShowResult(*bustub, _var, _txn, "SELECT * FROM maintable", expected_rows));
-    auto entry = TableHeapEntry(*bustub, bustub->catalog_->GetTable("maintable"));
+    auto entry = TableHeapEntry(*bustub, bustub->catalog_->GetTable("maintable").get());
     fmt::println(stderr, "{} entries in the table heap", entry);
     if (n == trials - 1) {
       SimpleStreamWriter writer(std::cerr);
@@ -126,7 +126,7 @@ TEST(TxnIndexTest, DISABLED_IndexConcurrentUpdateTest) {  // NOLINT
     const int thread_cnt = 8;
     const int number_cnt = 20;
     Execute(*bustub, generate_insert_sql(number_cnt), false);
-    TableHeapEntryNoMoreThan(*bustub, bustub->catalog_->GetTable("maintable"), number_cnt);
+    TableHeapEntryNoMoreThan(*bustub, bustub->catalog_->GetTable("maintable").get(), number_cnt);
     update_threads.reserve(thread_cnt);
     std::map<int, std::vector<bool>> operation_result;
     std::mutex result_mutex;
@@ -183,7 +183,7 @@ TEST(TxnIndexTest, DISABLED_IndexConcurrentUpdateTest) {  // NOLINT
     }
     auto query_txn = BeginTxn(*bustub, "query_txn");
     WithTxn(query_txn, QueryShowResult(*bustub, _var, _txn, "SELECT * FROM maintable", expected_rows));
-    TableHeapEntryNoMoreThan(*bustub, bustub->catalog_->GetTable("maintable"), number_cnt);
+    TableHeapEntryNoMoreThan(*bustub, bustub->catalog_->GetTable("maintable").get(), number_cnt);
     if (n == trials - 1 || n == trials - 2) {
       SimpleStreamWriter writer(std::cerr);
       fmt::println(stderr, "--- the following data might be manually inspected by TAs ---");
@@ -214,7 +214,7 @@ TEST(TxnIndexTest, DISABLED_IndexConcurrentUpdateAbortTest) {  // NOLINT
     Execute(*bustub, "CREATE TABLE maintable(a int primary key, b int)");
     std::vector<std::thread> update_threads;
     Execute(*bustub, generate_insert_sql(number_cnt), false);
-    TableHeapEntryNoMoreThan(*bustub, bustub->catalog_->GetTable("maintable"), number_cnt);
+    TableHeapEntryNoMoreThan(*bustub, bustub->catalog_->GetTable("maintable").get(), number_cnt);
     update_threads.reserve(thread_cnt);
     std::map<int, std::vector<int>> operation_result;
     std::mutex result_mutex;
@@ -273,10 +273,10 @@ TEST(TxnIndexTest, DISABLED_IndexConcurrentUpdateAbortTest) {  // NOLINT
         std::terminate();
       }
     }
-    auto *table_info = bustub->catalog_->GetTable("maintable");
+    auto table_info = bustub->catalog_->GetTable("maintable");
     auto query_txn = BeginTxn(*bustub, "query_txn");
     WithTxn(query_txn, QueryShowResult(*bustub, _var, _txn, "SELECT * FROM maintable", expected_rows));
-    TableHeapEntryNoMoreThan(*bustub, table_info, number_cnt);
+    TableHeapEntryNoMoreThan(*bustub, table_info.get(), number_cnt);
     if (n >= trials - 2) {
       SimpleStreamWriter writer(std::cerr);
       fmt::println(stderr, "--- the following data might be manually inspected by TAs ---");
