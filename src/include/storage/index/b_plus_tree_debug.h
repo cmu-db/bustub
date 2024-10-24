@@ -230,9 +230,12 @@ void BPLUSTREE_TYPE::BatchOpsFromFile(const std::filesystem::path &file_name) {
   int64_t key;
   char instruction;
   std::ifstream input(file_name);
-  while (input) {
-    input >> instruction >> key;
-    RID rid(key);
+  if (!input.is_open()) {
+    std::cerr << "Failed to open file: " << file_name << std::endl;
+    return;
+  }
+  while (input >> instruction >> key) {
+    RID rid(static_cast<int32_t>(key >> 32), static_cast<int>(key & 0xFFFFFFFF));
     KeyType index_key;
     index_key.SetFromInteger(key);
     switch (instruction) {
@@ -243,9 +246,14 @@ void BPLUSTREE_TYPE::BatchOpsFromFile(const std::filesystem::path &file_name) {
         Remove(index_key);
         break;
       default:
+        std::cerr << "Unknown instruction: " << instruction << std::endl;
         break;
     }
   }
+  if (input.bad()) {
+    std::cerr << "Error reading file: " << file_name << std::endl;
+  }
+  input.close();
 }
 
 INDEX_TEMPLATE_ARGUMENTS
