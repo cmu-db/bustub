@@ -1,27 +1,21 @@
 statement ok
-create table t1(x int, y int, z int);
+explain (o) select count(*), max(__mock_t4_1m.x), max(__mock_t4_1m.y), max(__mock_t5_1m.x), max(__mock_t5_1m.y), max(__mock_t6_1m.x), max(__mock_t6_1m.y)
+    from __mock_t4_1m, __mock_t5_1m, __mock_t6_1m
+        where (__mock_t4_1m.x = __mock_t5_1m.x)
+            and (__mock_t6_1m.y = __mock_t5_1m.y)
+            and (__mock_t4_1m.y >= 1000000)
+            and (__mock_t4_1m.y < 1500000)
+            and (__mock_t6_1m.x < 150000)
+            and (__mock_t6_1m.x >= 100000);
 
-statement ok
-create index t1xy on t1(x, y);
-
-query
-INSERT INTO t1 SELECT * FROM __mock_t1;
+query +timing:x10:.q2
+select count(*), max(__mock_t4_1m.x), max(__mock_t4_1m.y), max(__mock_t5_1m.x), max(__mock_t5_1m.y), max(__mock_t6_1m.x), max(__mock_t6_1m.y)
+    from __mock_t4_1m, __mock_t5_1m, __mock_t6_1m
+        where (__mock_t4_1m.x = __mock_t5_1m.x)
+            and (__mock_t6_1m.y = __mock_t5_1m.y)
+            and (__mock_t4_1m.y >= 1000000)
+            and (__mock_t4_1m.y < 1500000)
+            and (__mock_t6_1m.x < 150000)
+            and (__mock_t6_1m.x >= 100000);
 ----
-1000000
-
-statement ok
-explain (o) select * from t1 where x >= 90 and y = 10;
-
-query rowsort +timing:x10:.q1
-select * from t1 where x >= 90 and y = 10;
-----
-91 10 910010
-92 10 920010
-95 10 950010
-93 10 930010
-98 10 980010
-96 10 960010
-90 10 900010
-99 10 990010
-97 10 970010
-94 10 940010
+400000 149999 1499990 149999 1499990 149999 1499990 
