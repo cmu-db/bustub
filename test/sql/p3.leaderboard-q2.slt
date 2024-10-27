@@ -1,21 +1,36 @@
 statement ok
-explain (o) select count(*), max(__mock_t4_1m.x), max(__mock_t4_1m.y), max(__mock_t5_1m.x), max(__mock_t5_1m.y), max(__mock_t6_1m.x), max(__mock_t6_1m.y)
-    from __mock_t4_1m, __mock_t5_1m, __mock_t6_1m
-        where (__mock_t4_1m.x = __mock_t5_1m.x)
-            and (__mock_t6_1m.y = __mock_t5_1m.y)
-            and (__mock_t4_1m.y >= 1000000)
-            and (__mock_t4_1m.y < 1500000)
-            and (__mock_t6_1m.x < 150000)
-            and (__mock_t6_1m.x >= 100000);
+explain (o) select v, d1, d2 from (
+    select
+        v, max(v1) as d1, max(v1) + max(v1) + max(v2) as d2,
+        min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2)
+    from __mock_t7 left join (select v4 from __mock_t8 where 1 == 2) on v < v4 group by v
+)
 
-query +timing:x10:.q2
-select count(*), max(__mock_t4_1m.x), max(__mock_t4_1m.y), max(__mock_t5_1m.x), max(__mock_t5_1m.y), max(__mock_t6_1m.x), max(__mock_t6_1m.y)
-    from __mock_t4_1m, __mock_t5_1m, __mock_t6_1m
-        where (__mock_t4_1m.x = __mock_t5_1m.x)
-            and (__mock_t6_1m.y = __mock_t5_1m.y)
-            and (__mock_t4_1m.y >= 1000000)
-            and (__mock_t4_1m.y < 1500000)
-            and (__mock_t6_1m.x < 150000)
-            and (__mock_t6_1m.x >= 100000);
+query rowsort ok +timing:x10:.q3
+select v, d1, d2 from (
+    select
+        v, max(v1) as d1, max(v1) + max(v1) + max(v2) as d2,
+        min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2), min(v1), max(v2), min(v2), max(v1) + min(v1), max(v2) + min(v2)
+    from __mock_t7 left join (select v4 from __mock_t8 where 1 == 2) on v < v4 group by v
+)
 ----
-400000 149999 1499990 149999 1499990 149999 1499990 
+19 999999 2999997
+15 999995 2999985
+16 999996 2999988
+14 999994 2999982
+17 999997 2999991
+13 999993 2999979
+18 999998 2999994
+12 999992 2999976
+11 999991 2999973
+10 999990 2999970
+9 999989 2999967
+7 999987 2999961
+8 999988 2999964
+6 999986 2999958
+5 999985 2999955
+3 999983 2999949
+4 999984 2999952
+2 999982 2999946
+1 999981 2999943
+0 999980 2999940
