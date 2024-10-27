@@ -1,0 +1,27 @@
+statement ok
+create table t1(x int, y int, z int);
+
+statement ok
+create index t1xy on t1(x, y);
+
+query
+INSERT INTO t1 SELECT * FROM __mock_t1;
+----
+1000000
+
+statement ok
+explain (o) select * from t1 where x >= 90 and y = 10;
+
+query rowsort +timing:x10:.q1
+select * from t1 where x >= 90 and y = 10;
+----
+91 10 910010
+92 10 920010
+95 10 950010
+93 10 930010
+98 10 980010
+96 10 960010
+90 10 900010
+99 10 990010
+97 10 970010
+94 10 940010

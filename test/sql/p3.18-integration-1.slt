@@ -1,12 +1,16 @@
-# 10 pts
+# 8 pts
 # This is something done by some TAs in some start-ups before. Once they got a wrong result
 # in a query, they split the query into parts so as to find which one goes wrong...
 #
 # This ultimate goal is to run an extra-complex query to compute the shortest path within x
 # steps from each of the vertex. We will start from the table scan.
 
+# Note(f24): Make `src_label` and `dst_label` INTEGER because the current external merge sort implementation
+# only supports sorting on fixed-length data. Should be VARCHAR(8) if var-length data sorting is supported in
+# the future.
+
 statement ok
-CREATE TABLE graph(src int, dst int, src_label VARCHAR(8), dst_label VARCHAR(8), distance int);
+CREATE TABLE graph(src int, dst int, src_label int, dst_label int, distance int);
 
 statement ok
 INSERT INTO graph SELECT * FROM __mock_graph;
@@ -152,16 +156,16 @@ select * from (
     ) group by src, dst, src_label, dst_label
 ) where src = 0 order by dst limit 10;
 ----
-0 0 000 000 4 
-0 1 000 001 4 
-0 2 000 002 4 
-0 3 000 003 4 
-0 4 000 004 4 
-0 5 000 005 4 
-0 6 000 006 4 
-0 7 000 007 4 
-0 8 000 008 4 
-0 9 000 009 4
+0 0 0 0 4 
+0 1 0 100 4 
+0 2 0 200 4 
+0 3 0 300 4 
+0 4 0 400 4 
+0 5 0 500 4 
+0 6 0 600 4 
+0 7 0 700 4 
+0 8 0 800 4 
+0 9 0 900 4
 
 # In the future, we will construct some custom graphs with different link weight.
 # But for now, that's the end of the test!

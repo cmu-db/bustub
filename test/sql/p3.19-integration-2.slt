@@ -4,17 +4,21 @@
 # This test is like how a data engineer works towards their goal. They query some data,
 # store it (materialize it), and query some more data again, until they reach their goal.
 
+# Note(f24): Make `src_label` and `dst_label` INTEGER because the current external merge sort implementation
+# only supports sorting on fixed-length data. Should be VARCHAR(8) if var-length data sorting is supported in
+# the future.
+
 statement ok
 -- still the graph :)
-CREATE TABLE graph(src int, dst int, src_label VARCHAR(8), dst_label VARCHAR(8), distance int);
+CREATE TABLE graph(src int, dst int, src_label int, dst_label int, distance int);
 
 statement ok
 -- and we materialize the result
-CREATE TABLE result(src int, dst int, src_label VARCHAR(8), dst_label VARCHAR(8), distance int, steps int);
+CREATE TABLE result(src int, dst int, src_label int, dst_label int, distance int, steps int);
 
 statement ok
 -- temp table (as we don't support union and insert into the table selected from)
-CREATE TABLE tmp(src int, dst int, src_label VARCHAR(8), dst_label VARCHAR(8), distance int, steps int);
+CREATE TABLE tmp(src int, dst int, src_label int, dst_label int, distance int, steps int);
 
 statement ok
 INSERT INTO graph SELECT * FROM __mock_graph;
@@ -33,16 +37,16 @@ INSERT INTO result SELECT src, src as dst, src_label, src_label as dst_label, 0,
 query rowsort
 SELECT * FROM result;
 ----
-0 0 000 000 0 0 
-1 1 001 001 0 0 
-2 2 002 002 0 0 
-3 3 003 003 0 0 
-4 4 004 004 0 0 
-5 5 005 005 0 0 
-6 6 006 006 0 0 
-7 7 007 007 0 0 
-8 8 008 008 0 0 
-9 9 009 009 0 0
+0 0 0 0 0 0 
+1 1 100 100 0 0 
+2 2 200 200 0 0 
+3 3 300 300 0 0 
+4 4 400 400 0 0 
+5 5 500 500 0 0 
+6 6 600 600 0 0 
+7 7 700 700 0 0 
+8 8 800 800 0 0 
+9 9 900 900 0 0
 
 query rowsort +explain:o
 -- 1st neighbor
@@ -123,13 +127,13 @@ INSERT INTO result SELECT * FROM tmp; DELETE FROM tmp; SELECT count(*) FROM resu
 query rowsort +explain:o
 SELECT src, src_label, dst, dst_label, count(*), min(distance), max(distance), min(steps), max(steps) FROM result WHERE src = 1 GROUP BY src, src_label, dst, dst_label ORDER BY dst;
 ----
-1 001 0 000 1000 1 4 1 4 
-1 001 1 001 1000 0 4 0 4 
-1 001 2 002 1000 1 4 1 4 
-1 001 3 003 1000 1 4 1 4 
-1 001 4 004 1000 1 4 1 4 
-1 001 5 005 1000 1 4 1 4 
-1 001 6 006 1000 1 4 1 4 
-1 001 7 007 1000 1 4 1 4 
-1 001 8 008 1000 1 4 1 4 
-1 001 9 009 1000 1 4 1 4
+1 100 0 0 1000 1 4 1 4 
+1 100 1 100 1000 0 4 0 4 
+1 100 2 200 1000 1 4 1 4 
+1 100 3 300 1000 1 4 1 4 
+1 100 4 400 1000 1 4 1 4 
+1 100 5 500 1000 1 4 1 4 
+1 100 6 600 1000 1 4 1 4 
+1 100 7 700 1000 1 4 1 4 
+1 100 8 800 1000 1 4 1 4 
+1 100 9 900 1000 1 4 1 4
