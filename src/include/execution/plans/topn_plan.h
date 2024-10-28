@@ -37,8 +37,7 @@ class TopNPlanNode : public AbstractPlanNode {
    * @param order_bys The sort expressions and their order by types.
    * @param n Retain n elements.
    */
-  TopNPlanNode(SchemaRef output, AbstractPlanNodeRef child,
-               std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys, std::size_t n)
+  TopNPlanNode(SchemaRef output, AbstractPlanNodeRef child, std::vector<OrderBy> order_bys, std::size_t n)
       : AbstractPlanNode(std::move(output), {std::move(child)}), order_bys_(std::move(order_bys)), n_{n} {}
 
   /** @return The type of the plan node */
@@ -48,7 +47,7 @@ class TopNPlanNode : public AbstractPlanNode {
   auto GetN() const -> size_t { return n_; }
 
   /** @return Get order by expressions */
-  auto GetOrderBy() const -> const std::vector<std::pair<OrderByType, AbstractExpressionRef>> & { return order_bys_; }
+  auto GetOrderBy() const -> const std::vector<OrderBy> & { return order_bys_; }
 
   /** @return The child plan node */
   auto GetChildPlan() const -> AbstractPlanNodeRef {
@@ -58,7 +57,7 @@ class TopNPlanNode : public AbstractPlanNode {
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(TopNPlanNode);
 
-  std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys_;
+  std::vector<OrderBy> order_bys_;
   std::size_t n_;
 
  protected:

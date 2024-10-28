@@ -36,7 +36,7 @@ static constexpr int INVALID_TXN_ID = -1;    // invalid transaction id
 static constexpr int INVALID_LSN = -1;       // invalid log sequence number
 
 static constexpr int BUSTUB_PAGE_SIZE = 4096;                                        // size of a data page in byte
-static constexpr int BUFFER_POOL_SIZE = 10;                                          // size of buffer pool
+static constexpr int BUFFER_POOL_SIZE = 128;                                         // size of buffer pool
 static constexpr int DEFAULT_DB_IO_SIZE = 16;                                        // starting size of file on disk
 static constexpr int LOG_BUFFER_SIZE = ((BUFFER_POOL_SIZE + 1) * BUSTUB_PAGE_SIZE);  // size of a log buffer in byte
 static constexpr int BUCKET_SIZE = 50;                                               // size of extendible hash bucket

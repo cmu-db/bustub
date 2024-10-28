@@ -56,7 +56,7 @@ set(BUSTUB_SLT_SOURCES
         "${PROJECT_SOURCE_DIR}/test/sql/p3.02-insert.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.03-update.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.04-delete.slt"
-        "${PROJECT_SOURCE_DIR}/test/sql/p3.05-index-scan.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.05-index-scan-btree.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.06-empty-table.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.07-simple-agg.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.08-group-agg-1.slt"
@@ -72,7 +72,7 @@ set(BUSTUB_SLT_SOURCES
         "${PROJECT_SOURCE_DIR}/test/sql/p3.18-integration-1.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.19-integration-2.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.20-window-function.slt"
-        "${PROJECT_SOURCE_DIR}/test/sql/p3.leaderboard-q1-window.slt"
+        "${PROJECT_SOURCE_DIR}/test/sql/p3.leaderboard-q1.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.leaderboard-q2.slt"
         "${PROJECT_SOURCE_DIR}/test/sql/p3.leaderboard-q3.slt"
         )
