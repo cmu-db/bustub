@@ -40,14 +40,15 @@ auto ReconstructTuple(const Schema *schema, const Tuple &base_tuple, const Tuple
 }
 /**
  * @brief Collects the undo logs sufficient to reconstruct the tuple w.r.t. the txn.
- * 
+ *
  * @param rid The RID of the tuple.
  * @param base_meta The metadata of the base tuple.
  * @param base_tuple The base tuple.
  * @param undo_link The undo link to the latest undo log.
  * @param txn The transaction.
  * @param txn_mgr The transaction manager.
- * @return An optional vector of undo logs to pass to ReconstructTuple(). std::nullopt if the tuple did not exist at the time.
+ * @return An optional vector of undo logs to pass to ReconstructTuple(). std::nullopt if the tuple did not exist at the
+ * time.
  */
 auto CollectUndoLogs(RID rid, const TupleMeta &base_meta, const Tuple &base_tuple, std::optional<UndoLink> undo_link,
                      Transaction *txn, TransactionManager *txn_mgr) -> std::optional<std::vector<UndoLog>> {
@@ -57,7 +58,8 @@ auto CollectUndoLogs(RID rid, const TupleMeta &base_meta, const Tuple &base_tupl
  * @brief Generates a new undo log as the transaction tries to modify this tuple at the first time.
  *
  * @param schema The schema of the table.
- * @param base_tuple The base tuple before the update, the one retrieved from the table heap. nullptr if the tuple is deleted.
+ * @param base_tuple The base tuple before the update, the one retrieved from the table heap. nullptr if the tuple is
+ * deleted.
  * @param target_tuple The target tuple after the update. nullptr if this is a deletion.
  * @param ts The timestamp of the base tuple.
  * @param prev_version The undo link to the latest undo log of this tuple.
@@ -71,7 +73,8 @@ auto GenerateNewUndoLog(const Schema *schema, const Tuple *base_tuple, const Tup
  * @brief Generate the updated undo log to replace the old one, whereas the tuple is already modified by this txn once.
  *
  * @param schema The schema of the table.
- * @param base_tuple The base tuple before the update, the one retrieved from the table heap. nullptr if the tuple is deleted.
+ * @param base_tuple The base tuple before the update, the one retrieved from the table heap. nullptr if the tuple is
+ * deleted.
  * @param target_tuple The target tuple after the update. nullptr if this is a deletion.
  * @param log The original undo log.
  * @return The updated undo log.
