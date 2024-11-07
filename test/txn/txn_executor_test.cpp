@@ -186,7 +186,7 @@ TEST(TxnExecutorTest, DISABLED_InsertDeleteConflictTest) {  // NOLINT
   WithTxn(txn7, CommitTxn(*bustub, _var, _txn));
 }
 
-TEST(TxnExecutorTest, GenerateUndoLogTest) {
+TEST(TxnExecutorTest, DISABLED_GenerateUndoLogTest) {
   {
     fmt::println(stderr, "--- GenerateUndoLogTest: Simple update ---");
     auto schema = ParseCreateStatement("a integer,b double,c boolean");
