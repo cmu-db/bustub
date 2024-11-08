@@ -1,0 +1,252 @@
+# 6 pts
+
+# Ensure all order-bys in this file are transformed into index scan
+statement ok
+set force_optimizer_starter_rule=yes
+
+# Create a table
+statement ok
+create table t1(v1 int, v2 int, v3 int);
+
+query
+insert into t1 values (1, 50, 645), (2, 40, 721), (4, 20, 445), (5, 10, 445), (3, 30, 645);
+----
+5
+
+# Build index
+statement ok
+create index t1v1 on t1(v1);
+
+statement ok
+create index t1v2 on t1(v2);
+
+statement ok
+explain select * from t1 order by v1;
+
+statement ok
+explain select * from t1 order by v2;
+
+query +ensure:index_scan
+select * from t1 order by v1;
+----
+1 50 645
+2 40 721
+3 30 645
+4 20 445
+5 10 445
+
+query +ensure:index_scan
+select * from t1 order by v2;
+----
+5 10 445
+4 20 445
+3 30 645
+2 40 721
+1 50 645
+
+query rowsort +ensure:index_scan
+select * from t1 where v1 = 2;
+----
+2 40 721
+
+query rowsort +ensure:index_scan
+select * from t1 where 4 = v1 or v1 = 7;
+----
+4 20 445
+
+# Insert more elements
+query
+insert into t1 values (6, 0, 721), (7, -10, 645);
+----
+2
+
+query +ensure:index_scan
+select * from t1 order by v1;
+----
+1 50 645
+2 40 721
+3 30 645
+4 20 445
+5 10 445
+6 0 721
+7 -10 645
+
+query +ensure:index_scan
+select * from t1 order by v2;
+----
+7 -10 645
+6 0 721
+5 10 445
+4 20 445
+3 30 645
+2 40 721
+1 50 645
+
+query rowsort +ensure:index_scan
+select * from t1 where 4 = v1 or v1 = 7;
+----
+4 20 445
+7 -10 645
+
+# Update some elements 
+query +ensure:index_scan
+update t1 set v3 = 645, v1 = 8, v2 = -20 where v1 = 2;
+----
+1
+
+query +ensure:index_scan
+select * from t1 order by v1;
+----
+1 50 645
+3 30 645
+4 20 445
+5 10 445
+6 0 721
+7 -10 645
+8 -20 645
+
+query +ensure:index_scan
+select * from t1 order by v2;
+----
+8 -20 645
+7 -10 645
+6 0 721
+5 10 445
+4 20 445
+3 30 645
+1 50 645
+
+query rowsort +ensure:index_scan
+select * from t1 where 8 = v1;
+----
+8 -20 645
+
+query rowsort +ensure:index_scan
+select * from t1 where v2 = 10 or v2 = 20 or v2 = 30 or v2 = 40;
+----
+4 20 445
+5 10 445
+3 30 645
+
+query +ensure:index_scan
+update t1 set v1 = 2 where v1 = 8;
+----
+1
+
+# Delete some elements
+query +ensure:index_scan
+delete from t1 where v1 = 2;
+----
+1
+
+query +ensure:index_scan
+select * from t1 order by v1;
+----
+1 50 645
+3 30 645
+4 20 445
+5 10 445
+6 0 721
+7 -10 645
+
+query +ensure:index_scan
+select * from t1 order by v2;
+----
+7 -10 645
+6 0 721
+5 10 445
+4 20 445
+3 30 645
+1 50 645
+
+query rowsort +ensure:index_scan
+select * from t1 where 3 = v1 or v1 = 0 or 7 = v1;
+----
+7 -10 645
+3 30 645
+
+query rowsort
+select * from t1 where v1 = 8 or v2 = 30;
+----
+3 30 645
+
+query rowsort
+select * from t1 where v1 = 5 and v2 = 10;
+----
+5 10 445
+
+# Delete some elements
+query +ensure:index_scan
+delete from t1 where v2 = 30;
+----
+1
+
+query +ensure:index_scan
+select * from t1 order by v1;
+----
+1 50 645
+4 20 445
+5 10 445
+6 0 721
+7 -10 645
+
+query +ensure:index_scan
+select * from t1 order by v2;
+----
+7 -10 645
+6 0 721
+5 10 445
+4 20 445
+1 50 645
+
+# Delete all
+query
+delete from t1;
+----
+5
+
+query +ensure:index_scan
+select * from t1 order by v1;
+----
+
+
+query +ensure:index_scan
+select * from t1 order by v2;
+----
+
+
+# Insert more elements
+query
+insert into t1 values (6, 0, 445), (7, -10, 645), (8, 10, 445);
+----
+3
+
+query +ensure:index_scan
+select * from t1 order by v1;
+----
+6 0 445
+7 -10 645
+8 10 445
+
+query +ensure:index_scan
+select * from t1 order by v2;
+----
+7 -10 645 
+6 0 445 
+8 10 445 
+
+query rowsort +ensure:index_scan
+select * from t1 where 3 = v1 or v1 = 4 or v1 = 6 or 9 = v1;
+----
+6 0 445 
+
+query rowsort +ensure:index_scan
+select * from t1 where v2 = 0;
+----
+6 0 445 
+
+query rowsort
+select * from t1 where v3 = 445;
+----
+6 0 445 
+8 10 445 
