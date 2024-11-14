@@ -1,12 +1,22 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// execution_common.cpp
+//
+// Identification: src/execution/execution_common.cpp
+//
+// Copyright (c) 2024-2024, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "execution/execution_common.h"
+
 #include "catalog/catalog.h"
-#include "common/config.h"
 #include "common/macros.h"
 #include "concurrency/transaction_manager.h"
 #include "fmt/core.h"
 #include "storage/table/table_heap.h"
-#include "type/value.h"
-#include "type/value_factory.h"
 
 namespace bustub {
 
@@ -38,6 +48,7 @@ auto ReconstructTuple(const Schema *schema, const Tuple &base_tuple, const Tuple
                       const std::vector<UndoLog> &undo_logs) -> std::optional<Tuple> {
   UNIMPLEMENTED("not implemented");
 }
+
 /**
  * @brief Collects the undo logs sufficient to reconstruct the tuple w.r.t. the txn.
  *
@@ -54,6 +65,7 @@ auto CollectUndoLogs(RID rid, const TupleMeta &base_meta, const Tuple &base_tupl
                      Transaction *txn, TransactionManager *txn_mgr) -> std::optional<std::vector<UndoLog>> {
   UNIMPLEMENTED("not implemented");
 }
+
 /**
  * @brief Generates a new undo log as the transaction tries to modify this tuple at the first time.
  *
@@ -69,6 +81,7 @@ auto GenerateNewUndoLog(const Schema *schema, const Tuple *base_tuple, const Tup
                         UndoLink prev_version) -> UndoLog {
   UNIMPLEMENTED("not implemented");
 }
+
 /**
  * @brief Generate the updated undo log to replace the old one, whereas the tuple is already modified by this txn once.
  *
@@ -83,6 +96,7 @@ auto GenerateUpdatedUndoLog(const Schema *schema, const Tuple *base_tuple, const
                             const UndoLog &log) -> UndoLog {
   UNIMPLEMENTED("not implemented");
 }
+
 void TxnMgrDbg(const std::string &info, TransactionManager *txn_mgr, const TableInfo *table_info,
                TableHeap *table_heap) {
   // always use stderr for printing logs...
