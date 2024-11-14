@@ -4,7 +4,6 @@
 namespace bustub {
 
 // NOLINTBEGIN(bugprone-unchecked-optional-access)
-
 TEST(TxnScanTest, DISABLED_TupleReconstructTest) {  // NOLINT
   auto schema = ParseCreateStatement("a integer,b double,c boolean");
   {
@@ -100,6 +99,206 @@ TEST(TxnScanTest, DISABLED_TupleReconstructTest) {  // NOLINT
       ASSERT_TRUE(tuple.has_value());
       VerifyTuple(schema.get(), *tuple, {IntNull(), DoubleNull(), BoolNull()});
     }
+  }
+}
+
+TEST(TxnScanTest, DISABLED_CollectUndoLogTest) {  // NOLINT
+  auto bustub = std::make_unique<BusTubInstance>();
+  auto schema = ParseCreateStatement("a integer,b double,c boolean");
+  auto modify_schema = ParseCreateStatement("a integer,b double");
+  auto empty_schema = ParseCreateStatement("");
+  auto table_info = bustub->catalog_->CreateTable(nullptr, "maintable", *schema);
+
+  auto txn0 = bustub->txn_manager_->Begin();
+  ASSERT_EQ(txn0->GetReadTs(), 0);
+  bustub->txn_manager_->Commit(txn0);
+  auto rid0 = *table_info->table_->InsertTuple(TupleMeta{txn0->GetCommitTs(), false},
+                                               Tuple{{Int(1), Double(1.0), BoolNull()}, schema.get()});
+
+  auto txn1 = bustub->txn_manager_->Begin();
+  ASSERT_EQ(txn1->GetReadTs(), 1);
+  bustub->txn_manager_->Commit(txn1);
+  auto txn_to_inspect = bustub->txn_manager_->Begin();
+  ASSERT_EQ(txn_to_inspect->GetReadTs(), 2);
+  auto rid1 = *table_info->table_->InsertTuple(TupleMeta{txn1->GetCommitTs(), false},
+                                               Tuple{{Int(2), Double(2.0), BoolNull()}, schema.get()});
+  auto undo_link1 = txn1->AppendUndoLog(
+      UndoLog{false, {true, true, false}, Tuple{{Int(1), Double(1.0)}, modify_schema.get()}, txn0->GetCommitTs(), {}});
+  bustub->txn_manager_->UpdateUndoLink(rid1, undo_link1, nullptr);
+
+  auto txn2 = bustub->txn_manager_->Begin();
+  ASSERT_EQ(txn2->GetReadTs(), 2);
+  bustub->txn_manager_->Commit(txn2);
+  auto rid2 = *table_info->table_->InsertTuple(TupleMeta{txn2->GetCommitTs(), false},
+                                               Tuple{{Int(3), Double(3.0), BoolNull()}, schema.get()});
+  auto undo_link2 = txn1->AppendUndoLog(
+      UndoLog{false, {true, true, false}, Tuple{{Int(1), Double(1.0)}, modify_schema.get()}, txn0->GetCommitTs(), {}});
+  auto undo_link3 = txn2->AppendUndoLog(UndoLog{
+      false, {true, true, false}, Tuple{{Int(2), Double(2.0)}, modify_schema.get()}, txn1->GetCommitTs(), undo_link2});
+  bustub->txn_manager_->UpdateUndoLink(rid2, undo_link3, nullptr);
+
+  auto rid3 = *table_info->table_->InsertTuple(TupleMeta{txn2->GetCommitTs(), false},
+                                               Tuple{{Int(3), Double(3.0), BoolNull()}, schema.get()});
+
+  auto txn3 = bustub->txn_manager_->Begin();
+  ASSERT_EQ(txn3->GetReadTs(), 3);
+  bustub->txn_manager_->Commit(txn3);
+  auto rid4 = *table_info->table_->InsertTuple(TupleMeta{txn3->GetCommitTs(), false},
+                                               Tuple{{Int(4), Double(4.0), BoolNull()}, schema.get()});
+
+  auto undo_link4 = txn3->AppendUndoLog(
+      UndoLog{false, {true, true, false}, Tuple{{Int(3), Double(3.0)}, modify_schema.get()}, txn2->GetCommitTs(), {}});
+  bustub->txn_manager_->UpdateUndoLink(rid4, undo_link4, nullptr);
+
+  auto rid5 = *table_info->table_->InsertTuple(TupleMeta{txn3->GetCommitTs(), true},
+                                               Tuple{{Int(2), Double(2.0), BoolNull()}, schema.get()});
+
+  auto undo_link5 = txn3->AppendUndoLog(
+      UndoLog{false, {true, true, false}, Tuple{{Int(2), Double(2.0)}, modify_schema.get()}, txn1->GetCommitTs(), {}});
+  bustub->txn_manager_->UpdateUndoLink(rid5, undo_link5, nullptr);
+  auto rid6 = *table_info->table_->InsertTuple(TupleMeta{txn3->GetCommitTs(), false},
+                                               Tuple{{Int(4), Double(4.0), BoolNull()}, schema.get()});
+
+  auto undo_link6 = txn1->AppendUndoLog(UndoLog{
+      false, {true, true, true}, Tuple{{Int(1), Double(1.0), BoolNull()}, schema.get()}, txn0->GetCommitTs(), {}});
+  auto undo_link7 =
+      txn3->AppendUndoLog(UndoLog{true, {false, false, false}, Tuple::Empty(), txn1->GetCommitTs(), undo_link6});
+  bustub->txn_manager_->UpdateUndoLink(rid6, undo_link7, nullptr);
+
+  auto rid7 = *table_info->table_->InsertTuple(TupleMeta{txn_to_inspect->GetTransactionTempTs(), false},
+                                               Tuple{{Int(100), Double(100.0), BoolNull()}, schema.get()});
+  auto rid8 = *table_info->table_->InsertTuple(TupleMeta{txn_to_inspect->GetTransactionTempTs(), false},
+                                               Tuple{{Int(100), Double(100.0), BoolNull()}, schema.get()});
+
+  auto undo_link8 = txn_to_inspect->AppendUndoLog(
+      UndoLog{false, {true, true, false}, Tuple{{Int(1), Double(1.0)}, modify_schema.get()}, txn0->GetCommitTs(), {}});
+  bustub->txn_manager_->UpdateUndoLink(rid8, undo_link8, nullptr);
+
+  auto txn4 = bustub->txn_manager_->Begin();
+  ASSERT_EQ(txn4->GetReadTs(), 4);
+
+  auto rid9 = *table_info->table_->InsertTuple(TupleMeta{txn4->GetTransactionTempTs(), false},
+                                               Tuple{{Int(400), Double(400.0), BoolNull()}, schema.get()});
+
+  auto undo_link9 = txn1->AppendUndoLog(
+      UndoLog{false, {true, true, false}, Tuple{{Int(1), Double(1.0)}, modify_schema.get()}, txn0->GetCommitTs(), {}});
+  auto undo_link10 = txn4->AppendUndoLog(UndoLog{
+      false, {true, true, false}, Tuple{{Int(4), Double(4.0)}, modify_schema.get()}, txn3->GetCommitTs(), undo_link9});
+  bustub->txn_manager_->UpdateUndoLink(rid9, undo_link10, nullptr);
+
+  TxnMgrDbg("before verify scan", bustub->txn_manager_.get(), table_info.get(), table_info->table_.get());
+  auto tuple_res_0 = table_info->table_->GetTuple(rid0);
+  auto tuple_res_1 = table_info->table_->GetTuple(rid1);
+  auto tuple_res_2 = table_info->table_->GetTuple(rid2);
+  auto tuple_res_3 = table_info->table_->GetTuple(rid3);
+  auto tuple_res_4 = table_info->table_->GetTuple(rid4);
+  auto tuple_res_5 = table_info->table_->GetTuple(rid5);
+  auto tuple_res_6 = table_info->table_->GetTuple(rid6);
+  auto tuple_res_7 = table_info->table_->GetTuple(rid7);
+  auto tuple_res_8 = table_info->table_->GetTuple(rid8);
+  auto tuple_res_9 = table_info->table_->GetTuple(rid9);
+  auto undo_logs_0_for_txn_to_inspect =
+      CollectUndoLogs(rid0, tuple_res_0.first, tuple_res_0.second, bustub->txn_manager_->GetUndoLink(rid0),
+                      txn_to_inspect, bustub->txn_manager_.get());
+  auto undo_logs_1_for_txn_to_inspect =
+      CollectUndoLogs(rid1, tuple_res_1.first, tuple_res_1.second, bustub->txn_manager_->GetUndoLink(rid1),
+                      txn_to_inspect, bustub->txn_manager_.get());
+  auto undo_logs_2_for_txn_to_inspect =
+      CollectUndoLogs(rid2, tuple_res_2.first, tuple_res_2.second, bustub->txn_manager_->GetUndoLink(rid2),
+                      txn_to_inspect, bustub->txn_manager_.get());
+  auto undo_logs_3_for_txn_to_inspect =
+      CollectUndoLogs(rid3, tuple_res_3.first, tuple_res_3.second, bustub->txn_manager_->GetUndoLink(rid3),
+                      txn_to_inspect, bustub->txn_manager_.get());
+  auto undo_logs_4_for_txn_to_inspect =
+      CollectUndoLogs(rid4, tuple_res_4.first, tuple_res_4.second, bustub->txn_manager_->GetUndoLink(rid4),
+                      txn_to_inspect, bustub->txn_manager_.get());
+  auto undo_logs_5_for_txn_to_inspect =
+      CollectUndoLogs(rid5, tuple_res_5.first, tuple_res_5.second, bustub->txn_manager_->GetUndoLink(rid5),
+                      txn_to_inspect, bustub->txn_manager_.get());
+  auto undo_logs_6_for_txn_to_inspect =
+      CollectUndoLogs(rid6, tuple_res_6.first, tuple_res_6.second, bustub->txn_manager_->GetUndoLink(rid6),
+                      txn_to_inspect, bustub->txn_manager_.get());
+  auto undo_logs_7_for_txn_to_inspect =
+      CollectUndoLogs(rid7, tuple_res_7.first, tuple_res_7.second, bustub->txn_manager_->GetUndoLink(rid7),
+                      txn_to_inspect, bustub->txn_manager_.get());
+  auto undo_logs_8_for_txn_to_inspect =
+      CollectUndoLogs(rid8, tuple_res_8.first, tuple_res_8.second, bustub->txn_manager_->GetUndoLink(rid8),
+                      txn_to_inspect, bustub->txn_manager_.get());
+  auto undo_logs_9_for_txn_to_inspect =
+      CollectUndoLogs(rid9, tuple_res_9.first, tuple_res_9.second, bustub->txn_manager_->GetUndoLink(rid9),
+                      txn_to_inspect, bustub->txn_manager_.get());
+
+  // Reference TxnMgrDbg output at this point:
+  // RID=0/0 ts=1 tuple=(1, 1.000000, <NULL>)
+  // RID=0/1 ts=2 tuple=(2, 2.000000, <NULL>)
+  //   txn1@0 (1, 1.000000, _) ts=1
+  // RID=0/2 ts=3 tuple=(3, 3.000000, <NULL>)
+  //   txn3@0 (2, 2.000000, _) ts=2
+  //   txn1@1 (1, 1.000000, _) ts=1
+  // RID=0/3 ts=3 tuple=(3, 3.000000, <NULL>)
+  // RID=0/4 ts=4 tuple=(4, 4.000000, <NULL>)
+  //   txn4@0 (3, 3.000000, _) ts=3
+  // RID=0/5 ts=4 <del marker> tuple=(2, 2.000000, <NULL>)
+  //   txn4@1 (2, 2.000000, _) ts=2
+  // RID=0/6 ts=4 tuple=(4, 4.000000, <NULL>)
+  //   txn4@2 <del> ts=2
+  //   txn1@2 (1, 1.000000, <NULL>) ts=1
+  // RID=0/7 ts=txn2 tuple=(100, 100.000000, <NULL>)
+  // RID=0/8 ts=txn2 tuple=(100, 100.000000, <NULL>)
+  //   txn2@0 (1, 1.000000, _) ts=1
+  // RID=0/9 ts=txn5 tuple=(400, 400.000000, <NULL>)
+  //   txn5@0 (4, 4.000000, _) ts=4
+  //   txn1@3 (1, 1.000000, _) ts=1
+
+  {
+    ASSERT_TRUE(undo_logs_0_for_txn_to_inspect.has_value());
+    auto tuple = ReconstructTuple(schema.get(), tuple_res_0.second, tuple_res_0.first, *undo_logs_0_for_txn_to_inspect);
+    ASSERT_TRUE(tuple.has_value());
+    VerifyTuple(schema.get(), *tuple, {Int(1), Double(1.0), BoolNull()});
+  }
+
+  {
+    ASSERT_TRUE(undo_logs_1_for_txn_to_inspect.has_value());
+    auto tuple = ReconstructTuple(schema.get(), tuple_res_1.second, tuple_res_1.first, *undo_logs_1_for_txn_to_inspect);
+    ASSERT_TRUE(tuple.has_value());
+    VerifyTuple(schema.get(), *tuple, {Int(2), Double(2.0), BoolNull()});
+  }
+  {
+    ASSERT_TRUE(undo_logs_2_for_txn_to_inspect.has_value());
+    auto tuple = ReconstructTuple(schema.get(), tuple_res_2.second, tuple_res_2.first, *undo_logs_2_for_txn_to_inspect);
+    ASSERT_TRUE(tuple.has_value());
+    VerifyTuple(schema.get(), *tuple, {Int(2), Double(2.0), BoolNull()});
+  }
+  { ASSERT_FALSE(undo_logs_3_for_txn_to_inspect.has_value()); }
+  { ASSERT_FALSE(undo_logs_4_for_txn_to_inspect.has_value()); }
+  {
+    ASSERT_TRUE(undo_logs_5_for_txn_to_inspect.has_value());
+    auto tuple = ReconstructTuple(schema.get(), tuple_res_5.second, tuple_res_5.first, *undo_logs_5_for_txn_to_inspect);
+    ASSERT_TRUE(tuple.has_value());
+    VerifyTuple(schema.get(), *tuple, {Int(2), Double(2.0), BoolNull()});
+  }
+  {
+    ASSERT_TRUE(undo_logs_6_for_txn_to_inspect.has_value());
+    auto tuple = ReconstructTuple(schema.get(), tuple_res_6.second, tuple_res_6.first, *undo_logs_6_for_txn_to_inspect);
+    ASSERT_FALSE(tuple.has_value());
+  }
+  {
+    ASSERT_TRUE(undo_logs_7_for_txn_to_inspect.has_value());
+    auto tuple = ReconstructTuple(schema.get(), tuple_res_7.second, tuple_res_7.first, *undo_logs_7_for_txn_to_inspect);
+    ASSERT_TRUE(tuple.has_value());
+    VerifyTuple(schema.get(), *tuple, {Int(100), Double(100.0), BoolNull()});
+  }
+  {
+    ASSERT_TRUE(undo_logs_8_for_txn_to_inspect.has_value());
+    auto tuple = ReconstructTuple(schema.get(), tuple_res_8.second, tuple_res_8.first, *undo_logs_8_for_txn_to_inspect);
+    ASSERT_TRUE(tuple.has_value());
+    VerifyTuple(schema.get(), *tuple, {Int(100), Double(100.0), BoolNull()});
+  }
+  {
+    ASSERT_TRUE(undo_logs_9_for_txn_to_inspect.has_value());
+    auto tuple = ReconstructTuple(schema.get(), tuple_res_9.second, tuple_res_9.first, *undo_logs_9_for_txn_to_inspect);
+    ASSERT_TRUE(tuple.has_value());
+    VerifyTuple(schema.get(), *tuple, {Int(1), Double(1.0), BoolNull()});
   }
 }
 

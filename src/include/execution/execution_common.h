@@ -1,3 +1,14 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// execution_common.h
+//
+// Identification: src/include/execution/execution_common.h
+//
+// Copyright (c) 2014-2024, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <string>
@@ -44,6 +55,15 @@ auto GenerateSortKey(const Tuple &tuple, const std::vector<OrderBy> &order_bys, 
 auto ReconstructTuple(const Schema *schema, const Tuple &base_tuple, const TupleMeta &base_meta,
                       const std::vector<UndoLog> &undo_logs) -> std::optional<Tuple>;
 
+auto CollectUndoLogs(RID rid, const TupleMeta &base_meta, const Tuple &base_tuple, std::optional<UndoLink> undo_link,
+                     Transaction *txn, TransactionManager *txn_mgr) -> std::optional<std::vector<UndoLog>>;
+
+auto GenerateNewUndoLog(const Schema *schema, const Tuple *base_tuple, const Tuple *target_tuple, timestamp_t ts,
+                        UndoLink prev_version) -> UndoLog;
+
+auto GenerateUpdatedUndoLog(const Schema *schema, const Tuple *base_tuple, const Tuple *target_tuple,
+                            const UndoLog &log) -> UndoLog;
+
 void TxnMgrDbg(const std::string &info, TransactionManager *txn_mgr, const TableInfo *table_info,
                TableHeap *table_heap);
 
@@ -52,11 +72,9 @@ void TxnMgrDbg(const std::string &info, TransactionManager *txn_mgr, const Table
 // To give you a sense of what can be shared across executors / transaction manager, here are the
 // list of helper function names that we defined in the reference solution. You should come up with
 // your own when you go through the process.
-// * CollectUndoLogs
 // * WalkUndoLogs
 // * Modify
 // * IsWriteWriteConflict
-// * GenerateDiffLog
 // * GenerateNullTupleForSchema
 // * GetUndoLogSchema
 //

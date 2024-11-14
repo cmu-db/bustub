@@ -186,6 +186,112 @@ TEST(TxnExecutorTest, DISABLED_InsertDeleteConflictTest) {  // NOLINT
   WithTxn(txn7, CommitTxn(*bustub, _var, _txn));
 }
 
+TEST(TxnExecutorTest, DISABLED_GenerateUndoLogTest) {
+  {
+    fmt::println(stderr, "--- GenerateUndoLogTest: Simple update ---");
+    auto schema = ParseCreateStatement("a integer,b double,c boolean");
+    auto partial_schema = ParseCreateStatement("b double,c boolean");
+    auto base_tuple = Tuple{{Int(0), Double(0.0), Bool(true)}, schema.get()};
+    auto target_tuple = Tuple{{Int(0), Double(1.0), Bool(false)}, schema.get()};
+    auto undo_log = GenerateNewUndoLog(schema.get(), &base_tuple, &target_tuple, 0, {});
+
+    auto tuple = ReconstructTuple(schema.get(), target_tuple, {0, false}, {undo_log});
+    ASSERT_TRUE(tuple.has_value());
+    ASSERT_TRUE(IsTupleContentEqual(*tuple, base_tuple));
+  }
+  {
+    fmt::println(stderr, "--- GenerateUndoLogTest: Simple delete ---");
+    auto schema = ParseCreateStatement("a integer,b double,c boolean");
+    auto base_tuple = Tuple{{Int(0), Double(0.0), Bool(true)}, schema.get()};
+    auto undo_log = GenerateNewUndoLog(schema.get(), &base_tuple, nullptr, 0, {});
+
+    auto tuple = ReconstructTuple(schema.get(), base_tuple, {0, true}, {undo_log});
+    ASSERT_TRUE(tuple.has_value());
+    ASSERT_TRUE(IsTupleContentEqual(*tuple, base_tuple));
+  }
+  {
+    // This case is only relevant after task 4.2, where an insert may happen on a tombstone.
+    // Before task 4.2, insert always generates a new tuple in table heap without any undo logs.
+    fmt::println(stderr, "--- GenerateUndoLogTest: Simple insert ---");
+    auto schema = ParseCreateStatement("a integer,b double,c boolean");
+    auto partial_schema = ParseCreateStatement("");
+    auto target_tuple = Tuple{{Int(0), Double(1.0), Bool(false)}, schema.get()};
+    auto undo_log = GenerateNewUndoLog(schema.get(), nullptr, &target_tuple, 0, {});
+
+    auto tuple = ReconstructTuple(schema.get(), target_tuple, {0, false}, {undo_log});
+    ASSERT_FALSE(tuple.has_value());
+  }
+  {
+    fmt::println(stderr, "--- GenerateUndoLogTest: Update twice in a txn ---");
+    auto schema = ParseCreateStatement("a integer,b double,c boolean");
+    auto partial_schema = ParseCreateStatement("b double,c boolean");
+    auto base_tuple = Tuple{{Int(0), Double(0.0), Bool(true)}, schema.get()};
+    auto intermidiate_tuple = Tuple{{Int(0), Double(0.0), Bool(false)}, schema.get()};
+    auto undo_log = GenerateNewUndoLog(schema.get(), &base_tuple, &intermidiate_tuple, 0, {});
+    auto target_tuple = Tuple{{Int(0), Double(1.0), Bool(false)}, schema.get()};
+    auto updated_undo_log = GenerateUpdatedUndoLog(schema.get(), &intermidiate_tuple, &target_tuple, undo_log);
+
+    auto tuple = ReconstructTuple(schema.get(), target_tuple, {0, false}, {updated_undo_log});
+    ASSERT_TRUE(tuple.has_value());
+    ASSERT_TRUE(IsTupleContentEqual(*tuple, base_tuple));
+  }
+  {
+    fmt::println(stderr, "--- GenerateUndoLogTest: Update then delete in a txn ---");
+    auto schema = ParseCreateStatement("a integer,b double,c boolean");
+    auto partial_schema = ParseCreateStatement("b double,c boolean");
+    auto base_tuple = Tuple{{Int(0), Double(0.0), Bool(true)}, schema.get()};
+    auto target_tuple = Tuple{{Int(0), Double(1.0), Bool(false)}, schema.get()};
+    auto undo_log = GenerateNewUndoLog(schema.get(), &base_tuple, &target_tuple, 0, {});
+    auto updated_undo_log = GenerateUpdatedUndoLog(schema.get(), &target_tuple, nullptr, undo_log);
+
+    auto tuple = ReconstructTuple(schema.get(), target_tuple, {0, true}, {updated_undo_log});
+    ASSERT_TRUE(tuple.has_value());
+    ASSERT_TRUE(IsTupleContentEqual(*tuple, base_tuple));
+  }
+  {
+    // This case is only relevant after task 4.2, where an insert may happen on a tombstone.
+    // Before task 4.2, insert always generates a new tuple in table heap without any undo logs.
+    fmt::println(stderr, "--- GenerateUndoLogTest: Insert then update in a txn ---");
+    auto schema = ParseCreateStatement("a integer,b double,c boolean");
+    auto partial_schema = ParseCreateStatement("");
+    auto intermediate_tuple = Tuple{{Int(0), Double(0.0), Bool(false)}, schema.get()};
+    auto undo_log = GenerateNewUndoLog(schema.get(), nullptr, &intermediate_tuple, 0, {});
+    auto target_tuple = Tuple{{Int(0), Double(1.0), Bool(false)}, schema.get()};
+    auto updated_undo_log = GenerateUpdatedUndoLog(schema.get(), &intermediate_tuple, &target_tuple, undo_log);
+
+    auto tuple = ReconstructTuple(schema.get(), target_tuple, {0, false}, {updated_undo_log});
+    ASSERT_FALSE(tuple.has_value());
+  }
+  {
+    // This case is only relevant after task 4.2, where an insert may happen on a tombstone.
+    // Before task 4.2, insert always generates a new tuple in table heap without any undo logs.
+    fmt::println(stderr, "--- GenerateUndoLogTest: Insert then delete in a txn ---");
+    auto schema = ParseCreateStatement("a integer,b double,c boolean");
+    auto partial_schema = ParseCreateStatement("");
+    auto intermediate_tuple = Tuple{{Int(0), Double(0.0), Bool(false)}, schema.get()};
+    auto undo_log = GenerateNewUndoLog(schema.get(), nullptr, &intermediate_tuple, 0, {});
+    auto updated_undo_log = GenerateUpdatedUndoLog(schema.get(), &intermediate_tuple, nullptr, undo_log);
+
+    auto tuple = ReconstructTuple(schema.get(), intermediate_tuple, {0, true}, {updated_undo_log});
+    ASSERT_FALSE(tuple.has_value());
+  }
+  {
+    // This case is only relevant after task 4.2, where an insert may happen on a tombstone.
+    // Before task 4.2, insert always generates a new tuple in table heap without any undo logs.
+    fmt::println(stderr, "--- GenerateUndoLogTest: Delete then insert in a txn ---");
+    auto schema = ParseCreateStatement("a integer,b double,c boolean");
+    auto partial_schema = ParseCreateStatement("b double,c boolean");
+    auto base_tuple = Tuple{{Int(0), Double(0.0), Bool(true)}, schema.get()};
+    auto undo_log = GenerateNewUndoLog(schema.get(), &base_tuple, nullptr, 0, {});
+    auto target_tuple = Tuple{{Int(0), Double(1.0), Bool(false)}, schema.get()};
+    auto updated_undo_log = GenerateUpdatedUndoLog(schema.get(), &base_tuple, &target_tuple, undo_log);
+
+    auto tuple = ReconstructTuple(schema.get(), target_tuple, {0, false}, {updated_undo_log});
+    ASSERT_TRUE(tuple.has_value());
+    ASSERT_TRUE(IsTupleContentEqual(*tuple, base_tuple));
+  }
+}
+
 TEST(TxnExecutorTest, DISABLED_UpdateTest1) {  // NOLINT
   fmt::println(stderr, "--- UpdateTest1: no undo log ---");
   auto bustub = std::make_unique<BusTubInstance>();
