@@ -27,7 +27,7 @@ using bustub::DiskManagerUnlimitedMemory;
 /**
  * (Fall 2024) You should pass this test after finishing insertion and point search.
  */
-TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
+TEST(BPlusTreeTests, DISABLED_BasicScaleTest) {  // NOLINT
   // create KeyComparator and index schema
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
