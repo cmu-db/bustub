@@ -18,6 +18,12 @@ endif()
 if(EMSCRIPTEN)
         add_compile_options(-fexceptions)
         add_link_options(-fexceptions)
+
+        # Memory configuration
+        add_compile_options(-sALLOW_MEMORY_GROWTH=1)
+        add_compile_options(-sMAXIMUM_MEMORY=64MB)
+        add_link_options(-sALLOW_MEMORY_GROWTH=1)
+        add_link_options(-sMAXIMUM_MEMORY=64MB)
 endif()
 
 # People keep running CMake in the wrong folder, completely nuking their project or creating weird bugs.
