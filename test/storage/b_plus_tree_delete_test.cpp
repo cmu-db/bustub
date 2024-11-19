@@ -81,6 +81,13 @@ TEST(BPlusTreeTests, DISABLED_DeleteTestNoIterator) {
     }
   }
   EXPECT_EQ(size, 1);
+
+  // Remove the remaining key
+  index_key.SetFromInteger(2);
+  tree.Remove(index_key);
+  auto root_page_id = tree.GetRootPageId();
+  ASSERT_EQ(root_page_id, INVALID_PAGE_ID);
+
   delete bpm;
 }
 
