@@ -2,7 +2,7 @@
 //
 //                         BusTub
 //
-// transaction_manager.h
+// watermark.h
 //
 // Identification: src/include/concurrency/watermark.h
 //
