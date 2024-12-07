@@ -2443,8 +2443,8 @@ private:
         // If we have a valid elf handle, return the new elf handle
         // and file handle and discard the original ones
         if (debuglink_elf) {
-          elf_handle = move(debuglink_elf);
-          file_handle = move(debuglink_file);
+          elf_handle = std::move(debuglink_elf);
+          file_handle = std::move(debuglink_file);
         }
       }
     }
@@ -2466,9 +2466,9 @@ private:
 
     dwarf_handle.reset(dwarf_debug);
 
-    r.file_handle = move(file_handle);
-    r.elf_handle = move(elf_handle);
-    r.dwarf_handle = move(dwarf_handle);
+    r.file_handle = std::move(file_handle);
+    r.elf_handle = std::move(elf_handle);
+    r.dwarf_handle = std::move(dwarf_handle);
 
     return r;
   }
