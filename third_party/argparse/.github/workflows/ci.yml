@@ -16,7 +16,6 @@ jobs:
 
         toolchain:
           - macos-latest-clang
-          - macos-12-clang
           - ubuntu-latest-clang
           - ubuntu-latest-gcc
           - windows-2019-msvc
@@ -25,11 +24,6 @@ jobs:
 
         include:
           - toolchain: macos-latest-clang
-            os: macos-latest
-            c_compiler: clang
-            cxx_compiler: clang++
-
-          - toolchain: macos-12-clang
             os: macos-latest
             c_compiler: clang
             cxx_compiler: clang++
