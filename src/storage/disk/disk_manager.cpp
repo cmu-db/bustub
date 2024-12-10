@@ -31,15 +31,15 @@ static char *buffer_used;
  * Constructor: open/create a single database file & log file
  * @input db_file: database file name
  */
-DiskManager::DiskManager(const std::filesystem::path &db_file) : file_name_(db_file) {
-  log_name_ = file_name_.filename().stem().string() + ".log";
+DiskManager::DiskManager(const std::filesystem::path &db_file) : db_file_name_(db_file) {
+  log_file_name_ = db_file_name_.filename().stem().string() + ".log";
 
-  log_io_.open(log_name_, std::ios::binary | std::ios::in | std::ios::app | std::ios::out);
+  log_io_.open(log_file_name_, std::ios::binary | std::ios::in | std::ios::app | std::ios::out);
   // directory or file does not exist
   if (!log_io_.is_open()) {
     log_io_.clear();
     // create a new file
-    log_io_.open(log_name_, std::ios::binary | std::ios::trunc | std::ios::out | std::ios::in);
+    log_io_.open(log_file_name_, std::ios::binary | std::ios::trunc | std::ios::out | std::ios::in);
     if (!log_io_.is_open()) {
       throw Exception("can't open dblog file");
     }
@@ -59,7 +59,7 @@ DiskManager::DiskManager(const std::filesystem::path &db_file) : file_name_(db_f
 
   // Initialize the database file.
   std::filesystem::resize_file(db_file, (page_capacity_ + 1) * BUSTUB_PAGE_SIZE);
-  assert(static_cast<size_t>(GetFileSize(file_name_)) >= page_capacity_ * BUSTUB_PAGE_SIZE);
+  assert(static_cast<size_t>(GetFileSize(db_file_name_)) >= page_capacity_ * BUSTUB_PAGE_SIZE);
 
   buffer_used = nullptr;
 }
@@ -76,41 +76,29 @@ void DiskManager::ShutDown() {
 }
 
 /**
- * @brief Increases the size of the file to fit the specified number of pages.
- */
-void DiskManager::IncreaseDiskSpace(size_t pages) {
-  std::scoped_lock scoped_db_io_latch(db_io_latch_);
-
-  if (pages < pages_) {
-    return;
-  }
-
-  pages_ = pages;
-  while (page_capacity_ < pages_) {
-    page_capacity_ *= 2;
-  }
-
-  std::filesystem::resize_file(file_name_, (page_capacity_ + 1) * BUSTUB_PAGE_SIZE);
-
-  assert(static_cast<size_t>(GetFileSize(file_name_)) >= page_capacity_ * BUSTUB_PAGE_SIZE);
-}
-
-/**
  * Write the contents of the specified page into disk file
  */
 void DiskManager::WritePage(page_id_t page_id, const char *page_data) {
   std::scoped_lock scoped_db_io_latch(db_io_latch_);
-  size_t offset = static_cast<size_t>(page_id) * BUSTUB_PAGE_SIZE;
+  size_t offset;
+  if (pages_.find(page_id) != pages_.end()) {
+    // Page already exists, overwrite it.
+    offset = pages_[page_id];
+  } else {
+    // Page does not exist, allocate a new page. We use a free slot if available.
+    offset = AllocatePage();
+  }
 
   // Set the write cursor to the page offset.
-  num_writes_ += 1;
   db_io_.seekp(offset);
   db_io_.write(page_data, BUSTUB_PAGE_SIZE);
-
   if (db_io_.bad()) {
-    LOG_DEBUG("I/O error while writing");
+    LOG_DEBUG("I/O error while writing page %d", page_id);
     return;
   }
+
+  num_writes_ += 1;
+  pages_[page_id] = offset;
 
   // Flush the write to disk.
   db_io_.flush();
@@ -121,11 +109,22 @@ void DiskManager::WritePage(page_id_t page_id, const char *page_data) {
  */
 void DiskManager::ReadPage(page_id_t page_id, char *page_data) {
   std::scoped_lock scoped_db_io_latch(db_io_latch_);
-  int offset = page_id * BUSTUB_PAGE_SIZE;
+  size_t offset;
+  if (pages_.find(page_id) != pages_.end()) {
+    offset = pages_[page_id];
+  } else {
+    // Page does not exist, allocate a new page. We use a free slot if available.
+    offset = AllocatePage();
+  }
 
   // Check if we have read beyond the file length.
-  if (offset > GetFileSize(file_name_)) {
-    LOG_DEBUG("I/O error: Read past the end of file at offset %d", offset);
+  int file_size = GetFileSize(db_file_name_);
+  if (file_size < 0) {
+    LOG_DEBUG("I/O error: Fail to get db file size");
+    return;
+  }
+  if (offset > static_cast<size_t>(file_size)) {
+    LOG_DEBUG("I/O error: Read page %d past the end of file at offset %lu", page_id, offset);
     return;
   }
 
@@ -134,14 +133,14 @@ void DiskManager::ReadPage(page_id_t page_id, char *page_data) {
   db_io_.read(page_data, BUSTUB_PAGE_SIZE);
 
   if (db_io_.bad()) {
-    LOG_DEBUG("I/O error while reading");
+    LOG_DEBUG("I/O error while reading page %d", page_id);
     return;
   }
 
   // Check if the file ended before we could read a full page.
   int read_count = db_io_.gcount();
   if (read_count < BUSTUB_PAGE_SIZE) {
-    LOG_DEBUG("I/O error: Read hit the end of file at offset %d, missing %d bytes", offset,
+    LOG_DEBUG("I/O error: Read page %d hit the end of file at offset %lu, missing %d bytes", page_id, offset,
               BUSTUB_PAGE_SIZE - read_count);
     db_io_.clear();
     memset(page_data + read_count, 0, BUSTUB_PAGE_SIZE - read_count);
@@ -152,7 +151,17 @@ void DiskManager::ReadPage(page_id_t page_id, char *page_data) {
  * Note: This is a no-op for now without a more complex data structure to
  * track deallocated pages.
  */
-void DiskManager::DeletePage(page_id_t page_id) { num_deletes_ += 1; }
+void DiskManager::DeletePage(page_id_t page_id) {
+  std::scoped_lock scoped_db_io_latch(db_io_latch_);
+  if (pages_.find(page_id) == pages_.end()) {
+    return;
+  }
+
+  size_t offset = pages_[page_id];
+  free_slots_.push_back(offset);
+  pages_.erase(page_id);
+  num_deletes_ += 1;
+}
 
 /**
  * Write the contents of the log into disk file
@@ -194,7 +203,7 @@ void DiskManager::WriteLog(char *log_data, int size) {
  * @return: false means already reach the end
  */
 auto DiskManager::ReadLog(char *log_data, int size, int offset) -> bool {
-  if (offset >= GetFileSize(log_name_)) {
+  if (offset >= GetFileSize(log_file_name_)) {
     // LOG_DEBUG("end of log file");
     // LOG_DEBUG("file size is %d", GetFileSize(log_name_));
     return false;
@@ -243,6 +252,22 @@ auto DiskManager::GetFileSize(const std::string &file_name) -> int {
   struct stat stat_buf;
   int rc = stat(file_name.c_str(), &stat_buf);
   return rc == 0 ? static_cast<int>(stat_buf.st_size) : -1;
+}
+
+auto DiskManager::AllocatePage() -> size_t {
+  // Find if there is a free slot in the file.
+  if (!free_slots_.empty()) {
+    auto offset = free_slots_.back();
+    free_slots_.pop_back();
+    return offset;
+  }
+
+  // Increase the file size if necessary.
+  if (pages_.size() + 1 >= page_capacity_) {
+    page_capacity_ *= 2;
+    std::filesystem::resize_file(db_file_name_, (page_capacity_ + 1) * BUSTUB_PAGE_SIZE);
+  }
+  return pages_.size() * BUSTUB_PAGE_SIZE;
 }
 
 }  // namespace bustub
