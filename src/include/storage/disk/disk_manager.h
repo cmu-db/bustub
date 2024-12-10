@@ -18,21 +18,24 @@
 #include <future>  // NOLINT
 #include <mutex>   // NOLINT
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "common/config.h"
+#include "common/logger.h"
 
 namespace bustub {
 
 /**
  * DiskManager takes care of the allocation and deallocation of pages within a database. It performs the reading and
  * writing of pages to and from disk, providing a logical file layer within the context of a database management system.
+ *
+ * DiskManager uses lazy allocation, meaning that it only allocates space on disk when it is first accessed. It
+ * maintains a mapping of page ids to their corresponding offsets in the database file. When a page is deleted, it is
+ * marked as free and can be reused by future allocations.
  */
 class DiskManager {
  public:
-  /**
-   * Creates a new disk manager that writes to the specified database file.
-   * @param db_file the file name of the database file to write to
-   */
   explicit DiskManager(const std::filesystem::path &db_file);
 
   /** FOR TEST / LEADERBOARD ONLY, used by DiskManagerMemory */
@@ -40,19 +43,7 @@ class DiskManager {
 
   virtual ~DiskManager() = default;
 
-  /**
-   * Shut down the disk manager and close all the file resources.
-   */
   void ShutDown();
-
-  /**
-   * @brief Increases the size of the database file.
-   *
-   * This function works like a dynamic array, where the capacity is doubled until all pages can fit.
-   *
-   * @param pages The number of pages the caller wants the file used for storage to support.
-   */
-  virtual void IncreaseDiskSpace(size_t pages);
 
   /**
    * Write a page to the database file.
@@ -74,32 +65,16 @@ class DiskManager {
    */
   virtual void DeletePage(page_id_t page_id);
 
-  /**
-   * Flush the entire log buffer into disk.
-   * @param log_data raw log data
-   * @param size size of log entry
-   */
   void WriteLog(char *log_data, int size);
 
-  /**
-   * Read a log entry from the log file.
-   * @param[out] log_data output buffer
-   * @param size size of the log entry
-   * @param offset offset of the log entry in the file
-   * @return true if the read was successful, false otherwise
-   */
   auto ReadLog(char *log_data, int size, int offset) -> bool;
 
-  /** @return the number of disk flushes */
   auto GetNumFlushes() const -> int;
 
-  /** @return true iff the in-memory content has not been flushed yet */
   auto GetFlushState() const -> bool;
 
-  /** @return the number of disk writes */
   auto GetNumWrites() const -> int;
 
-  /** @return the number of deletions */
   auto GetNumDeletes() const -> int;
 
   /**
@@ -112,28 +87,47 @@ class DiskManager {
   inline auto HasFlushLogFuture() -> bool { return flush_log_f_ != nullptr; }
 
   /** @brief returns the log file name */
-  inline auto GetLogFileName() const -> std::filesystem::path { return log_name_; }
+  inline auto GetLogFileName() const -> std::filesystem::path { return log_file_name_; }
+
+  /** @brief returns the size of disk space in use */
+  auto GetDbFileSize() -> size_t {
+    auto file_size = GetFileSize(db_file_name_);
+    if (file_size < 0) {
+      LOG_DEBUG("I/O error: Fail to get db file size");
+      return -1;
+    }
+    return static_cast<size_t>(file_size);
+  }
 
  protected:
-  auto GetFileSize(const std::string &file_name) -> int;
-  // stream to write log file
-  std::fstream log_io_;
-  std::filesystem::path log_name_;
-  // stream to write db file
-  std::fstream db_io_;
-  std::filesystem::path file_name_;
   int num_flushes_{0};
   int num_writes_{0};
   int num_deletes_{0};
+
+  /** @brief The capacity of the file used for storage on disk. */
+  size_t page_capacity_{DEFAULT_DB_IO_SIZE};
+
+ private:
+  auto GetFileSize(const std::string &file_name) -> int;
+
+  auto AllocatePage() -> size_t;
+
+  // stream to write log file
+  std::fstream log_io_;
+  std::filesystem::path log_file_name_;
+  // stream to write db file
+  std::fstream db_io_;
+  std::filesystem::path db_file_name_;
+
+  // Records the offset of each page in the db file.
+  std::unordered_map<page_id_t, size_t> pages_;
+  // Records the free slots in the db file if pages are deleted, indicated by offset.
+  std::vector<size_t> free_slots_;
+
   bool flush_log_{false};
   std::future<void> *flush_log_f_{nullptr};
   // With multiple buffer pool instances, need to protect file access
   std::mutex db_io_latch_;
-
-  /** @brief The number of pages allocated to the DBMS on disk. */
-  size_t pages_{0};
-  /** @brief The capacity of the file used for storage on disk. */
-  size_t page_capacity_{DEFAULT_DB_IO_SIZE};
 };
 
 }  // namespace bustub
