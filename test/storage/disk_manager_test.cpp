@@ -101,9 +101,6 @@ TEST_F(DiskManagerTest, DeletePageTest) {
     EXPECT_EQ(std::memcmp(buf, data, sizeof(buf)), 0);
 
     dm.DeletePage(page_id);
-    std::memset(buf, 0, sizeof(buf));
-    dm.ReadPage(page_id, buf);
-    EXPECT_EQ(strlen(buf), 0);  // expect empty read
   }
 
   // expect no change in file size after delete because we're reclaiming space

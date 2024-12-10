@@ -128,6 +128,8 @@ void DiskManager::ReadPage(page_id_t page_id, char *page_data) {
     return;
   }
 
+  pages_[page_id] = offset;
+
   // Set the read cursor to the page offset.
   db_io_.seekg(offset);
   db_io_.read(page_data, BUSTUB_PAGE_SIZE);
