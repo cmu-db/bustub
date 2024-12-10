@@ -87,9 +87,6 @@ void DiskManagerUnlimitedMemory::WritePage(page_id_t page_id, const char *page_d
   memcpy(ptr->first.data(), page_data, BUSTUB_PAGE_SIZE);
   num_writes_ += 1;
 
-  std::cout << "WritePage: " << page_id << std::endl;
-  std::cout << "after write, data size: " << data_.size() << std::endl;
-
   PostProcessLatency(page_id);
 }
 
