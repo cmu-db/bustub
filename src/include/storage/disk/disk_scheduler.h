@@ -69,15 +69,6 @@ class DiskScheduler {
   auto CreatePromise() -> DiskSchedulerPromise { return {}; };
 
   /**
-   * @brief Increases the size of the database file to fit the specified number of pages.
-   *
-   * This function works like a dynamic array, where the capacity is doubled until all pages can fit.
-   *
-   * @param pages The number of pages the caller wants the file used for storage to support.
-   */
-  void IncreaseDiskSpace(size_t pages) { disk_manager_->IncreaseDiskSpace(pages); }
-
-  /**
    * @brief Deallocates a page on disk.
    *
    * Note: You should look at the documentation for `DeletePage` in `BufferPoolManager` before using this method.
