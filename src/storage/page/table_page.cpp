@@ -68,6 +68,29 @@ void TablePage::UpdateTupleMeta(const TupleMeta &meta, const RID &rid) {
   tuple_info_[tuple_id] = std::make_tuple(offset, size, meta);
 }
 
+void TablePage::UpdateTupleMetaTs(timestamp_t ts, const RID &rid) {
+  auto tuple_id = rid.GetSlotNum();
+  if (tuple_id >= num_tuples_) {
+    throw bustub::Exception("Tuple ID out of range");
+  }
+  auto &[offset, size, old_meta] = tuple_info_[tuple_id];
+  TupleMeta new_meta = {ts, old_meta.is_deleted_};
+  tuple_info_[tuple_id] = std::make_tuple(offset, size, new_meta);
+}
+
+void TablePage::UpdateTupleMetaIsDeleted(bool is_deleted, const RID &rid) {
+  auto tuple_id = rid.GetSlotNum();
+  if (tuple_id >= num_tuples_) {
+    throw bustub::Exception("Tuple ID out of range");
+  }
+  auto &[offset, size, old_meta] = tuple_info_[tuple_id];
+  if (!old_meta.is_deleted_ && is_deleted) {
+    num_deleted_tuples_++;
+  }
+  TupleMeta new_meta = {old_meta.ts_, is_deleted};
+  tuple_info_[tuple_id] = std::make_tuple(offset, size, new_meta);
+}
+
 auto TablePage::GetTuple(const RID &rid) const -> std::pair<TupleMeta, Tuple> {
   auto tuple_id = rid.GetSlotNum();
   if (tuple_id >= num_tuples_) {

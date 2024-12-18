@@ -81,6 +81,16 @@ class TablePage {
   void UpdateTupleMeta(const TupleMeta &meta, const RID &rid);
 
   /**
+   * Update timestamp of the meta of a tuple.
+   */
+  void UpdateTupleMetaTs(timestamp_t ts, const RID &rid);
+
+  /**
+   * Update is_deleted of the meta of a tuple.
+   */
+  void UpdateTupleMetaIsDeleted(bool is_deleted, const RID &rid);
+
+  /**
    * Read a tuple from a table.
    */
   auto GetTuple(const RID &rid) const -> std::pair<TupleMeta, Tuple>;

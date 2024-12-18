@@ -65,6 +65,20 @@ class TableHeap {
   void UpdateTupleMeta(const TupleMeta &meta, RID rid);
 
   /**
+   * Update timestamp of the meta of a tuple.
+   * @param ts new timestamp of meta
+   * @param rid the rid of the inserted tuple
+   */
+  void UpdateTupleMetaTs(timestamp_t ts, RID rid);
+
+  /**
+   * Update is_deleted of the meta of a tuple.
+   * @param is_deleted new is_deleted
+   * @param rid the rid of the inserted tuple
+   */
+  void UpdateTupleMetaIsDelete(bool is_deleted, RID rid);
+
+  /**
    * Read a tuple from the table.
    * @param rid rid of the tuple to read
    * @return the meta and tuple

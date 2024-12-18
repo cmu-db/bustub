@@ -93,6 +93,18 @@ void TableHeap::UpdateTupleMeta(const TupleMeta &meta, RID rid) {
   page->UpdateTupleMeta(meta, rid);
 }
 
+void TableHeap::UpdateTupleMetaTs(timestamp_t ts, RID rid) {
+  auto page_guard = bpm_->WritePage(rid.GetPageId());
+  auto page = page_guard.AsMut<TablePage>();
+  page->UpdateTupleMetaTs(ts, rid);
+}
+
+void TableHeap::UpdateTupleMetaIsDelete(bool is_deleted, RID rid) {
+  auto page_guard = bpm_->WritePage(rid.GetPageId());
+  auto page = page_guard.AsMut<TablePage>();
+  page->UpdateTupleMetaIsDeleted(is_deleted, rid);
+}
+
 auto TableHeap::GetTuple(RID rid) -> std::pair<TupleMeta, Tuple> {
   auto page_guard = bpm_->ReadPage(rid.GetPageId());
   auto page = page_guard.As<TablePage>();
