@@ -35,12 +35,6 @@ jobs:
               tidy: "/usr/bin/clang-tidy-14",
             }
           - {
-              name: "macOS 12 (Monterey) AppleClang",
-              os: macos-12,
-              format: "/usr/local/opt/llvm@14/bin/clang-format",
-              tidy: "/usr/local/opt/llvm@14/bin/clang-tidy",
-            }
-          - {
               name: "macOS 13 (Ventura) AppleClang",
               os: macos-13,
               format: "/usr/local/opt/llvm@14/bin/clang-format",
