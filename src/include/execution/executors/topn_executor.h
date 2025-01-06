@@ -29,22 +29,10 @@ namespace bustub {
  */
 class TopNExecutor : public AbstractExecutor {
  public:
-  /**
-   * Construct a new TopNExecutor instance.
-   * @param exec_ctx The executor context
-   * @param plan The TopN plan to be executed
-   */
   TopNExecutor(ExecutorContext *exec_ctx, const TopNPlanNode *plan, std::unique_ptr<AbstractExecutor> &&child_executor);
 
-  /** Initialize the TopN */
   void Init() override;
 
-  /**
-   * Yield the next tuple from the TopN.
-   * @param[out] tuple The next tuple produced by the TopN
-   * @param[out] rid The next tuple RID produced by the TopN
-   * @return `true` if a tuple was produced, `false` if there are no more tuples
-   */
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the TopN */

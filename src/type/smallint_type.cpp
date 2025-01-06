@@ -254,6 +254,9 @@ auto SmallintType::CompareGreaterThanEquals(const Value &left, const Value &righ
   throw Exception("type error");
 }
 
+/**
+ * Debug
+ */
 auto SmallintType::ToString(const Value &val) const -> std::string {
   assert(val.CheckInteger());
   switch (val.GetTypeId()) {
@@ -283,16 +286,24 @@ auto SmallintType::ToString(const Value &val) const -> std::string {
   throw Exception("type error");
 }
 
+/**
+ * Serialize this value into the given storage space
+ */
 void SmallintType::SerializeTo(const Value &val, char *storage) const {
   *reinterpret_cast<int16_t *>(storage) = val.value_.smallint_;
 }
 
-// Deserialize a value of the given type from the given storage space.
+/**
+ * Deserialize a value of the given type from the given storage space.
+ */
 auto SmallintType::DeserializeFrom(const char *storage) const -> Value {
   int16_t val = *reinterpret_cast<const int16_t *>(storage);
   return {type_id_, val};
 }
 
+/**
+ * Create a copy of this value
+ */
 auto SmallintType::Copy(const Value &val) const -> Value {
   assert(val.CheckInteger());
 

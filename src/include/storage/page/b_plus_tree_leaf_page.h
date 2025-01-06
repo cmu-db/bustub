@@ -53,11 +53,6 @@ class BPlusTreeLeafPage : public BPlusTreePage {
   BPlusTreeLeafPage() = delete;
   BPlusTreeLeafPage(const BPlusTreeLeafPage &other) = delete;
 
-  /**
-   * After creating a new leaf page from buffer pool, must call initialize
-   * method to set default values
-   * @param max_size Max size of the leaf node
-   */
   void Init(int max_size = LEAF_PAGE_SLOT_CNT);
 
   // Helper methods

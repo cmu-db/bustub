@@ -62,10 +62,8 @@ class Tuple {
 
   static auto Empty() -> Tuple { return Tuple{RID{INVALID_PAGE_ID, 0}}; }
 
-  // constructor for creating a new tuple based on input value
   Tuple(std::vector<Value> values, const Schema *schema);
 
-  // constructor for creating a new tuple by copying fron existing bytes
   Tuple(RID rid, const char *data, uint32_t size);
 
   Tuple(const Tuple &other) = default;
@@ -79,10 +77,8 @@ class Tuple {
   // move assignment
   auto operator=(Tuple &&other) noexcept -> Tuple & = default;
 
-  // serialize tuple data
   void SerializeTo(char *storage) const;
 
-  // deserialize tuple data(deep copy)
   void DeserializeFrom(const char *storage);
 
   // return RID of current tuple
@@ -97,11 +93,8 @@ class Tuple {
   // Get length of the tuple, including varchar length
   inline auto GetLength() const -> uint32_t { return data_.size(); }
 
-  // Get the value of a specified column (const)
-  // checks the schema to see how to return the Value.
   auto GetValue(const Schema *schema, uint32_t column_idx) const -> Value;
 
-  // Generates a key tuple given schemas and attributes
   auto KeyFromTuple(const Schema &schema, const Schema &key_schema, const std::vector<uint32_t> &key_attrs) const
       -> Tuple;
 
@@ -116,7 +109,6 @@ class Tuple {
   friend inline auto IsTupleContentEqual(const Tuple &a, const Tuple &b) { return a.data_ == b.data_; }
 
  private:
-  // Get the starting storage address of specific column
   auto GetDataPtr(const Schema *schema, uint32_t column_idx) const -> const char *;
 
   RID rid_{};  // if pointing to the table heap, the rid is valid

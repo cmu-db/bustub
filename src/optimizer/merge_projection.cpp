@@ -9,6 +9,11 @@
 
 namespace bustub {
 
+/**
+ * @brief merge projections that do identical project.
+ * Identical projection might be produced when there's `SELECT *`, aggregation, or when we need to rename the columns
+ * in the planner. We merge these projections so as to make execution faster.
+ */
 auto Optimizer::OptimizeMergeProjection(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {
   std::vector<AbstractPlanNodeRef> children;
   for (const auto &child : plan->GetChildren()) {

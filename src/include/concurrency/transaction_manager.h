@@ -39,50 +39,24 @@ class TransactionManager {
   TransactionManager() = default;
   ~TransactionManager() = default;
 
-  /**
-   * Begins a new transaction.
-   * @param isolation_level an optional isolation level of the transaction.
-   * @return an initialized transaction
-   */
   auto Begin(IsolationLevel isolation_level = IsolationLevel::SNAPSHOT_ISOLATION) -> Transaction *;
 
-  /**
-   * Commits a transaction.
-   * @param txn the transaction to commit, the txn will be managed by the txn manager so no need to delete it by
-   * yourself
-   */
   auto Commit(Transaction *txn) -> bool;
 
-  /**
-   * Aborts a transaction
-   * @param txn the transaction to abort, the txn will be managed by the txn manager so no need to delete it by yourself
-   */
   void Abort(Transaction *txn);
 
-  /**
-   * @brief Update an undo link that links table heap tuple to the first undo log.
-   * Before updating, `check` function will be called to ensure validity.
-   */
   auto UpdateUndoLink(RID rid, std::optional<UndoLink> prev_link,
                       std::function<bool(std::optional<UndoLink>)> &&check = nullptr) -> bool;
 
-  /** @brief Get the first undo log of a table heap tuple. */
   auto GetUndoLink(RID rid) -> std::optional<UndoLink>;
 
-  /** @brief Access the transaction undo log buffer and get the undo log. Return nullopt if the txn does not exist. Will
-   * still throw an exception if the index is out of range. */
   auto GetUndoLogOptional(UndoLink link) -> std::optional<UndoLog>;
 
-  /** @brief Access the transaction undo log buffer and get the undo log. Except when accessing the current txn buffer,
-   * you should always call this function to get the undo log instead of manually retrieve the txn shared_ptr and access
-   * the buffer. */
   auto GetUndoLog(UndoLink link) -> UndoLog;
 
   /** @brief Get the lowest read timestamp in the system. */
   auto GetWatermark() -> timestamp_t { return running_txns_.GetWatermark(); }
 
-  /** @brief Stop-the-world garbage collection. Will be called only when all transactions are not accessing the table
-   * heap. */
   void GarbageCollection();
 
   /** protects txn map */
@@ -119,8 +93,6 @@ class TransactionManager {
   std::atomic<txn_id_t> next_txn_id_{TXN_START_ID};
 
  private:
-  /** @brief Verify if a txn satisfies serializability. We will not test this function and you can change / remove it as
-   * you want. */
   auto VerifyTxn(Transaction *txn) -> bool;
 };
 

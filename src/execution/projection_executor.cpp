@@ -3,15 +3,27 @@
 
 namespace bustub {
 
+/**
+ * Construct a new ProjectionExecutor instance.
+ * @param exec_ctx The executor context
+ * @param plan The projection plan to be executed
+ */
 ProjectionExecutor::ProjectionExecutor(ExecutorContext *exec_ctx, const ProjectionPlanNode *plan,
                                        std::unique_ptr<AbstractExecutor> &&child_executor)
     : AbstractExecutor(exec_ctx), plan_(plan), child_executor_(std::move(child_executor)) {}
 
+/** Initialize the projection */
 void ProjectionExecutor::Init() {
   // Initialize the child executor
   child_executor_->Init();
 }
 
+/**
+ * Yield the next tuple from the projection.
+ * @param[out] tuple The next tuple produced by the projection
+ * @param[out] rid The next tuple RID produced by the projection
+ * @return `true` if a tuple was produced, `false` if there are no more tuples
+ */
 auto ProjectionExecutor::Next(Tuple *tuple, RID *rid) -> bool {
   Tuple child_tuple{};
 

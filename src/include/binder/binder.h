@@ -91,27 +91,18 @@ class Binder {
  public:
   explicit Binder(const Catalog &catalog);
 
-  /** Attempts to parse a query into a series of SQL statements. The parsed statements
-   * will be stored in the `statements_nodes_` variable.
-   */
   void ParseAndSave(const std::string &query);
 
-  /** Return true if the given text matches a keyword of the parser. */
   static auto IsKeyword(const std::string &text) -> bool;
 
-  /** Return a list of all keywords in the parser. */
   static auto KeywordList() -> std::vector<ParserKeyword>;
 
-  /** Tokenize a query, returning the raw tokens together with their locations. */
   static auto Tokenize(const std::string &query) -> std::vector<SimplifiedToken>;
 
-  /** Transform a Postgres parse tree into a std::vector of SQL Statements. */
   void SaveParseTree(duckdb_libpgquery::PGList *tree);
 
-  /** Transform a Postgres statement into a single SQL statement. */
   auto BindStatement(duckdb_libpgquery::PGNode *stmt) -> std::unique_ptr<BoundStatement>;
 
-  /** Get the std::string representation of a Postgres node tag. */
   static auto NodeTagToString(duckdb_libpgquery::PGNodeTag type) -> std::string;
 
   static auto WindowBoundaryToString(WindowBoundary wb) -> std::string;

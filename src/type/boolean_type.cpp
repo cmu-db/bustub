@@ -74,6 +74,9 @@ auto BooleanType::CompareGreaterThanEquals(const Value &left, const Value &right
   return BOOLEAN_COMPARE_FUNC(>=);  // NOLINT
 }
 
+/**
+ * Debug
+ */
 auto BooleanType::ToString(const Value &val) const -> std::string {
   assert(GetTypeId() == TypeId::BOOLEAN);
   if (val.value_.boolean_ == 1) {
@@ -85,16 +88,24 @@ auto BooleanType::ToString(const Value &val) const -> std::string {
   return "boolean_null";
 }
 
+/**
+ * Serialize this value into the given storage space
+ */
 void BooleanType::SerializeTo(const Value &val, char *storage) const {
   *reinterpret_cast<int8_t *>(storage) = val.value_.boolean_;
 }
 
-// Deserialize a value of the given type from the given storage space.
+/**
+ * Deserialize a value of the given type from the given storage space.
+ */
 auto BooleanType::DeserializeFrom(const char *storage) const -> Value {
   int8_t val = *reinterpret_cast<const int8_t *>(storage);
   return {TypeId::BOOLEAN, val};
 }
 
+/**
+ * Create a copy of this value
+ */
 auto BooleanType::Copy(const Value &val) const -> Value { return {TypeId::BOOLEAN, val.value_.boolean_}; }
 
 auto BooleanType::CastAs(const Value &val, const TypeId type_id) const -> Value {

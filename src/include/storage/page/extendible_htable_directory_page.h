@@ -48,43 +48,14 @@ class ExtendibleHTableDirectoryPage {
   ExtendibleHTableDirectoryPage() = delete;
   DISALLOW_COPY_AND_MOVE(ExtendibleHTableDirectoryPage);
 
-  /**
-   * After creating a new directory page from buffer pool, must call initialize
-   * method to set default values
-   * @param max_depth Max depth in the directory page
-   */
   void Init(uint32_t max_depth = HTABLE_DIRECTORY_MAX_DEPTH);
 
-  /**
-   * Get the bucket index that the key is hashed to
-   *
-   * @param hash the hash of the key
-   * @return bucket index current key is hashed to
-   */
   auto HashToBucketIndex(uint32_t hash) const -> uint32_t;
 
-  /**
-   * Lookup a bucket page using a directory index
-   *
-   * @param bucket_idx the index in the directory to lookup
-   * @return bucket page_id corresponding to bucket_idx
-   */
   auto GetBucketPageId(uint32_t bucket_idx) const -> page_id_t;
 
-  /**
-   * Updates the directory index using a bucket index and page_id
-   *
-   * @param bucket_idx directory index at which to insert page_id
-   * @param bucket_page_id page_id to insert
-   */
   void SetBucketPageId(uint32_t bucket_idx, page_id_t bucket_page_id);
 
-  /**
-   * Gets the split image of an index
-   *
-   * @param bucket_idx the directory index for which to find the split image
-   * @return the directory index of the split image
-   **/
   auto GetSplitImageIndex(uint32_t bucket_idx) const -> uint32_t;
 
   /**
@@ -112,33 +83,16 @@ class ExtendibleHTableDirectoryPage {
    */
   auto GetLocalDepthMask(uint32_t bucket_idx) const -> uint32_t;
 
-  /**
-   * Get the global depth of the hash table directory
-   *
-   * @return the global depth of the directory
-   */
   auto GetGlobalDepth() const -> uint32_t;
 
   auto GetMaxDepth() const -> uint32_t;
 
-  /**
-   * Increment the global depth of the directory
-   */
   void IncrGlobalDepth();
 
-  /**
-   * Decrement the global depth of the directory
-   */
   void DecrGlobalDepth();
 
-  /**
-   * @return true if the directory can be shrunk
-   */
   auto CanShrink() -> bool;
 
-  /**
-   * @return the current directory size
-   */
   auto Size() const -> uint32_t;
 
   /**
@@ -146,32 +100,12 @@ class ExtendibleHTableDirectoryPage {
    */
   auto MaxSize() const -> uint32_t;
 
-  /**
-   * Gets the local depth of the bucket at bucket_idx
-   *
-   * @param bucket_idx the bucket index to lookup
-   * @return the local depth of the bucket at bucket_idx
-   */
   auto GetLocalDepth(uint32_t bucket_idx) const -> uint32_t;
 
-  /**
-   * Set the local depth of the bucket at bucket_idx to local_depth
-   *
-   * @param bucket_idx bucket index to update
-   * @param local_depth new local depth
-   */
   void SetLocalDepth(uint32_t bucket_idx, uint8_t local_depth);
 
-  /**
-   * Increment the local depth of the bucket at bucket_idx
-   * @param bucket_idx bucket index to increment
-   */
   void IncrLocalDepth(uint32_t bucket_idx);
 
-  /**
-   * Decrement the local depth of the bucket at bucket_idx
-   * @param bucket_idx bucket index to decrement
-   */
   void DecrLocalDepth(uint32_t bucket_idx);
 
   /**

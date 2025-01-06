@@ -21,6 +21,13 @@ auto Optimizer::Optimize(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef
   return OptimizeCustom(plan);
 }
 
+/**
+ * @brief get the estimated cardinality for a table based on the table name. Useful when join reordering. BusTub
+ * doesn't support statistics for now, so it's the only way for you to get the table size :(
+ *
+ * @param table_name
+ * @return std::optional<size_t>
+ */
 auto Optimizer::EstimatedCardinality(const std::string &table_name) -> std::optional<size_t> {
   if (StringUtil::EndsWith(table_name, "_1m")) {
     return std::make_optional(1000000);

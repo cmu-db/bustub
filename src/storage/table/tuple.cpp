@@ -22,6 +22,9 @@
 namespace bustub {
 
 // TODO(Amadou): It does not look like nulls are supported. Add a null bitmap?
+/**
+ * constructor for creating a new tuple based on input value
+ */
 Tuple::Tuple(std::vector<Value> values, const Schema *schema) {
   assert(values.size() == schema->GetColumnCount());
 
@@ -61,12 +64,19 @@ Tuple::Tuple(std::vector<Value> values, const Schema *schema) {
   }
 }
 
+/**
+ * constructor for creating a new tuple by copying fron existing bytes
+ */
 Tuple::Tuple(RID rid, const char *data, uint32_t size) {
   rid_ = rid;
   data_.resize(size);
   memcpy(data_.data(), data, size);
 }
 
+/**
+ * Get the value of a specified column (const)
+ * checks the schema to see how to return the Value.
+ */
 auto Tuple::GetValue(const Schema *schema, const uint32_t column_idx) const -> Value {
   assert(schema);
   const TypeId column_type = schema->GetColumn(column_idx).GetType();
@@ -75,6 +85,9 @@ auto Tuple::GetValue(const Schema *schema, const uint32_t column_idx) const -> V
   return Value::DeserializeFrom(data_ptr, column_type);
 }
 
+/**
+ * Generates a key tuple given schemas and attributes
+ */
 auto Tuple::KeyFromTuple(const Schema &schema, const Schema &key_schema, const std::vector<uint32_t> &key_attrs) const
     -> Tuple {
   std::vector<Value> values;
@@ -85,6 +98,9 @@ auto Tuple::KeyFromTuple(const Schema &schema, const Schema &key_schema, const s
   return {values, &key_schema};
 }
 
+/**
+ * Get the starting storage address of specific column
+ */
 auto Tuple::GetDataPtr(const Schema *schema, const uint32_t column_idx) const -> const char * {
   assert(schema);
   const auto &col = schema->GetColumn(column_idx);
@@ -123,12 +139,18 @@ auto Tuple::ToString(const Schema *schema) const -> std::string {
   return os.str();
 }
 
+/**
+ * serialize tuple data
+ */
 void Tuple::SerializeTo(char *storage) const {
   int32_t sz = data_.size();
   memcpy(storage, &sz, sizeof(int32_t));
   memcpy(storage + sizeof(int32_t), data_.data(), sz);
 }
 
+/**
+ * deserialize tuple data(deep copy)
+ */
 void Tuple::DeserializeFrom(const char *storage) {
   uint32_t size = *reinterpret_cast<const uint32_t *>(storage);
   this->data_.resize(size);

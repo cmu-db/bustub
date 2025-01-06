@@ -26,24 +26,10 @@ namespace bustub {
  */
 class InitCheckExecutor : public AbstractExecutor {
  public:
-  /**
-   * Construct a new InitCheckExecutor instance.
-   * @param exec_ctx The executor context
-   * @param plan The init check plan to be executed
-   * @param child_executor The child executor from which init calls are counted
-   */
   InitCheckExecutor(ExecutorContext *exec_ctx, AbstractPlanNodeRef plan,
                     std::unique_ptr<AbstractExecutor> &&child_executor);
 
-  /** Initialize the InitCheck */
   void Init() override;
-
-  /**
-   * Yield the next tuple from the child executor.
-   * @param[out] tuple The next tuple produced by the child executor
-   * @param[out] rid The next tuple RID produced by the child executor
-   * @return `true` if a tuple was produced, `false` if there are no more tuples
-   */
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the child executor */

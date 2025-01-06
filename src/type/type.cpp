@@ -37,7 +37,9 @@ Type *Type::k_types[] = {new Type(TypeId::INVALID),
                          new TimestampType(),
                          new VectorType()};
 
-// Get the size of this data type in bytes
+/**
+ * Get the size of this data type in bytes
+ */
 auto Type::GetTypeSize(const TypeId type_id) -> uint64_t {
   switch (type_id) {
     case BOOLEAN:
@@ -59,6 +61,9 @@ auto Type::GetTypeSize(const TypeId type_id) -> uint64_t {
   throw Exception(ExceptionType::UNKNOWN_TYPE, "Unknown type.");
 }
 
+/**
+ * Is this type coercable from the other type
+ */
 auto Type::IsCoercableFrom(const TypeId type_id) const -> bool {
   switch (type_id_) {
     case INVALID:
@@ -104,6 +109,9 @@ auto Type::IsCoercableFrom(const TypeId type_id) const -> bool {
   }  // END SWITCH
 }
 
+/**
+ * Debug info
+ */
 auto Type::TypeIdToString(const TypeId type_id) -> std::string {
   switch (type_id) {
     case INVALID:
@@ -251,32 +259,40 @@ auto Type::OperateNull(const Value &val __attribute__((unused)), const Value &ri
 auto Type::IsZero(const Value &val __attribute__((unused))) const -> bool {
   throw NotImplementedException("isZero not implemented");
 }
-// Is the data inlined into this classes storage space, or must it be accessed
-// through an indirection/pointer?
+/**
+ * Is the data inlined into this classes storage space, or must it be accessed
+ * through an indirection/pointer?
+ */
 auto Type::IsInlined(const Value &val __attribute__((unused))) const -> bool {
   throw NotImplementedException("IsLined not implemented");
 }
 
-// Return a stringified version of this value
+/** Return a stringified version of this value*/
 auto Type::ToString(const Value &val __attribute__((unused))) const -> std::string {
   throw NotImplementedException("ToString not implemented");
 }
 
-// Serialize this value into the given storage space. The inlined parameter
-// indicates whether we are allowed to inline this value into the storage
-// space, or whether we must store only a reference to this value. If inlined
-// is false, we may use the provided data pool to allocate space for this
-// value, storing a reference into the allocated pool space in the storage.
+/**
+ * Serialize this value into the given storage space. The inlined parameter
+ * indicates whether we are allowed to inline this value into the storage
+ * space, or whether we must store only a reference to this value. If inlined
+ * is false, we may use the provided data pool to allocate space for this
+ * value, storing a reference into the allocated pool space in the storage.
+ */
 void Type::SerializeTo(const Value &val __attribute__((unused)), char *storage __attribute__((unused))) const {
   throw NotImplementedException("SerializeTo not implemented");
 }
 
-// Deserialize a value of the given type from the given storage space.
+/**
+ * Deserialize a value of the given type from the given storage space.
+ */
 auto Type::DeserializeFrom(const char *storage __attribute__((unused))) const -> Value {
   throw NotImplementedException("DeserializeFrom not implemented");
 }
 
-// Create a copy of this value
+/**
+ * Create a copy of this value
+ */
 auto Type::Copy(const Value &val __attribute__((unused))) const -> Value {
   throw NotImplementedException("Copy not implemented");
 }
@@ -286,12 +302,16 @@ auto Type::CastAs(const Value &val __attribute__((unused)), const TypeId type_id
   throw NotImplementedException("CastAs not implemented");
 }
 
-// Access the raw variable length data
+/**
+ * Access the raw variable length data
+ */
 auto Type::GetData(const Value &val __attribute__((unused))) const -> const char * {
   throw NotImplementedException("GetData from value not implemented");
 }
 
-// Get the length of the variable length data
+/**
+ * Get the length of the variable length data
+ */
 auto Type::GetStorageSize(const Value &val __attribute__((unused))) const -> uint32_t {
   throw NotImplementedException("GetStorageSize not implemented");
 }

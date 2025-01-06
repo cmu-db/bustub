@@ -26,24 +26,10 @@ namespace bustub {
  */
 class TopNCheckExecutor : public AbstractExecutor {
  public:
-  /**
-   * Construct a new TopNCheckExecutor instance.
-   * @param exec_ctx The executor context
-   * @param plan The TopN plan to be executed
-   * @param child_executor The TopN child executor
-   */
   TopNCheckExecutor(ExecutorContext *exec_ctx, const TopNPlanNode *plan,
                     std::unique_ptr<AbstractExecutor> &&child_executor, TopNExecutor *topn_executor);
 
-  /** Initialize the TopNCheck */
   void Init() override;
-
-  /**
-   * Yield the next tuple from the child executor.
-   * @param[out] tuple The next tuple produced by the child executor
-   * @param[out] rid The next tuple RID produced by the child executor
-   * @return `true` if a tuple was produced, `false` if there are no more tuples
-   */
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the child executor */

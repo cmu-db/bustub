@@ -18,6 +18,10 @@
 
 namespace bustub {
 
+/**
+ * Constructs the schema corresponding to the vector of columns, read left-to-right.
+ * @param columns columns that describe the schema's individual columns
+ */
 Schema::Schema(const std::vector<Column> &columns) {
   uint32_t curr_offset = 0;
   for (uint32_t index = 0; index < columns.size(); index++) {
@@ -42,6 +46,7 @@ Schema::Schema(const std::vector<Column> &columns) {
   length_ = curr_offset;
 }
 
+/** @return string representation of this schema */
 auto Schema::ToString(bool simplified) const -> std::string {
   if (simplified) {
     std::ostringstream os;

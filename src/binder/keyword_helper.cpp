@@ -26,8 +26,10 @@
 
 namespace bustub {
 
+/** Return true if the given text matches a keyword of the parser. */
 auto KeywordHelper::IsKeyword(const std::string &text) -> bool { return Binder::IsKeyword(text); }
 
+/** Return true if the given std::string needs to be quoted when written as an identifier. */
 auto KeywordHelper::RequiresQuotes(const std::string &text) -> bool {
   for (size_t i = 0; i < text.size(); i++) {
     if (i > 0 && (text[i] >= '0' && text[i] <= '9')) {
@@ -44,6 +46,7 @@ auto KeywordHelper::RequiresQuotes(const std::string &text) -> bool {
   return IsKeyword(text);
 }
 
+/** Writes a std::string that is optionally quoted + escaped so it can be used as an identifier */
 auto KeywordHelper::WriteOptionallyQuoted(const std::string &text, char quote) -> std::string {
   if (!RequiresQuotes(text)) {
     return text;

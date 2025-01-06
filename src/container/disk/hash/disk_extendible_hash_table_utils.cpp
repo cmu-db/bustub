@@ -36,6 +36,9 @@ auto DiskExtendibleHashTable<int, int, IntComparator>::Hash(int key) const -> ui
   return static_cast<uint32_t>(key);
 }
 
+/**
+ * Helper function to print out the HashTable.
+ */
 template <typename K, typename V, typename KC>
 void DiskExtendibleHashTable<K, V, KC>::PrintHT() const {
   std::cout << "\n";
@@ -74,6 +77,9 @@ void DiskExtendibleHashTable<K, V, KC>::PrintHT() const {
  * Verification
  *****************************************************************************/
 
+/**
+ * Helper function to verify the integrity of the extendible hash table's directory.
+ */
 template <typename K, typename V, typename KC>
 void DiskExtendibleHashTable<K, V, KC>::VerifyIntegrity() const {
   BUSTUB_ASSERT(header_page_id_ != INVALID_PAGE_ID, "header page id is invalid");
@@ -91,6 +97,9 @@ void DiskExtendibleHashTable<K, V, KC>::VerifyIntegrity() const {
   }
 }
 
+/**
+ * Helper function to expose the header page id.
+ */
 template <typename K, typename V, typename KC>
 auto DiskExtendibleHashTable<K, V, KC>::GetHeaderPageId() const -> page_id_t {
   return header_page_id_;

@@ -84,6 +84,9 @@ void TableGenerator::FillTable(const std::shared_ptr<TableInfo> &info, TableInse
   }
 }
 
+/**
+ * Generate test tables.
+ */
 void TableGenerator::GenerateTestTables() {
   /**
    * This array configures each of the test tables. Each table is configured

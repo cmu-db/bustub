@@ -40,6 +40,9 @@
 
 namespace bustub {
 
+/**
+ * Get the executor context from the BusTub instance.
+ */
 auto BusTubInstance::MakeExecutorContext(Transaction *txn, bool is_modify) -> std::unique_ptr<ExecutorContext> {
   return std::make_unique<ExecutorContext>(txn, catalog_.get(), buffer_pool_manager_.get(), txn_manager_.get(),
                                            lock_manager_.get(), is_modify);
@@ -231,6 +234,9 @@ see the execution plan of your query.
   WriteOneCell(help, writer);
 }
 
+/**
+ * Execute a SQL query in the BusTub instance.
+ */
 auto BusTubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer,
                                 std::shared_ptr<CheckOptions> check_options) -> bool {
   bool is_local_txn = current_txn_ != nullptr;
@@ -251,6 +257,9 @@ auto BusTubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer,
   }
 }
 
+/**
+ * Execute a SQL query in the BusTub instance with provided txn.
+ */
 auto BusTubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn,
                                    std::shared_ptr<CheckOptions> check_options) -> bool {
   if (!sql.empty() && sql[0] == '\\') {

@@ -78,14 +78,13 @@ class Value {
     std::swap(first.manage_data_, second.manage_data_);
     std::swap(first.type_id_, second.type_id_);
   }
-  // check whether value is integer
+
   auto CheckInteger() const -> bool;
   auto CheckComparable(const Value &o) const -> bool;
 
   // Get the type of this value
   inline auto GetTypeId() const -> TypeId { return type_id_; }
 
-  // Get the type of this value
   auto GetColumn() const -> Column;
 
   // Get the length of the variable length data

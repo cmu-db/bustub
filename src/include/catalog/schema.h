@@ -28,10 +28,6 @@ using SchemaRef = std::shared_ptr<const Schema>;
 
 class Schema {
  public:
-  /**
-   * Constructs the schema corresponding to the vector of columns, read left-to-right.
-   * @param columns columns that describe the schema's individual columns
-   */
   explicit Schema(const std::vector<Column> &columns);
 
   static auto CopySchema(const Schema *from, const std::vector<uint32_t> &attrs) -> Schema {
@@ -96,7 +92,6 @@ class Schema {
   /** @return true if all columns are inlined, false otherwise */
   inline auto IsInlined() const -> bool { return tuple_is_inlined_; }
 
-  /** @return string representation of this schema */
   auto ToString(bool simplified = true) const -> std::string;
 
  private:

@@ -27,9 +27,6 @@ class TableGenerator {
    */
   explicit TableGenerator(ExecutorContext *exec_ctx) : exec_ctx_{exec_ctx} {}
 
-  /**
-   * Generate test tables.
-   */
   void GenerateTestTables();
 
  private:

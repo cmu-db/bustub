@@ -4,6 +4,12 @@
 
 namespace bustub {
 
+/**
+ * @brief Get the value associated with the given key.
+ * 1. If the key is not in the trie, return nullptr.
+ * 2. If the key is in the trie but the type is mismatched, return nullptr.
+ * 3. Otherwise, return the value.
+ */
 template <class T>
 auto Trie::Get(std::string_view key) const -> const T * {
   throw NotImplementedException("Trie::Get is not implemented.");
@@ -14,6 +20,10 @@ auto Trie::Get(std::string_view key) const -> const T * {
   // Otherwise, return the value.
 }
 
+/**
+ * @brief Put a new key-value pair into the trie. If the key already exists, overwrite the value.
+ * @return the new trie.
+ */
 template <class T>
 auto Trie::Put(std::string_view key, T value) const -> Trie {
   // Note that `T` might be a non-copyable type. Always use `std::move` when creating `shared_ptr` on that value.
@@ -23,6 +33,10 @@ auto Trie::Put(std::string_view key, T value) const -> Trie {
   // exists, you should create a new `TrieNodeWithValue`.
 }
 
+/**
+ * @brief Remove the key from the trie.
+ * @return If the key does not exist, return the original trie. Otherwise, returns the new trie.
+ */
 auto Trie::Remove(std::string_view key) const -> Trie {
   throw NotImplementedException("Trie::Remove is not implemented.");
 

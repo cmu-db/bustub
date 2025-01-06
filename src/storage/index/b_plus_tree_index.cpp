@@ -12,7 +12,7 @@
 #include "storage/index/b_plus_tree_index.h"
 
 namespace bustub {
-/*
+/**
  * Constructor
  */
 INDEX_TEMPLATE_ARGUMENTS

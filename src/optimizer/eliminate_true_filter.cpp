@@ -8,6 +8,9 @@
 
 namespace bustub {
 
+/**
+ * @brief eliminate always true filter
+ */
 auto Optimizer::OptimizeEliminateTrueFilter(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {
   std::vector<AbstractPlanNodeRef> children;
   for (const auto &child : plan->GetChildren()) {

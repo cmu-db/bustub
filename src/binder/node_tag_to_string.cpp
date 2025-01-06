@@ -25,6 +25,7 @@
 
 namespace bustub {
 
+/** Get the std::string representation of a Postgres node tag. */
 auto Binder::NodeTagToString(duckdb_libpgquery::PGNodeTag type) -> std::string {
   switch (type) {
     case duckdb_libpgquery::T_PGInvalid:

@@ -42,6 +42,9 @@ namespace bustub {
 
 Binder::Binder(const Catalog &catalog) : catalog_(catalog) {}
 
+/** Attempts to parse a query into a series of SQL statements. The parsed statements
+ * will be stored in the `statements_nodes_` variable.
+ */
 void Binder::ParseAndSave(const std::string &query) {
   parser_.Parse(query);
   if (!parser_.success) {
@@ -58,8 +61,10 @@ void Binder::ParseAndSave(const std::string &query) {
   SaveParseTree(parser_.parse_tree);
 }
 
+/** Return true if the given text matches a keyword of the parser. */
 auto Binder::IsKeyword(const std::string &text) -> bool { return duckdb::PostgresParser::IsKeyword(text); }
 
+/** Return a list of all keywords in the parser. */
 auto Binder::KeywordList() -> std::vector<ParserKeyword> {
   auto keywords = duckdb::PostgresParser::KeywordList();
   std::vector<ParserKeyword> result;
@@ -87,6 +92,7 @@ auto Binder::KeywordList() -> std::vector<ParserKeyword> {
   return result;
 }
 
+/** Tokenize a query, returning the raw tokens together with their locations. */
 auto Binder::Tokenize(const std::string &query) -> std::vector<SimplifiedToken> {
   auto pg_tokens = duckdb::PostgresParser::Tokenize(query);
   std::vector<SimplifiedToken> result;

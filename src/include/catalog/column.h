@@ -86,7 +86,6 @@ class Column {
   /** @return true if column is inlined, false otherwise */
   auto IsInlined() const -> bool { return column_type_ != TypeId::VARCHAR && column_type_ != TypeId::VECTOR; }
 
-  /** @return a string representation of this column */
   auto ToString(bool simplified = true) const -> std::string;
 
  private:

@@ -14,6 +14,13 @@
 
 namespace bustub {
 
+/**
+ * Construct a new HashJoinExecutor instance.
+ * @param exec_ctx The executor context
+ * @param plan The HashJoin join plan to be executed
+ * @param left_child The child executor that produces tuples for the left side of join
+ * @param right_child The child executor that produces tuples for the right side of join
+ */
 HashJoinExecutor::HashJoinExecutor(ExecutorContext *exec_ctx, const HashJoinPlanNode *plan,
                                    std::unique_ptr<AbstractExecutor> &&left_child,
                                    std::unique_ptr<AbstractExecutor> &&right_child)
@@ -24,8 +31,15 @@ HashJoinExecutor::HashJoinExecutor(ExecutorContext *exec_ctx, const HashJoinPlan
   }
 }
 
+/** Initialize the join */
 void HashJoinExecutor::Init() { throw NotImplementedException("HashJoinExecutor is not implemented"); }
 
+/**
+ * Yield the next tuple from the join.
+ * @param[out] tuple The next tuple produced by the join.
+ * @param[out] rid The next tuple RID, not used by hash join.
+ * @return `true` if a tuple was produced, `false` if there are no more tuples.
+ */
 auto HashJoinExecutor::Next(Tuple *tuple, RID *rid) -> bool { return false; }
 
 }  // namespace bustub

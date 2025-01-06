@@ -113,20 +113,12 @@ class Trie {
   // Create an empty trie.
   Trie() = default;
 
-  // Get the value associated with the given key.
-  // 1. If the key is not in the trie, return nullptr.
-  // 2. If the key is in the trie but the type is mismatched, return nullptr.
-  // 3. Otherwise, return the value.
   template <class T>
   auto Get(std::string_view key) const -> const T *;
 
-  // Put a new key-value pair into the trie. If the key already exists, overwrite the value.
-  // Returns the new trie.
   template <class T>
   auto Put(std::string_view key, T value) const -> Trie;
 
-  // Remove the key from the trie. If the key does not exist, return the original trie.
-  // Otherwise, returns the new trie.
   auto Remove(std::string_view key) const -> Trie;
 
   // Get the root of the trie, should only be used in test cases.

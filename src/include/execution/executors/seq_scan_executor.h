@@ -26,22 +26,10 @@ namespace bustub {
  */
 class SeqScanExecutor : public AbstractExecutor {
  public:
-  /**
-   * Construct a new SeqScanExecutor instance.
-   * @param exec_ctx The executor context
-   * @param plan The sequential scan plan to be executed
-   */
   SeqScanExecutor(ExecutorContext *exec_ctx, const SeqScanPlanNode *plan);
 
-  /** Initialize the sequential scan */
   void Init() override;
 
-  /**
-   * Yield the next tuple from the sequential scan.
-   * @param[out] tuple The next tuple produced by the scan
-   * @param[out] rid The next tuple RID produced by the scan
-   * @return `true` if a tuple was produced, `false` if there are no more tuples
-   */
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the sequential scan */

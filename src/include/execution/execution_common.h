@@ -33,18 +33,12 @@ class TupleComparator {
  public:
   explicit TupleComparator(std::vector<OrderBy> order_bys);
 
-  /** TODO(P3): Implement the comparison method */
   auto operator()(const SortEntry &entry_a, const SortEntry &entry_b) const -> bool;
 
  private:
   std::vector<OrderBy> order_bys_;
 };
 
-/**
- * Generate sort key for a tuple based on the order by expressions.
- *
- * TODO(P3): Implement this method.
- */
 auto GenerateSortKey(const Tuple &tuple, const std::vector<OrderBy> &order_bys, const Schema &schema) -> SortKey;
 
 /**

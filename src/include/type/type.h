@@ -29,13 +29,10 @@ class Type {
 
   virtual ~Type() = default;
 
-  // Get the size of this data type in bytes
   static auto GetTypeSize(TypeId type_id) -> uint64_t;
 
-  // Is this type coercable from the other type
   auto IsCoercableFrom(TypeId type_id) const -> bool;
 
-  // Debug info
   static auto TypeIdToString(TypeId type_id) -> std::string;
 
   static auto GetMinValue(TypeId type_id) -> Value;

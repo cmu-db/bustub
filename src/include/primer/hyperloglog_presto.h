@@ -36,7 +36,6 @@ class HyperLogLogPresto {
   /** @brief Disabling default constructor. */
   HyperLogLogPresto() = delete;
 
-  /** @brief Parameterized constructor. */
   explicit HyperLogLogPresto(int16_t n_leading_bits);
 
   /** @brief Returns the dense_bucket_ data structure. */
@@ -48,10 +47,8 @@ class HyperLogLogPresto {
   /** @brief Retusn the cardinality of the set. */
   auto GetCardinality() const -> uint64_t { return cardinality_; }
 
-  /** @brief Element is added for HLL calculation. */
   auto AddElem(KeyType val) -> void;
 
-  /** @brief Function to compute cardinality. */
   auto ComputeCardinality() -> void;
 
  private:
