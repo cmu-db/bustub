@@ -19,6 +19,8 @@
 /** @brief Total bucket size. */
 #define TOTAL_BUCKET_SIZE (DENSE_BUCKET_SIZE + OVERFLOW_BUCKET_SIZE)
 
+#define BITSET_CAPACITY 64
+
 namespace bustub {
 
 template <typename KeyType>
@@ -55,6 +57,12 @@ class HyperLogLogPresto {
   auto ComputeCardinality() -> void;
 
  private:
+  auto ComputeBinary(const hash_t &hash) const -> std::bitset<BITSET_CAPACITY>;
+
+  auto CompuateLSB(std::bitset<BITSET_CAPACITY>) const -> uint16_t;
+
+  void UpdateDenseBucketsWithNewBaseLine(long long, std::vector<std::bitset<DENSE_BUCKET_SIZE>>);
+
   /** @brief Calculate Hash.
    *
    * @param[in] val
@@ -83,6 +91,14 @@ class HyperLogLogPresto {
   uint64_t cardinality_;
 
   // TODO(student) - can add more data structures as required
-};
+  int16_t m_n_leading_bits;
 
+  bool UpdateDivisor(uint64_t prev, uint64_t curr);
+
+  size_t CalcBucketIdx(const std::bitset<BITSET_CAPACITY> &binary) const;
+
+  double m_dividend;
+
+  double m_divisor;
+};
 }  // namespace bustub
