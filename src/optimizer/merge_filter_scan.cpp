@@ -10,6 +10,9 @@
 
 namespace bustub {
 
+/**
+ * @brief merge filter into filter_predicate of seq scan plan node
+ */
 auto Optimizer::OptimizeMergeFilterScan(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {
   std::vector<AbstractPlanNodeRef> children;
   for (const auto &child : plan->GetChildren()) {

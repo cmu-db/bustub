@@ -21,6 +21,9 @@
 
 namespace bustub {
 
+/**
+ * @brief optimize order by as index scan if there's an index on a table
+ */
 auto Optimizer::OptimizeOrderByAsIndexScan(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {
   std::vector<AbstractPlanNodeRef> children;
   for (const auto &child : plan->GetChildren()) {

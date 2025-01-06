@@ -27,22 +27,9 @@ namespace bustub {
  */
 class ValuesExecutor : public AbstractExecutor {
  public:
-  /**
-   * Construct a new ValuesExecutor instance.
-   * @param exec_ctx The executor context
-   * @param plan The values plan to be executed
-   */
   ValuesExecutor(ExecutorContext *exec_ctx, const ValuesPlanNode *plan);
 
-  /** Initialize the values */
   void Init() override;
-
-  /**
-   * Yield the next tuple from the values.
-   * @param[out] tuple The next tuple produced by the values
-   * @param[out] rid The next tuple RID produced by the values, not used by values executor
-   * @return `true` if a tuple was produced, `false` if there are no more tuples
-   */
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the values */

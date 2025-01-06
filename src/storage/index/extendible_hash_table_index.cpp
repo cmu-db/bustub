@@ -3,7 +3,7 @@
 #include "storage/index/extendible_hash_table_index.h"
 
 namespace bustub {
-/*
+/**
  * Constructor
  */
 template <typename KeyType, typename ValueType, typename KeyComparator>

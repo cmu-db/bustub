@@ -54,23 +54,8 @@ class DiskScheduler {
   explicit DiskScheduler(DiskManager *disk_manager);
   ~DiskScheduler();
 
-  /**
-   * TODO(P1): Add implementation
-   *
-   * @brief Schedules a request for the DiskManager to execute.
-   *
-   * @param r The request to be scheduled.
-   */
   void Schedule(DiskRequest r);
 
-  /**
-   * TODO(P1): Add implementation
-   *
-   * @brief Background worker thread function that processes scheduled requests.
-   *
-   * The background thread needs to process requests while the DiskScheduler exists, i.e., this function should not
-   * return until ~DiskScheduler() is called. At that point you need to make sure that the function does return.
-   */
   void StartWorkerThread();
 
   using DiskSchedulerPromise = std::promise<bool>;

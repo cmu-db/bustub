@@ -3,6 +3,9 @@
 namespace bustub {
 
 /**
+ * @brief column pruning for child plan following a projection plan
+ * @param plan the plan to optimize
+ * @return the new plan with column pruning
  * @note You may use this function to implement column pruning optimization.
  */
 auto Optimizer::OptimizeColumnPruning(const bustub::AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {

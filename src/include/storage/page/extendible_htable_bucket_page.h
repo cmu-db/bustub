@@ -51,79 +51,26 @@ class ExtendibleHTableBucketPage {
   ExtendibleHTableBucketPage() = delete;
   DISALLOW_COPY_AND_MOVE(ExtendibleHTableBucketPage);
 
-  /**
-   * After creating a new bucket page from buffer pool, must call initialize
-   * method to set default values
-   * @param max_size Max size of the bucket array
-   */
   void Init(uint32_t max_size = HTableBucketArraySize(sizeof(MappingType)));
 
-  /**
-   * Lookup a key
-   *
-   * @param key key to lookup
-   * @param[out] value value to set
-   * @param cmp the comparator
-   * @return true if the key and value are present, false if not found.
-   */
   auto Lookup(const KeyType &key, ValueType &value, const KeyComparator &cmp) const -> bool;
 
-  /**
-   * Attempts to insert a key and value in the bucket.
-   *
-   * @param key key to insert
-   * @param value value to insert
-   * @param cmp the comparator to use
-   * @return true if inserted, false if bucket is full or the same key is already present
-   */
   auto Insert(const KeyType &key, const ValueType &value, const KeyComparator &cmp) -> bool;
 
-  /**
-   * Removes a key and value.
-   *
-   * @return true if removed, false if not found
-   */
   auto Remove(const KeyType &key, const KeyComparator &cmp) -> bool;
 
   void RemoveAt(uint32_t bucket_idx);
 
-  /**
-   * @brief Gets the key at an index in the bucket.
-   *
-   * @param bucket_idx the index in the bucket to get the key at
-   * @return key at index bucket_idx of the bucket
-   */
   auto KeyAt(uint32_t bucket_idx) const -> KeyType;
 
-  /**
-   * Gets the value at an index in the bucket.
-   *
-   * @param bucket_idx the index in the bucket to get the value at
-   * @return value at index bucket_idx of the bucket
-   */
   auto ValueAt(uint32_t bucket_idx) const -> ValueType;
 
-  /**
-   * Gets the entry at an index in the bucket.
-   *
-   * @param bucket_idx the index in the bucket to get the entry at
-   * @return entry at index bucket_idx of the bucket
-   */
   auto EntryAt(uint32_t bucket_idx) const -> const std::pair<KeyType, ValueType> &;
 
-  /**
-   * @return number of entries in the bucket
-   */
   auto Size() const -> uint32_t;
 
-  /**
-   * @return whether the bucket is full
-   */
   auto IsFull() const -> bool;
 
-  /**
-   * @return whether the bucket is empty
-   */
   auto IsEmpty() const -> bool;
 
   /**

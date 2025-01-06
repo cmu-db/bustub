@@ -15,6 +15,12 @@
 
 namespace bustub {
 
+/**
+ * Construct a new TopNCheckExecutor instance.
+ * @param exec_ctx The executor context
+ * @param plan The TopN plan to be executed
+ * @param child_executor The TopN child executor
+ */
 TopNCheckExecutor::TopNCheckExecutor(ExecutorContext *exec_ctx, const TopNPlanNode *plan,
                                      std::unique_ptr<AbstractExecutor> &&child_executor, TopNExecutor *topn_executor)
     : AbstractExecutor{exec_ctx},
@@ -22,6 +28,7 @@ TopNCheckExecutor::TopNCheckExecutor(ExecutorContext *exec_ctx, const TopNPlanNo
       child_executor_{std::move(child_executor)},
       topn_executor_(topn_executor) {}
 
+/** Initialize the TopNCheck */
 void TopNCheckExecutor::Init() {
   if (!child_executor_) {
     return;
@@ -31,6 +38,12 @@ void TopNCheckExecutor::Init() {
   child_executor_->Init();
 }
 
+/**
+ * Yield the next tuple from the child executor.
+ * @param[out] tuple The next tuple produced by the child executor
+ * @param[out] rid The next tuple RID produced by the child executor
+ * @return `true` if a tuple was produced, `false` if there are no more tuples
+ */
 auto TopNCheckExecutor::Next(Tuple *tuple, RID *rid) -> bool {
   if (!child_executor_) {
     return EXECUTOR_EXHAUSTED;

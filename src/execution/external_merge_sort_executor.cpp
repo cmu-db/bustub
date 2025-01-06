@@ -24,11 +24,18 @@ ExternalMergeSortExecutor<K>::ExternalMergeSortExecutor(ExecutorContext *exec_ct
                                                         std::unique_ptr<AbstractExecutor> &&child_executor)
     : AbstractExecutor(exec_ctx), cmp_(plan->GetOrderBy()) {}
 
+/** Initialize the external merge sort */
 template <size_t K>
 void ExternalMergeSortExecutor<K>::Init() {
   throw NotImplementedException("ExternalMergeSortExecutor is not implemented");
 }
 
+/**
+ * Yield the next tuple from the external merge sort.
+ * @param[out] tuple The next tuple produced by the external merge sort.
+ * @param[out] rid The next tuple RID produced by the external merge sort.
+ * @return `true` if a tuple was produced, `false` if there are no more tuples
+ */
 template <size_t K>
 auto ExternalMergeSortExecutor<K>::Next(Tuple *tuple, RID *rid) -> bool {
   return false;

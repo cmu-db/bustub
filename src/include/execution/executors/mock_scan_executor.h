@@ -31,22 +31,9 @@ auto GetMockTableSchemaOf(const std::string &table) -> Schema;
  */
 class MockScanExecutor : public AbstractExecutor {
  public:
-  /**
-   * Construct a new MockScanExecutor instance.
-   * @param exec_ctx The executor context
-   * @param plan The mock scan plan to be executed
-   */
   MockScanExecutor(ExecutorContext *exec_ctx, const MockScanPlanNode *plan);
 
-  /** Initialize the mock scan. */
   void Init() override;
-
-  /**
-   * Yield the next tuple from the sequential scan.
-   * @param[out] tuple The next tuple produced by the scan
-   * @param[out] rid The next tuple RID produced by the scan
-   * @return `true` if a tuple was produced, `false` if there are no more tuples
-   */
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the sequential scan */
@@ -56,7 +43,6 @@ class MockScanExecutor : public AbstractExecutor {
   /** @return A dummy tuple according to the output schema */
   auto MakeDummyTuple() const -> Tuple;
 
-  /** @return A dummy RID value */
   static auto MakeDummyRID() -> RID;
 
   /** MockScanExecutor::Next() returns `true` when scan is incomplete */

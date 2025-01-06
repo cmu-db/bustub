@@ -12,6 +12,12 @@
 #include "execution/executors/index_scan_executor.h"
 
 namespace bustub {
+
+/**
+ * Creates a new index scan executor.
+ * @param exec_ctx the executor context
+ * @param plan the index scan plan to be executed
+ */
 IndexScanExecutor::IndexScanExecutor(ExecutorContext *exec_ctx, const IndexScanPlanNode *plan)
     : AbstractExecutor(exec_ctx) {}
 

@@ -27,12 +27,10 @@ class VectorType : public Type {
   VectorType();
   ~VectorType() override;
 
-  // Access the raw variable length data
   auto GetData(const Value &val) const -> const char * override;
 
   auto GetVector(const Value &val) const -> std::vector<double>;
 
-  // Get the length of the variable length data
   auto GetStorageSize(const Value &val) const -> uint32_t override;
 
   // Comparison functions
@@ -52,16 +50,12 @@ class VectorType : public Type {
   // Decimal types are always inlined
   auto IsInlined(const Value & /*val*/) const -> bool override { return false; }
 
-  // Debug
   auto ToString(const Value &val) const -> std::string override;
 
-  // Serialize this value into the given storage space
   void SerializeTo(const Value &val, char *storage) const override;
 
-  // Deserialize a value of the given type from the given storage space.
   auto DeserializeFrom(const char *storage) const -> Value override;
 
-  // Create a copy of this value
   auto Copy(const Value &val) const -> Value override;
 };
 }  // namespace bustub

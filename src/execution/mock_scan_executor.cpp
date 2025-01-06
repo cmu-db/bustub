@@ -545,6 +545,11 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
   };
 }
 
+/**
+ * Construct a new MockScanExecutor instance.
+ * @param exec_ctx The executor context
+ * @param plan The mock scan plan to be executed
+ */
 MockScanExecutor::MockScanExecutor(ExecutorContext *exec_ctx, const MockScanPlanNode *plan)
     : AbstractExecutor{exec_ctx}, plan_{plan}, func_(GetFunctionOf(plan)), size_(GetSizeOf(plan)) {
   if (GetShuffled(plan)) {
@@ -557,11 +562,18 @@ MockScanExecutor::MockScanExecutor(ExecutorContext *exec_ctx, const MockScanPlan
   }
 }
 
+/** Initialize the mock scan. */
 void MockScanExecutor::Init() {
   // Reset the cursor
   cursor_ = 0;
 }
 
+/**
+ * Yield the next tuple from the sequential scan.
+ * @param[out] tuple The next tuple produced by the scan
+ * @param[out] rid The next tuple RID produced by the scan
+ * @return `true` if a tuple was produced, `false` if there are no more tuples
+ */
 auto MockScanExecutor::Next(Tuple *tuple, RID *rid) -> bool {
   if (cursor_ == size_) {
     // Scan complete
@@ -577,6 +589,7 @@ auto MockScanExecutor::Next(Tuple *tuple, RID *rid) -> bool {
   return EXECUTOR_ACTIVE;
 }
 
+/** @return A dummy RID value */
 auto MockScanExecutor::MakeDummyRID() -> RID { return RID{0}; }
 
 }  // namespace bustub

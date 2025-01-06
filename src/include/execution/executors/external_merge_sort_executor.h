@@ -141,15 +141,8 @@ class ExternalMergeSortExecutor : public AbstractExecutor {
   ExternalMergeSortExecutor(ExecutorContext *exec_ctx, const SortPlanNode *plan,
                             std::unique_ptr<AbstractExecutor> &&child_executor);
 
-  /** Initialize the external merge sort */
   void Init() override;
 
-  /**
-   * Yield the next tuple from the external merge sort.
-   * @param[out] tuple The next tuple produced by the external merge sort.
-   * @param[out] rid The next tuple RID produced by the external merge sort.
-   * @return `true` if a tuple was produced, `false` if there are no more tuples
-   */
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the external merge sort */

@@ -150,30 +150,16 @@ class SimpleAggregationHashTable {
  */
 class AggregationExecutor : public AbstractExecutor {
  public:
-  /**
-   * Construct a new AggregationExecutor instance.
-   * @param exec_ctx The executor context
-   * @param plan The insert plan to be executed
-   * @param child_executor The child executor from which inserted tuples are pulled (may be `nullptr`)
-   */
   AggregationExecutor(ExecutorContext *exec_ctx, const AggregationPlanNode *plan,
                       std::unique_ptr<AbstractExecutor> &&child_executor);
 
-  /** Initialize the aggregation */
   void Init() override;
 
-  /**
-   * Yield the next tuple from the insert.
-   * @param[out] tuple The next tuple produced by the aggregation
-   * @param[out] rid The next tuple RID produced by the aggregation
-   * @return `true` if a tuple was produced, `false` if there are no more tuples
-   */
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the aggregation */
   auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); };
 
-  /** Do not use or remove this function, otherwise you will get zero points. */
   auto GetChildExecutor() const -> const AbstractExecutor *;
 
  private:

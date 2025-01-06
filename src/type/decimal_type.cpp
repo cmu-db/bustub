@@ -318,6 +318,9 @@ auto DecimalType::CastAs(const Value &val, const TypeId type_id) const -> Value 
   throw Exception("DECIMAL is not coercable to " + Type::TypeIdToString(type_id));
 }
 
+/**
+ * Debug
+ */
 auto DecimalType::ToString(const Value &val) const -> std::string {
   if (val.IsNull()) {
     return "decimal_null";
@@ -325,15 +328,23 @@ auto DecimalType::ToString(const Value &val) const -> std::string {
   return std::to_string(val.value_.decimal_);
 }
 
+/**
+ * Serialize this value into the given storage space
+ */
 void DecimalType::SerializeTo(const Value &val, char *storage) const {
   *reinterpret_cast<double *>(storage) = val.value_.decimal_;
 }
 
-// Deserialize a value of the given type from the given storage space.
+/**
+ * Deserialize a value of the given type from the given storage space.
+ */
 auto DecimalType::DeserializeFrom(const char *storage) const -> Value {
   double val = *reinterpret_cast<const double *>(storage);
   return {type_id_, val};
 }
 
+/**
+ * Create a copy of this value
+ */
 auto DecimalType::Copy(const Value &val) const -> Value { return {TypeId::DECIMAL, val.value_.decimal_}; }
 }  // namespace bustub

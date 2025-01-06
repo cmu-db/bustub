@@ -3,6 +3,10 @@
 
 namespace bustub {
 
+/**
+ * @brief This function returns a ValueGuard object that holds a reference to the value in the trie. If
+ * the key does not exist in the trie, it will return std::nullopt.
+ */
 template <class T>
 auto TrieStore::Get(std::string_view key) -> std::optional<ValueGuard<T>> {
   // Pseudo-code:
@@ -14,6 +18,10 @@ auto TrieStore::Get(std::string_view key) -> std::optional<ValueGuard<T>> {
   throw NotImplementedException("TrieStore::Get is not implemented.");
 }
 
+/**
+ * @brief This function will insert the key-value pair into the trie. If the key already exists in the
+ * trie, it will overwrite the value.
+ */
 template <class T>
 void TrieStore::Put(std::string_view key, T value) {
   // You will need to ensure there is only one writer at a time. Think of how you can achieve this.
@@ -21,6 +29,7 @@ void TrieStore::Put(std::string_view key, T value) {
   throw NotImplementedException("TrieStore::Put is not implemented.");
 }
 
+/** @brief This function will remove the key-value pair from the trie. */
 void TrieStore::Remove(std::string_view key) {
   // You will need to ensure there is only one writer at a time. Think of how you can achieve this.
   // The logic should be somehow similar to `TrieStore::Get`.

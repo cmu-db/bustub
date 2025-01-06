@@ -15,6 +15,15 @@
 
 namespace bustub {
 
+/**
+ * @brief rewrite expression to be used in nested loop joins. e.g., if we have `SELECT * FROM a, b WHERE a.x = b.y`,
+ * we will have `#0.x = #0.y` in the filter plan node. We will need to figure out where does `0.x` and `0.y` belong
+ * in NLJ (left table or right table?), and rewrite it as `#0.x = #1.y`.
+ *
+ * @param expr the filter expression
+ * @param left_column_cnt number of columns in the left size of the NLJ
+ * @param right_column_cnt number of columns in the left size of the NLJ
+ */
 auto Optimizer::RewriteExpressionForJoin(const AbstractExpressionRef &expr, size_t left_column_cnt,
                                          size_t right_column_cnt) -> AbstractExpressionRef {
   std::vector<AbstractExpressionRef> children;
@@ -36,6 +45,7 @@ auto Optimizer::RewriteExpressionForJoin(const AbstractExpressionRef &expr, size
   return expr->CloneWithChildren(children);
 }
 
+/** @brief check if the predicate is true::boolean */
 auto Optimizer::IsPredicateTrue(const AbstractExpressionRef &expr) -> bool {
   if (const auto *const_expr = dynamic_cast<const ConstantValueExpression *>(expr.get()); const_expr != nullptr) {
     return const_expr->val_.CastAs(TypeId::BOOLEAN).GetAs<bool>();
@@ -43,6 +53,11 @@ auto Optimizer::IsPredicateTrue(const AbstractExpressionRef &expr) -> bool {
   return false;
 }
 
+/**
+ * @brief merge filter condition into nested loop join.
+ * In planner, we plan cross join + filter with cross product (done with nested loop join) and a filter plan node. We
+ * can merge the filter condition into nested loop join to achieve better efficiency.
+ */
 auto Optimizer::OptimizeMergeFilterNLJ(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {
   std::vector<AbstractPlanNodeRef> children;
   for (const auto &child : plan->GetChildren()) {

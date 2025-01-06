@@ -22,12 +22,16 @@
 
 namespace bustub {
 
+/**
+ * Initialize the TablePage header.
+ */
 void TablePage::Init() {
   next_page_id_ = INVALID_PAGE_ID;
   num_tuples_ = 0;
   num_deleted_tuples_ = 0;
 }
 
+/** Get the next offset to insert, return nullopt if this tuple cannot fit in this page */
 auto TablePage::GetNextTupleOffset(const TupleMeta &meta, const Tuple &tuple) const -> std::optional<uint16_t> {
   size_t slot_end_offset;
   if (num_tuples_ > 0) {
@@ -44,6 +48,11 @@ auto TablePage::GetNextTupleOffset(const TupleMeta &meta, const Tuple &tuple) co
   return tuple_offset;
 }
 
+/**
+ * Insert a tuple into the table.
+ * @param tuple tuple to insert
+ * @return true if the insert is successful (i.e. there is enough space)
+ */
 auto TablePage::InsertTuple(const TupleMeta &meta, const Tuple &tuple) -> std::optional<uint16_t> {
   auto tuple_offset = GetNextTupleOffset(meta, tuple);
   if (tuple_offset == std::nullopt) {
@@ -56,6 +65,9 @@ auto TablePage::InsertTuple(const TupleMeta &meta, const Tuple &tuple) -> std::o
   return tuple_id;
 }
 
+/**
+ * Update a tuple.
+ */
 void TablePage::UpdateTupleMeta(const TupleMeta &meta, const RID &rid) {
   auto tuple_id = rid.GetSlotNum();
   if (tuple_id >= num_tuples_) {
@@ -68,6 +80,9 @@ void TablePage::UpdateTupleMeta(const TupleMeta &meta, const RID &rid) {
   tuple_info_[tuple_id] = std::make_tuple(offset, size, meta);
 }
 
+/**
+ * Read a tuple from a table.
+ */
 auto TablePage::GetTuple(const RID &rid) const -> std::pair<TupleMeta, Tuple> {
   auto tuple_id = rid.GetSlotNum();
   if (tuple_id >= num_tuples_) {
@@ -81,6 +96,9 @@ auto TablePage::GetTuple(const RID &rid) const -> std::pair<TupleMeta, Tuple> {
   return std::make_pair(meta, std::move(tuple));
 }
 
+/**
+ * Read a tuple meta from a table.
+ */
 auto TablePage::GetTupleMeta(const RID &rid) const -> TupleMeta {
   auto tuple_id = rid.GetSlotNum();
   if (tuple_id >= num_tuples_) {
@@ -90,6 +108,9 @@ auto TablePage::GetTupleMeta(const RID &rid) const -> TupleMeta {
   return meta;
 }
 
+/**
+ * Update a tuple in place.
+ */
 void TablePage::UpdateTupleInPlaceUnsafe(const TupleMeta &meta, const Tuple &tuple, RID rid) {
   auto tuple_id = rid.GetSlotNum();
   if (tuple_id >= num_tuples_) {

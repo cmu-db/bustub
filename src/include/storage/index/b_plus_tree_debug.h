@@ -30,7 +30,7 @@ namespace bustub {
  * UTILITIES AND DEBUG
  *****************************************************************************/
 
-/*
+/**
  * This method is used for test only
  * Read data from file and insert one by one
  */
@@ -47,7 +47,8 @@ void BPLUSTREE_TYPE::InsertFromFile(const std::filesystem::path &file_name) {
     Insert(index_key, rid);
   }
 }
-/*
+
+/**
  * This method is used for test only
  * Read data from file and remove one by one
  */
@@ -114,6 +115,7 @@ void BPLUSTREE_TYPE::PrintTree(page_id_t page_id, const BPlusTreePage *page) {
   }
 }
 
+/** @brief draw the B+ tree */
 INDEX_TEMPLATE_ARGUMENTS
 void BPLUSTREE_TYPE::Draw(BufferPoolManager *bpm, const std::filesystem::path &outf) {
   if (IsEmpty()) {
@@ -130,6 +132,7 @@ void BPLUSTREE_TYPE::Draw(BufferPoolManager *bpm, const std::filesystem::path &o
   out.close();
 }
 
+/** @brief Debug Routines for FREE!! */
 INDEX_TEMPLATE_ARGUMENTS
 void BPLUSTREE_TYPE::ToGraph(page_id_t page_id, const BPlusTreePage *page, std::ofstream &out) {
   std::string leaf_prefix("LEAF_");
@@ -208,6 +211,17 @@ void BPLUSTREE_TYPE::ToGraph(page_id_t page_id, const BPlusTreePage *page, std::
   }
 }
 
+/**
+ * @brief draw a B+ tree, below is a printed
+ * B+ tree(3 max leaf, 4 max internal) after inserting key:
+ *  {1, 5, 9, 13, 17, 21, 25, 29, 33, 37, 18, 19, 20}
+ *
+ *                               (25)
+ *                 (9,17,19)                          (33)
+ *  (1,5)    (9,13)    (17,18)    (19,20,21)    (25,29)    (33,37)
+ *
+ * @return std::string
+ */
 INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::DrawBPlusTree() -> std::string {
   if (IsEmpty()) {
@@ -221,9 +235,15 @@ auto BPLUSTREE_TYPE::DrawBPlusTree() -> std::string {
   return out_buf.str();
 }
 
-/*
- * This method is used for test only
- * Read data from file and insert/remove one by one
+/**
+ * @brief Read batch operations from input file, below is a sample file format
+ * insert some keys and delete 8, 9 from the tree with one step.
+ * { i1 i2 i3 i4 i5 i6 i7 i8 i9 i10 i30 d8 d9 } //  batch.txt
+ * B+ Tree(4 max leaf, 4 max internal) after processing:
+ *                            (5)
+ *                 (3)                (7)
+ *            (1,2)    (3,4)    (5,6)    (7,10,30) //  The output tree example
+ * @note This method is used for test only. Read data from file and insert/remove one by one.
  */
 INDEX_TEMPLATE_ARGUMENTS
 void BPLUSTREE_TYPE::BatchOpsFromFile(const std::filesystem::path &file_name) {
@@ -256,6 +276,12 @@ void BPLUSTREE_TYPE::BatchOpsFromFile(const std::filesystem::path &file_name) {
   input.close();
 }
 
+/**
+ * @brief Convert A B+ tree into a Printable B+ tree
+ *
+ * @param root_id
+ * @return PrintableNode
+ */
 INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::ToPrintableBPlusTree(page_id_t root_id) -> PrintableBPlusTree {
   auto root_page_guard = bpm_->ReadPage(root_id);

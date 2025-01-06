@@ -7,8 +7,8 @@
 
 namespace bustub {
 
-/*
- * NOTE: you can change the destructor/constructor method here
+/**
+ * @note you can change the destructor/constructor method here
  * set your own input parameters
  */
 INDEX_TEMPLATE_ARGUMENTS

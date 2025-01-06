@@ -29,23 +29,10 @@ namespace bustub {
  */
 class TopNPerGroupExecutor : public AbstractExecutor {
  public:
-  /**
-   * Construct a new TopNPerGroupExecutor instance.
-   * @param exec_ctx The executor context
-   * @param plan The TopNPerGroup plan to be executed
-   */
   TopNPerGroupExecutor(ExecutorContext *exec_ctx, const TopNPerGroupPlanNode *plan,
                        std::unique_ptr<AbstractExecutor> &&child_executor);
 
-  /** Initialize the TopNPerGroup */
   void Init() override;
-
-  /**
-   * Yield the next tuple from the TopNPerGroup.
-   * @param[out] tuple The next tuple produced by the TopNPerGroup
-   * @param[out] rid The next tuple RID produced by the TopNPerGroup
-   * @return `true` if a tuple was produced, `false` if there are no more tuples
-   */
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); }

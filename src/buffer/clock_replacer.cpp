@@ -14,8 +14,15 @@
 
 namespace bustub {
 
+/**
+ * Create a new ClockReplacer.
+ * @param num_pages the maximum number of pages the ClockReplacer will be required to store
+ */
 ClockReplacer::ClockReplacer(size_t num_pages) {}
 
+/**
+ * Destroys the ClockReplacer.
+ */
 ClockReplacer::~ClockReplacer() = default;
 
 auto ClockReplacer::Victim(frame_id_t *frame_id) -> bool { return false; }

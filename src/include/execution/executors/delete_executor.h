@@ -29,27 +29,11 @@ namespace bustub {
  */
 class DeleteExecutor : public AbstractExecutor {
  public:
-  /**
-   * Construct a new DeleteExecutor instance.
-   * @param exec_ctx The executor context
-   * @param plan The delete plan to be executed
-   * @param child_executor The child executor that feeds the delete
-   */
   DeleteExecutor(ExecutorContext *exec_ctx, const DeletePlanNode *plan,
                  std::unique_ptr<AbstractExecutor> &&child_executor);
 
-  /** Initialize the delete */
   void Init() override;
 
-  /**
-   * Yield the number of rows deleted from the table.
-   * @param[out] tuple The integer tuple indicating the number of rows deleted from the table
-   * @param[out] rid The next tuple RID produced by the delete (ignore, not used)
-   * @return `true` if a tuple was produced, `false` if there are no more tuples
-   *
-   * NOTE: DeleteExecutor::Next() does not use the `rid` out-parameter.
-   * NOTE: DeleteExecutor::Next() returns true with the number of deleted rows produced only once.
-   */
   auto Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the delete */

@@ -43,6 +43,7 @@
 
 namespace bustub {
 
+/** Transform a Postgres parse tree into a std::vector of SQL Statements. */
 void Binder::SaveParseTree(duckdb_libpgquery::PGList *tree) {
   std::vector<std::unique_ptr<BoundStatement>> statements;
   for (auto entry = tree->head; entry != nullptr; entry = entry->next) {
@@ -50,6 +51,7 @@ void Binder::SaveParseTree(duckdb_libpgquery::PGList *tree) {
   }
 }
 
+/** Transform a Postgres statement into a single SQL statement. */
 auto Binder::BindStatement(duckdb_libpgquery::PGNode *stmt) -> std::unique_ptr<BoundStatement> {
   switch (stmt->type) {
     case duckdb_libpgquery::T_PGRawStmt:

@@ -30,6 +30,17 @@
 
 namespace bustub {
 
+/**
+ * @brief Creates a new DiskExtendibleHashTable.
+ *
+ * @param name
+ * @param bpm buffer pool manager to be used
+ * @param cmp comparator for keys
+ * @param hash_fn the hash function
+ * @param header_max_depth the max depth allowed for the header page
+ * @param directory_max_depth the max depth allowed for the directory page
+ * @param bucket_max_size the max size allowed for the bucket page array
+ */
 template <typename K, typename V, typename KC>
 DiskExtendibleHashTable<K, V, KC>::DiskExtendibleHashTable(const std::string &name, BufferPoolManager *bpm,
                                                            const KC &cmp, const HashFunction<K> &hash_fn,
@@ -47,6 +58,17 @@ DiskExtendibleHashTable<K, V, KC>::DiskExtendibleHashTable(const std::string &na
 /*****************************************************************************
  * SEARCH
  *****************************************************************************/
+
+/** TODO(P2): Add implementation
+ * Get the value associated with a given key in the hash table.
+ *
+ * Note(fall2023): This semester you will only need to support unique key-value pairs.
+ *
+ * @param key the key to look up
+ * @param[out] result the value(s) associated with a given key
+ * @param transaction the current transaction
+ * @return the value(s) associated with the given key
+ */
 template <typename K, typename V, typename KC>
 auto DiskExtendibleHashTable<K, V, KC>::GetValue(const K &key, std::vector<V> *result, Transaction *transaction) const
     -> bool {
@@ -57,6 +79,14 @@ auto DiskExtendibleHashTable<K, V, KC>::GetValue(const K &key, std::vector<V> *r
  * INSERTION
  *****************************************************************************/
 
+/** TODO(P2): Add implementation
+ * Inserts a key-value pair into the hash table.
+ *
+ * @param key the key to create
+ * @param value the value to be associated with the key
+ * @param transaction the current transaction
+ * @return true if insert succeeded, false otherwise
+ */
 template <typename K, typename V, typename KC>
 auto DiskExtendibleHashTable<K, V, KC>::Insert(const K &key, const V &value, Transaction *transaction) -> bool {
   return false;
@@ -84,6 +114,15 @@ void DiskExtendibleHashTable<K, V, KC>::UpdateDirectoryMapping(ExtendibleHTableD
 /*****************************************************************************
  * REMOVE
  *****************************************************************************/
+
+/** TODO(P2): Add implementation
+ * Removes a key-value pair from the hash table.
+ *
+ * @param key the key to delete
+ * @param value the value to delete
+ * @param transaction the current transaction
+ * @return true if remove succeeded, false otherwise
+ */
 template <typename K, typename V, typename KC>
 auto DiskExtendibleHashTable<K, V, KC>::Remove(const K &key, Transaction *transaction) -> bool {
   return false;

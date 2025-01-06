@@ -26,17 +26,12 @@ class ValueGuard {
 // time.
 class TrieStore {
  public:
-  // This function returns a ValueGuard object that holds a reference to the value in the trie. If
-  // the key does not exist in the trie, it will return std::nullopt.
   template <class T>
   auto Get(std::string_view key) -> std::optional<ValueGuard<T>>;
 
-  // This function will insert the key-value pair into the trie. If the key already exists in the
-  // trie, it will overwrite the value.
   template <class T>
   void Put(std::string_view key, T value);
 
-  // This function will remove the key-value pair from the trie.
   void Remove(std::string_view key);
 
  private:

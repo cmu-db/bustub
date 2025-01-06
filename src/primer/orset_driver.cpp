@@ -3,6 +3,9 @@
 
 namespace bustub {
 
+/**
+ * @brief Loads all the remote changes to the local ORSet.
+ */
 template <typename T>
 void ORSetNode<T>::Load() {
   for (size_t i = 0; i < peer_size_; ++i) {
@@ -17,6 +20,9 @@ void ORSetNode<T>::Load() {
   }
 }
 
+/**
+ * @brief Saves all local changes to the driver.
+ */
 template <typename T>
 void ORSetNode<T>::Save() {
   driver_->saved_copies_[node_id_] = orset_;
@@ -33,6 +39,9 @@ ORSetDriver<T>::ORSetDriver(size_t num_orset_node) : version_counter_(num_orset_
   saved_copies_.resize(num_orset_node);
 }
 
+/**
+ * @brief Saves changes in all nodes and then load all the changes.
+ */
 template <typename T>
 void ORSetDriver<T>::Sync() {
   for (const auto &node : orset_nodes_) {

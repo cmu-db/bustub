@@ -17,8 +17,9 @@ BPLUSTREE_TYPE::BPlusTree(std::string name, page_id_t header_page_id, BufferPool
   root_page->root_page_id_ = INVALID_PAGE_ID;
 }
 
-/*
- * Helper function to decide whether current b+tree is empty
+/**
+ * @brief Helper function to decide whether current b+tree is empty
+ * @return Returns true if this B+ tree has no keys and values.
  */
 INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::IsEmpty() const -> bool { return true; }
@@ -26,9 +27,13 @@ auto BPLUSTREE_TYPE::IsEmpty() const -> bool { return true; }
 /*****************************************************************************
  * SEARCH
  *****************************************************************************/
-/*
- * Return the only value that associated with input key
+/**
+ * @brief Return the only value that associated with input key
+ *
  * This method is used for point query
+ *
+ * @param key input key
+ * @param[out] result vector that stores the only value that associated with input key, if the value exists
  * @return : true means key exists
  */
 INDEX_TEMPLATE_ARGUMENTS
@@ -42,10 +47,14 @@ auto BPLUSTREE_TYPE::GetValue(const KeyType &key, std::vector<ValueType> *result
 /*****************************************************************************
  * INSERTION
  *****************************************************************************/
-/*
- * Insert constant key & value pair into b+ tree
+/**
+ * @brief Insert constant key & value pair into b+ tree
+ *
  * if current tree is empty, start new tree, update root page id and insert
  * entry, otherwise insert into leaf page.
+ *
+ * @param key the key to insert
+ * @param value the value associated with key
  * @return: since we only support unique key, if user try to insert duplicate
  * keys return false, otherwise return true.
  */
@@ -60,12 +69,14 @@ auto BPLUSTREE_TYPE::Insert(const KeyType &key, const ValueType &value) -> bool 
 /*****************************************************************************
  * REMOVE
  *****************************************************************************/
-/*
- * Delete key & value pair associated with input key
+/**
+ * @brief Delete key & value pair associated with input key
  * If current tree is empty, return immediately.
  * If not, User needs to first find the right leaf page as deletion target, then
  * delete entry from leaf page. Remember to deal with redistribute or merge if
  * necessary.
+ *
+ * @param key input key
  */
 INDEX_TEMPLATE_ARGUMENTS
 void BPLUSTREE_TYPE::Remove(const KeyType &key) {
@@ -77,24 +88,24 @@ void BPLUSTREE_TYPE::Remove(const KeyType &key) {
 /*****************************************************************************
  * INDEX ITERATOR
  *****************************************************************************/
-/*
- * Input parameter is void, find the leftmost leaf page first, then construct
+/**
+ * @brief Input parameter is void, find the leftmost leaf page first, then construct
  * index iterator
  * @return : index iterator
  */
 INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::Begin() -> INDEXITERATOR_TYPE { return INDEXITERATOR_TYPE(); }
 
-/*
- * Input parameter is low key, find the leaf page that contains the input key
+/**
+ * @brief Input parameter is low key, find the leaf page that contains the input key
  * first, then construct index iterator
  * @return : index iterator
  */
 INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::Begin(const KeyType &key) -> INDEXITERATOR_TYPE { return INDEXITERATOR_TYPE(); }
 
-/*
- * Input parameter is void, construct an index iterator representing the end
+/**
+ * @brief Input parameter is void, construct an index iterator representing the end
  * of the key/value pair in the leaf node
  * @return : index iterator
  */

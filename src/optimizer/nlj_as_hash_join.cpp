@@ -17,6 +17,11 @@
 
 namespace bustub {
 
+/**
+ * @brief optimize nested loop join into hash join.
+ * In the starter code, we will check NLJs with exactly one equal condition. You can further support optimizing joins
+ * with multiple eq conditions.
+ */
 auto Optimizer::OptimizeNLJAsHashJoin(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {
   // TODO(student): implement NestedLoopJoin -> HashJoin optimizer rule
   // Note for 2023 Fall: You should support join keys of any number of conjunction of equi-conditions:

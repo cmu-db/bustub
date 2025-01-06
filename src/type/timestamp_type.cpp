@@ -91,7 +91,9 @@ auto TimestampType::Max(const Value &left, const Value &right) const -> Value {
   return right.Copy();
 }
 
-// Debug
+/**
+ * Debug
+ */
 auto TimestampType::ToString(const Value &val) const -> std::string {
   if (val.IsNull()) {
     return "timestamp_null";
@@ -132,17 +134,24 @@ auto TimestampType::ToString(const Value &val) const -> std::string {
   return std::string(std::string(str) + std::string(zone));
 }
 
+/**
+ * Serialize this value into the given storage space
+ */
 void TimestampType::SerializeTo(const Value &val, char *storage) const {
   *reinterpret_cast<uint64_t *>(storage) = val.value_.timestamp_;
 }
 
-// Deserialize a value of the given type from the given storage space.
+/**
+ * Deserialize a value of the given type from the given storage space.
+ */
 auto TimestampType::DeserializeFrom(const char *storage) const -> Value {
   uint64_t val = *reinterpret_cast<const uint64_t *>(storage);
   return {type_id_, val};
 }
 
-// Create a copy of this value
+/**
+ * Create a copy of this value
+ */
 auto TimestampType::Copy(const Value &val) const -> Value { return {val}; }
 
 auto TimestampType::CastAs(const Value &val, const TypeId type_id) const -> Value {

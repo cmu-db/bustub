@@ -253,6 +253,9 @@ auto IntegerType::CompareGreaterThanEquals(const Value &left, const Value &right
   throw Exception("type error");
 }
 
+/**
+ * Debug
+ */
 auto IntegerType::ToString(const Value &val) const -> std::string {
   assert(val.CheckInteger());
 
@@ -262,16 +265,24 @@ auto IntegerType::ToString(const Value &val) const -> std::string {
   return std::to_string(val.value_.integer_);
 }
 
+/**
+ * Serialize this value into the given storage space
+ */
 void IntegerType::SerializeTo(const Value &val, char *storage) const {
   *reinterpret_cast<int32_t *>(storage) = val.value_.integer_;
 }
 
-// Deserialize a value of the given type from the given storage space.
+/**
+ * Deserialize a value of the given type from the given storage space.
+ */
 auto IntegerType::DeserializeFrom(const char *storage) const -> Value {
   int32_t val = *reinterpret_cast<const int32_t *>(storage);
   return {type_id_, val};
 }
 
+/**
+ * Create a copy of this value
+ */
 auto IntegerType::Copy(const Value &val) const -> Value {
   assert(val.CheckInteger());
   return {val.GetTypeId(), val.value_.integer_};

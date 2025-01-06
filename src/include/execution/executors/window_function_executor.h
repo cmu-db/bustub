@@ -62,23 +62,11 @@ namespace bustub {
  */
 class WindowFunctionExecutor : public AbstractExecutor {
  public:
-  /**
-   * Construct a new WindowFunctionExecutor instance.
-   * @param exec_ctx The executor context
-   * @param plan The window aggregation plan to be executed
-   */
   WindowFunctionExecutor(ExecutorContext *exec_ctx, const WindowFunctionPlanNode *plan,
                          std::unique_ptr<AbstractExecutor> &&child_executor);
 
-  /** Initialize the window aggregation */
   void Init() override;
 
-  /**
-   * Yield the next tuple from the window aggregation.
-   * @param[out] tuple The next tuple produced by the window aggregation
-   * @param[out] rid The next tuple RID produced by the window aggregation
-   * @return `true` if a tuple was produced, `false` if there are no more tuples
-   */
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the window aggregation plan */

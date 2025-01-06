@@ -14,8 +14,15 @@
 
 namespace bustub {
 
+/**
+ * Create a new LRUReplacer.
+ * @param num_pages the maximum number of pages the LRUReplacer will be required to store
+ */
 LRUReplacer::LRUReplacer(size_t num_pages) {}
 
+/**
+ * Destroys the LRUReplacer.
+ */
 LRUReplacer::~LRUReplacer() = default;
 
 auto LRUReplacer::Victim(frame_id_t *frame_id) -> bool { return false; }

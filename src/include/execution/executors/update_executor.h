@@ -32,26 +32,11 @@ class UpdateExecutor : public AbstractExecutor {
   friend class UpdatePlanNode;
 
  public:
-  /**
-   * Construct a new UpdateExecutor instance.
-   * @param exec_ctx The executor context
-   * @param plan The update plan to be executed
-   * @param child_executor The child executor that feeds the update
-   */
   UpdateExecutor(ExecutorContext *exec_ctx, const UpdatePlanNode *plan,
                  std::unique_ptr<AbstractExecutor> &&child_executor);
 
-  /** Initialize the update */
   void Init() override;
 
-  /**
-   * Yield the next tuple from the update.
-   * @param[out] tuple The next tuple produced by the update
-   * @param[out] rid The next tuple RID produced by the update (ignore this)
-   * @return `true` if a tuple was produced, `false` if there are no more tuples
-   *
-   * NOTE: UpdateExecutor::Next() does not use the `rid` out-parameter.
-   */
   auto Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the update */

@@ -40,10 +40,14 @@ VarlenType::VarlenType(TypeId type) : Type(type) {}
 
 VarlenType::~VarlenType() = default;
 
-// Access the raw variable length data
+/**
+ * Access the raw variable length data
+ */
 auto VarlenType::GetData(const Value &val) const -> const char * { return val.value_.varlen_; }
 
-// Get the length of the variable length data (including the length field)
+/**
+ * Get the length of the variable length data (including the length field)
+ */
 auto VarlenType::GetStorageSize(const Value &val) const -> uint32_t { return val.size_.len_; }
 
 auto VarlenType::CompareEquals(const Value &left, const Value &right) const -> CmpBool {
@@ -122,6 +126,9 @@ auto VarlenType::Max(const Value &left, const Value &right) const -> Value {
   return right.Copy();
 }
 
+/**
+ * Debug
+ */
 auto VarlenType::ToString(const Value &val) const -> std::string {
   uint32_t len = GetStorageSize(val);
 
@@ -137,6 +144,9 @@ auto VarlenType::ToString(const Value &val) const -> std::string {
   return {GetData(val), len - 1};
 }
 
+/**
+ * Serialize this value into the given storage space
+ */
 void VarlenType::SerializeTo(const Value &val, char *storage) const {
   uint32_t len = GetStorageSize(val);
   if (len == BUSTUB_VALUE_NULL) {
@@ -147,7 +157,9 @@ void VarlenType::SerializeTo(const Value &val, char *storage) const {
   memcpy(storage + sizeof(uint32_t), val.value_.varlen_, len);
 }
 
-// Deserialize a value of the given type from the given storage space.
+/**
+ * Deserialize a value of the given type from the given storage space.
+ */
 auto VarlenType::DeserializeFrom(const char *storage) const -> Value {
   uint32_t len = *reinterpret_cast<const uint32_t *>(storage);
   if (len == BUSTUB_VALUE_NULL) {
@@ -157,6 +169,9 @@ auto VarlenType::DeserializeFrom(const char *storage) const -> Value {
   return {type_id_, storage + sizeof(uint32_t), len, true};
 }
 
+/**
+ * Create a copy of this value
+ */
 auto VarlenType::Copy(const Value &val) const -> Value { return {val}; }
 
 auto VarlenType::CastAs(const Value &value, const TypeId type_id) const -> Value {

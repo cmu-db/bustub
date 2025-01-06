@@ -18,6 +18,7 @@
 
 namespace bustub {
 
+/** @return a string representation of this column */
 auto Column::ToString(bool simplified) const -> std::string {
   if (simplified) {
     std::ostringstream os;
