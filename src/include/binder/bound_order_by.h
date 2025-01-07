@@ -1,8 +1,12 @@
 //===----------------------------------------------------------------------===//
+//
 //                         BusTub
 //
-// bustub/binder/bound_order_by.h
+// bound_order_by.h
 //
+// Identification: src/include/binder/bound_order_by.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

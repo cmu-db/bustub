@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// transaction_manager_impl.cpp
+//
+// Identification: src/concurrency/transaction_manager_impl.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 // DO NOT CHANGE THIS FILE, this file will not be included in the autograder.
 
 #include <exception>

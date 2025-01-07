@@ -6,7 +6,7 @@
 //
 // Identification: src/include/buffer/lru_k_replacer.h
 //
-// Copyright (c) 2015-2022, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

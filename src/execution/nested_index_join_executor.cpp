@@ -6,7 +6,7 @@
 //
 // Identification: src/execution/nested_index_join_executor.cpp
 //
-// Copyright (c) 2015-19, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

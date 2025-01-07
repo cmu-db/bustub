@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// column_pruning.cpp
+//
+// Identification: src/optimizer/column_pruning.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "optimizer/optimizer.h"
 
 namespace bustub {

@@ -6,7 +6,7 @@
 //
 // Identification: src/storage/page/page_guard.cpp
 //
-// Copyright (c) 2024-2024, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

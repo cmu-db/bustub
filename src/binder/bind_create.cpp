@@ -1,4 +1,16 @@
 //===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// bind_create.cpp
+//
+// Identification: src/binder/bind_create.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
+//===----------------------------------------------------------------------===//
 // Copyright 2018-2022 Stichting DuckDB Foundation
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy

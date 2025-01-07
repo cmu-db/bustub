@@ -4,9 +4,9 @@
 //
 // disk_manager_test.cpp
 //
-// Identification: test/storage/disk/disk_manager_test.cpp
+// Identification: test/storage/disk_manager_test.cpp
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

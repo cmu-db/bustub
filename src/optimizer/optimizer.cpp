@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// optimizer.cpp
+//
+// Identification: src/optimizer/optimizer.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "optimizer/optimizer.h"
 #include <optional>
 #include "common/util/string_util.h"

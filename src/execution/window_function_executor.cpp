@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// window_function_executor.cpp
+//
+// Identification: src/execution/window_function_executor.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "execution/executors/window_function_executor.h"
 #include "execution/plans/window_plan.h"
 #include "storage/table/tuple.h"

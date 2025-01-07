@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// fmt_impl.cpp
+//
+// Identification: src/execution/fmt_impl.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <type_traits>
 #include "execution/expressions/column_value_expression.h"
 #include "execution/plans/update_plan.h"

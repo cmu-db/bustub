@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// lru_k_replacer_test.cpp
+//
+// Identification: test/buffer/lru_k_replacer_test.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 /**
  * lru_k_replacer_test.cpp
  */

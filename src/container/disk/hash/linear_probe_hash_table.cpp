@@ -4,9 +4,9 @@
 //
 // linear_probe_hash_table.cpp
 //
-// Identification: src/container/hash/linear_probe_hash_table.cpp
+// Identification: src/container/disk/hash/linear_probe_hash_table.cpp
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

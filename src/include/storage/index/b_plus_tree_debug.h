@@ -4,9 +4,9 @@
 //
 // b_plus_tree_debug.h
 //
-// Identification: bustub/src/include/storage/index/b_plus_tree_debug.h
+// Identification: src/include/storage/index/b_plus_tree_debug.h
 //
-// Copyright (c) 2024, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

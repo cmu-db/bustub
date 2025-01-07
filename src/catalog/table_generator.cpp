@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// table_generator.cpp
+//
+// Identification: src/catalog/table_generator.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "catalog/table_generator.h"
 
 #include <algorithm>
