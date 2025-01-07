@@ -1,11 +1,12 @@
 //===----------------------------------------------------------------------===//
 //
-//                         CMU-DB Project (15-445/645)
-//                         ***DO NO SHARE PUBLICLY***
+//                         BusTub
 //
-// Identification: src/page/b_plus_tree_leaf_page.cpp
+// b_plus_tree_leaf_page.cpp
 //
-// Copyright (c) 2018-2024, Carnegie Mellon University Database Group
+// Identification: src/storage/page/b_plus_tree_leaf_page.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

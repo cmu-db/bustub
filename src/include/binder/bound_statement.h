@@ -1,8 +1,12 @@
 //===----------------------------------------------------------------------===//
+//
 //                         BusTub
 //
-// bustub/binder/sql_statement.h
+// bound_statement.h
 //
+// Identification: src/include/binder/bound_statement.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// insert_statement.cpp
+//
+// Identification: src/binder/statement/insert_statement.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "fmt/ranges.h"
 
 #include "binder/bound_expression.h"

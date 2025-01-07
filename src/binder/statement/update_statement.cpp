@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// update_statement.cpp
+//
+// Identification: src/binder/statement/update_statement.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "fmt/ranges.h"
 
 #include "binder/statement/update_statement.h"

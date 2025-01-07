@@ -6,9 +6,10 @@
 //
 // Identification: src/include/execution/execution_common.h
 //
-// Copyright (c) 2014-2024, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
+
 #pragma once
 
 #include <string>

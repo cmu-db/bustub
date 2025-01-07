@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// trie_store.cpp
+//
+// Identification: src/primer/trie_store.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "primer/trie_store.h"
 #include "common/exception.h"
 

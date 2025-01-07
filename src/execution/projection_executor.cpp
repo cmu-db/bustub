@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// projection_executor.cpp
+//
+// Identification: src/execution/projection_executor.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "execution/executors/projection_executor.h"
 #include "storage/table/tuple.h"
 

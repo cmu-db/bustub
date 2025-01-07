@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// hyperloglog.cpp
+//
+// Identification: src/primer/hyperloglog.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "primer/hyperloglog.h"
 
 namespace bustub {

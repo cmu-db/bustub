@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// trie_store_test.cpp
+//
+// Identification: test/primer/trie_store_test.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <fmt/format.h>
 #include <atomic>
 #include <functional>

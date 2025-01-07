@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// filter_executor.cpp
+//
+// Identification: src/execution/filter_executor.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "execution/executors/filter_executor.h"
 #include "common/exception.h"
 #include "type/value_factory.h"

@@ -1,8 +1,12 @@
 //===----------------------------------------------------------------------===//
+//
 //                         BusTub
 //
-// binder/keyword_helper.h
+// keyword_helper.h
 //
+// Identification: src/include/binder/keyword_helper.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// txn_index_concurrent_test.cpp
+//
+// Identification: test/txn/txn_index_concurrent_test.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <chrono>  // NOLINT
 #include <exception>
 #include <memory>

@@ -1,3 +1,14 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// bind_variable.cpp
+//
+// Identification: src/binder/bind_variable.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
 
 #include <memory>
 #include "binder/binder.h"

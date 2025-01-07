@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// fmt_impl.cpp
+//
+// Identification: src/binder/fmt_impl.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "binder/binder.h"
 #include "binder/bound_expression.h"
 #include "binder/bound_order_by.h"

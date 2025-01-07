@@ -6,9 +6,10 @@
 //
 // Identification: src/execution/index_scan_executor.cpp
 //
-// Copyright (c) 2015-19, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
+
 #include "execution/executors/index_scan_executor.h"
 
 namespace bustub {

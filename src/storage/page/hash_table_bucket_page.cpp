@@ -6,7 +6,7 @@
 //
 // Identification: src/storage/page/hash_table_bucket_page.cpp
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

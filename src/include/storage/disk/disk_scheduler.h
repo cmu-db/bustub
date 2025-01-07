@@ -6,7 +6,7 @@
 //
 // Identification: src/include/storage/disk/disk_scheduler.h
 //
-// Copyright (c) 2015-2024, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

@@ -6,7 +6,7 @@
 //
 // Identification: src/include/common/bustub_instance.h
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

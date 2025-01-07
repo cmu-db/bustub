@@ -2,11 +2,11 @@
 //
 //                         BusTub
 //
-// varlen_type.cpp
+// vector_type.cpp
 //
-// Identification: src/type/varlen_type.cpp
+// Identification: src/type/vector_type.cpp
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
