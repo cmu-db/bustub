@@ -335,6 +335,7 @@ TEST(SkipListTest, ConcurrentReadTest) {
   // Number of threads to use for concurrent reads
   const int num_threads = 8;
   std::vector<std::thread> threads;
+  threads.reserve(num_threads);
 
   const int total_num_elements = num_threads * 8192;
   auto list = std::make_unique<SkipList<int>>();
