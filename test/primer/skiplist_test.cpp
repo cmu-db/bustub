@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// skiplist_test.cpp
+//
+// Identification: test/primer/skiplist_test.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "primer/skiplist.h"
 #include <sys/types.h>
 #include <algorithm>
