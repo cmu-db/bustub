@@ -11,7 +11,6 @@
 //===----------------------------------------------------------------------===//
 
 #include "primer/skiplist.h"
-#include <sys/types.h>
 #include <algorithm>
 #include <atomic>
 #include <cstdint>
