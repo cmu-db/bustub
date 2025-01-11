@@ -332,7 +332,9 @@ TEST(SkipListTest, ConcurrentReadTest) {
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
-  const int total_num_elements = num_threads * 8192;
+  // Note: you might want to first try use a smaller number of elements
+  // if you are running this test on local machine.
+  const int total_num_elements = num_threads * 100000;
   auto list = std::make_unique<SkipList<int>>();
   // Insert some elements into the skip list
   for (int i = 0; i < total_num_elements; ++i) {
@@ -347,6 +349,7 @@ TEST(SkipListTest, ConcurrentReadTest) {
   };
 
   // Launch threads to perform concurrent reads
+  // Note: You will see a timeout if your reads cannot share access to the skip list
   for (int i = 0; i < num_threads; ++i) {
     threads.emplace_back(read_task, 0, total_num_elements);
   }
