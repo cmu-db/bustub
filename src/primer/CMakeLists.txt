@@ -5,6 +5,7 @@ add_library(
   hyperloglog_presto.cpp
   orset.cpp
   orset_driver.cpp
+  skiplist.cpp
   trie.cpp
   trie_store.cpp)
 
