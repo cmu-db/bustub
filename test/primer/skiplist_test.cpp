@@ -81,28 +81,23 @@ TEST(SkipListTest, IntegrityCheckTest) {
   InstrumentedSkipList<int> list;
 
   // All the keys we will insert into the skip list (1 to 20).
-  std::vector<int> keys = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+  std::vector<int> keys = {12, 16, 2, 6, 15, 8, 13, 1, 11, 14, 0, 4, 19, 10, 9, 5, 7, 3, 17, 18};
 
   // Heights of the nodes in the skip list.
   // These will not change since we fixed the seed of the random number generator.
-  std::vector<uint32_t> heights = {3, 4, 1, 1, 2, 2, 2, 6, 1, 3, 3, 9, 3, 1, 1, 1, 2, 4, 5, 3};
+  std::vector<uint32_t> heights = {2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 3, 1, 1, 2, 1, 1, 2, 3};
 
-  // Keys to insert in a shuffled order.
-  auto shuffled_keys = keys;
-  std::shuffle(shuffled_keys.begin(), shuffled_keys.end(), std::mt19937{0});
-
-  std::vector<uint32_t> shuffled_heights(20, 0);
-  for (size_t i = 0; i < 20; ++i) {
-    shuffled_heights[shuffled_keys[i]] = heights[i];
-  }
-
-  // Insert the keys in a shuffled order.
-  for (auto key : shuffled_keys) {
+  // Insert the keys
+  for (auto key : keys) {
     list.Insert(key);
   }
 
+  // Sort the keys
+  std::sort(keys.begin(), keys.end());
+
+  list.Print();
   // Check that we construct the skip list as expected.
-  list.CheckIntegrity(keys, shuffled_heights);
+  list.CheckIntegrity(keys, heights);
 }
 
 TEST(SkipListTest, InsertContainsTest1) {

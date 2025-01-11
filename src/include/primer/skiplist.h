@@ -109,13 +109,6 @@ class SkipList {
   /** @brief Number of elements in the skip list. */
   size_t size_{0};
 
-  /**
-   * @brief Geometric distribution for generating random level.
-   *
-   * Note: p=0.25 is a common choice for skip lists, also analyzed in Pugh's original paper.
-   */
-  std::geometric_distribution<uint32_t> dist_{0.25};
-
   /** @brief Random number generator. */
   std::mt19937 rng_{Seed};
 

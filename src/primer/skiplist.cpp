@@ -109,15 +109,17 @@ SKIPLIST_TEMPLATE_ARGUMENTS void SkipList<K, Compare, MaxHeight, Seed>::Print() 
 
 /**
  * @brief Generate a random height. The height should be cappped at `MaxHeight`.
- *
- * Note: consider using `std::geometric_distribution` with the random number generator provided in header.
+ * Note: we implement/simulate the geometric process to ensure platform independence.
  */
 SKIPLIST_TEMPLATE_ARGUMENTS auto SkipList<K, Compare, MaxHeight, Seed>::RandomHeight() -> size_t {
-  // Note: `std::geometric_distribution` generates a random integer
-  // in the range [0,`std::numeric_limits<uint32_t>::max()`).
-  // Increment 1 and apply `std::min` so that the result is in the
-  // range of [1,`MaxHeight`).
-  UNIMPLEMENTED("TODO(P0): Add implementation.");
+  // Branching factor (1 in 4 chance), see Pugh's paper.
+  static constexpr unsigned int branching_factor = 4;
+  // Start with the minimum height
+  size_t height = 1;
+  while (height < MaxHeight && (rng_() % branching_factor == 0)) {
+    height++;
+  }
+  return height;
 }
 
 /**
