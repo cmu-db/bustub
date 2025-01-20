@@ -72,7 +72,7 @@ BufferPoolManager::BufferPoolManager(size_t num_frames, DiskManager *disk_manage
       next_page_id_(0),
       bpm_latch_(std::make_shared<std::mutex>()),
       replacer_(std::make_shared<LRUKReplacer>(num_frames, k_dist)),
-      disk_scheduler_(std::make_unique<DiskScheduler>(disk_manager)),
+      disk_scheduler_(std::make_shared<DiskScheduler>(disk_manager)),
       log_manager_(log_manager) {
   // Not strictly necessary...
   std::scoped_lock latch(*bpm_latch_);
@@ -274,10 +274,13 @@ auto BufferPoolManager::ReadPage(page_id_t page_id, AccessType access_type) -> R
 }
 
 /**
- * @brief Flushes a page's data out to disk.
+ * @brief Flushes a page's data out to disk unsafely.
  *
  * This function will write out a page's data to disk if it has been modified. If the given page is not in memory, this
  * function will return `false`.
+ *
+ * You should not take a lock on the page in this function.
+ * This means that you should carefully consider when to toggle the `is_dirty_` bit.
  *
  * ### Implementation
  *
@@ -289,10 +292,47 @@ auto BufferPoolManager::ReadPage(page_id_t page_id, AccessType access_type) -> R
  * @param page_id The page ID of the page to be flushed.
  * @return `false` if the page could not be found in the page table, otherwise `true`.
  */
+auto BufferPoolManager::FlushPageUnsafe(page_id_t page_id) -> bool { UNIMPLEMENTED("TODO(P1): Add implementation."); }
+
+/**
+ * @brief Flushes a page's data out to disk safely.
+ *
+ * This function will write out a page's data to disk if it has been modified. If the given page is not in memory, this
+ * function will return `false`.
+ *
+ * You should take a lock on the page in this function to ensure that a consistent state is flushed to disk.
+ *
+ * ### Implementation
+ *
+ * You should probably leave implementing this function until after you have completed `CheckedReadPage`,
+ * `CheckedWritePage`, and `Flush` in the page guards, as it will likely be much easier to understand what to do.
+ *
+ * TODO(P1): Add implementation
+ *
+ * @param page_id The page ID of the page to be flushed.
+ * @return `false` if the page could not be found in the page table, otherwise `true`.
+ */
 auto BufferPoolManager::FlushPage(page_id_t page_id) -> bool { UNIMPLEMENTED("TODO(P1): Add implementation."); }
 
 /**
- * @brief Flushes all page data that is in memory to disk.
+ * @brief Flushes all page data that is in memory to disk unsafely.
+ *
+ * You should not take locks on the pages in this function.
+ * This means that you should carefully consider when to toggle the `is_dirty_` bit.
+ *
+ * ### Implementation
+ *
+ * You should probably leave implementing this function until after you have completed `CheckedReadPage`,
+ * `CheckedWritePage`, and `FlushPage`, as it will likely be much easier to understand what to do.
+ *
+ * TODO(P1): Add implementation
+ */
+void BufferPoolManager::FlushAllPagesUnsafe() { UNIMPLEMENTED("TODO(P1): Add implementation."); }
+
+/**
+ * @brief Flushes all page data that is in memory to disk safely.
+ *
+ * You should take locks on the pages in this function to ensure that a consistent state is flushed to disk.
  *
  * ### Implementation
  *

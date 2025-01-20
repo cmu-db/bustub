@@ -121,7 +121,9 @@ class BufferPoolManager {
   auto CheckedReadPage(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> std::optional<ReadPageGuard>;
   auto WritePage(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> WritePageGuard;
   auto ReadPage(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> ReadPageGuard;
+  auto FlushPageUnsafe(page_id_t page_id) -> bool;
   auto FlushPage(page_id_t page_id) -> bool;
+  void FlushAllPagesUnsafe();
   void FlushAllPages();
   auto GetPinCount(page_id_t page_id) -> std::optional<size_t>;
 
@@ -152,7 +154,7 @@ class BufferPoolManager {
   std::shared_ptr<LRUKReplacer> replacer_;
 
   /** @brief A pointer to the disk scheduler. */
-  std::unique_ptr<DiskScheduler> disk_scheduler_;
+  std::shared_ptr<DiskScheduler> disk_scheduler_;
 
   /**
    * @brief A pointer to the log manager.

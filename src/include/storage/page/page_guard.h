@@ -15,6 +15,7 @@
 #include <memory>
 
 #include "buffer/buffer_pool_manager.h"
+#include "storage/disk/disk_scheduler.h"
 #include "storage/page/page.h"
 
 namespace bustub {
@@ -60,13 +61,14 @@ class ReadPageGuard {
     return reinterpret_cast<const T *>(GetData());
   }
   auto IsDirty() const -> bool;
+  void Flush();
   void Drop();
   ~ReadPageGuard();
 
  private:
   /** @brief Only the buffer pool manager is allowed to construct a valid `ReadPageGuard.` */
   explicit ReadPageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> frame, std::shared_ptr<LRUKReplacer> replacer,
-                         std::shared_ptr<std::mutex> bpm_latch);
+                         std::shared_ptr<std::mutex> bpm_latch, std::shared_ptr<DiskScheduler> disk_scheduler);
 
   /** @brief The page ID of the page we are guarding. */
   page_id_t page_id_;
@@ -93,6 +95,13 @@ class ReadPageGuard {
    * pool's latch for when we need to update the frame's eviction state in the buffer pool replacer.
    */
   std::shared_ptr<std::mutex> bpm_latch_;
+
+  /**
+   * @brief A shared pointer to the buffer pool's disk scheduler.
+   *
+   * Used when flushing pages to disk.
+   */
+  std::shared_ptr<DiskScheduler> disk_scheduler_;
 
   /**
    * @brief The validity flag for this `ReadPageGuard`.
@@ -159,13 +168,14 @@ class WritePageGuard {
     return reinterpret_cast<T *>(GetDataMut());
   }
   auto IsDirty() const -> bool;
+  void Flush();
   void Drop();
   ~WritePageGuard();
 
  private:
   /** @brief Only the buffer pool manager is allowed to construct a valid `WritePageGuard.` */
   explicit WritePageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> frame, std::shared_ptr<LRUKReplacer> replacer,
-                          std::shared_ptr<std::mutex> bpm_latch);
+                          std::shared_ptr<std::mutex> bpm_latch, std::shared_ptr<DiskScheduler> disk_scheduler);
 
   /** @brief The page ID of the page we are guarding. */
   page_id_t page_id_;
@@ -192,6 +202,13 @@ class WritePageGuard {
    * pool's latch for when we need to update the frame's eviction state in the buffer pool replacer.
    */
   std::shared_ptr<std::mutex> bpm_latch_;
+
+  /**
+   * @brief A shared pointer to the buffer pool's disk scheduler.
+   *
+   * Used when flushing pages to disk.
+   */
+  std::shared_ptr<DiskScheduler> disk_scheduler_;
 
   /**
    * @brief The validity flag for this `WritePageGuard`.
