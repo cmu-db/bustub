@@ -11,7 +11,6 @@
 //===----------------------------------------------------------------------===//
 
 #include <cstdio>
-#include <deque>
 #include <filesystem>
 
 #include "buffer/buffer_pool_manager.h"
@@ -27,36 +26,37 @@ const size_t FRAMES = 10;
 // Note that this test assumes you are using the an LRU-K replacement policy.
 const size_t K_DIST = 5;
 
+void CopyString(char *dest, const std::string &src) {
+  BUSTUB_ENSURE(src.length() + 1 <= BUSTUB_PAGE_SIZE, "CopyString src too long");
+  snprintf(dest, BUSTUB_PAGE_SIZE, "%s", src.c_str());
+}
+
 TEST(BufferPoolManagerTest, DISABLED_VeryBasicTest) {
   // A very basic test.
 
   auto disk_manager = std::make_shared<DiskManager>(db_fname);
   auto bpm = std::make_shared<BufferPoolManager>(FRAMES, disk_manager.get(), K_DIST);
 
-  page_id_t pid = bpm->NewPage();
-
-  char str[] = "Hello, world!";
+  const page_id_t pid = bpm->NewPage();
+  const std::string str = "Hello, world!";
 
   // Check `WritePageGuard` basic functionality.
   {
     auto guard = bpm->WritePage(pid);
-    char *data = guard.GetDataMut();
-    snprintf(data, sizeof(str), "%s", str);
-    EXPECT_STREQ(data, str);
+    CopyString(guard.GetDataMut(), str);
+    EXPECT_STREQ(guard.GetData(), str.c_str());
   }
 
   // Check `ReadPageGuard` basic functionality.
   {
-    auto guard = bpm->ReadPage(pid);
-    const char *data = guard.GetData();
-    EXPECT_STREQ(data, str);
+    const auto guard = bpm->ReadPage(pid);
+    EXPECT_STREQ(guard.GetData(), str.c_str());
   }
 
   // Check `ReadPageGuard` basic functionality (again).
   {
-    auto guard = bpm->ReadPage(pid);
-    const char *data = guard.GetData();
-    EXPECT_STREQ(data, str);
+    const auto guard = bpm->ReadPage(pid);
+    EXPECT_STREQ(guard.GetData(), str.c_str());
   }
 
   ASSERT_TRUE(bpm->DeletePage(pid));
@@ -66,31 +66,34 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinEasyTest) {
   auto disk_manager = std::make_shared<DiskManager>(db_fname);
   auto bpm = std::make_shared<BufferPoolManager>(2, disk_manager.get(), 5);
 
-  page_id_t pageid0;
-  page_id_t pageid1;
+  const page_id_t pageid0 = bpm->NewPage();
+  const page_id_t pageid1 = bpm->NewPage();
+
+  const std::string str0 = "page0";
+  const std::string str1 = "page1";
+  const std::string str0updated = "page0updated";
+  const std::string str1updated = "page1updated";
 
   {
-    pageid0 = bpm->NewPage();
     auto page0_write_opt = bpm->CheckedWritePage(pageid0);
     ASSERT_TRUE(page0_write_opt.has_value());
-    WritePageGuard page0_write = std::move(page0_write_opt.value());
-    strcpy(page0_write.GetDataMut(), "page0");  // NOLINT
+    auto page0_write = std::move(page0_write_opt.value());
+    CopyString(page0_write.GetDataMut(), str0);
 
-    pageid1 = bpm->NewPage();
     auto page1_write_opt = bpm->CheckedWritePage(pageid1);
     ASSERT_TRUE(page1_write_opt.has_value());
-    WritePageGuard page1_write = std::move(page1_write_opt.value());
-    strcpy(page1_write.GetDataMut(), "page1");  // NOLINT
+    auto page1_write = std::move(page1_write_opt.value());
+    CopyString(page1_write.GetDataMut(), str1);
 
     ASSERT_EQ(1, bpm->GetPinCount(pageid0));
     ASSERT_EQ(1, bpm->GetPinCount(pageid1));
 
-    page_id_t temp_page_id1 = bpm->NewPage();
-    auto temp_page1_opt = bpm->CheckedReadPage(temp_page_id1);
+    const auto temp_page_id1 = bpm->NewPage();
+    const auto temp_page1_opt = bpm->CheckedReadPage(temp_page_id1);
     ASSERT_FALSE(temp_page1_opt.has_value());
 
-    page_id_t temp_page_id2 = bpm->NewPage();
-    auto temp_page2_opt = bpm->CheckedWritePage(temp_page_id2);
+    const auto temp_page_id2 = bpm->NewPage();
+    const auto temp_page2_opt = bpm->CheckedWritePage(temp_page_id2);
     ASSERT_FALSE(temp_page2_opt.has_value());
 
     ASSERT_EQ(1, bpm->GetPinCount(pageid0));
@@ -103,12 +106,12 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinEasyTest) {
   }
 
   {
-    page_id_t temp_page_id1 = bpm->NewPage();
-    auto temp_page1_opt = bpm->CheckedReadPage(temp_page_id1);
+    const auto temp_page_id1 = bpm->NewPage();
+    const auto temp_page1_opt = bpm->CheckedReadPage(temp_page_id1);
     ASSERT_TRUE(temp_page1_opt.has_value());
 
-    page_id_t temp_page_id2 = bpm->NewPage();
-    auto temp_page2_opt = bpm->CheckedWritePage(temp_page_id2);
+    const auto temp_page_id2 = bpm->NewPage();
+    const auto temp_page2_opt = bpm->CheckedWritePage(temp_page_id2);
     ASSERT_TRUE(temp_page2_opt.has_value());
 
     ASSERT_FALSE(bpm->GetPinCount(pageid0).has_value());
@@ -118,15 +121,15 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinEasyTest) {
   {
     auto page0_write_opt = bpm->CheckedWritePage(pageid0);
     ASSERT_TRUE(page0_write_opt.has_value());
-    WritePageGuard page0_write = std::move(page0_write_opt.value());
-    ASSERT_EQ(0, strcmp(page0_write.GetData(), "page0"));
-    strcpy(page0_write.GetDataMut(), "page0updated");  // NOLINT
+    auto page0_write = std::move(page0_write_opt.value());
+    EXPECT_STREQ(page0_write.GetData(), str0.c_str());
+    CopyString(page0_write.GetDataMut(), str0updated);
 
     auto page1_write_opt = bpm->CheckedWritePage(pageid1);
     ASSERT_TRUE(page1_write_opt.has_value());
-    WritePageGuard page1_write = std::move(page1_write_opt.value());
-    ASSERT_EQ(0, strcmp(page1_write.GetData(), "page1"));
-    strcpy(page1_write.GetDataMut(), "page1updated");  // NOLINT
+    auto page1_write = std::move(page1_write_opt.value());
+    EXPECT_STREQ(page1_write.GetData(), str1.c_str());
+    CopyString(page1_write.GetDataMut(), str1updated);
 
     ASSERT_EQ(1, bpm->GetPinCount(pageid0));
     ASSERT_EQ(1, bpm->GetPinCount(pageid1));
@@ -138,13 +141,13 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinEasyTest) {
   {
     auto page0_read_opt = bpm->CheckedReadPage(pageid0);
     ASSERT_TRUE(page0_read_opt.has_value());
-    ReadPageGuard page0_read = std::move(page0_read_opt.value());
-    ASSERT_EQ(0, strcmp(page0_read.GetData(), "page0updated"));
+    const auto page0_read = std::move(page0_read_opt.value());
+    EXPECT_STREQ(page0_read.GetData(), str0updated.c_str());
 
     auto page1_read_opt = bpm->CheckedReadPage(pageid1);
     ASSERT_TRUE(page1_read_opt.has_value());
-    ReadPageGuard page1_read = std::move(page1_read_opt.value());
-    ASSERT_EQ(0, strcmp(page1_read.GetData(), "page1updated"));
+    const auto page1_read = std::move(page1_read_opt.value());
+    EXPECT_STREQ(page1_read.GetData(), str1updated.c_str());
 
     ASSERT_EQ(1, bpm->GetPinCount(pageid0));
     ASSERT_EQ(1, bpm->GetPinCount(pageid1));
@@ -162,12 +165,13 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinMediumTest) {
   auto bpm = std::make_shared<BufferPoolManager>(FRAMES, disk_manager.get(), K_DIST);
 
   // Scenario: The buffer pool is empty. We should be able to create a new page.
-  page_id_t pid0 = bpm->NewPage();
+  const auto pid0 = bpm->NewPage();
   auto page0 = bpm->WritePage(pid0);
 
   // Scenario: Once we have a page, we should be able to read and write content.
-  snprintf(page0.GetDataMut(), BUSTUB_PAGE_SIZE, "Hello");
-  EXPECT_EQ(0, strcmp(page0.GetDataMut(), "Hello"));
+  const std::string hello = "Hello";
+  CopyString(page0.GetDataMut(), hello);
+  EXPECT_STREQ(page0.GetData(), hello.c_str());
 
   page0.Drop();
 
@@ -176,27 +180,27 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinMediumTest) {
 
   // Scenario: We should be able to create new pages until we fill up the buffer pool.
   for (size_t i = 0; i < FRAMES; i++) {
-    auto pid = bpm->NewPage();
+    const auto pid = bpm->NewPage();
     auto page = bpm->WritePage(pid);
     pages.push_back(std::move(page));
   }
 
   // Scenario: All of the pin counts should be 1.
   for (const auto &page : pages) {
-    auto pid = page.GetPageId();
+    const auto pid = page.GetPageId();
     EXPECT_EQ(1, bpm->GetPinCount(pid));
   }
 
   // Scenario: Once the buffer pool is full, we should not be able to create any new pages.
   for (size_t i = 0; i < FRAMES; i++) {
-    auto pid = bpm->NewPage();
-    auto fail = bpm->CheckedWritePage(pid);
+    const auto pid = bpm->NewPage();
+    const auto fail = bpm->CheckedWritePage(pid);
     ASSERT_FALSE(fail.has_value());
   }
 
   // Scenario: Drop the first 5 pages to unpin them.
   for (size_t i = 0; i < FRAMES / 2; i++) {
-    page_id_t pid = pages[0].GetPageId();
+    const auto pid = pages[0].GetPageId();
     EXPECT_EQ(1, bpm->GetPinCount(pid));
     pages.erase(pages.begin());
     EXPECT_EQ(0, bpm->GetPinCount(pid));
@@ -204,30 +208,30 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinMediumTest) {
 
   // Scenario: All of the pin counts of the pages we haven't dropped yet should still be 1.
   for (const auto &page : pages) {
-    auto pid = page.GetPageId();
+    const auto pid = page.GetPageId();
     EXPECT_EQ(1, bpm->GetPinCount(pid));
   }
 
   // Scenario: After unpinning pages {1, 2, 3, 4, 5}, we should be able to create 4 new pages and bring them into
   // memory. Bringing those 4 pages into memory should evict the first 4 pages {1, 2, 3, 4} because of LRU.
   for (size_t i = 0; i < ((FRAMES / 2) - 1); i++) {
-    auto pid = bpm->NewPage();
+    const auto pid = bpm->NewPage();
     auto page = bpm->WritePage(pid);
     pages.push_back(std::move(page));
   }
 
   // Scenario: There should be one frame available, and we should be able to fetch the data we wrote a while ago.
   {
-    ReadPageGuard original_page = bpm->ReadPage(pid0);
-    EXPECT_EQ(0, strcmp(original_page.GetData(), "Hello"));
+    const auto original_page = bpm->ReadPage(pid0);
+    EXPECT_STREQ(original_page.GetData(), hello.c_str());
   }
 
   // Scenario: Once we unpin page 0 and then make a new page, all the buffer pages should now be pinned. Fetching page 0
   // again should fail.
-  auto last_pid = bpm->NewPage();
-  auto last_page = bpm->ReadPage(last_pid);
+  const auto last_pid = bpm->NewPage();
+  const auto last_page = bpm->ReadPage(last_pid);
 
-  auto fail = bpm->CheckedReadPage(pid0);
+  const auto fail = bpm->CheckedReadPage(pid0);
   ASSERT_FALSE(fail.has_value());
 
   // Shutdown the disk manager and remove the temporary file we created.
@@ -241,7 +245,7 @@ TEST(BufferPoolManagerTest, DISABLED_PageAccessTest) {
   auto disk_manager = std::make_shared<DiskManager>(db_fname);
   auto bpm = std::make_shared<BufferPoolManager>(1, disk_manager.get(), K_DIST);
 
-  auto pid = bpm->NewPage();
+  const auto pid = bpm->NewPage();
   char buf[BUSTUB_PAGE_SIZE];
 
   auto thread = std::thread([&]() {
@@ -249,7 +253,7 @@ TEST(BufferPoolManagerTest, DISABLED_PageAccessTest) {
     for (size_t i = 0; i < rounds; i++) {
       std::this_thread::sleep_for(std::chrono::milliseconds(5));
       auto guard = bpm->WritePage(pid);
-      strcpy(guard.GetDataMut(), std::to_string(i).c_str());  // NOLINT
+      CopyString(guard.GetDataMut(), std::to_string(i));
     }
   });
 
@@ -258,7 +262,7 @@ TEST(BufferPoolManagerTest, DISABLED_PageAccessTest) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     // While we are reading, nobody should be able to modify the data.
-    auto guard = bpm->ReadPage(pid);
+    const auto guard = bpm->ReadPage(pid);
 
     // Save the data we observe.
     memcpy(buf, guard.GetData(), BUSTUB_PAGE_SIZE);
@@ -267,7 +271,7 @@ TEST(BufferPoolManagerTest, DISABLED_PageAccessTest) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     // Check that the data is unmodified.
-    EXPECT_EQ(0, strcmp(guard.GetData(), buf));
+    EXPECT_STREQ(guard.GetData(), buf);
   }
 
   thread.join();
@@ -279,33 +283,33 @@ TEST(BufferPoolManagerTest, DISABLED_ContentionTest) {
 
   const size_t rounds = 100000;
 
-  auto pid = bpm->NewPage();
+  const auto pid = bpm->NewPage();
 
   auto thread1 = std::thread([&]() {
     for (size_t i = 0; i < rounds; i++) {
       auto guard = bpm->WritePage(pid);
-      strcpy(guard.GetDataMut(), std::to_string(i).c_str());  // NOLINT
+      CopyString(guard.GetDataMut(), std::to_string(i));
     }
   });
 
   auto thread2 = std::thread([&]() {
     for (size_t i = 0; i < rounds; i++) {
       auto guard = bpm->WritePage(pid);
-      strcpy(guard.GetDataMut(), std::to_string(i).c_str());  // NOLINT
+      CopyString(guard.GetDataMut(), std::to_string(i));
     }
   });
 
   auto thread3 = std::thread([&]() {
     for (size_t i = 0; i < rounds; i++) {
       auto guard = bpm->WritePage(pid);
-      strcpy(guard.GetDataMut(), std::to_string(i).c_str());  // NOLINT
+      CopyString(guard.GetDataMut(), std::to_string(i));
     }
   });
 
   auto thread4 = std::thread([&]() {
     for (size_t i = 0; i < rounds; i++) {
       auto guard = bpm->WritePage(pid);
-      strcpy(guard.GetDataMut(), std::to_string(i).c_str());  // NOLINT
+      CopyString(guard.GetDataMut(), std::to_string(i));
     }
   });
 
@@ -319,8 +323,8 @@ TEST(BufferPoolManagerTest, DISABLED_DeadlockTest) {
   auto disk_manager = std::make_shared<DiskManager>(db_fname);
   auto bpm = std::make_shared<BufferPoolManager>(FRAMES, disk_manager.get(), K_DIST);
 
-  auto pid0 = bpm->NewPage();
-  auto pid1 = bpm->NewPage();
+  const auto pid0 = bpm->NewPage();
+  const auto pid1 = bpm->NewPage();
 
   auto guard0 = bpm->WritePage(pid0);
 
@@ -332,7 +336,7 @@ TEST(BufferPoolManagerTest, DISABLED_DeadlockTest) {
     start.store(true);
 
     // Attempt to write to page 0.
-    auto guard0 = bpm->WritePage(pid0);
+    const auto guard0 = bpm->WritePage(pid0);
   });
 
   // Wait for the other thread to begin before we start the test.
@@ -347,7 +351,7 @@ TEST(BufferPoolManagerTest, DISABLED_DeadlockTest) {
   // Think about what might happen if you hold a certain "all-encompassing" latch for too long...
 
   // While holding page 0, take the latch on page 1.
-  auto guard1 = bpm->WritePage(pid1);
+  const auto guard1 = bpm->WritePage(pid1);
 
   // Let the child thread have the page 0 since we're done with it.
   guard0.Drop();
@@ -357,8 +361,8 @@ TEST(BufferPoolManagerTest, DISABLED_DeadlockTest) {
 
 TEST(BufferPoolManagerTest, DISABLED_EvictableTest) {
   // Test if the evictable status of a frame is always correct.
-  size_t rounds = 1000;
-  size_t num_readers = 8;
+  const size_t rounds = 1000;
+  const size_t num_readers = 8;
 
   auto disk_manager = std::make_shared<DiskManager>(db_fname);
   // Only allocate 1 frame of memory to the buffer pool manager.
@@ -372,9 +376,9 @@ TEST(BufferPoolManagerTest, DISABLED_EvictableTest) {
     bool signal = false;
 
     // This page will be loaded into the only available frame.
-    page_id_t winner_pid = bpm->NewPage();
+    const auto winner_pid = bpm->NewPage();
     // We will attempt to load this page into the occupied frame, and it should fail every time.
-    page_id_t loser_pid = bpm->NewPage();
+    const auto loser_pid = bpm->NewPage();
 
     std::vector<std::thread> readers;
     for (size_t j = 0; j < num_readers; j++) {
@@ -387,7 +391,7 @@ TEST(BufferPoolManagerTest, DISABLED_EvictableTest) {
         }
 
         // Read the page in shared mode.
-        auto read_guard = bpm->ReadPage(winner_pid);
+        const auto read_guard = bpm->ReadPage(winner_pid);
 
         // Since the only frame is pinned, no thread should be able to bring in a new page.
         ASSERT_FALSE(bpm->CheckedReadPage(loser_pid).has_value());
