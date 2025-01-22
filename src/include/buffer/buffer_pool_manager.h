@@ -121,7 +121,9 @@ class BufferPoolManager {
   auto CheckedReadPage(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> std::optional<ReadPageGuard>;
   auto WritePage(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> WritePageGuard;
   auto ReadPage(page_id_t page_id, AccessType access_type = AccessType::Unknown) -> ReadPageGuard;
+  auto FlushPageUnsafe(page_id_t page_id) -> bool;
   auto FlushPage(page_id_t page_id) -> bool;
+  void FlushAllPagesUnsafe();
   void FlushAllPages();
   auto GetPinCount(page_id_t page_id) -> std::optional<size_t>;
 
@@ -151,8 +153,8 @@ class BufferPoolManager {
   /** @brief The replacer to find unpinned / candidate pages for eviction. */
   std::shared_ptr<LRUKReplacer> replacer_;
 
-  /** @brief A pointer to the disk scheduler. */
-  std::unique_ptr<DiskScheduler> disk_scheduler_;
+  /** @brief A pointer to the disk scheduler. Shared with the page guards for flushing. */
+  std::shared_ptr<DiskScheduler> disk_scheduler_;
 
   /**
    * @brief A pointer to the log manager.
