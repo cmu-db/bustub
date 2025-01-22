@@ -153,7 +153,7 @@ class BufferPoolManager {
   /** @brief The replacer to find unpinned / candidate pages for eviction. */
   std::shared_ptr<LRUKReplacer> replacer_;
 
-  /** @brief A pointer to the disk scheduler. */
+  /** @brief A pointer to the disk scheduler. Shared with the page guards for flushing. */
   std::shared_ptr<DiskScheduler> disk_scheduler_;
 
   /**
