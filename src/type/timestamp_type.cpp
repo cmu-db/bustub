@@ -110,7 +110,7 @@ auto TimestampType::ToString(const Value &val) const -> std::string {
   tm /= 100000;
   auto year = static_cast<uint16_t>(tm % 10000);
   tm /= 10000;
-  auto tz = static_cast<int>(tm % 27);
+  auto tz = static_cast<int8_t>(tm % 27);
   tz -= 12;
   tm /= 27;
   auto day = static_cast<uint16_t>(tm % 32);

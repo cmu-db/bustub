@@ -15,6 +15,7 @@
 
 #include "common/exception.h"
 #include "common/macros.h"
+#include "fmt/ranges.h"
 #include "type/type_id.h"
 #include "type/type_util.h"
 #include "type/vector_type.h"
