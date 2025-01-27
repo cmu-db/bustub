@@ -112,12 +112,6 @@ auto BufferPoolManager::Size() const -> size_t { return num_frames_; }
  * You will maintain a thread-safe, monotonically increasing counter in the form of a `std::atomic<page_id_t>`.
  * See the documentation on [atomics](https://en.cppreference.com/w/cpp/atomic/atomic) for more information.
  *
- * Also, make sure to read the documentation for `DeletePage`! You can assume that you will never run out of disk
- * space (via `DiskScheduler::IncreaseDiskSpace`), so this function _cannot_ fail.
- *
- * Once you have allocated the new page via the counter, make sure to call `DiskScheduler::IncreaseDiskSpace` so you
- * have enough space on disk!
- *
  * TODO(P1): Add implementation.
  *
  * @return The page ID of the newly allocated page.
