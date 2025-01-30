@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// b_plus_tree_contention_test.cpp
+//
+// Identification: test/storage/b_plus_tree_contention_test.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 /**
  * b_plus_tree_contention_test.cpp
  */

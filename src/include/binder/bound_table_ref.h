@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// bound_table_ref.h
+//
+// Identification: src/include/binder/bound_table_ref.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #pragma once
 
 #include <memory>

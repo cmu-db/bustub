@@ -1,9 +1,21 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// linear_probe_hash_table_index.cpp
+//
+// Identification: src/storage/index/linear_probe_hash_table_index.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <vector>
 
 #include "storage/index/linear_probe_hash_table_index.h"
 
 namespace bustub {
-/*
+/**
  * Constructor
  */
 template <typename KeyType, typename ValueType, typename KeyComparator>

@@ -6,7 +6,7 @@
 //
 // Identification: src/type/bigint_type.cpp
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -249,6 +249,9 @@ auto BigintType::CompareGreaterThanEquals(const Value &left, const Value &right)
   throw Exception("type error");
 }
 
+/**
+ * Debug
+ */
 auto BigintType::ToString(const Value &val) const -> std::string {
   assert(val.CheckInteger());
 
@@ -258,16 +261,24 @@ auto BigintType::ToString(const Value &val) const -> std::string {
   return std::to_string(val.value_.bigint_);
 }
 
+/**
+ * Serialize this value into the given storage space
+ */
 void BigintType::SerializeTo(const Value &val, char *storage) const {
   *reinterpret_cast<int64_t *>(storage) = val.value_.bigint_;
 }
 
-// Deserialize a value of the given type from the given storage space.
+/**
+ * Deserialize a value of the given type from the given storage space.
+ */
 auto BigintType::DeserializeFrom(const char *storage) const -> Value {
   int64_t val = *reinterpret_cast<const int64_t *>(storage);
   return {type_id_, val};
 }
 
+/**
+ * Create a copy of this value
+ */
 auto BigintType::Copy(const Value &val) const -> Value { return {TypeId::BIGINT, val.value_.bigint_}; }
 
 auto BigintType::CastAs(const Value &val, const TypeId type_id) const -> Value {

@@ -1,4 +1,16 @@
 //===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// transformer.cpp
+//
+// Identification: src/binder/transformer.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
+//===----------------------------------------------------------------------===//
 // Copyright 2018-2022 Stichting DuckDB Foundation
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -43,6 +55,7 @@
 
 namespace bustub {
 
+/** Transform a Postgres parse tree into a std::vector of SQL Statements. */
 void Binder::SaveParseTree(duckdb_libpgquery::PGList *tree) {
   std::vector<std::unique_ptr<BoundStatement>> statements;
   for (auto entry = tree->head; entry != nullptr; entry = entry->next) {
@@ -50,6 +63,7 @@ void Binder::SaveParseTree(duckdb_libpgquery::PGList *tree) {
   }
 }
 
+/** Transform a Postgres statement into a single SQL statement. */
 auto Binder::BindStatement(duckdb_libpgquery::PGNode *stmt) -> std::unique_ptr<BoundStatement> {
   switch (stmt->type) {
     case duckdb_libpgquery::T_PGRawStmt:

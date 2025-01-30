@@ -1,7 +1,12 @@
 //===----------------------------------------------------------------------===//
+//
 //                         BusTub
 //
-// binder/insert_statement.h
+// insert_statement.h
+//
+// Identification: src/include/binder/statement/insert_statement.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

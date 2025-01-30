@@ -6,7 +6,7 @@
 //
 // Identification: src/include/execution/executors/nested_index_join_executor.h
 //
-// Copyright (c) 2015-19, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -32,12 +32,6 @@ namespace bustub {
  */
 class NestIndexJoinExecutor : public AbstractExecutor {
  public:
-  /**
-   * Creates a new nested index join executor.
-   * @param exec_ctx the context that the nested index join should be performed in
-   * @param plan the nested index join plan to be executed
-   * @param child_executor the outer table
-   */
   NestIndexJoinExecutor(ExecutorContext *exec_ctx, const NestedIndexJoinPlanNode *plan,
                         std::unique_ptr<AbstractExecutor> &&child_executor);
 

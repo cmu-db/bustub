@@ -1,18 +1,19 @@
 //===----------------------------------------------------------------------===//
 //
-//                         CMU-DB Project (15-445/645)
-//                         ***DO NO SHARE PUBLICLY***
+//                         BusTub
 //
-// Identification: src/index/b_plus_tree_index.cpp
+// b_plus_tree_index.cpp
 //
-// Copyright (c) 2018-2024, Carnegie Mellon University Database Group
+// Identification: src/storage/index/b_plus_tree_index.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
 #include "storage/index/b_plus_tree_index.h"
 
 namespace bustub {
-/*
+/**
  * Constructor
  */
 INDEX_TEMPLATE_ARGUMENTS

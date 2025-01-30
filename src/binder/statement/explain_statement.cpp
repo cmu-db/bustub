@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// explain_statement.cpp
+//
+// Identification: src/binder/statement/explain_statement.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "binder/statement/explain_statement.h"
 #include "fmt/ranges.h"
 

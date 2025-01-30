@@ -6,7 +6,7 @@
 //
 // Identification: src/include/storage/disk/disk_scheduler.h
 //
-// Copyright (c) 2015-2024, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -54,23 +54,8 @@ class DiskScheduler {
   explicit DiskScheduler(DiskManager *disk_manager);
   ~DiskScheduler();
 
-  /**
-   * TODO(P1): Add implementation
-   *
-   * @brief Schedules a request for the DiskManager to execute.
-   *
-   * @param r The request to be scheduled.
-   */
   void Schedule(DiskRequest r);
 
-  /**
-   * TODO(P1): Add implementation
-   *
-   * @brief Background worker thread function that processes scheduled requests.
-   *
-   * The background thread needs to process requests while the DiskScheduler exists, i.e., this function should not
-   * return until ~DiskScheduler() is called. At that point you need to make sure that the function does return.
-   */
   void StartWorkerThread();
 
   using DiskSchedulerPromise = std::promise<bool>;
@@ -82,15 +67,6 @@ class DiskScheduler {
    * @return std::promise<bool>
    */
   auto CreatePromise() -> DiskSchedulerPromise { return {}; };
-
-  /**
-   * @brief Increases the size of the database file to fit the specified number of pages.
-   *
-   * This function works like a dynamic array, where the capacity is doubled until all pages can fit.
-   *
-   * @param pages The number of pages the caller wants the file used for storage to support.
-   */
-  void IncreaseDiskSpace(size_t pages) { disk_manager_->IncreaseDiskSpace(pages); }
 
   /**
    * @brief Deallocates a page on disk.

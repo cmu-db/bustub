@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// trie_store_noncopy_test.cpp
+//
+// Identification: test/primer/trie_store_noncopy_test.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <bitset>
 #include <functional>
 #include <memory>

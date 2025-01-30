@@ -6,7 +6,7 @@
 //
 // Identification: src/type/value.cpp
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -320,6 +320,9 @@ auto Value::CheckComparable(const Value &o) const -> bool {
   return false;
 }
 
+/**
+ * check whether value is integer
+ */
 auto Value::CheckInteger() const -> bool {
   switch (GetTypeId()) {
     case TypeId::TINYINT:
@@ -333,6 +336,9 @@ auto Value::CheckInteger() const -> bool {
   return false;
 }
 
+/**
+ * Get the type of this value
+ */
 auto Value::GetColumn() const -> Column {
   switch (GetTypeId()) {
     case TypeId::VARCHAR:

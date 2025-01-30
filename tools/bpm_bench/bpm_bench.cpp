@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// bpm_bench.cpp
+//
+// Identification: tools/bpm_bench/bpm_bench.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <chrono>
 #include <exception>
 #include <iostream>

@@ -6,7 +6,7 @@
 //
 // Identification: test/container/disk/hash/extendible_htable_concurrent_test.cpp
 //
-// Copyright (c) 2015-2023, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

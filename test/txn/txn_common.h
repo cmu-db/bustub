@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// txn_common.h
+//
+// Identification: test/txn/txn_common.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #pragma once
 
 #include <src/gtest-internal-inl.h>
@@ -27,6 +39,7 @@
 #include "execution/execution_common.h"
 #include "fmt/core.h"
 #include "fmt/format.h"
+#include "fmt/ranges.h"
 #include "gtest/gtest.h"
 #include "storage/disk/disk_manager_memory.h"
 #include "storage/index/b_plus_tree.h"

@@ -6,7 +6,7 @@
 //
 // Identification: src/include/execution/executors/external_merge_sort_executor.h
 //
-// Copyright (c) 2015-2024, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -141,15 +141,8 @@ class ExternalMergeSortExecutor : public AbstractExecutor {
   ExternalMergeSortExecutor(ExecutorContext *exec_ctx, const SortPlanNode *plan,
                             std::unique_ptr<AbstractExecutor> &&child_executor);
 
-  /** Initialize the external merge sort */
   void Init() override;
 
-  /**
-   * Yield the next tuple from the external merge sort.
-   * @param[out] tuple The next tuple produced by the external merge sort.
-   * @param[out] rid The next tuple RID produced by the external merge sort.
-   * @return `true` if a tuple was produced, `false` if there are no more tuples
-   */
   auto Next(Tuple *tuple, RID *rid) -> bool override;
 
   /** @return The output schema for the external merge sort */

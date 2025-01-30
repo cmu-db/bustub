@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// hyperloglog_test.cpp
+//
+// Identification: test/primer/hyperloglog_test.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <limits>
 #include <memory>
 #include <string>

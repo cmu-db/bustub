@@ -6,7 +6,7 @@
 //
 // Identification: src/type/timestamp_type.cpp
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -91,7 +91,9 @@ auto TimestampType::Max(const Value &left, const Value &right) const -> Value {
   return right.Copy();
 }
 
-// Debug
+/**
+ * Debug
+ */
 auto TimestampType::ToString(const Value &val) const -> std::string {
   if (val.IsNull()) {
     return "timestamp_null";
@@ -108,7 +110,7 @@ auto TimestampType::ToString(const Value &val) const -> std::string {
   tm /= 100000;
   auto year = static_cast<uint16_t>(tm % 10000);
   tm /= 10000;
-  auto tz = static_cast<int>(tm % 27);
+  auto tz = static_cast<int8_t>(tm % 27);
   tz -= 12;
   tm /= 27;
   auto day = static_cast<uint16_t>(tm % 32);
@@ -132,17 +134,24 @@ auto TimestampType::ToString(const Value &val) const -> std::string {
   return std::string(std::string(str) + std::string(zone));
 }
 
+/**
+ * Serialize this value into the given storage space
+ */
 void TimestampType::SerializeTo(const Value &val, char *storage) const {
   *reinterpret_cast<uint64_t *>(storage) = val.value_.timestamp_;
 }
 
-// Deserialize a value of the given type from the given storage space.
+/**
+ * Deserialize a value of the given type from the given storage space.
+ */
 auto TimestampType::DeserializeFrom(const char *storage) const -> Value {
   uint64_t val = *reinterpret_cast<const uint64_t *>(storage);
   return {type_id_, val};
 }
 
-// Create a copy of this value
+/**
+ * Create a copy of this value
+ */
 auto TimestampType::Copy(const Value &val) const -> Value { return {val}; }
 
 auto TimestampType::CastAs(const Value &val, const TypeId type_id) const -> Value {

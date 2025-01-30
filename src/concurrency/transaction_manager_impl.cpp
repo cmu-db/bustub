@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// transaction_manager_impl.cpp
+//
+// Identification: src/concurrency/transaction_manager_impl.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 // DO NOT CHANGE THIS FILE, this file will not be included in the autograder.
 
 #include <exception>
@@ -25,6 +37,10 @@
 
 namespace bustub {
 
+/**
+ * @brief Update an undo link that links table heap tuple to the first undo log.
+ * Before updating, `check` function will be called to ensure validity.
+ */
 auto TransactionManager::UpdateUndoLink(RID rid, std::optional<UndoLink> prev_link,
                                         std::function<bool(std::optional<UndoLink>)> &&check) -> bool {
   std::unique_lock<std::shared_mutex> lck(version_info_mutex_);
@@ -56,6 +72,7 @@ auto TransactionManager::UpdateUndoLink(RID rid, std::optional<UndoLink> prev_li
   return true;
 }
 
+/** @brief Get the first undo log of a table heap tuple. */
 auto TransactionManager::GetUndoLink(RID rid) -> std::optional<UndoLink> {
   std::shared_lock<std::shared_mutex> lck(version_info_mutex_);
   auto iter = version_info_.find(rid.GetPageId());
@@ -72,6 +89,8 @@ auto TransactionManager::GetUndoLink(RID rid) -> std::optional<UndoLink> {
   return std::make_optional(iter2->second);
 }
 
+/** @brief Access the transaction undo log buffer and get the undo log. Return nullopt if the txn does not exist. Will
+ * still throw an exception if the index is out of range. */
 auto TransactionManager::GetUndoLogOptional(UndoLink link) -> std::optional<UndoLog> {
   std::shared_lock<std::shared_mutex> lck(txn_map_mutex_);
   auto iter = txn_map_.find(link.prev_txn_);
@@ -83,6 +102,9 @@ auto TransactionManager::GetUndoLogOptional(UndoLink link) -> std::optional<Undo
   return txn->GetUndoLog(link.prev_log_idx_);
 }
 
+/** @brief Access the transaction undo log buffer and get the undo log. Except when accessing the current txn buffer,
+ * you should always call this function to get the undo log instead of manually retrieve the txn shared_ptr and access
+ * the buffer. */
 auto TransactionManager::GetUndoLog(UndoLink link) -> UndoLog {
   auto undo_log = GetUndoLogOptional(link);
   if (undo_log.has_value()) {
@@ -101,6 +123,9 @@ void Transaction::SetTainted() {
   std::terminate();
 }
 
+/**
+ * @brief Update the tuple and its undo link in the table heap atomically.
+ */
 auto UpdateTupleAndUndoLink(
     TransactionManager *txn_mgr, RID rid, std::optional<UndoLink> undo_link, TableHeap *table_heap, Transaction *txn,
     const TupleMeta &meta, const Tuple &tuple,
@@ -123,6 +148,9 @@ auto UpdateTupleAndUndoLink(
   return true;
 }
 
+/**
+ * @brief Get the tuple and its undo link in the table heap atomically.
+ */
 auto GetTupleAndUndoLink(TransactionManager *txn_mgr, TableHeap *table_heap, RID rid)
     -> std::tuple<TupleMeta, Tuple, std::optional<UndoLink>> {
   auto page_read_guard = table_heap->AcquireTablePageReadLock(rid);

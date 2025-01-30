@@ -1,11 +1,12 @@
 //===----------------------------------------------------------------------===//
 //
-//                         CMU-DB Project (15-445/645)
-//                         ***DO NO SHARE PUBLICLY***
+//                         BusTub
 //
-// Identification: src/page/b_plus_tree_leaf_page.cpp
+// b_plus_tree_leaf_page.cpp
 //
-// Copyright (c) 2018-2024, Carnegie Mellon University Database Group
+// Identification: src/storage/page/b_plus_tree_leaf_page.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -22,8 +23,13 @@ namespace bustub {
  *****************************************************************************/
 
 /**
- * Init method after creating a new leaf page
- * Including set page type, set current size to zero, set next page id and set max size
+ * @brief Init method after creating a new leaf page
+ *
+ * After creating a new leaf page from buffer pool, must call initialize method to set default values,
+ * including set page type, set current size to zero, set page id/parent id, set
+ * next page id and set max size.
+ *
+ * @param max_size Max size of the leaf node
  */
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_LEAF_PAGE_TYPE::Init(int max_size) {}

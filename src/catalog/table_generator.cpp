@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// table_generator.cpp
+//
+// Identification: src/catalog/table_generator.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "catalog/table_generator.h"
 
 #include <algorithm>
@@ -84,6 +96,9 @@ void TableGenerator::FillTable(const std::shared_ptr<TableInfo> &info, TableInse
   }
 }
 
+/**
+ * Generate test tables.
+ */
 void TableGenerator::GenerateTestTables() {
   /**
    * This array configures each of the test tables. Each table is configured

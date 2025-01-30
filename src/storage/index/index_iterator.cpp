@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// index_iterator.cpp
+//
+// Identification: src/storage/index/index_iterator.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 /**
  * index_iterator.cpp
  */
@@ -7,8 +19,8 @@
 
 namespace bustub {
 
-/*
- * NOTE: you can change the destructor/constructor method here
+/**
+ * @note you can change the destructor/constructor method here
  * set your own input parameters
  */
 INDEX_TEMPLATE_ARGUMENTS

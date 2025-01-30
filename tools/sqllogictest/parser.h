@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// parser.h
+//
+// Identification: tools/sqllogictest/parser.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 // Copyright 2022 RisingLight Project Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
