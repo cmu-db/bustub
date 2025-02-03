@@ -92,7 +92,7 @@ class BPlusTreeLeafPage : public BPlusTreePage {
   // Array members for page data.
   KeyType key_array_[LEAF_PAGE_SLOT_CNT];
   ValueType rid_array_[LEAF_PAGE_SLOT_CNT];
-  // (Fall 2024) Feel free to add more fields and helper functions below if needed
+  // (Spring 2025) Feel free to add more fields and helper functions below if needed
 };
 
 }  // namespace bustub

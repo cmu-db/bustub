@@ -34,7 +34,7 @@ BPLUSTREE_TYPE::BPlusTree(std::string name, page_id_t header_page_id, BufferPool
  * @return Returns true if this B+ tree has no keys and values.
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto BPLUSTREE_TYPE::IsEmpty() const -> bool { return true; }
+auto BPLUSTREE_TYPE::IsEmpty() const -> bool { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
 /*****************************************************************************
  * SEARCH
@@ -50,10 +50,9 @@ auto BPLUSTREE_TYPE::IsEmpty() const -> bool { return true; }
  */
 INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::GetValue(const KeyType &key, std::vector<ValueType> *result) -> bool {
-  // Declaration of context instance.
+  UNIMPLEMENTED("TODO(P2): Add implementation.");
+  // Declaration of context instance. Using the Context is not necessary but advised.
   Context ctx;
-  (void)ctx;
-  return false;
 }
 
 /*****************************************************************************
@@ -72,10 +71,9 @@ auto BPLUSTREE_TYPE::GetValue(const KeyType &key, std::vector<ValueType> *result
  */
 INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::Insert(const KeyType &key, const ValueType &value) -> bool {
-  // Declaration of context instance.
+  UNIMPLEMENTED("TODO(P2): Add implementation.");
+  // Declaration of context instance. Using the Context is not necessary but advised.
   Context ctx;
-  (void)ctx;
-  return false;
 }
 
 /*****************************************************************************
@@ -94,7 +92,7 @@ INDEX_TEMPLATE_ARGUMENTS
 void BPLUSTREE_TYPE::Remove(const KeyType &key) {
   // Declaration of context instance.
   Context ctx;
-  (void)ctx;
+  UNIMPLEMENTED("TODO(P2): Add implementation.");
 }
 
 /*****************************************************************************
@@ -103,10 +101,13 @@ void BPLUSTREE_TYPE::Remove(const KeyType &key) {
 /**
  * @brief Input parameter is void, find the leftmost leaf page first, then construct
  * index iterator
+ *
+ * You may want to implement this while implementing Task #3.
+ *
  * @return : index iterator
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto BPLUSTREE_TYPE::Begin() -> INDEXITERATOR_TYPE { return INDEXITERATOR_TYPE(); }
+auto BPLUSTREE_TYPE::Begin() -> INDEXITERATOR_TYPE { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
 /**
  * @brief Input parameter is low key, find the leaf page that contains the input key
@@ -114,7 +115,7 @@ auto BPLUSTREE_TYPE::Begin() -> INDEXITERATOR_TYPE { return INDEXITERATOR_TYPE()
  * @return : index iterator
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto BPLUSTREE_TYPE::Begin(const KeyType &key) -> INDEXITERATOR_TYPE { return INDEXITERATOR_TYPE(); }
+auto BPLUSTREE_TYPE::Begin(const KeyType &key) -> INDEXITERATOR_TYPE { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
 /**
  * @brief Input parameter is void, construct an index iterator representing the end
@@ -122,13 +123,15 @@ auto BPLUSTREE_TYPE::Begin(const KeyType &key) -> INDEXITERATOR_TYPE { return IN
  * @return : index iterator
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto BPLUSTREE_TYPE::End() -> INDEXITERATOR_TYPE { return INDEXITERATOR_TYPE(); }
+auto BPLUSTREE_TYPE::End() -> INDEXITERATOR_TYPE { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
 /**
  * @return Page id of the root of this tree
+ *
+ * You may want to implement this while implementing Task #3.
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto BPLUSTREE_TYPE::GetRootPageId() -> page_id_t { return 0; }
+auto BPLUSTREE_TYPE::GetRootPageId() -> page_id_t { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
 template class BPlusTree<GenericKey<4>, RID, GenericComparator<4>>;
 

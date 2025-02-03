@@ -94,7 +94,7 @@ class BPlusTreeInternalPage : public BPlusTreePage {
   // Array members for page data.
   KeyType key_array_[INTERNAL_PAGE_SLOT_CNT];
   ValueType page_id_array_[INTERNAL_PAGE_SLOT_CNT];
-  // (Fall 2024) Feel free to add more fields and helper functions below if needed
+  // (Spring 2025) Feel free to add more fields and helper functions below if needed
 };
 
 }  // namespace bustub
