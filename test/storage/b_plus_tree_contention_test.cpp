@@ -35,16 +35,16 @@ size_t BPlusTreeLockBenchmarkCall(size_t num_threads, bool with_global_mutex) {
   GenericComparator<8> comparator(key_schema.get());
 
   // create lightweight BPM
-  const size_t BPM_SIZE = 256 << 10;  // 1GB
-  DiskManagerMemory disk_manager(BPM_SIZE);
-  BufferPoolManager bpm(BPM_SIZE, &disk_manager);
+  const size_t bpm_size = 256 << 10;  // 1GB
+  DiskManagerMemory disk_manager(bpm_size);
+  BufferPoolManager bpm(bpm_size, &disk_manager);
 
   // allocate header_page
   page_id_t page_id = bpm.NewPage();
 
   // create b+ tree
-  const int NODE_SIZE = 20;
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, &bpm, comparator, NODE_SIZE, NODE_SIZE);
+  const int node_size = 20;
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, &bpm, comparator, node_size, node_size);
 
   std::vector<std::thread> threads;
 
