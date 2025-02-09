@@ -35,9 +35,9 @@ class IndexIterator {
 
   auto operator++() -> IndexIterator &;
 
-  auto operator==(const IndexIterator &itr) const -> bool { throw std::runtime_error("unimplemented"); }
+  auto operator==(const IndexIterator &itr) const -> bool { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
-  auto operator!=(const IndexIterator &itr) const -> bool { throw std::runtime_error("unimplemented"); }
+  auto operator!=(const IndexIterator &itr) const -> bool { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
  private:
   // add your own private member variables here
