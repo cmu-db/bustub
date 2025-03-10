@@ -99,8 +99,8 @@
         const executeQuery = Module.cwrap('BusTubApplyCommand', 'number', ['string', 'number', 'number'])
         window.executeQuery = (x) => {
             const bufferSize = 64 * 1024
-            let output = "\0".repeat(bufferSize)
-            let ptrOutput = Module.allocateUTF8(output)
+            const ptrOutput = Module._malloc(bufferSize)
+            Module.stringToUTF8("", ptrOutput, bufferSize)
             const retCode = executeQuery(x, ptrOutput, bufferSize)
             output = Module.UTF8ToString(ptrOutput)
             Module._free(ptrOutput)
