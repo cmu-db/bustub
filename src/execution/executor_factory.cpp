@@ -53,8 +53,8 @@ namespace bustub {
  * @param plan The plan node that needs to be executed
  * @return An executor for the given plan in the provided context
  */
-auto ExecutorFactory::CreateExecutor(ExecutorContext *exec_ctx,
-                                     const AbstractPlanNodeRef &plan) -> std::unique_ptr<AbstractExecutor> {
+auto ExecutorFactory::CreateExecutor(ExecutorContext *exec_ctx, const AbstractPlanNodeRef &plan)
+    -> std::unique_ptr<AbstractExecutor> {
   auto check_options_set = exec_ctx->GetCheckOptions()->check_options_set_;
   switch (plan->GetType()) {
     // Create a new sequential scan executor

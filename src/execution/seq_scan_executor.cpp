@@ -25,10 +25,7 @@ SeqScanExecutor::SeqScanExecutor(ExecutorContext *exec_ctx, const SeqScanPlanNod
 }
 
 /** Initialize the sequential scan */
-void SeqScanExecutor::Init() {
-  UNIMPLEMENTED("TODO(P3): Add implementation.");
-  ;
-}
+void SeqScanExecutor::Init() { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
 /**
  * Yield the next tuple from the sequential scan.
