@@ -13,6 +13,7 @@
 #include "execution/executors/nested_loop_join_executor.h"
 #include "binder/table_ref/bound_join_ref.h"
 #include "common/exception.h"
+#include "common/macros.h"
 
 namespace bustub {
 
@@ -28,13 +29,14 @@ NestedLoopJoinExecutor::NestedLoopJoinExecutor(ExecutorContext *exec_ctx, const 
                                                std::unique_ptr<AbstractExecutor> &&right_executor)
     : AbstractExecutor(exec_ctx) {
   if (!(plan->GetJoinType() == JoinType::LEFT || plan->GetJoinType() == JoinType::INNER)) {
-    // Note for 2023 Fall: You ONLY need to implement left join and inner join.
+    // Note for Spring 2025: You ONLY need to implement left join and inner join.
     throw bustub::NotImplementedException(fmt::format("join type {} not supported", plan->GetJoinType()));
   }
+  UNIMPLEMENTED("TODO(P3): Add implementation.");
 }
 
 /** Initialize the join */
-void NestedLoopJoinExecutor::Init() { throw NotImplementedException("NestedLoopJoinExecutor is not implemented"); }
+void NestedLoopJoinExecutor::Init() { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
 /**
  * Yield the next tuple from the join.
@@ -42,6 +44,6 @@ void NestedLoopJoinExecutor::Init() { throw NotImplementedException("NestedLoopJ
  * @param[out] rid The next tuple RID produced, not used by nested loop join.
  * @return `true` if a tuple was produced, `false` if there are no more tuples.
  */
-auto NestedLoopJoinExecutor::Next(Tuple *tuple, RID *rid) -> bool { return false; }
+auto NestedLoopJoinExecutor::Next(Tuple *tuple, RID *rid) -> bool { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
 }  // namespace bustub
