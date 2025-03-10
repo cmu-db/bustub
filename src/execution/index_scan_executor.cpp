@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "execution/executors/index_scan_executor.h"
+#include "common/macros.h"
 
 namespace bustub {
 
@@ -20,10 +21,12 @@ namespace bustub {
  * @param plan the index scan plan to be executed
  */
 IndexScanExecutor::IndexScanExecutor(ExecutorContext *exec_ctx, const IndexScanPlanNode *plan)
-    : AbstractExecutor(exec_ctx) {}
+    : AbstractExecutor(exec_ctx) {
+  UNIMPLEMENTED("TODO(P3): Add implementation.");
+}
 
-void IndexScanExecutor::Init() { throw NotImplementedException("IndexScanExecutor is not implemented"); }
+void IndexScanExecutor::Init() { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
-auto IndexScanExecutor::Next(Tuple *tuple, RID *rid) -> bool { return false; }
+auto IndexScanExecutor::Next(Tuple *tuple, RID *rid) -> bool { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
 }  // namespace bustub

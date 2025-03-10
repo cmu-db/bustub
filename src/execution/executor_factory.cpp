@@ -30,7 +30,6 @@
 #include "execution/executors/nested_loop_join_executor.h"
 #include "execution/executors/projection_executor.h"
 #include "execution/executors/seq_scan_executor.h"
-#include "execution/executors/sort_executor.h"
 #include "execution/executors/topn_check_executor.h"
 #include "execution/executors/topn_executor.h"
 #include "execution/executors/topn_per_group_executor.h"
@@ -45,7 +44,6 @@
 #include "execution/plans/topn_plan.h"
 #include "execution/plans/values_plan.h"
 #include "execution/plans/window_plan.h"
-#include "storage/index/generic_key.h"
 
 namespace bustub {
 
@@ -132,7 +130,7 @@ auto ExecutorFactory::CreateExecutor(ExecutorContext *exec_ctx, const AbstractPl
     case PlanType::NestedIndexJoin: {
       auto nested_index_join_plan = dynamic_cast<const NestedIndexJoinPlanNode *>(plan.get());
       auto left = ExecutorFactory::CreateExecutor(exec_ctx, nested_index_join_plan->GetChildPlan());
-      return std::make_unique<NestIndexJoinExecutor>(exec_ctx, nested_index_join_plan, std::move(left));
+      return std::make_unique<NestedIndexJoinExecutor>(exec_ctx, nested_index_join_plan, std::move(left));
     }
 
     // Create a new hash join executor

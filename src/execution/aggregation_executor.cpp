@@ -11,7 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include <memory>
-#include <vector>
+#include "common/macros.h"
 
 #include "execution/executors/aggregation_executor.h"
 
@@ -25,10 +25,12 @@ namespace bustub {
  */
 AggregationExecutor::AggregationExecutor(ExecutorContext *exec_ctx, const AggregationPlanNode *plan,
                                          std::unique_ptr<AbstractExecutor> &&child_executor)
-    : AbstractExecutor(exec_ctx) {}
+    : AbstractExecutor(exec_ctx) {
+  UNIMPLEMENTED("TODO(P3): Add implementation.");
+}
 
 /** Initialize the aggregation */
-void AggregationExecutor::Init() {}
+void AggregationExecutor::Init() { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
 /**
  * Yield the next tuple from the insert.
@@ -36,7 +38,8 @@ void AggregationExecutor::Init() {}
  * @param[out] rid The next tuple RID produced by the aggregation
  * @return `true` if a tuple was produced, `false` if there are no more tuples
  */
-auto AggregationExecutor::Next(Tuple *tuple, RID *rid) -> bool { return false; }
+
+auto AggregationExecutor::Next(Tuple *tuple, RID *rid) -> bool { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
 /** Do not use or remove this function, otherwise you will get zero points. */
 auto AggregationExecutor::GetChildExecutor() const -> const AbstractExecutor * { return child_executor_.get(); }
