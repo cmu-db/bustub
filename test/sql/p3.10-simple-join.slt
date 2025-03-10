@@ -12,9 +12,9 @@ select * from
     on office_hour = day_of_week
     where has_lecture = 1;
 ----
-abhatna2 Monday Monday 1
-rboyce Monday Monday 1
-claspias Wednesday Wednesday 1
+ChrisLaspias Wednesday Wednesday 1
+carpecodeum Monday Monday 1
+rmboyce Monday Monday 1
 
 # The real test begins...
 
