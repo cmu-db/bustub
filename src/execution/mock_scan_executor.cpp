@@ -39,6 +39,9 @@ static const char *ta_list_2024[] = {"AlSchlo",   "walkingcabbages", "averyqi115
 static const char *ta_list_2024_fall[] = {"17zhangw",         "connortsui20", "J-HowHuang", "lanlou1554",
                                           "prashanthduvvada", "unw9527",      "xx01cyx",    "yashkothari42"};
 
+static const char *ta_list_2025_spring[] = {"abhatna2",         "aschlome", "claspias", "hyoungjk",
+                                          "rboyce", "yuchenl3",      "yuqixian",    "jinchodi"};
+
 static const char *ta_oh_2022[] = {"Tuesday",   "Wednesday", "Monday",  "Wednesday", "Thursday", "Friday",
                                    "Wednesday", "Randomly",  "Tuesday", "Monday",    "Tuesday"};
 
@@ -54,12 +57,15 @@ static const char *ta_oh_2024[] = {"Friday",    "Thursday", "Friday",  "Wednesda
 static const char *ta_oh_2024_fall[] = {"Wednesday", "Thursday", "Tuesday", "Monday",
                                         "Friday",    "Thursday", "Tuesday", "Friday"};
 
+static const char *ta_oh_2025_spring[] = {"Monday", "Friday", "Wednesday", "Tuesday",
+                                        "Monday",    "Tuesday", "Thursday", "Friday"};
+
 static const char *course_on_date[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
 const char *mock_table_list[] = {"__mock_table_1", "__mock_table_2", "__mock_table_3", "__mock_table_tas_2022",
                                  "__mock_table_tas_2023", "__mock_table_tas_2023_fall", "__mock_table_tas_2024",
-                                 "__mock_table_tas_2024_fall", "__mock_agg_input_small", "__mock_agg_input_big",
-                                 "__mock_external_merge_sort_input", "__mock_table_schedule_2022",
+                                 "__mock_table_tas_2024_fall", "__mock_table_tas_2025_spring", "__mock_agg_input_small", 
+                                 "__mock_agg_input_big", "__mock_external_merge_sort_input", "__mock_table_schedule_2022",
                                  "__mock_table_schedule", "__mock_table_123", "__mock_graph",
                                  // For leaderboard Q1
                                  "__mock_t1",
@@ -102,6 +108,10 @@ auto GetMockTableSchemaOf(const std::string &table) -> Schema {
   }
 
   if (table == "__mock_table_tas_2024_fall") {
+    return Schema{std::vector{Column{"github_id", TypeId::VARCHAR, 128}, Column{"office_hour", TypeId::VARCHAR, 128}}};
+  }
+
+  if (table == "__mock_table_tas_2025_spring") {
     return Schema{std::vector{Column{"github_id", TypeId::VARCHAR, 128}, Column{"office_hour", TypeId::VARCHAR, 128}}};
   }
 
