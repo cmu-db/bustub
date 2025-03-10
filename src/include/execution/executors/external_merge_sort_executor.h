@@ -28,17 +28,17 @@ namespace bustub {
 /**
  * Page to hold the intermediate data for external merge sort.
  *
- * Only fixed-length data will be supported in Fall 2024.
+ * Only fixed-length data will be supported in Spring 2025.
  */
 class SortPage {
  public:
   /**
-   * TODO: Define and implement the methods for reading data from and writing data to the sort
+   * TODO(P3): Define and implement the methods for reading data from and writing data to the sort
    * page. Feel free to add other helper methods.
    */
  private:
   /**
-   * TODO: Define the private members. You may want to have some necessary metadata for
+   * TODO(P3): Define the private members. You may want to have some necessary metadata for
    * the sort page before the start of the actual data.
    */
 };
@@ -65,33 +65,25 @@ class MergeSortRun {
     /**
      * Advance the iterator to the next tuple. If the current sort page is exhausted, move to the
      * next sort page.
-     *
-     * TODO: Implement this method.
      */
-    auto operator++() -> Iterator & { return *this; }
+    auto operator++() -> Iterator & { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
     /**
      * Dereference the iterator to get the current tuple in the sorted run that the iterator is
      * pointing to.
-     *
-     * TODO: Implement this method.
      */
-    auto operator*() -> Tuple { return {}; }
+    auto operator*() -> Tuple { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
     /**
      * Checks whether two iterators are pointing to the same tuple in the same sorted run.
-     *
-     * TODO: Implement this method.
      */
-    auto operator==(const Iterator &other) const -> bool { return false; }
+    auto operator==(const Iterator &other) const -> bool { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
     /**
      * Checks whether two iterators are pointing to different tuples in a sorted run or iterating
      * on different sorted runs.
-     *
-     * TODO: Implement this method.
      */
-    auto operator!=(const Iterator &other) const -> bool { return false; }
+    auto operator!=(const Iterator &other) const -> bool { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
    private:
     explicit Iterator(const MergeSortRun *run) : run_(run) {}
@@ -100,7 +92,7 @@ class MergeSortRun {
     [[maybe_unused]] const MergeSortRun *run_;
 
     /**
-     * TODO: Add your own private members here. You may want something to record your current
+     * TODO(P3): Add your own private members here. You may want something to record your current
      * position in the sorted run. Also feel free to add additional constructors to initialize
      * your private members.
      */
@@ -108,17 +100,13 @@ class MergeSortRun {
 
   /**
    * Get an iterator pointing to the beginning of the sorted run, i.e. the first tuple.
-   *
-   * TODO: Implement this method.
    */
-  auto Begin() -> Iterator { return {}; }
+  auto Begin() -> Iterator { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
   /**
    * Get an iterator pointing to the end of the sorted run, i.e. the position after the last tuple.
-   *
-   * TODO: Implement this method.
    */
-  auto End() -> Iterator { return {}; }
+  auto End() -> Iterator { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
  private:
   /** The page IDs of the sort pages that store the sorted tuples. */
@@ -133,7 +121,7 @@ class MergeSortRun {
 /**
  * ExternalMergeSortExecutor executes an external merge sort.
  *
- * In Fall 2024, only 2-way external merge sort is required.
+ * In Spring 2025, only 2-way external merge sort is required.
  */
 template <size_t K>
 class ExternalMergeSortExecutor : public AbstractExecutor {
@@ -155,7 +143,7 @@ class ExternalMergeSortExecutor : public AbstractExecutor {
   /** Compares tuples based on the order-bys */
   TupleComparator cmp_;
 
-  /** TODO: You will want to add your own private members here. */
+  /** TODO(P3): You will want to add your own private members here. */
 };
 
 }  // namespace bustub
