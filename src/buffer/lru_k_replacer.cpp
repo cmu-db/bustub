@@ -37,7 +37,7 @@ LRUKReplacer::LRUKReplacer(size_t num_frames, size_t k) : replacer_size_(num_fra
  * Successful eviction of a frame should decrement the size of replacer and remove the frame's
  * access history.
  *
- * @return true if a frame is evicted successfully, false if no frames can be evicted.
+ * @return the frame ID if a frame is successfully evicted, or `std::nullopt` if no frames can be evicted.
  */
 auto LRUKReplacer::Evict() -> std::optional<frame_id_t> { return std::nullopt; }
 
