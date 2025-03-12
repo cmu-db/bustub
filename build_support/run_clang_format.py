@@ -40,6 +40,8 @@ def check(arguments, source_dir):
             [filename for filename in source_files
              if not any((fnmatch.fnmatch(filename, exclude_glob)
                          for exclude_glob in exclude_globs))])
+    if len(formatted_filenames) == 0:
+        return
 
     if arguments.fix:
         if not arguments.quiet:
