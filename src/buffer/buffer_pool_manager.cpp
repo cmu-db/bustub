@@ -130,14 +130,7 @@ auto BufferPoolManager::NewPage() -> page_id_t { UNIMPLEMENTED("TODO(P1): Add im
  * function. You will probably want to implement this function _after_ you have implemented `CheckedReadPage` and
  * `CheckedWritePage`.
  *
- * Ideally, we would want to ensure that all space on disk is used efficiently. That would mean the space that deleted
- * pages on disk used to occupy should somehow be made available to new pages allocated by `NewPage`.
- *
- * If you would like to attempt this, you are free to do so. However, for this implementation, you are allowed to
- * assume you will not run out of disk space and simply keep allocating disk space upwards in `NewPage`.
- *
- * For (nonexistent) style points, you can still call `DeallocatePage` in case you want to implement something slightly
- * more space-efficient in the future.
+ * You should call `DeallocatePage` in the disk scheduler to make the space available for new pages.
  *
  * TODO(P1): Add implementation.
  *
