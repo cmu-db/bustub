@@ -33,7 +33,7 @@ class HashUtil {
     // https://github.com/greenplum-db/gpos/blob/b53c1acd6285de94044ff91fbee91589543feba1/libgpos/src/utils.cpp#L126
     hash_t hash = length;
     for (size_t i = 0; i < length; ++i) {
-      hash = ((hash << 5) ^ (hash >> 27)) ^ bytes[i];
+      hash = ((hash << 5) ^ (hash >> 27)) ^ static_cast<int8_t>(bytes[i]);
     }
     return hash;
   }
