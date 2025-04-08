@@ -102,7 +102,7 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinEasyTest) {
 
     ASSERT_EQ(1, bpm->GetPinCount(pageid1));
     page1_write.Drop();
-    ASSERT_EQ(0, bpm->GetPinCount(pageid0));
+    ASSERT_EQ(0, bpm->GetPinCount(pageid1));
   }
 
   {
