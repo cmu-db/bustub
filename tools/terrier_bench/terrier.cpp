@@ -481,6 +481,7 @@ void PrintPlan(bustub::BusTubInstance &instance, const std::string &query, bool 
         std::terminate();
       }
     }
+    instance.txn_manager_->Commit(txn);
   }
 }
 
