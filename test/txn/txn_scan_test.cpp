@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// txn_scan_test.cpp
+//
+// Identification: test/txn/txn_scan_test.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "execution/execution_common.h"
 #include "txn_common.h"  // NOLINT
 

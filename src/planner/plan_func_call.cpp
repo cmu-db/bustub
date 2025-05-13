@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// plan_func_call.cpp
+//
+// Identification: src/planner/plan_func_call.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <memory>
 #include <tuple>
 #include "binder/bound_expression.h"

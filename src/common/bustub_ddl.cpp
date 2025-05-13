@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// bustub_ddl.cpp
+//
+// Identification: src/common/bustub_ddl.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 // DDL (Data Definition Language) statement handling in BusTub, including create table, create index, and set/show
 // variable.
 

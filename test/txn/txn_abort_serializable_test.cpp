@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// txn_abort_serializable_test.cpp
+//
+// Identification: test/txn/txn_abort_serializable_test.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "common/bustub_instance.h"
 #include "concurrency/transaction.h"
 #include "fmt/core.h"

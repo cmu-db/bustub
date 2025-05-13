@@ -6,7 +6,7 @@
 //
 // Identification: src/include/execution/plans/sort_plan.h
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -18,8 +18,6 @@
 #include <vector>
 
 #include "binder/bound_order_by.h"
-#include "catalog/catalog.h"
-#include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
 
 namespace bustub {

@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// order_by_index_scan.cpp
+//
+// Identification: src/optimizer/order_by_index_scan.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <algorithm>
 #include <memory>
 
@@ -21,6 +33,9 @@
 
 namespace bustub {
 
+/**
+ * @brief optimize order by as index scan if there's an index on a table
+ */
 auto Optimizer::OptimizeOrderByAsIndexScan(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {
   std::vector<AbstractPlanNodeRef> children;
   for (const auto &child : plan->GetChildren()) {

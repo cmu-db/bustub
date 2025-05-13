@@ -6,7 +6,7 @@
 //
 // Identification: test/include/storage/b_plus_tree_utils.h
 //
-// Copyright (c) 2015-2024, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

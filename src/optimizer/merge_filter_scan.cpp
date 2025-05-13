@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// merge_filter_scan.cpp
+//
+// Identification: src/optimizer/merge_filter_scan.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <memory>
 #include <vector>
 #include "execution/plans/filter_plan.h"
@@ -10,6 +22,9 @@
 
 namespace bustub {
 
+/**
+ * @brief merge filter into filter_predicate of seq scan plan node
+ */
 auto Optimizer::OptimizeMergeFilterScan(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {
   std::vector<AbstractPlanNodeRef> children;
   for (const auto &child : plan->GetChildren()) {

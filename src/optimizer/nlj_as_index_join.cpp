@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// nlj_as_index_join.cpp
+//
+// Identification: src/optimizer/nlj_as_index_join.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <algorithm>
 #include <memory>
 #include <optional>
@@ -21,6 +33,7 @@
 
 namespace bustub {
 
+/** @brief check if the index can be matched */
 auto Optimizer::MatchIndex(const std::string &table_name, uint32_t index_key_idx)
     -> std::optional<std::tuple<index_oid_t, std::string>> {
   const auto key_attrs = std::vector{index_key_idx};
@@ -32,6 +45,9 @@ auto Optimizer::MatchIndex(const std::string &table_name, uint32_t index_key_idx
   return std::nullopt;
 }
 
+/**
+ * @brief optimize nested loop join into index join.
+ */
 auto Optimizer::OptimizeNLJAsIndexJoin(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {
   std::vector<AbstractPlanNodeRef> children;
   for (const auto &child : plan->GetChildren()) {

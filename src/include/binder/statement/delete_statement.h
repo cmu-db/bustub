@@ -1,7 +1,12 @@
 //===----------------------------------------------------------------------===//
+//
 //                         BusTub
 //
-// binder/delete_statement.h
+// delete_statement.h
+//
+// Identification: src/include/binder/statement/delete_statement.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

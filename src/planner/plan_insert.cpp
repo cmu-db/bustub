@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// plan_insert.cpp
+//
+// Identification: src/planner/plan_insert.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <algorithm>
 #include <memory>
 #include <unordered_map>

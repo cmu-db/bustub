@@ -2,13 +2,14 @@
 //
 //                         BusTub
 //
-// disk_hash_table.h
+// hash_table.h
 //
 // Identification: src/include/container/hash/hash_table.h
 //
-// Copyright (c) 2022, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
+
 /**
  * hash_table.h
  *

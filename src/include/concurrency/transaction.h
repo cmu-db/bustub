@@ -6,7 +6,7 @@
 //
 // Identification: src/include/concurrency/transaction.h
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -160,9 +160,9 @@ class Transaction {
 
   /** Use this function in leaderboard benchmarks for online garbage collection. For stop-the-world GC, simply remove
    * the txn from the txn_map. */
-  inline auto ClearUndoLog() -> size_t {
+  inline auto ClearUndoLog() -> void {
     std::scoped_lock<std::mutex> lck(latch_);
-    return undo_logs_.size();
+    undo_logs_.clear();
   }
 
   void SetTainted();

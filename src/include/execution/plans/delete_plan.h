@@ -6,7 +6,7 @@
 //
 // Identification: src/include/execution/plans/delete_plan.h
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

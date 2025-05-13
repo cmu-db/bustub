@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// stl_hasher_wrapper.h
+//
+// Identification: src/include/storage/index/stl_hasher_wrapper.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #pragma once
 
 #include "container/hash/hash_function.h"

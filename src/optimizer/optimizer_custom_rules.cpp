@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// optimizer_custom_rules.cpp
+//
+// Identification: src/optimizer/optimizer_custom_rules.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "execution/plans/abstract_plan.h"
 #include "optimizer/optimizer.h"
 

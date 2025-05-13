@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// sqllogictest.cpp
+//
+// Identification: tools/sqllogictest/sqllogictest.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <cstdio>
 #include <fstream>
 #include <ios>

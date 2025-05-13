@@ -2,11 +2,11 @@
 //
 //                         BusTub
 //
-// rwmutex.h
+// rwlatch.h
 //
 // Identification: src/include/common/rwlatch.h
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

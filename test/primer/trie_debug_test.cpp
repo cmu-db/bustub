@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// trie_debug_test.cpp
+//
+// Identification: test/primer/trie_debug_test.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <fmt/format.h>
 #include <zipfian_int_distribution.h>
 #include <bitset>

@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// wasm-bpt-printer.cpp
+//
+// Identification: tools/wasm-bpt-printer/wasm-bpt-printer.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <cmath>
 #include <cstdio>
 #include <cstring>

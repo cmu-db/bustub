@@ -6,13 +6,11 @@
 //
 // Identification: src/include/execution/executors/index_scan_executor.h
 //
-// Copyright (c) 2015-20, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
 #pragma once
-
-#include <vector>
 
 #include "common/rid.h"
 #include "execution/executor_context.h"
@@ -28,11 +26,6 @@ namespace bustub {
 
 class IndexScanExecutor : public AbstractExecutor {
  public:
-  /**
-   * Creates a new index scan executor.
-   * @param exec_ctx the executor context
-   * @param plan the index scan plan to be executed
-   */
   IndexScanExecutor(ExecutorContext *exec_ctx, const IndexScanPlanNode *plan);
 
   auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); }

@@ -1,11 +1,12 @@
 //===----------------------------------------------------------------------===//
 //
-//                         CMU-DB Project (15-445/645)
-//                         ***DO NO SHARE PUBLICLY***
+//                         BusTub
 //
-// Identification: src/page/b_plus_tree_leaf_page.cpp
+// b_plus_tree_leaf_page.cpp
 //
-// Copyright (c) 2018-2024, Carnegie Mellon University Database Group
+// Identification: src/storage/page/b_plus_tree_leaf_page.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -22,27 +23,34 @@ namespace bustub {
  *****************************************************************************/
 
 /**
- * Init method after creating a new leaf page
- * Including set page type, set current size to zero, set next page id and set max size
+ * @brief Init method after creating a new leaf page
+ *
+ * After creating a new leaf page from buffer pool, must call initialize method to set default values,
+ * including set page type, set current size to zero, set page id/parent id, set
+ * next page id and set max size.
+ *
+ * @param max_size Max size of the leaf node
  */
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_LEAF_PAGE_TYPE::Init(int max_size) {}
+void B_PLUS_TREE_LEAF_PAGE_TYPE::Init(int max_size) { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
 /**
  * Helper methods to set/get next page id
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto B_PLUS_TREE_LEAF_PAGE_TYPE::GetNextPageId() const -> page_id_t { return INVALID_PAGE_ID; }
+auto B_PLUS_TREE_LEAF_PAGE_TYPE::GetNextPageId() const -> page_id_t { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_LEAF_PAGE_TYPE::SetNextPageId(page_id_t next_page_id) {}
+void B_PLUS_TREE_LEAF_PAGE_TYPE::SetNextPageId(page_id_t next_page_id) {
+  UNIMPLEMENTED("TODO(P2): Add implementation.");
+}
 
 /*
  * Helper method to find and return the key associated with input "index" (a.k.a
  * array offset)
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto B_PLUS_TREE_LEAF_PAGE_TYPE::KeyAt(int index) const -> KeyType { return {}; }
+auto B_PLUS_TREE_LEAF_PAGE_TYPE::KeyAt(int index) const -> KeyType { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
 template class BPlusTreeLeafPage<GenericKey<4>, RID, GenericComparator<4>>;
 template class BPlusTreeLeafPage<GenericKey<8>, RID, GenericComparator<8>>;
