@@ -29,58 +29,58 @@
 
 namespace bustub {
 
-bool BPlusTreeLockBenchmarkCall(size_t num_threads, int leaf_node_size, bool with_global_mutex) {
-  bool success = true;
-  std::vector<int64_t> insert_keys;
-
+size_t BPlusTreeLockBenchmarkCall(size_t num_threads, bool with_global_mutex) {
   // create KeyComparator and index schema
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
-  auto *disk_manager = new DiskManagerMemory(256 << 10);  // 1GB
-  auto *bpm = new BufferPoolManager(64, disk_manager);
+
+  // create lightweight BPM
+  const size_t bpm_size = 256 << 10;  // 1GB
+  DiskManagerMemory disk_manager(bpm_size);
+  BufferPoolManager bpm(bpm_size, &disk_manager);
 
   // allocate header_page
-  page_id_t page_id = bpm->NewPage();
+  page_id_t page_id = bpm.NewPage();
 
   // create b+ tree
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, leaf_node_size, 10);
+  const int node_size = 20;
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, &bpm, comparator, node_size, node_size);
 
   std::vector<std::thread> threads;
 
-  const int keys_per_thread = 20000 / num_threads;
-  const int keys_stride = 100000;
+  const int keys_per_stride = 160000 / num_threads;
+  const int key_stride = 6400000;
   std::mutex mtx;
 
-  for (size_t i = 0; i < num_threads; i++) {
-    auto func = [&tree, &mtx, i, keys_per_thread, with_global_mutex]() {
-      GenericKey<8> index_key;
-      RID rid;
-      const auto end_key = keys_stride * i + keys_per_thread;
-      for (auto key = i * keys_stride; key < end_key; key++) {
-        int64_t value = key & 0xFFFFFFFF;
-        rid.Set(static_cast<int32_t>(key >> 32), value);
-        index_key.SetFromInteger(key);
-        if (with_global_mutex) {
-          mtx.lock();
-        }
-        tree.Insert(index_key, rid);
-        if (with_global_mutex) {
-          mtx.unlock();
-        }
+  auto insert_keys = [&](const int64_t start_key, const int64_t end_key) {
+    GenericKey<8> index_key;
+    RID rid;
+    for (auto key = start_key; key < end_key; key++) {
+      int64_t value = key & 0xFFFFFFFF;
+      rid.Set(static_cast<int32_t>(key >> 32), value);
+      index_key.SetFromInteger(key);
+      if (with_global_mutex) {
+        mtx.lock();
       }
-    };
-    auto t = std::thread(std::move(func));
-    threads.emplace_back(std::move(t));
-  }
+      tree.Insert(index_key, rid);
+      if (with_global_mutex) {
+        mtx.unlock();
+      }
+    }
+  };
 
+  // Measure
+  auto start_time = std::chrono::system_clock::now();
+  for (size_t i = 0; i < num_threads; i++) {
+    const auto start_key = i * key_stride;
+    threads.emplace_back(insert_keys, start_key, start_key + keys_per_stride);
+  }
   for (auto &thread : threads) {
     thread.join();
   }
+  auto end_time = std::chrono::system_clock::now();
 
-  delete disk_manager;
-  delete bpm;
-
-  return success;
+  return std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 }
 
 TEST(BPlusTreeContentionTest, BPlusTreeContentionBenchmark) {  // NOLINT
@@ -88,87 +88,38 @@ TEST(BPlusTreeContentionTest, BPlusTreeContentionBenchmark) {  // NOLINT
   std::cout << "If your submission timeout, segfault, or didn't implement lock crabbing, we will manually deduct all "
                "concurrent test points (maximum 25)."
             << std::endl;
-  std::cout << "left_node_size = 2" << std::endl;
 
   std::vector<size_t> time_ms_with_mutex;
   std::vector<size_t> time_ms_wo_mutex;
-  for (size_t iter = 0; iter < 20; iter++) {
+  for (size_t iter = 0; iter < 10; iter++) {
     bool enable_mutex = iter % 2 == 0;
-    auto clock_start = std::chrono::system_clock::now();
-    ASSERT_TRUE(BPlusTreeLockBenchmarkCall(32, 2, enable_mutex));
-    auto clock_end = std::chrono::system_clock::now();
-    auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(clock_end - clock_start);
+    auto time = BPlusTreeLockBenchmarkCall(4, enable_mutex);
     if (enable_mutex) {
-      time_ms_with_mutex.push_back(dur.count());
+      time_ms_with_mutex.push_back(time);
     } else {
-      time_ms_wo_mutex.push_back(dur.count());
+      time_ms_wo_mutex.push_back(time);
     }
   }
 
   std::cout << "<<< BEGIN" << std::endl;
-  std::cout << "Normal Access Time: ";
-  double ratio_1 = 0;
-  double ratio_2 = 0;
+  std::cout << "Multithreaded Access Time: ";
+  double sum_1 = 0;
+  double sum_2 = 0;
   for (auto x : time_ms_wo_mutex) {
     std::cout << x << " ";
-    ratio_1 += x;
+    sum_1 += x;
   }
   std::cout << std::endl;
 
   std::cout << "Serialized Access Time: ";
   for (auto x : time_ms_with_mutex) {
     std::cout << x << " ";
-    ratio_2 += x;
+    sum_2 += x;
   }
   std::cout << std::endl;
-  std::cout << "Ratio: " << ratio_1 / ratio_2 << std::endl;
+  double speedup = sum_2 / sum_1;
+  std::cout << "Speedup: " << speedup << std::endl;
   std::cout << ">>> END" << std::endl;
-  std::cout << "If your above data is an outlier in all submissions (based on statistics and probably some "
-               "machine-learning), TAs will manually inspect your code to ensure you are implementing lock crabbing "
-               "correctly."
-            << std::endl;
-}
-
-TEST(BPlusTreeContentionTest, BPlusTreeContentionBenchmark2) {  // NOLINT
-  std::cout << "This test will see how your B+ tree performance differs with and without contention." << std::endl;
-  std::cout << "If your submission timeout, segfault, or didn't implement lock crabbing, we will manually deduct all "
-               "concurrent test points (maximum 25)."
-            << std::endl;
-  std::cout << "left_node_size = 10" << std::endl;
-
-  std::vector<size_t> time_ms_with_mutex;
-  std::vector<size_t> time_ms_wo_mutex;
-  for (size_t iter = 0; iter < 20; iter++) {
-    bool enable_mutex = iter % 2 == 0;
-    auto clock_start = std::chrono::system_clock::now();
-    ASSERT_TRUE(BPlusTreeLockBenchmarkCall(32, 10, enable_mutex));
-    auto clock_end = std::chrono::system_clock::now();
-    auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(clock_end - clock_start);
-    if (enable_mutex) {
-      time_ms_with_mutex.push_back(dur.count());
-    } else {
-      time_ms_wo_mutex.push_back(dur.count());
-    }
-  }
-
-  std::cout << "<<< BEGIN2" << std::endl;
-  std::cout << "Normal Access Time: ";
-  double ratio_1 = 0;
-  double ratio_2 = 0;
-  for (auto x : time_ms_wo_mutex) {
-    std::cout << x << " ";
-    ratio_1 += x;
-  }
-  std::cout << std::endl;
-
-  std::cout << "Serialized Access Time: ";
-  for (auto x : time_ms_with_mutex) {
-    std::cout << x << " ";
-    ratio_2 += x;
-  }
-  std::cout << std::endl;
-  std::cout << "Ratio: " << ratio_1 / ratio_2 << std::endl;
-  std::cout << ">>> END2" << std::endl;
   std::cout << "If your above data is an outlier in all submissions (based on statistics and probably some "
                "machine-learning), TAs will manually inspect your code to ensure you are implementing lock crabbing "
                "correctly."

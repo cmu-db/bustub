@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "execution/executors/seq_scan_executor.h"
+#include "common/macros.h"
 
 namespace bustub {
 
@@ -19,10 +20,12 @@ namespace bustub {
  * @param exec_ctx The executor context
  * @param plan The sequential scan plan to be executed
  */
-SeqScanExecutor::SeqScanExecutor(ExecutorContext *exec_ctx, const SeqScanPlanNode *plan) : AbstractExecutor(exec_ctx) {}
+SeqScanExecutor::SeqScanExecutor(ExecutorContext *exec_ctx, const SeqScanPlanNode *plan) : AbstractExecutor(exec_ctx) {
+  UNIMPLEMENTED("TODO(P3): Add implementation.");
+}
 
 /** Initialize the sequential scan */
-void SeqScanExecutor::Init() { throw NotImplementedException("SeqScanExecutor is not implemented"); }
+void SeqScanExecutor::Init() { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
 /**
  * Yield the next tuple from the sequential scan.
@@ -30,6 +33,6 @@ void SeqScanExecutor::Init() { throw NotImplementedException("SeqScanExecutor is
  * @param[out] rid The next tuple RID produced by the scan
  * @return `true` if a tuple was produced, `false` if there are no more tuples
  */
-auto SeqScanExecutor::Next(Tuple *tuple, RID *rid) -> bool { return false; }
+auto SeqScanExecutor::Next(Tuple *tuple, RID *rid) -> bool { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
 }  // namespace bustub

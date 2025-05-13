@@ -21,6 +21,7 @@
 
 #include "binder/bound_expression.h"
 #include "common/macros.h"
+#include "fmt/ranges.h"
 
 namespace bustub {
 

@@ -21,6 +21,7 @@
 
 #include "common/util/string_util.h"
 #include "fmt/format.h"
+#include "fmt/ranges.h"
 
 namespace bustub {
 

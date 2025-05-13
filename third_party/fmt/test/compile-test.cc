@@ -7,19 +7,15 @@
 
 #include "fmt/compile.h"
 
+#include <iterator>
+#include <list>
 #include <type_traits>
+#include <vector>
 
 #include "fmt/chrono.h"
+#include "fmt/ranges.h"
 #include "gmock/gmock.h"
 #include "gtest-extra.h"
-
-TEST(iterator_test, counting_iterator) {
-  auto it = fmt::detail::counting_iterator();
-  auto prev = it++;
-  EXPECT_EQ(prev.count(), 0);
-  EXPECT_EQ(it.count(), 1);
-  EXPECT_EQ((it + 41).count(), 42);
-}
 
 TEST(compile_test, compile_fallback) {
   // FMT_COMPILE should fallback on runtime formatting when `if constexpr` is
@@ -34,7 +30,7 @@ struct type_with_get {
 FMT_BEGIN_NAMESPACE
 template <> struct formatter<type_with_get> : formatter<int> {
   template <typename FormatContext>
-  auto format(type_with_get, FormatContext& ctx) -> decltype(ctx.out()) {
+  auto format(type_with_get, FormatContext& ctx) const -> decltype(ctx.out()) {
     return formatter<int>::format(42, ctx);
   }
 };
@@ -82,6 +78,16 @@ TEST(compile_test, format_default) {
 #  ifdef __cpp_lib_byte
   EXPECT_EQ("42", fmt::format(FMT_COMPILE("{}"), std::byte{42}));
 #  endif
+}
+
+TEST(compile_test, format_escape) {
+  EXPECT_EQ("\"string\"", fmt::format(FMT_COMPILE("{:?}"), "string"));
+  EXPECT_EQ("prefix \"string\"",
+            fmt::format(FMT_COMPILE("prefix {:?}"), "string"));
+  EXPECT_EQ("\"string\" suffix",
+            fmt::format(FMT_COMPILE("{:?} suffix"), "string"));
+  EXPECT_EQ("\"abc\"", fmt::format(FMT_COMPILE("{0:<5?}"), "abc"));
+  EXPECT_EQ("\"abc\"  ", fmt::format(FMT_COMPILE("{0:<7?}"), "abc"));
 }
 
 TEST(compile_test, format_wide_string) {
@@ -195,10 +201,40 @@ TEST(compile_test, format_to_n) {
   EXPECT_STREQ("2a", buffer);
 }
 
-#  ifdef __cpp_lib_bit_cast
+TEST(compile_test, output_iterators) {
+  std::list<char> out;
+  fmt::format_to(std::back_inserter(out), FMT_COMPILE("{}"), 42);
+  EXPECT_EQ("42", std::string(out.begin(), out.end()));
+
+  std::stringstream s;
+  fmt::format_to(std::ostream_iterator<char>(s), FMT_COMPILE("{}"), 42);
+  EXPECT_EQ("42", s.str());
+
+  std::stringstream s2;
+  fmt::format_to(std::ostreambuf_iterator<char>(s2), FMT_COMPILE("{}.{:06d}"),
+                 42, 43);
+  EXPECT_EQ("42.000043", s2.str());
+}
+
+#  if FMT_USE_CONSTEVAL && (!FMT_MSC_VERSION || FMT_MSC_VERSION >= 1940)
 TEST(compile_test, constexpr_formatted_size) {
   FMT_CONSTEXPR20 size_t size = fmt::formatted_size(FMT_COMPILE("{}"), 42);
   EXPECT_EQ(size, 2);
+  FMT_CONSTEXPR20 size_t hex_size =
+      fmt::formatted_size(FMT_COMPILE("{:x}"), 15);
+  EXPECT_EQ(hex_size, 1);
+  FMT_CONSTEXPR20 size_t binary_size =
+      fmt::formatted_size(FMT_COMPILE("{:b}"), 15);
+  EXPECT_EQ(binary_size, 4);
+  FMT_CONSTEXPR20 size_t padded_size =
+      fmt::formatted_size(FMT_COMPILE("{:*^6}"), 42);
+  EXPECT_EQ(padded_size, 6);
+  FMT_CONSTEXPR20 size_t float_size =
+      fmt::formatted_size(FMT_COMPILE("{:.3}"), 12.345);
+  EXPECT_EQ(float_size, 4);
+  FMT_CONSTEXPR20 size_t str_size =
+      fmt::formatted_size(FMT_COMPILE("{:s}"), "abc");
+  EXPECT_EQ(str_size, 3);
 }
 #  endif
 
@@ -211,10 +247,14 @@ TEST(compile_test, unknown_format_fallback) {
   EXPECT_EQ(" 42 ",
             fmt::format(FMT_COMPILE("{name:^4}"), fmt::arg("name", 42)));
 
-  std::vector<char> v;
-  fmt::format_to(std::back_inserter(v), FMT_COMPILE("{name:^4}"),
+  std::vector<char> v1;
+  fmt::format_to(std::back_inserter(v1), FMT_COMPILE("{}"), 42);
+  EXPECT_EQ("42", fmt::string_view(v1.data(), v1.size()));
+
+  std::vector<char> v2;
+  fmt::format_to(std::back_inserter(v2), FMT_COMPILE("{name:^4}"),
                  fmt::arg("name", 42));
-  EXPECT_EQ(" 42 ", fmt::string_view(v.data(), v.size()));
+  EXPECT_EQ(" 42 ", fmt::string_view(v2.data(), v2.size()));
 
   char buffer[4];
   auto result = fmt::format_to_n(buffer, 4, FMT_COMPILE("{name:^5}"),
@@ -247,11 +287,23 @@ TEST(compile_test, to_string_and_formatter) {
   fmt::format(FMT_COMPILE("{}"), to_stringable());
 }
 
+struct std_context_test {};
+
+FMT_BEGIN_NAMESPACE
+template <> struct formatter<std_context_test> : formatter<int> {
+  auto format(std_context_test, format_context& ctx) const
+      -> decltype(ctx.out()) {
+    return ctx.out();
+  }
+};
+FMT_END_NAMESPACE
+
 TEST(compile_test, print) {
   EXPECT_WRITE(stdout, fmt::print(FMT_COMPILE("Don't {}!"), "panic"),
                "Don't panic!");
   EXPECT_WRITE(stderr, fmt::print(stderr, FMT_COMPILE("Don't {}!"), "panic"),
                "Don't panic!");
+  fmt::print(FMT_COMPILE("{}"), std_context_test());
 }
 #endif
 
@@ -264,16 +316,16 @@ TEST(compile_test, compile_format_string_literal) {
 }
 #endif
 
-// MSVS 2019 19.29.30145.0 - Support C++20 and OK.
-// MSVS 2022 19.32.31332.0 - compile-test.cc(362,3): fatal error C1001: Internal
-// compiler error.
+// MSVS 2019 19.29.30145.0 - OK
+// MSVS 2022 19.32.31332.0, 19.37.32826.1 - compile-test.cc(362,3): fatal error
+// C1001: Internal compiler error.
 //  (compiler file
 //  'D:\a\_work\1\s\src\vctools\Compiler\CxxFE\sl\p1\c\constexpr\constexpr.cpp',
 //  line 8635)
-#if ((FMT_CPLUSPLUS >= 202002L) &&                           \
-     (!defined(_GLIBCXX_RELEASE) || _GLIBCXX_RELEASE > 9) && \
-     (!FMT_MSC_VERSION || FMT_MSC_VERSION < 1930)) ||        \
-    (FMT_CPLUSPLUS >= 201709L && FMT_GCC_VERSION >= 1002)
+#if FMT_USE_CONSTEVAL &&                                     \
+    (!FMT_MSC_VERSION ||                                     \
+     (FMT_MSC_VERSION >= 1928 && FMT_MSC_VERSION < 1930)) && \
+    defined(__cpp_lib_is_constant_evaluated)
 template <size_t max_string_length, typename Char = char> struct test_string {
   template <typename T> constexpr bool operator==(const T& rhs) const noexcept {
     return fmt::basic_string_view<Char>(rhs).compare(buffer) == 0;
@@ -316,6 +368,7 @@ TEST(compile_time_formatting_test, integer) {
   EXPECT_EQ("0X4A", test_format<5>(FMT_COMPILE("{:#X}"), 0x4a));
 
   EXPECT_EQ("   42", test_format<6>(FMT_COMPILE("{:5}"), 42));
+  EXPECT_EQ("   42", test_format<6>(FMT_COMPILE("{:5}"), 42l));
   EXPECT_EQ("   42", test_format<6>(FMT_COMPILE("{:5}"), 42ll));
   EXPECT_EQ("   42", test_format<6>(FMT_COMPILE("{:5}"), 42ull));
 

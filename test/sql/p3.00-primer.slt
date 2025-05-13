@@ -1,11 +1,11 @@
 query rowsort
-select github_id, office_hour from __mock_table_tas_2024_fall;
+select github_id, office_hour from __mock_table_tas_2025_spring;
 ----
-17zhangw Wednesday
-connortsui20 Thursday
-J-HowHuang Tuesday
-lanlou1554 Monday
-prashanthduvvada Friday
-unw9527 Thursday
-xx01cyx Tuesday
-yashkothari42 Friday
+AlSchlo Friday
+ChrisLaspias Wednesday
+carpecodeum Monday
+hyoungjook Tuesday
+joesunil123 Friday
+mrwhitezz Thursday
+rmboyce Monday
+yliang412 Tuesday

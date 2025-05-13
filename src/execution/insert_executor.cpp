@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include <memory>
+#include "common/macros.h"
 
 #include "execution/executors/insert_executor.h"
 
@@ -24,10 +25,12 @@ namespace bustub {
  */
 InsertExecutor::InsertExecutor(ExecutorContext *exec_ctx, const InsertPlanNode *plan,
                                std::unique_ptr<AbstractExecutor> &&child_executor)
-    : AbstractExecutor(exec_ctx) {}
+    : AbstractExecutor(exec_ctx) {
+  UNIMPLEMENTED("TODO(P3): Add implementation.");
+}
 
 /** Initialize the insert */
-void InsertExecutor::Init() { throw NotImplementedException("InsertExecutor is not implemented"); }
+void InsertExecutor::Init() { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
 /**
  * Yield the number of rows inserted into the table.
@@ -38,6 +41,8 @@ void InsertExecutor::Init() { throw NotImplementedException("InsertExecutor is n
  * NOTE: InsertExecutor::Next() does not use the `rid` out-parameter.
  * NOTE: InsertExecutor::Next() returns true with number of inserted rows produced only once.
  */
-auto InsertExecutor::Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool { return false; }
+auto InsertExecutor::Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool {
+  UNIMPLEMENTED("TODO(P3): Add implementation.");
+}
 
 }  // namespace bustub

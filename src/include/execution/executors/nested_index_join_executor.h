@@ -13,28 +13,23 @@
 #pragma once
 
 #include <memory>
-#include <string>
-#include <unordered_map>
-#include <utility>
-#include <vector>
 
 #include "execution/executor_context.h"
 #include "execution/executors/abstract_executor.h"
-#include "execution/expressions/abstract_expression.h"
 #include "execution/plans/nested_index_join_plan.h"
-#include "storage/table/tmp_tuple.h"
 #include "storage/table/tuple.h"
 
 namespace bustub {
 
 /**
- * IndexJoinExecutor executes index join operations.
+ * NestedIndexJoinExecutor executes index join operations.
  */
-class NestIndexJoinExecutor : public AbstractExecutor {
+class NestedIndexJoinExecutor : public AbstractExecutor {
  public:
-  NestIndexJoinExecutor(ExecutorContext *exec_ctx, const NestedIndexJoinPlanNode *plan,
-                        std::unique_ptr<AbstractExecutor> &&child_executor);
+  NestedIndexJoinExecutor(ExecutorContext *exec_ctx, const NestedIndexJoinPlanNode *plan,
+                          std::unique_ptr<AbstractExecutor> &&child_executor);
 
+  /** @return The output schema for the nested index join */
   auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); }
 
   void Init() override;

@@ -18,6 +18,7 @@
 
 #include "common/exception.h"
 #include "execution/expressions/abstract_expression.h"
+#include "fmt/ranges.h"
 #include "type/value_factory.h"
 
 namespace bustub {

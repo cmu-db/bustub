@@ -160,9 +160,9 @@ class Transaction {
 
   /** Use this function in leaderboard benchmarks for online garbage collection. For stop-the-world GC, simply remove
    * the txn from the txn_map. */
-  inline auto ClearUndoLog() -> size_t {
+  inline auto ClearUndoLog() -> void {
     std::scoped_lock<std::mutex> lck(latch_);
-    return undo_logs_.size();
+    undo_logs_.clear();
   }
 
   void SetTainted();

@@ -13,7 +13,6 @@
 #pragma once
 
 #include <memory>
-#include <utility>
 
 #include "execution/executor_context.h"
 #include "execution/executors/abstract_executor.h"
