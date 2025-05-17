@@ -50,9 +50,9 @@ class LogFatalStream {
 
 // A macro which checks `expr` value and performs assert.
 // Different from `BUSTUB_ASSERT`, it takes stream-style parameters.
-#define BUSTUB_ASSERT_AND_LOG(expr)                       \
-  if (bool val = (expr); !val) internal::LogFatalStream { \
-      __FILE__, __LINE__                                  \
+#define BUSTUB_ASSERT_AND_LOG(expr)                       /*NOLINT*/ \
+  if (bool val = (expr); !val) internal::LogFatalStream { /*NOLINT*/ \
+      __FILE__, __LINE__                                  /*NOLINT*/ \
     }
 
 #define UNIMPLEMENTED(message) throw std::logic_error(message)
