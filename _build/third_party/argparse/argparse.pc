@@ -1,0 +1,7 @@
+prefix=/usr/local
+includedir=${prefix}/include
+
+Name: argparse
+Description: A single header argument parser for C++17
+Version: 2.9.0
+Cflags: -I${includedir}
