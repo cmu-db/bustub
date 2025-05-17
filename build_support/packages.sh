@@ -44,6 +44,7 @@ install() {
         18.04) install_linux ;;
         20.04) install_linux ;;
         22.04) install_linux ;;
+        24.04) install_linux ;;
         *) give_up ;;
       esac
       ;;
