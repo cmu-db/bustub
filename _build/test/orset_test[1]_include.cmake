@@ -1,0 +1,5 @@
+if(EXISTS "/tmp/bustub/_build/test/orset_test[1]_tests.cmake")
+  include("/tmp/bustub/_build/test/orset_test[1]_tests.cmake")
+else()
+  add_test(orset_test_NOT_BUILT orset_test_NOT_BUILT)
+endif()
