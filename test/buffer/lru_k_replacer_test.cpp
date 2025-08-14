@@ -80,7 +80,7 @@ TEST(LRUKReplacerTest, DISABLED_SampleTest) {
   ASSERT_EQ(3, lru_replacer.Evict());
   ASSERT_EQ(3, lru_replacer.Size());
 
-  // Set 6 to be evictable. 6 Should be evicted next since it has the maximum backward k-distance.
+  // Set 6 to be evictable. 6 should be evicted next since it has the maximum backward k-distance.
   lru_replacer.SetEvictable(6, true);
   ASSERT_EQ(4, lru_replacer.Size());
   ASSERT_EQ(6, lru_replacer.Evict());
