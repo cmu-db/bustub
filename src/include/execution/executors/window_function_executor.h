@@ -51,7 +51,7 @@ namespace bustub {
  *    }
  *
  * Your executor should use child executor and exprs in columns to produce selected columns except for window
- * function columns, and use window_agg_indexes, partition_bys, order_bys, functionss and window_agg_types to
+ * function columns, and use window_agg_indexes, partition_bys, order_bys, functions and window_agg_types to
  * generate window function columns results. Directly use placeholders for window function columns in columns is
  * not allowed, as it contains invalid column id.
  *
