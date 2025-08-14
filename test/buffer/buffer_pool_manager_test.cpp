@@ -365,7 +365,7 @@ TEST(BufferPoolManagerTest, DISABLED_EvictableTest) {
   const size_t num_readers = 8;
 
   auto disk_manager = std::make_shared<DiskManager>(db_fname);
-  // Only allocate 1 frame of memory to the buffer pool manager.
+  // Only allocate one frame of memory to the buffer pool manager.
   auto bpm = std::make_shared<BufferPoolManager>(1, disk_manager.get(), K_DIST);
 
   for (size_t i = 0; i < rounds; i++) {
