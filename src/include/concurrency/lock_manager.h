@@ -54,7 +54,7 @@ class LockManager {
     txn_id_t txn_id_;
     /** Locking mode of the requested lock */
     LockMode lock_mode_;
-    /** Oid of the table for a table lock; oid of the table the row belong to for a row lock */
+    /** Oid of the table for a table lock; oid of the table to which the row belongs for a row lock */
     table_oid_t oid_;
     /** Rid of the row for a row lock; unused for table locks */
     RID rid_;

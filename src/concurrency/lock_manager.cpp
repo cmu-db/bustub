@@ -58,7 +58,7 @@ auto LockManager::UnlockTable(Transaction *txn, const table_oid_t &oid) -> bool 
  *
  * @param txn the transaction requesting the lock upgrade
  * @param lock_mode the lock mode for the requested lock
- * @param oid the table_oid_t of the table the row belongs to
+ * @param oid the table_oid_t of the table to which the row belongs
  * @param rid the RID of the row to be locked
  * @return true if the upgrade is successful, false otherwise
  */
@@ -75,7 +75,7 @@ auto LockManager::LockRow(Transaction *txn, LockMode lock_mode, const table_oid_
  *
  * @param txn the transaction releasing the lock
  * @param rid the RID that is locked by the transaction
- * @param oid the table_oid_t of the table the row belongs to
+ * @param oid the table_oid_t of the table to which the row belongs
  * @param rid the RID of the row to be unlocked
  * @param force unlock the tuple regardless of isolation level, not changing the transaction state
  * @return true if the unlock is successful, false otherwise
