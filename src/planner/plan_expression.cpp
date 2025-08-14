@@ -109,7 +109,7 @@ auto Planner::PlanColumnRef(const BoundColumnRef &expr, const std::vector<Abstra
     }
     throw bustub::Exception(fmt::format("column name {} not found", col_name));
   }
-  UNREACHABLE("no executor with expression has more than 2 children for now");
+  UNREACHABLE("no executor with expression has more than two children for now");
 }
 
 auto Planner::PlanConstant(const BoundConstant &expr, const std::vector<AbstractPlanNodeRef> &children)
