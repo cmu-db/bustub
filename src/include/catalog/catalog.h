@@ -65,7 +65,7 @@ struct TableInfo {
 };
 
 /**
- * The IndexInfo class maintains metadata about a index.
+ * The IndexInfo class maintains metadata about an index.
  */
 struct IndexInfo {
   /**

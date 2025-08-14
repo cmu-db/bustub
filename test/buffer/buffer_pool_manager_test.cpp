@@ -23,7 +23,7 @@ static std::filesystem::path db_fname("test.bustub");
 
 // The number of frames we give to the buffer pool.
 const size_t FRAMES = 10;
-// Note that this test assumes you are using the an LRU-K replacement policy.
+// Note that this test assumes you are using an LRU-K replacement policy.
 const size_t K_DIST = 5;
 
 void CopyString(char *dest, const std::string &src) {

@@ -47,7 +47,7 @@ auto Insert(Transaction *txn, BusTubInstance &instance, int v1) -> void {
 /// @param v2_vec Elements to be insert into `t1:v2`, must not be empty
 /// @param flag When set to `true`, the size of @v1_vec should be exactly one, the default value is `false`
 /// Usage: Insert(txn, instance, {1, 2, 3}, {4, 5, 6}, flag = false);
-/// This overloaded function will then bound each pair from @v1_vec & @v2_vec as a insert value
+/// This overloaded function will then bound each pair from @v1_vec & @v2_vec as an insert value
 /// If flag is set to `true`, v1_vec should contain exactly one element,
 /// The insert pair will be {v1_vec[0], v2_vec[0]}, {v1_vec[0], v2_vec[1]} ...
 auto Insert(Transaction *txn, BusTubInstance &instance, const std::vector<int> &v1_vec, const std::vector<int> &v2_vec,

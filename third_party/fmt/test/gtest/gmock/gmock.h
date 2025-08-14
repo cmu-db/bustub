@@ -6574,7 +6574,7 @@ GTEST_API_ std::string FormatMatcherDescription(bool negation,
                                                 const char* matcher_name,
                                                 const Strings& param_values);
 
-// Implements a matcher that checks the value of a optional<> type variable.
+// Implements a matcher that checks the value of an optional<> type variable.
 template <typename ValueMatcher>
 class OptionalMatcher {
  public:
@@ -7898,7 +7898,7 @@ inline internal::OptionalMatcher<ValueMatcher> Optional(
   return internal::OptionalMatcher<ValueMatcher>(value_matcher);
 }
 
-// Returns a matcher that matches the value of a absl::any type variable.
+// Returns a matcher that matches the value of an absl::any type variable.
 template <typename T>
 PolymorphicMatcher<internal::any_cast_matcher::AnyCastMatcher<T> > AnyWith(
     const Matcher<const T&>& matcher) {
