@@ -105,7 +105,7 @@ void LockManager::RemoveEdge(txn_id_t t1, txn_id_t t2) {}
 /**
  * Checks if the graph has a cycle, returning the newest transaction ID in the cycle if so.
  * @param[out] txn_id if the graph has a cycle, will contain the newest transaction ID
- * @return false if the graph has no cycle, otherwise stores the newest transaction ID in the cycle to txn_id
+ * @return false if the graph has no cycle; otherwise, stores the newest transaction ID in the cycle to txn_id
  */
 auto LockManager::HasCycle(txn_id_t *txn_id) -> bool { return false; }
 

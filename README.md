@@ -64,7 +64,7 @@ The following instructions are adapted from the Github documentation on [duplica
    ```console
    $ git pull public master
    ```
-7. **Disable GitHub Actions** from the project settings of your private repository, otherwise you may run out of GitHub Actions quota.
+7. **Disable GitHub Actions** from the project settings of your private repository; otherwise, you may run out of GitHub Actions quota.
    ```
    Settings > Actions > General > Actions permissions > Disable actions.
    ```

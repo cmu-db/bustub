@@ -41,7 +41,7 @@ void AggregationExecutor::Init() { UNIMPLEMENTED("TODO(P3): Add implementation."
 
 auto AggregationExecutor::Next(Tuple *tuple, RID *rid) -> bool { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
-/** Do not use or remove this function, otherwise you will get zero points. */
+/** Do not use or remove this function; otherwise, you will get zero points. */
 auto AggregationExecutor::GetChildExecutor() const -> const AbstractExecutor * { return child_executor_.get(); }
 
 }  // namespace bustub

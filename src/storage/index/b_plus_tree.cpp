@@ -62,12 +62,12 @@ auto BPLUSTREE_TYPE::GetValue(const KeyType &key, std::vector<ValueType> *result
  * @brief Insert constant key & value pair into b+ tree
  *
  * if current tree is empty, start new tree, update root page id and insert
- * entry, otherwise insert into leaf page.
+ * entry; otherwise, insert into leaf page.
  *
  * @param key the key to insert
  * @param value the value associated with key
  * @return: since we only support unique key, if user try to insert duplicate
- * keys return false, otherwise return true.
+ * keys return false; otherwise, return true.
  */
 INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::Insert(const KeyType &key, const ValueType &value) -> bool {
