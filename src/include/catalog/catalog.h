@@ -232,7 +232,7 @@ class Catalog {
       return NULL_INDEX_INFO;
     }
 
-    // Construct index metdata
+    // Construct index metadata
     auto meta = std::make_unique<IndexMetadata>(index_name, table_name, &schema, key_attrs, is_primary_key);
 
     // Construct the index, take ownership of metadata
