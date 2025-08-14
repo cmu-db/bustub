@@ -22,7 +22,7 @@ namespace bustub {
 /**
  * Generic key is used for indexing with opaque data.
  *
- * This key type uses an fixed length array to hold data for indexing
+ * This key type uses a fixed length array to hold data for indexing
  * purposes, the actual size of which is specified and instantiated
  * with a template argument.
  */
