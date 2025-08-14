@@ -36,7 +36,7 @@ TEST(TrieDebugger, TestCase) {
     std::string key = fmt::format("{}", dis(gen));
     auto value = dis(gen);
     switch (i) {
-      // Test the first 3 values from the random generator.
+      // Test the first three values from the random generator.
       case 0:
         ASSERT_EQ(value, 128) << "Random generator not portable, please post on Piazza for help.";
         break;

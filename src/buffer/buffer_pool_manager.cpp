@@ -155,7 +155,7 @@ auto BufferPoolManager::DeletePage(page_id_t page_id) -> bool { UNIMPLEMENTED("T
  *
  * ### Implementation
  *
- * There are 3 main cases that you will have to implement. The first two are relatively simple: one is when there is
+ * There are three main cases that you will have to implement. The first two are relatively simple: one is when there is
  * plenty of available memory, and the other is when we don't actually need to perform any additional I/O. Think about
  * what exactly these two cases entail.
  *
