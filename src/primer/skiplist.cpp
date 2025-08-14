@@ -108,7 +108,7 @@ SKIPLIST_TEMPLATE_ARGUMENTS void SkipList<K, Compare, MaxHeight, Seed>::Print() 
 }
 
 /**
- * @brief Generate a random height. The height should be cappped at `MaxHeight`.
+ * @brief Generate a random height. The height should be capped at `MaxHeight`.
  * Note: we implement/simulate the geometric process to ensure platform independence.
  */
 SKIPLIST_TEMPLATE_ARGUMENTS auto SkipList<K, Compare, MaxHeight, Seed>::RandomHeight() -> size_t {
