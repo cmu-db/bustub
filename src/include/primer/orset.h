@@ -39,7 +39,7 @@ class ORSet {
   auto ToString() const -> std::string;
 
  private:
-  // TODO(student): Add your private memeber variables to represent ORSet.
+  // TODO(student): Add your private member variables to represent ORSet.
 };
 
 }  // namespace bustub
