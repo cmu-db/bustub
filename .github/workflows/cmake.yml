@@ -52,7 +52,7 @@ jobs:
         working-directory: ${{github.workspace}}
         run: sudo bash ./build_support/packages.sh -y
 
-      - name: Install Dependencies (OSX)
+      - name: Install Dependencies (macOS)
         if: runner.os == 'macOS'
         working-directory: ${{github.workspace}}
         run: bash ./build_support/packages.sh -y
@@ -80,8 +80,8 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: make build-tests && make check-public-ci-tests
 
-      - name: Check Tests (OSX)
+      - name: Check Tests (macOS)
         if: runner.os == 'macOS'
         working-directory: ${{github.workspace}}/build
-        # Disable container overflow checks on OSX
+        # Disable container overflow checks on macOS
         run: make build-tests && make check-public-ci-tests
