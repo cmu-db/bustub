@@ -126,7 +126,7 @@ TEST(LRUKReplacerTest, DISABLED_SampleTest) {
   ASSERT_EQ(false, frame.has_value());
   ASSERT_EQ(0, lru_replacer.Size());
 
-  // Make sure that setting a non-existent frame as evictable or non-evictable doesn't do something strange.
+  // Make sure that setting a nonexistent frame as evictable or non-evictable doesn't do something strange.
   lru_replacer.SetEvictable(6, false);
   lru_replacer.SetEvictable(6, true);
 }
