@@ -43,7 +43,7 @@ class WindowFunctionPlanNode : public AbstractPlanNode {
    * @param functions The expressions that we are aggregating
    * @param window_func_types The types that we are aggregating
    *
-   * Window Aggregation is different from normal aggregation as it outputs one row for each inputing rows,
+   * Window Aggregation is different from normal aggregation as it outputs one row for each inputting rows,
    * and can be combined with normal selected columns. The columns in WindowFunctionPlanNode contains both
    * normal selected columns and placeholder columns for window aggregations.
    *

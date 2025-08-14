@@ -25,7 +25,7 @@ namespace bustub {
 /**
  * The WindowFunctionExecutor executor executes a window function for columns using window function.
  *
- * Window function is different from normal aggregation as it outputs one row for each inputing rows,
+ * Window function is different from normal aggregation as it outputs one row for each inputting rows,
  * and can be combined with normal selected columns. The columns in WindowFunctionPlanNode contains both
  * normal selected columns and placeholder columns for window functions.
  *
