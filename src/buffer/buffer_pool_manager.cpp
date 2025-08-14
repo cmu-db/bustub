@@ -342,12 +342,10 @@ void BufferPoolManager::FlushAllPages() { UNIMPLEMENTED("TODO(P1): Add implement
  * # Implementation
  *
  * We will use this function to test if your buffer pool manager is managing pin counts correctly. Since the
- * `pin_count_` field in `FrameHeader` is an atomic type, you do not need to take the latch on the frame that holds the
+ * `pin_count_` field in `FrameHeader` is an [atomic type](https://en.cppreference.com/w/cpp/atomic/atomic),
+ * you do not need to take the latch on the frame that holds the
  * page we want to look at. Instead, you can simply use an atomic `load` to safely load the value stored. You will still
  * need to take the buffer pool latch, however.
- *
- * Again, if you are unfamiliar with atomic types, see the official C++ docs
- * [here](https://en.cppreference.com/w/cpp/atomic/atomic).
  *
  * TODO(P1): Add implementation
  *
