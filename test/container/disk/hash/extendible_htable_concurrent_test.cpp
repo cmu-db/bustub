@@ -55,7 +55,7 @@ void InsertHelper(DiskExtendibleHashTable<GenericKey<8>, RID, GenericComparator<
   }
 }
 
-// helper function to seperate insert
+// helper function to separate insert
 void InsertHelperSplit(DiskExtendibleHashTable<GenericKey<8>, RID, GenericComparator<8>> *ht,
                        const std::vector<int64_t> &keys, int total_threads,
                        __attribute__((unused)) uint64_t thread_itr) {
@@ -81,7 +81,7 @@ void DeleteHelper(DiskExtendibleHashTable<GenericKey<8>, RID, GenericComparator<
   }
 }
 
-// helper function to seperate delete
+// helper function to separate delete
 void DeleteHelperSplit(DiskExtendibleHashTable<GenericKey<8>, RID, GenericComparator<8>> *ht,
                        const std::vector<int64_t> &remove_keys, int total_threads,
                        __attribute__((unused)) uint64_t thread_itr) {

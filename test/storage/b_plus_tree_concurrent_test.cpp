@@ -57,7 +57,7 @@ void InsertHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, con
   }
 }
 
-// helper function to seperate insert
+// helper function to separate insert
 void InsertHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, const std::vector<int64_t> &keys,
                        int total_threads, __attribute__((unused)) uint64_t thread_itr) {
   GenericKey<8> index_key;
@@ -84,7 +84,7 @@ void DeleteHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, con
   }
 }
 
-// helper function to seperate delete
+// helper function to separate delete
 void DeleteHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree,
                        const std::vector<int64_t> &remove_keys, int total_threads,
                        __attribute__((unused)) uint64_t thread_itr) {
