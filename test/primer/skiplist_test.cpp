@@ -24,7 +24,7 @@ namespace bustub {
 /**
  * @brief A instrumented skip list for checking the integrity of the skip list.
  *
- * `InstrumentedSkipList` does not modify the behavior of the `SkipList` baed class, but it provides a `CheckIntegrity`
+ * `InstrumentedSkipList` does not modify the behavior of the `SkipList` based class, but it provides a `CheckIntegrity`
  * function to check if the skip list is correctly constructed.
  *
  * @tparam K the type of key.
