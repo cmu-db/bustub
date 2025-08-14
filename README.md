@@ -20,7 +20,7 @@ We make the autograder for each assignment available to non-CMU students on Grad
 
 The following instructions are adapted from the Github documentation on [duplicating a repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-on-github/duplicating-a-repository). The procedure below walks you through creating a private BusTub repository that you can use for development.
 
-1. Go [here](https://github.com/new) to create a new repository under your account. Pick a name (e.g. `bustub-private`) and select **Private** for the repository visibility level.
+1. [Create a new repository](https://github.com/new) under your account. Pick a name (e.g. `bustub-private`) and select **Private** for the repository visibility level.
 2. On your development machine, create a bare clone of the public BusTub repository:
    ```console
    $ git clone --bare https://github.com/cmu-db/bustub.git bustub-public
