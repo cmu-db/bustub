@@ -38,7 +38,7 @@ SKIPLIST_TEMPLATE_ARGUMENTS auto SkipList<K, Compare, MaxHeight, Seed>::Size() -
  * We do this to avoid stack overflow when the skip list is large.
  *
  * If we let the compiler handle the deallocation, it will recursively call the destructor of each node,
- * which could block up the the stack.
+ * which could block up the stack.
  */
 SKIPLIST_TEMPLATE_ARGUMENTS void SkipList<K, Compare, MaxHeight, Seed>::Drop() {
   for (size_t i = 0; i < MaxHeight; i++) {

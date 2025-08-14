@@ -127,7 +127,7 @@ class LockManager {
    *    For instance S/IS/SIX locks are not required under READ_UNCOMMITTED, and any such attempt should set the
    *    TransactionState as ABORTED and throw a TransactionAbortException (LOCK_SHARED_ON_READ_UNCOMMITTED).
    *
-   *    Similarly, X/IX locks on rows are not allowed if the the Transaction State is SHRINKING, and any such attempt
+   *    Similarly, X/IX locks on rows are not allowed if the Transaction State is SHRINKING, and any such attempt
    *    should set the TransactionState as ABORTED and throw a TransactionAbortException (LOCK_ON_SHRINKING).
    *
    *    REPEATABLE_READ:

@@ -91,7 +91,7 @@ AnalyzeTemporaryDtors: true
 #     Let's not deal with people doing ridiculous things to hack around this. If it bites them, it bites them.
 # -bugprone-signed-char-misuse, -clang-diagnostic-implicit-int-float-conversion, -readability-make-member-function-const, 
 # -readability-qualified-auto, -readability-redundant-access-specifiers
-#     These were previously disabled for not being available in clang-tidy-8. They are now available on our clang-tidy-12, 
+#     These were previously disabled for not being available in clang-tidy-8. They're now available on our clang-tidy-12, 
 #     and potentially worth investigating/fixing.
 # -bugprone-exception-escape
 #     Weird. No idea how to resolve.
