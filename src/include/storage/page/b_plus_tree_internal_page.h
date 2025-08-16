@@ -52,7 +52,7 @@ class BPlusTreeInternalPage : public BPlusTreePage {
 
   void Init(int max_size = INTERNAL_PAGE_SLOT_CNT);
 
-  auto KeyAt(int index) const -> KeyType;
+  auto KeyAt(int index) const -> const KeyType &;
 
   void SetKeyAt(int index, const KeyType &key);
 
@@ -62,7 +62,7 @@ class BPlusTreeInternalPage : public BPlusTreePage {
    */
   auto ValueIndex(const ValueType &value) const -> int;
 
-  auto ValueAt(int index) const -> ValueType;
+  auto ValueAt(int index) const -> const ValueType &;
 
   /**
    * @brief For test only, return a string representing all keys in
