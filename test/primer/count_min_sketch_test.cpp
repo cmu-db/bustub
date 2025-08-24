@@ -755,7 +755,7 @@ TEST(CountMinSketchTest, ContentionRatioTest) {
   }
 
   std::cout << "<<< BEGIN" << std::endl;
-  std::cout << "Multithreaded Access Time: ";
+  std::cout << "Multithreaded Insertion Time: ";
   double sum_1 = 0;
   double sum_2 = 0;
   for (auto x : time_ms_wo_mutex) {
@@ -764,7 +764,7 @@ TEST(CountMinSketchTest, ContentionRatioTest) {
   }
   std::cout << std::endl;
 
-  std::cout << "Serialized Access Time: ";
+  std::cout << "Serialized Insertion Time: ";
   for (auto x : time_ms_with_mutex) {
     std::cout << x << " ";
     sum_2 += x;
@@ -773,10 +773,6 @@ TEST(CountMinSketchTest, ContentionRatioTest) {
   double speedup = sum_2 / sum_1;
   std::cout << "Speedup: " << speedup << std::endl;
   std::cout << ">>> END" << std::endl;
-  std::cout << "If your above data is an outlier in all submissions (based on statistics and probably some "
-               "machine-learning), TAs will manually inspect your code to ensure you are implementing lock crabbing "
-               "correctly."
-            << std::endl;
 
   ASSERT_TRUE(speedup > 1.2);
 }

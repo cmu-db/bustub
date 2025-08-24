@@ -25,7 +25,7 @@ class CountMinSketch {
    * @param width Number of buckets
    * @param depth Number of hash functions
    */
-  explicit CountMinSketch(uint16_t width, uint16_t depth);
+  explicit CountMinSketch(uint32_t width, uint32_t depth);
 
   CountMinSketch() = delete;                                            // Default constructor deleted
   CountMinSketch(const CountMinSketch &) = delete;                      // Copy constructor deleted
@@ -77,8 +77,8 @@ class CountMinSketch {
 
  private:
   /** Dimensions of the count-min sketch matrix */
-  const uint16_t width_;  // Number of buckets for each hash function
-  const uint16_t depth_;  // Number of independent hash functions
+  const uint32_t width_;  // Number of buckets for each hash function
+  const uint32_t depth_;  // Number of independent hash functions
 
   /** @todo (student) can add their data structures that support count-min sketch operations */
 };
