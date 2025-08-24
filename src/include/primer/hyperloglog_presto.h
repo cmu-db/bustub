@@ -56,7 +56,7 @@ class HyperLogLogPresto {
   /** @brief Returns overflow bucket of a specific given index. */
   auto GetOverflowBucketofIndex(uint16_t idx) { return overflow_bucket_[idx]; }
 
-  /** @brief Retusn the cardinality of the set. */
+  /** @brief Returns the cardinality of the set. */
   auto GetCardinality() const -> uint64_t { return cardinality_; }
 
   auto AddElem(KeyType val) -> void;
