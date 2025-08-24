@@ -6,6 +6,7 @@ add_library(
   orset.cpp
   orset_driver.cpp
   skiplist.cpp
+  count_min_sketch.cpp
   trie.cpp
   trie_store.cpp)
 

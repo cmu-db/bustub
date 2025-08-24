@@ -256,8 +256,8 @@ add_custom_target(fix-clang-tidy-diff
 # hardcode some files to check here for each project.
 # ##########################################################
 set(P0_FILES
-        "src/include/primer/skiplist.h"
-        "src/primer/skiplist.cpp"
+        "src/include/primer/count_min_sketch.h"
+        "src/primer/count_min_sketch.cpp"
 )
 
 add_custom_target(check-clang-tidy-p0
