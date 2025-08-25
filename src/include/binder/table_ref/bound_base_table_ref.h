@@ -42,7 +42,7 @@ class BoundBaseTableRef : public BoundTableRef {
   }
 
   auto GetBoundTableName() const -> std::string {
-    if (alias_ != std::nullopt) {
+    if (alias_ != std::nullopt && alias_.has_value()) {
       return *alias_;
     }
     return table_;

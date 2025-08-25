@@ -77,12 +77,12 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinEasyTest) {
   {
     auto page0_write_opt = bpm->CheckedWritePage(pageid0);
     ASSERT_TRUE(page0_write_opt.has_value());
-    auto page0_write = std::move(page0_write_opt.value());
+    auto page0_write = std::move(page0_write_opt.value()); // NOLINT
     CopyString(page0_write.GetDataMut(), str0);
 
     auto page1_write_opt = bpm->CheckedWritePage(pageid1);
     ASSERT_TRUE(page1_write_opt.has_value());
-    auto page1_write = std::move(page1_write_opt.value());
+    auto page1_write = std::move(page1_write_opt.value()); // NOLINT
     CopyString(page1_write.GetDataMut(), str1);
 
     ASSERT_EQ(1, bpm->GetPinCount(pageid0));

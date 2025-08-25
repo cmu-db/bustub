@@ -78,7 +78,7 @@ auto Optimizer::OptimizeNLJAsIndexJoin(const AbstractPlanNodeRef &plan) -> Abstr
               const auto &right_seq_scan = dynamic_cast<const SeqScanPlanNode &>(*nlj_plan.GetRightPlan());
               if (left_expr->GetTupleIdx() == 0 && right_expr->GetTupleIdx() == 1) {
                 if (auto index = MatchIndex(right_seq_scan.table_name_, right_expr->GetColIdx());
-                    index != std::nullopt) {
+                    index != std::nullopt && index.has_value()) {
                   auto [index_oid, index_name] = *index;
                   return std::make_shared<NestedIndexJoinPlanNode>(
                       nlj_plan.output_schema_, nlj_plan.GetLeftPlan(), std::move(left_expr_tuple_0),
@@ -88,7 +88,7 @@ auto Optimizer::OptimizeNLJAsIndexJoin(const AbstractPlanNodeRef &plan) -> Abstr
               }
               if (left_expr->GetTupleIdx() == 1 && right_expr->GetTupleIdx() == 0) {
                 if (auto index = MatchIndex(right_seq_scan.table_name_, left_expr->GetColIdx());
-                    index != std::nullopt) {
+                    index != std::nullopt && index.has_value()) {
                   auto [index_oid, index_name] = *index;
                   return std::make_shared<NestedIndexJoinPlanNode>(
                       nlj_plan.output_schema_, nlj_plan.GetLeftPlan(), std::move(right_expr_tuple_0),
