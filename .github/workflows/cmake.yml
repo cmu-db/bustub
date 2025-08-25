@@ -20,7 +20,8 @@ jobs:
         config:
           - {
               name: "Ubuntu 24.04 GCC",
-              os: "ubuntu-24.04",
+              # os: "ubuntu-24.04",
+              runs_on: ["self-hosted", "linux", "x64"],
               cc: "/usr/bin/gcc",
               cxx: "/usr/bin/g++",
               format: "/usr/bin/clang-format-15",
@@ -28,18 +29,25 @@ jobs:
             }
           - {
               name: "Ubuntu 24.04 Clang",
-              os: "ubuntu-24.04",
+              # os: "ubuntu-24.04",
+              runs_on: ["self-hosted", "linux", "x64"],
               cc: "/usr/bin/clang-15",
               cxx: "/usr/bin/clang++-15",
               format: "/usr/bin/clang-format-15",
               tidy: "/usr/bin/clang-tidy-15",
             }
           - {
-              name: "macOS 13 (Ventura) AppleClang",
-              os: macos-13,
-              format: "/usr/local/opt/llvm@14/bin/clang-format",
-              tidy: "/usr/local/opt/llvm@14/bin/clang-tidy",
+              name: "macOS 14 (Sonoma) AppleClang",
+              os: macos-14,
+              format: "/usr/local/opt/llvm@15/bin/clang-format",
+              tidy: "/usr/local/opt/llvm@15/bin/clang-tidy",
             }
+          - {
+            name: "macOS 15 (Sequoia) AppleClang",
+            os: macos-15,
+            format: "/usr/local/opt/llvm@15/bin/clang-format",
+            tidy: "/usr/local/opt/llvm@15/bin/clang-tidy",
+          }
     steps:
       - uses: actions/checkout@v2
 
@@ -75,13 +83,6 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: make check-clang-tidy
 
-      - name: Check Tests (Ubuntu)
-        if: runner.os == 'Linux'
+      - name: Check Tests
         working-directory: ${{github.workspace}}/build
-        run: make build-tests && make check-public-ci-tests
-
-      - name: Check Tests (OSX)
-        if: runner.os == 'macOS'
-        working-directory: ${{github.workspace}}/build
-        # Disable container overflow checks on OSX
         run: make build-tests && make check-public-ci-tests

@@ -34,6 +34,7 @@ TEST(TrieStoreTest, BasicTest) {
   store.Put<uint32_t>("233", 2333);
   {
     auto guard = store.Get<uint32_t>("233");
+    ASSERT_TRUE(guard.has_value());
     ASSERT_EQ(**guard, 2333);
   }
   store.Remove("233");
@@ -49,6 +50,7 @@ TEST(TrieStoreTest, GuardTest) {
 
   store.Put<std::string>("233", "2333");
   auto guard = store.Get<std::string>("233");
+  ASSERT_TRUE(guard.has_value());
   ASSERT_EQ(**guard, "2333");
 
   store.Remove("233");
@@ -57,6 +59,7 @@ TEST(TrieStoreTest, GuardTest) {
     ASSERT_EQ(guard, std::nullopt);
   }
 
+  ASSERT_TRUE(guard.has_value());
   ASSERT_EQ(**guard, "2333");
 }
 
@@ -85,10 +88,12 @@ TEST(TrieStoreTest, MixedTest) {
     } else if (i % 2 == 0) {
       std::string value = fmt::format("new-value-{:#08}", i);
       auto guard = store.Get<std::string>(key);
+      ASSERT_TRUE(guard.has_value());
       ASSERT_EQ(**guard, value);
     } else {
       std::string value = fmt::format("value-{:#08}", i);
       auto guard = store.Get<std::string>(key);
+      ASSERT_TRUE(guard.has_value());
       ASSERT_EQ(**guard, value);
     }
   }
@@ -151,6 +156,7 @@ TEST(TrieStoreTest, MixedConcurrentTest) {
     std::string key = fmt::format("{:#05}", i);
     std::string value = fmt::format("new-value-{:#08}", i);
     auto guard = store.Get<std::string>(key);
+    ASSERT_TRUE(guard.has_value());
     ASSERT_EQ(**guard, value);
   }
 }

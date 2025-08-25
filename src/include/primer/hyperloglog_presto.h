@@ -24,12 +24,12 @@
 #include "common/util/hash_util.h"
 
 /** @brief Dense bucket size. */
-#define DENSE_BUCKET_SIZE 4
+static constexpr int DENSE_BUCKET_SIZE = 4;
 /** @brief Overflow bucket size. */
-#define OVERFLOW_BUCKET_SIZE 3
+static constexpr int OVERFLOW_BUCKET_SIZE = 3;
 
 /** @brief Total bucket size. */
-#define TOTAL_BUCKET_SIZE (DENSE_BUCKET_SIZE + OVERFLOW_BUCKET_SIZE)
+static constexpr int TOTAL_BUCKET_SIZE = (DENSE_BUCKET_SIZE + OVERFLOW_BUCKET_SIZE);
 
 namespace bustub {
 

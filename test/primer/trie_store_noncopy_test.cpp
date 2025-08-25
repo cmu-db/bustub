@@ -60,14 +60,17 @@ TEST(TrieStoreTest, ReadWriteTest) {
   for (int i = 0; i < 100000; i++) {
     {
       auto guard = store.Get<uint32_t>("a");
+      ASSERT_TRUE(guard.has_value());
       ASSERT_EQ(**guard, 1);
     }
     {
       auto guard = store.Get<uint32_t>("b");
+      ASSERT_TRUE(guard.has_value());
       ASSERT_EQ(**guard, 2);
     }
     {
       auto guard = store.Get<uint32_t>("c");
+      ASSERT_TRUE(guard.has_value());
       ASSERT_EQ(**guard, 3);
     }
   }
