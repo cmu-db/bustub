@@ -32,9 +32,9 @@ TEST(TrieStoreTest, NonCopyableTest) {
   store.Put<Integer>("tes", std::make_unique<uint32_t>(233));
   store.Put<Integer>("te", std::make_unique<uint32_t>(23));
   store.Put<Integer>("test", std::make_unique<uint32_t>(2333));
-  ASSERT_EQ(***store.Get<Integer>("te"), 23);
-  ASSERT_EQ(***store.Get<Integer>("tes"), 233);
-  ASSERT_EQ(***store.Get<Integer>("test"), 2333);
+  ASSERT_EQ(***store.Get<Integer>("te"), 23);      // NOLINT
+  ASSERT_EQ(***store.Get<Integer>("tes"), 233);    // NOLINT
+  ASSERT_EQ(***store.Get<Integer>("test"), 2333);  // NOLINT
   store.Remove("te");
   store.Remove("tes");
   store.Remove("test");
@@ -60,15 +60,18 @@ TEST(TrieStoreTest, ReadWriteTest) {
   for (int i = 0; i < 100000; i++) {
     {
       auto guard = store.Get<uint32_t>("a");
-      ASSERT_EQ(**guard, 1);
+      ASSERT_TRUE(guard.has_value());
+      ASSERT_EQ(**guard, 1);  // NOLINT
     }
     {
       auto guard = store.Get<uint32_t>("b");
-      ASSERT_EQ(**guard, 2);
+      ASSERT_TRUE(guard.has_value());
+      ASSERT_EQ(**guard, 2);  // NOLINT
     }
     {
       auto guard = store.Get<uint32_t>("c");
-      ASSERT_EQ(**guard, 3);
+      ASSERT_TRUE(guard.has_value());
+      ASSERT_EQ(**guard, 3);  // NOLINT
     }
   }
 

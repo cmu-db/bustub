@@ -35,14 +35,14 @@ class BoundBaseTableRef : public BoundTableRef {
         schema_(std::move(schema)) {}
 
   auto ToString() const -> std::string override {
-    if (alias_ == std::nullopt) {
+    if (alias_ == std::nullopt || !alias_.has_value()) {
       return fmt::format("BoundBaseTableRef {{ table={}, oid={} }}", table_, oid_);
     }
     return fmt::format("BoundBaseTableRef {{ table={}, oid={}, alias={} }}", table_, oid_, *alias_);
   }
 
   auto GetBoundTableName() const -> std::string {
-    if (alias_ != std::nullopt) {
+    if (alias_ != std::nullopt && alias_.has_value()) {
       return *alias_;
     }
     return table_;

@@ -337,7 +337,7 @@ TEST(ExtendibleHTableConcurrentTest, DISABLED_MixTest2) {
 
   size_t num_threads = 6;
   for (size_t i = 0; i < num_threads; i++) {
-    threads.emplace_back(std::thread{tasks[i % tasks.size()], i});
+    threads.emplace_back(tasks[i % tasks.size()], i);
   }
   for (size_t i = 0; i < num_threads; i++) {
     threads[i].join();
