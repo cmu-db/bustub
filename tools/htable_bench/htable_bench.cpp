@@ -182,7 +182,7 @@ auto main(int argc, char **argv) -> int {
   std::vector<std::thread> threads;
 
   for (size_t thread_id = 0; thread_id < BUSTUB_READ_THREAD; thread_id++) {
-    threads.emplace_back(std::thread([thread_id, &index, duration_ms, &total_metrics] {
+    threads.emplace_back([thread_id, &index, duration_ms, &total_metrics] {
       HTableMetrics metrics(fmt::format("read  {:>2}", thread_id), duration_ms);
       metrics.Begin();
 
@@ -224,11 +224,11 @@ auto main(int argc, char **argv) -> int {
       }
 
       total_metrics.ReportRead(metrics.cnt_);
-    }));
+    });
   }
 
   for (size_t thread_id = 0; thread_id < BUSTUB_WRITE_THREAD; thread_id++) {
-    threads.emplace_back(std::thread([thread_id, &index, duration_ms, &total_metrics] {
+    threads.emplace_back([thread_id, &index, duration_ms, &total_metrics] {
       HTableMetrics metrics(fmt::format("write {:>2}", thread_id), duration_ms);
       metrics.Begin();
 
@@ -271,7 +271,7 @@ auto main(int argc, char **argv) -> int {
       }
 
       total_metrics.ReportWrite(metrics.cnt_);
-    }));
+    });
   }
 
   for (auto &thread : threads) {

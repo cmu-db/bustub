@@ -133,7 +133,7 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> AbstractPlanNodeRe
     for (const auto &order_by : statement.sort_) {
       auto [_, expr] = PlanExpression(*order_by->expr_, {plan});
       auto abstract_expr = std::move(expr);
-      order_bys.emplace_back(std::make_pair(order_by->type_, abstract_expr));
+      order_bys.emplace_back(order_by->type_, abstract_expr);
     }
     plan = std::make_shared<SortPlanNode>(std::make_shared<Schema>(plan->OutputSchema()), plan, std::move(order_bys));
   }
@@ -174,8 +174,9 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> AbstractPlanNodeRe
     if (offset != std::nullopt) {
       throw NotImplementedException("OFFSET clause is not supported yet.");
     }
-
-    plan = std::make_shared<LimitPlanNode>(std::make_shared<Schema>(plan->OutputSchema()), plan, *limit);
+    if (limit.has_value()) {
+      plan = std::make_shared<LimitPlanNode>(std::make_shared<Schema>(plan->OutputSchema()), plan, *limit);
+    }
   }
 
   return plan;
