@@ -129,10 +129,10 @@ class ReadPageGuard {
  * The _only_ way that the BusTub system should interact with the buffer pool's page data is via page guards. Since
  * `WritePageGuard` is an RAII object, the system never has to manually lock and unlock a page's latch.
  *
- * With a `WritePageGuard`, there can be only be one thread that has exclusive ownership over the page's data. This means
- * that the owner of the `WritePageGuard` can mutate the page's data as much as they want. However, the existence of a
- * `WritePageGuard` implies that no other `WritePageGuard` or any `ReadPageGuard`s for the same page can exist at the
- * same time.
+ * With a `WritePageGuard`, there can be only be one thread that has exclusive ownership over the page's data. This
+ * means that the owner of the `WritePageGuard` can mutate the page's data as much as they want. However, the existence
+ * of a `WritePageGuard` implies that no other `WritePageGuard` or any `ReadPageGuard`s for the same page can exist at
+ * the same time.
  */
 class WritePageGuard {
   /** @brief Only the buffer pool manager is allowed to construct a valid `WritePageGuard.` */
