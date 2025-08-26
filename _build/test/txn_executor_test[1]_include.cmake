@@ -1,5 +1,0 @@
-if(EXISTS "/tmp/bustub/_build/test/txn_executor_test[1]_tests.cmake")
-  include("/tmp/bustub/_build/test/txn_executor_test[1]_tests.cmake")
-else()
-  add_test(txn_executor_test_NOT_BUILT txn_executor_test_NOT_BUILT)
-endif()

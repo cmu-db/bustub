@@ -1,1 +1,0 @@
-/usr/bin/c++ -g -Wall -Wextra -Werror -Wno-unused-parameter -Wno-attributes -O0 -ggdb -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls CMakeFiles/htable-bench.dir/htable_bench.cpp.o -o ../../bin/bustub-htable-bench  ../../lib/libbustub.a ../../lib/libbustub_murmur3.a ../../lib/libduckdb_pg_query.a ../../lib/libfmtd.a ../../lib/libfort.a -lpthread 

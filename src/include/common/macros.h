@@ -18,11 +18,11 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace bustub {
+namespace bustub {  // NOLINT
 
 #define BUSTUB_ASSERT(expr, message) assert((expr) && (message))
 
-namespace internal {
+namespace internal {  // NOLINT
 
 // An internal stream, used to take C++ stream-style parameters for display, and exit the program with `std::abort`.
 class LogFatalStream {
@@ -35,7 +35,7 @@ class LogFatalStream {
   }
 
   template <typename T>
-  LogFatalStream &operator<<(const T &val) {
+  auto operator<<(const T &val) -> LogFatalStream & {
     log_stream_ << val;
     return *this;
   }

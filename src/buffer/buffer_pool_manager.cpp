@@ -126,8 +126,8 @@ auto BufferPoolManager::NewPage() -> page_id_t { UNIMPLEMENTED("TODO(P1): Add im
  *
  * ### Implementation
  *
- * Think about all of the places that a page or a page's metadata could be, and use that to guide you on implementing this
- * function. You will probably want to implement this function _after_ you have implemented `CheckedReadPage` and
+ * Think about all of the places that a page or a page's metadata could be, and use that to guide you on implementing
+ * this function. You will probably want to implement this function _after_ you have implemented `CheckedReadPage` and
  * `CheckedWritePage`.
  *
  * You should call `DeallocatePage` in the disk scheduler to make the space available for new pages.
