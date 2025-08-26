@@ -12,6 +12,9 @@
 
 #include "primer/count_min_sketch.h"
 
+#include <stdexcept>
+#include <string>
+
 namespace bustub {
 
 /**
