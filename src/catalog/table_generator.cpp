@@ -79,6 +79,7 @@ void TableGenerator::FillTable(const std::shared_ptr<TableInfo> &info, TableInse
   uint32_t batch_size = 128;
   while (num_inserted < table_meta->num_rows_) {
     std::vector<std::vector<Value>> values;
+    values.reserve(table_meta->col_meta_.size());
     uint32_t num_values = std::min(batch_size, table_meta->num_rows_ - num_inserted);
     for (auto &col_meta : table_meta->col_meta_) {
       values.emplace_back(MakeValues(&col_meta, num_values));
