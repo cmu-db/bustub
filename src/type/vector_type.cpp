@@ -2,11 +2,11 @@
 //
 //                         BusTub
 //
-// varlen_type.cpp
+// vector_type.cpp
 //
-// Identification: src/type/varlen_type.cpp
+// Identification: src/type/vector_type.cpp
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -15,6 +15,7 @@
 
 #include "common/exception.h"
 #include "common/macros.h"
+#include "fmt/ranges.h"
 #include "type/type_id.h"
 #include "type/type_util.h"
 #include "type/vector_type.h"
@@ -25,7 +26,9 @@ VectorType::VectorType() : Type(TypeId::VECTOR) {}
 
 VectorType::~VectorType() = default;
 
-// Access the raw variable length data
+/**
+ * Access the raw variable length data
+ */
 auto VectorType::GetData(const Value &val) const -> const char * { return val.value_.varlen_; }
 
 auto VectorType::GetVector(const Value &val) const -> std::vector<double> {
@@ -39,7 +42,9 @@ auto VectorType::GetVector(const Value &val) const -> std::vector<double> {
   return data;
 }
 
-// Get the length of the variable length data (including the length field)
+/**
+ * Get the length of the variable length data (including the length field)
+ */
 auto VectorType::GetStorageSize(const Value &val) const -> uint32_t { return val.size_.len_; }
 
 auto VectorType::CompareEquals(const Value &left, const Value &right) const -> CmpBool {
@@ -74,6 +79,9 @@ auto VectorType::Max(const Value &left, const Value &right) const -> Value {
   UNIMPLEMENTED("vector type comparison not supported");
 }
 
+/**
+ * Debug
+ */
 auto VectorType::ToString(const Value &val) const -> std::string {
   uint32_t len = GetStorageSize(val);
 
@@ -89,6 +97,9 @@ auto VectorType::ToString(const Value &val) const -> std::string {
   return fmt::format("[{}]", fmt::join(GetVector(val), ","));
 }
 
+/**
+ * Serialize this value into the given storage space
+ */
 void VectorType::SerializeTo(const Value &val, char *storage) const {
   uint32_t len = GetStorageSize(val);
   if (len == BUSTUB_VALUE_NULL) {
@@ -99,7 +110,9 @@ void VectorType::SerializeTo(const Value &val, char *storage) const {
   memcpy(storage + sizeof(uint32_t), val.value_.varlen_, len);
 }
 
-// Deserialize a value of the given type from the given storage space.
+/**
+ * Deserialize a value of the given type from the given storage space.
+ */
 auto VectorType::DeserializeFrom(const char *storage) const -> Value {
   uint32_t len = *reinterpret_cast<const uint32_t *>(storage);
   if (len == BUSTUB_VALUE_NULL) {
@@ -109,6 +122,9 @@ auto VectorType::DeserializeFrom(const char *storage) const -> Value {
   return {type_id_, storage + sizeof(uint32_t), len, true};
 }
 
+/**
+ * Create a copy of this value
+ */
 auto VectorType::Copy(const Value &val) const -> Value { return {val}; }
 
 auto VectorType::CastAs(const Value &value, const TypeId type_id) const -> Value {

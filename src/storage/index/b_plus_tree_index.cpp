@@ -1,25 +1,25 @@
 //===----------------------------------------------------------------------===//
 //
-//                         CMU-DB Project (15-445/645)
-//                         ***DO NO SHARE PUBLICLY***
+//                         BusTub
 //
-// Identification: src/index/b_plus_tree_index.cpp
+// b_plus_tree_index.cpp
 //
-// Copyright (c) 2018, Carnegie Mellon University Database Group
+// Identification: src/storage/index/b_plus_tree_index.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
 #include "storage/index/b_plus_tree_index.h"
 
 namespace bustub {
-/*
+/**
  * Constructor
  */
 INDEX_TEMPLATE_ARGUMENTS
 BPLUSTREE_INDEX_TYPE::BPlusTreeIndex(std::unique_ptr<IndexMetadata> &&metadata, BufferPoolManager *buffer_pool_manager)
     : Index(std::move(metadata)), comparator_(GetMetadata()->GetKeySchema()) {
-  page_id_t header_page_id;
-  buffer_pool_manager->NewPage(&header_page_id);
+  page_id_t header_page_id = buffer_pool_manager->NewPage();
   container_ = std::make_shared<BPlusTree<KeyType, ValueType, KeyComparator>>(GetMetadata()->GetName(), header_page_id,
                                                                               buffer_pool_manager, comparator_);
 }
@@ -30,7 +30,7 @@ auto BPLUSTREE_INDEX_TYPE::InsertEntry(const Tuple &key, RID rid, Transaction *t
   KeyType index_key;
   index_key.SetFromKey(key);
 
-  return container_->Insert(index_key, rid, transaction);
+  return container_->Insert(index_key, rid);
 }
 
 INDEX_TEMPLATE_ARGUMENTS
@@ -39,7 +39,7 @@ void BPLUSTREE_INDEX_TYPE::DeleteEntry(const Tuple &key, RID rid, Transaction *t
   KeyType index_key;
   index_key.SetFromKey(key);
 
-  container_->Remove(index_key, transaction);
+  container_->Remove(index_key);
 }
 
 INDEX_TEMPLATE_ARGUMENTS
@@ -48,7 +48,7 @@ void BPLUSTREE_INDEX_TYPE::ScanKey(const Tuple &key, std::vector<RID> *result, T
   KeyType index_key;
   index_key.SetFromKey(key);
 
-  container_->GetValue(index_key, result, transaction);
+  container_->GetValue(index_key, result);
 }
 
 INDEX_TEMPLATE_ARGUMENTS

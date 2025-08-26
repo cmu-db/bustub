@@ -1,0 +1,5 @@
+if(EXISTS "/tmp/bustub/_build/test/hash_table_test[1]_tests.cmake")
+  include("/tmp/bustub/_build/test/hash_table_test[1]_tests.cmake")
+else()
+  add_test(hash_table_test_NOT_BUILT hash_table_test_NOT_BUILT)
+endif()

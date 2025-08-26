@@ -1,8 +1,12 @@
 //===----------------------------------------------------------------------===//
+//
 //                         BusTub
 //
-// bustub/binder/bound_order_by.h
+// bound_order_by.h
 //
+// Identification: src/include/binder/bound_order_by.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -14,6 +18,7 @@
 
 #include "binder/bound_expression.h"
 #include "common/exception.h"
+#include "execution/expressions/abstract_expression.h"
 #include "fmt/format.h"
 
 namespace bustub {
@@ -27,6 +32,8 @@ enum class OrderByType : uint8_t {
   ASC = 2,     /**< Ascending order by type. */
   DESC = 3,    /**< Descending order by type. */
 };
+
+using OrderBy = std::pair<OrderByType, AbstractExpressionRef>;
 
 /**
  * BoundOrderBy is an item in the ORDER BY clause.

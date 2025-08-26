@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// b_plus_tree.h
+//
+// Identification: src/include/storage/index/b_plus_tree.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 /**
  * b_plus_tree.h
  *
@@ -22,7 +34,6 @@
 
 #include "common/config.h"
 #include "common/macros.h"
-#include "concurrency/transaction.h"
 #include "storage/index/index_iterator.h"
 #include "storage/page/b_plus_tree_header_page.h"
 #include "storage/page/b_plus_tree_internal_page.h"
@@ -67,20 +78,20 @@ class BPlusTree {
 
  public:
   explicit BPlusTree(std::string name, page_id_t header_page_id, BufferPoolManager *buffer_pool_manager,
-                     const KeyComparator &comparator, int leaf_max_size = LEAF_PAGE_SIZE,
-                     int internal_max_size = INTERNAL_PAGE_SIZE);
+                     const KeyComparator &comparator, int leaf_max_size = LEAF_PAGE_SLOT_CNT,
+                     int internal_max_size = INTERNAL_PAGE_SLOT_CNT);
 
   // Returns true if this B+ tree has no keys and values.
   auto IsEmpty() const -> bool;
 
   // Insert a key-value pair into this B+ tree.
-  auto Insert(const KeyType &key, const ValueType &value, Transaction *txn = nullptr) -> bool;
+  auto Insert(const KeyType &key, const ValueType &value) -> bool;
 
   // Remove a key and its value from this B+ tree.
-  void Remove(const KeyType &key, Transaction *txn);
+  void Remove(const KeyType &key);
 
   // Return the value associated with a given key
-  auto GetValue(const KeyType &key, std::vector<ValueType> *result, Transaction *txn = nullptr) -> bool;
+  auto GetValue(const KeyType &key, std::vector<ValueType> *result) -> bool;
 
   // Return the page id of the root node
   auto GetRootPageId() -> page_id_t;
@@ -92,54 +103,25 @@ class BPlusTree {
 
   auto Begin(const KeyType &key) -> INDEXITERATOR_TYPE;
 
-  // Print the B+ tree
   void Print(BufferPoolManager *bpm);
 
-  // Draw the B+ tree
   void Draw(BufferPoolManager *bpm, const std::filesystem::path &outf);
 
-  /**
-   * @brief draw a B+ tree, below is a printed
-   * B+ tree(3 max leaf, 4 max internal) after inserting key:
-   *  {1, 5, 9, 13, 17, 21, 25, 29, 33, 37, 18, 19, 20}
-   *
-   *                               (25)
-   *                 (9,17,19)                          (33)
-   *  (1,5)    (9,13)    (17,18)    (19,20,21)    (25,29)    (33,37)
-   *
-   * @return std::string
-   */
   auto DrawBPlusTree() -> std::string;
 
   // read data from file and insert one by one
-  void InsertFromFile(const std::filesystem::path &file_name, Transaction *txn = nullptr);
+  void InsertFromFile(const std::filesystem::path &file_name);
 
   // read data from file and remove one by one
-  void RemoveFromFile(const std::filesystem::path &file_name, Transaction *txn = nullptr);
+  void RemoveFromFile(const std::filesystem::path &file_name);
 
-  /**
-   * @brief Read batch operations from input file, below is a sample file format
-   * insert some keys and delete 8, 9 from the tree with one step.
-   * { i1 i2 i3 i4 i5 i6 i7 i8 i9 i10 i30 d8 d9 } //  batch.txt
-   * B+ Tree(4 max leaf, 4 max internal) after processing:
-   *                            (5)
-   *                 (3)                (7)
-   *            (1,2)    (3,4)    (5,6)    (7,10,30) //  The output tree example
-   */
-  void BatchOpsFromFile(const std::filesystem::path &file_name, Transaction *txn = nullptr);
+  void BatchOpsFromFile(const std::filesystem::path &file_name);
 
  private:
-  /* Debug Routines for FREE!! */
   void ToGraph(page_id_t page_id, const BPlusTreePage *page, std::ofstream &out);
 
   void PrintTree(page_id_t page_id, const BPlusTreePage *page);
 
-  /**
-   * @brief Convert A B+ tree into a Printable B+ tree
-   *
-   * @param root_id
-   * @return PrintableNode
-   */
   auto ToPrintableBPlusTree(page_id_t root_id) -> PrintableBPlusTree;
 
   // member variable

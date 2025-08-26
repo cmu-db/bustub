@@ -1,9 +1,21 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// extendible_hash_table_index.cpp
+//
+// Identification: src/storage/index/extendible_hash_table_index.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <vector>
 
 #include "storage/index/extendible_hash_table_index.h"
 
 namespace bustub {
-/*
+/**
  * Constructor
  */
 template <typename KeyType, typename ValueType, typename KeyComparator>

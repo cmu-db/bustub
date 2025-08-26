@@ -4,9 +4,9 @@
 //
 // comparison_expression.h
 //
-// Identification: src/include/expression/comparison_expression.h
+// Identification: src/include/execution/expressions/comparison_expression.h
 //
-// Copyright (c) 2015-19, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

@@ -6,7 +6,7 @@
 //
 // Identification: src/include/storage/page/hash_table_page_defs.h
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -49,4 +49,4 @@
  * Extending the directory implementation to span multiple pages would be a meaningful improvement to the
  * implementation.
  */
-#define DIRECTORY_ARRAY_SIZE 512
+static constexpr int DIRECTORY_ARRAY_SIZE = 512;

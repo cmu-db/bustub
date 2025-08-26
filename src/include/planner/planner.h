@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// planner.h
+//
+// Identification: src/include/planner/planner.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #pragma once
 
 #include <memory>
@@ -89,15 +101,6 @@ class Planner {
 
   auto PlanSelect(const SelectStatement &statement) -> AbstractPlanNodeRef;
 
-  /**
-   * @brief Plan a `BoundTableRef`
-   *
-   * - For a BaseTableRef, this function will return a `SeqScanPlanNode`. Note that all tables with
-   *   names beginning with `__` will be planned as `MockScanPlanNode`.
-   * - For a `JoinRef` or `CrossProductRef`, this function will return a `NestedLoopJoinNode`.
-   * @param table_ref the bound table ref from binder.
-   * @return the plan node of this bound table ref.
-   */
   auto PlanTableRef(const BoundTableRef &table_ref) -> AbstractPlanNodeRef;
 
   auto PlanSubquery(const BoundSubqueryRef &table_ref, const std::string &alias) -> AbstractPlanNodeRef;

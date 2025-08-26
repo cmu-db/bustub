@@ -6,7 +6,7 @@
 //
 // Identification: src/execution/mock_scan_executor.cpp
 //
-// Copyright (c) 2015-2022, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -16,7 +16,6 @@
 
 #include "common/exception.h"
 #include "common/util/string_util.h"
-#include "execution/expressions/column_value_expression.h"
 #include "type/type_id.h"
 #include "type/value_factory.h"
 
@@ -36,6 +35,12 @@ static const char *ta_list_2023_fall[] = {"skyzh",     "yliang412",       "ferna
 static const char *ta_list_2024[] = {"AlSchlo",   "walkingcabbages", "averyqi115", "lanlou1554", "sweetsuro",
                                      "ChaosZhai", "SDTheSlayer",     "xx01cyx",    "yliang412",  "thelongmarch-azx"};
 
+static const char *ta_list_2024_fall[] = {"17zhangw",         "connortsui20", "J-HowHuang", "lanlou1554",
+                                          "prashanthduvvada", "unw9527",      "xx01cyx",    "yashkothari42"};
+
+static const char *ta_list_2025_spring[] = {"AlSchlo",     "carpecodeum", "ChrisLaspias", "hyoungjook",
+                                            "joesunil123", "mrwhitezz",   "rmboyce",      "yliang412"};
+
 static const char *ta_oh_2022[] = {"Tuesday",   "Wednesday", "Monday",  "Wednesday", "Thursday", "Friday",
                                    "Wednesday", "Randomly",  "Tuesday", "Monday",    "Tuesday"};
 
@@ -48,20 +53,27 @@ static const char *ta_oh_2023_fall[] = {"Randomly", "Tuesday",   "Wednesday", "T
 static const char *ta_oh_2024[] = {"Friday",    "Thursday", "Friday",  "Wednesday", "Thursday",
                                    "Yesterday", "Monday",   "Tuesday", "Tuesday",   "Monday"};
 
+static const char *ta_oh_2024_fall[] = {"Wednesday", "Thursday", "Tuesday", "Monday",
+                                        "Friday",    "Thursday", "Tuesday", "Friday"};
+
+static const char *ta_oh_2025_spring[] = {"Friday", "Monday",   "Wednesday", "Tuesday",
+                                          "Friday", "Thursday", "Monday",    "Tuesday"};
+
 static const char *course_on_date[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
-const char *mock_table_list[] = {"__mock_table_1", "__mock_table_2", "__mock_table_3", "__mock_table_tas_2022",
-                                 "__mock_table_tas_2023", "__mock_table_tas_2023_fall", "__mock_table_tas_2024",
-                                 "__mock_agg_input_small", "__mock_agg_input_big", "__mock_table_schedule_2022",
-                                 "__mock_table_schedule", "__mock_table_123", "__mock_graph",
-                                 // For leaderboard Q1
-                                 "__mock_t1",
-                                 // For leaderboard Q2
-                                 "__mock_t4_1m", "__mock_t5_1m", "__mock_t6_1m",
-                                 // For leaderboard Q3
-                                 "__mock_t7", "__mock_t8", "__mock_t9",
-                                 // For P3 leaderboard Q4
-                                 "__mock_t10", "__mock_t11", nullptr};
+const char *mock_table_list[] = {
+    "__mock_table_1", "__mock_table_2", "__mock_table_3", "__mock_table_tas_2022", "__mock_table_tas_2023",
+    "__mock_table_tas_2023_fall", "__mock_table_tas_2024", "__mock_table_tas_2024_fall", "__mock_table_tas_2025_spring",
+    "__mock_agg_input_small", "__mock_agg_input_big", "__mock_external_merge_sort_input", "__mock_table_schedule_2022",
+    "__mock_table_schedule", "__mock_table_123", "__mock_graph",
+    // For leaderboard Q1
+    "__mock_t1",
+    // For leaderboard Q2
+    "__mock_t4_1m", "__mock_t5_1m", "__mock_t6_1m",
+    // For leaderboard Q3
+    "__mock_t7", "__mock_t8", "__mock_t9",
+    // For P3 leaderboard Q4
+    "__mock_t10", "__mock_t11", nullptr};
 
 static const int GRAPH_NODE_CNT = 10;
 
@@ -94,6 +106,14 @@ auto GetMockTableSchemaOf(const std::string &table) -> Schema {
     return Schema{std::vector{Column{"github_id", TypeId::VARCHAR, 128}, Column{"office_hour", TypeId::VARCHAR, 128}}};
   }
 
+  if (table == "__mock_table_tas_2024_fall") {
+    return Schema{std::vector{Column{"github_id", TypeId::VARCHAR, 128}, Column{"office_hour", TypeId::VARCHAR, 128}}};
+  }
+
+  if (table == "__mock_table_tas_2025_spring") {
+    return Schema{std::vector{Column{"github_id", TypeId::VARCHAR, 128}, Column{"office_hour", TypeId::VARCHAR, 128}}};
+  }
+
   if (table == "__mock_table_schedule_2022") {
     return Schema{std::vector{Column{"day_of_week", TypeId::VARCHAR, 128}, Column{"has_lecture", TypeId::INTEGER}}};
   }
@@ -108,9 +128,17 @@ auto GetMockTableSchemaOf(const std::string &table) -> Schema {
                               Column{"v5", TypeId::INTEGER}, Column{"v6", TypeId::VARCHAR, 128}}};
   }
 
+  if (table == "__mock_external_merge_sort_input") {
+    return Schema{
+        std::vector{Column{"v1", TypeId::INTEGER}, Column{"v2", TypeId::INTEGER}, Column{"v3", TypeId::INTEGER}}};
+  }
+
   if (table == "__mock_graph") {
+    // Note(f24): Make `src_label` and `dst_label` INTEGER because the current external merge sort implementation
+    // only supports sorting on fixed-length data. Should be VARCHAR(8) if var-length data sorting is supported in
+    // the future.
     return Schema{std::vector{Column{"src", TypeId::INTEGER}, Column{"dst", TypeId::INTEGER},
-                              Column{"src_label", TypeId::VARCHAR, 8}, Column{"dst_label", TypeId::VARCHAR, 8},
+                              Column{"src_label", TypeId::INTEGER}, Column{"dst_label", TypeId::INTEGER},
                               Column{"distance", TypeId::INTEGER}}};
   }
 
@@ -182,6 +210,14 @@ auto GetSizeOf(const MockScanPlanNode *plan) -> size_t {
     return sizeof(ta_list_2024) / sizeof(ta_list_2024[0]);
   }
 
+  if (table == "__mock_table_tas_2024_fall") {
+    return sizeof(ta_list_2024_fall) / sizeof(ta_list_2024_fall[0]);
+  }
+
+  if (table == "__mock_table_tas_2025_spring") {
+    return sizeof(ta_list_2025_spring) / sizeof(ta_list_2025_spring[0]);
+  }
+
   if (table == "__mock_table_schedule_2022") {
     return sizeof(course_on_date) / sizeof(course_on_date[0]);
   }
@@ -196,6 +232,10 @@ auto GetSizeOf(const MockScanPlanNode *plan) -> size_t {
 
   if (table == "__mock_agg_input_big") {
     return 10000;
+  }
+
+  if (table == "__mock_external_merge_sort_input") {
+    return 100000;
   }
 
   if (table == "__mock_graph") {
@@ -329,6 +369,24 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
     };
   }
 
+  if (table == "__mock_table_tas_2024_fall") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.push_back(ValueFactory::GetVarcharValue(ta_list_2024_fall[cursor]));
+      values.push_back(ValueFactory::GetVarcharValue(ta_oh_2024_fall[cursor]));
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
+  if (table == "__mock_table_tas_2025_spring") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.push_back(ValueFactory::GetVarcharValue(ta_list_2025_spring[cursor]));
+      values.push_back(ValueFactory::GetVarcharValue(ta_oh_2025_spring[cursor]));
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
   if (table == "__mock_table_schedule_2022") {
     return [plan](size_t cursor) {
       std::vector<Value> values{};
@@ -375,6 +433,16 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
     };
   }
 
+  if (table == "__mock_external_merge_sort_input") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.push_back(ValueFactory::GetIntegerValue(cursor));
+      values.push_back(ValueFactory::GetIntegerValue((cursor + 1777) % 15000));
+      values.push_back(ValueFactory::GetIntegerValue((cursor + 3) % 111));
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
   if (table == "__mock_table_123") {
     return [plan](size_t cursor) {
       std::vector<Value> values{};
@@ -390,8 +458,9 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
       int dst = cursor / GRAPH_NODE_CNT;
       values.push_back(ValueFactory::GetIntegerValue(src));
       values.push_back(ValueFactory::GetIntegerValue(dst));
-      values.push_back(ValueFactory::GetVarcharValue(fmt::format("{:03}", src)));
-      values.push_back(ValueFactory::GetVarcharValue(fmt::format("{:03}", dst)));
+      // Note(f24): Use INTEGER for `src_label` and `dst_label` based on current external merge sort.
+      values.push_back(ValueFactory::GetIntegerValue(src * 100));
+      values.push_back(ValueFactory::GetIntegerValue(dst * 100));
       if (src == dst) {
         values.push_back(ValueFactory::GetNullValueByType(TypeId::INTEGER));
       } else {
@@ -498,6 +567,11 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
   };
 }
 
+/**
+ * Construct a new MockScanExecutor instance.
+ * @param exec_ctx The executor context
+ * @param plan The mock scan plan to be executed
+ */
 MockScanExecutor::MockScanExecutor(ExecutorContext *exec_ctx, const MockScanPlanNode *plan)
     : AbstractExecutor{exec_ctx}, plan_{plan}, func_(GetFunctionOf(plan)), size_(GetSizeOf(plan)) {
   if (GetShuffled(plan)) {
@@ -510,11 +584,18 @@ MockScanExecutor::MockScanExecutor(ExecutorContext *exec_ctx, const MockScanPlan
   }
 }
 
+/** Initialize the mock scan. */
 void MockScanExecutor::Init() {
   // Reset the cursor
   cursor_ = 0;
 }
 
+/**
+ * Yield the next tuple from the sequential scan.
+ * @param[out] tuple The next tuple produced by the scan
+ * @param[out] rid The next tuple RID produced by the scan
+ * @return `true` if a tuple was produced, `false` if there are no more tuples
+ */
 auto MockScanExecutor::Next(Tuple *tuple, RID *rid) -> bool {
   if (cursor_ == size_) {
     // Scan complete
@@ -530,6 +611,7 @@ auto MockScanExecutor::Next(Tuple *tuple, RID *rid) -> bool {
   return EXECUTOR_ACTIVE;
 }
 
+/** @return A dummy RID value */
 auto MockScanExecutor::MakeDummyRID() -> RID { return RID{0}; }
 
 }  // namespace bustub

@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// crash_test.cpp
+//
+// Identification: test/backtrace/crash_test.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "common/exception.h"
 #include "common/macros.h"
 #include "gtest/gtest.h"

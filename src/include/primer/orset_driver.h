@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// orset_driver.h
+//
+// Identification: src/include/primer/orset_driver.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #pragma once
 
 #include <memory>
@@ -49,14 +61,8 @@ class ORSetNode {
    */
   inline void Merge(const ORSet<T> to_be_merged) { orset_.Merge(to_be_merged); }
 
-  /**
-   * @brief Saves all local changes to the driver.
-   */
   void Save();
 
-  /**
-   * @brief Loads all the remote changes to the local ORSet.
-   */
   void Load();
 
   /**
@@ -105,9 +111,6 @@ class ORSetDriver {
    */
   inline auto At(size_t index) -> std::unique_ptr<ORSetNode<T>> & { return orset_nodes_[index]; }
 
-  /**
-   * @brief Saves changes in all nodes and then load all the changes.
-   */
   void Sync();
 
  private:

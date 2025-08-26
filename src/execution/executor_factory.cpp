@@ -6,7 +6,7 @@
 //
 // Identification: src/execution/executor_factory.cpp
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -18,6 +18,7 @@
 #include "execution/executors/abstract_executor.h"
 #include "execution/executors/aggregation_executor.h"
 #include "execution/executors/delete_executor.h"
+#include "execution/executors/external_merge_sort_executor.h"
 #include "execution/executors/filter_executor.h"
 #include "execution/executors/hash_join_executor.h"
 #include "execution/executors/index_scan_executor.h"
@@ -29,7 +30,6 @@
 #include "execution/executors/nested_loop_join_executor.h"
 #include "execution/executors/projection_executor.h"
 #include "execution/executors/seq_scan_executor.h"
-#include "execution/executors/sort_executor.h"
 #include "execution/executors/topn_check_executor.h"
 #include "execution/executors/topn_executor.h"
 #include "execution/executors/topn_per_group_executor.h"
@@ -44,10 +44,15 @@
 #include "execution/plans/topn_plan.h"
 #include "execution/plans/values_plan.h"
 #include "execution/plans/window_plan.h"
-#include "storage/index/generic_key.h"
 
 namespace bustub {
 
+/**
+ * Creates a new executor given the executor context and plan node.
+ * @param exec_ctx The executor context for the created executor
+ * @param plan The plan node that needs to be executed
+ * @return An executor for the given plan in the provided context
+ */
 auto ExecutorFactory::CreateExecutor(ExecutorContext *exec_ctx, const AbstractPlanNodeRef &plan)
     -> std::unique_ptr<AbstractExecutor> {
   auto check_options_set = exec_ctx->GetCheckOptions()->check_options_set_;
@@ -125,7 +130,7 @@ auto ExecutorFactory::CreateExecutor(ExecutorContext *exec_ctx, const AbstractPl
     case PlanType::NestedIndexJoin: {
       auto nested_index_join_plan = dynamic_cast<const NestedIndexJoinPlanNode *>(plan.get());
       auto left = ExecutorFactory::CreateExecutor(exec_ctx, nested_index_join_plan->GetChildPlan());
-      return std::make_unique<NestIndexJoinExecutor>(exec_ctx, nested_index_join_plan, std::move(left));
+      return std::make_unique<NestedIndexJoinExecutor>(exec_ctx, nested_index_join_plan, std::move(left));
     }
 
     // Create a new hash join executor
@@ -166,7 +171,7 @@ auto ExecutorFactory::CreateExecutor(ExecutorContext *exec_ctx, const AbstractPl
     case PlanType::Sort: {
       const auto *sort_plan = dynamic_cast<const SortPlanNode *>(plan.get());
       auto child = ExecutorFactory::CreateExecutor(exec_ctx, sort_plan->GetChildPlan());
-      return std::make_unique<SortExecutor>(exec_ctx, sort_plan, std::move(child));
+      return std::make_unique<ExternalMergeSortExecutor<2>>(exec_ctx, sort_plan, std::move(child));
     }
 
       // Create a new topN executor

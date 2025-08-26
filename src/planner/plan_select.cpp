@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// plan_select.cpp
+//
+// Identification: src/planner/plan_select.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <memory>
 #include <optional>
 #include <utility>
@@ -117,11 +129,11 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> AbstractPlanNodeRe
 
   // Plan ORDER BY
   if (!statement.sort_.empty()) {
-    std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys;
+    std::vector<OrderBy> order_bys;
     for (const auto &order_by : statement.sort_) {
       auto [_, expr] = PlanExpression(*order_by->expr_, {plan});
       auto abstract_expr = std::move(expr);
-      order_bys.emplace_back(std::make_pair(order_by->type_, abstract_expr));
+      order_bys.emplace_back(order_by->type_, abstract_expr);
     }
     plan = std::make_shared<SortPlanNode>(std::make_shared<Schema>(plan->OutputSchema()), plan, std::move(order_bys));
   }
@@ -162,8 +174,9 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> AbstractPlanNodeRe
     if (offset != std::nullopt) {
       throw NotImplementedException("OFFSET clause is not supported yet.");
     }
-
-    plan = std::make_shared<LimitPlanNode>(std::make_shared<Schema>(plan->OutputSchema()), plan, *limit);
+    if (limit.has_value()) {
+      plan = std::make_shared<LimitPlanNode>(std::make_shared<Schema>(plan->OutputSchema()), plan, *limit);
+    }
   }
 
   return plan;

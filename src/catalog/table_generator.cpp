@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// table_generator.cpp
+//
+// Identification: src/catalog/table_generator.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "catalog/table_generator.h"
 
 #include <algorithm>
@@ -62,11 +74,12 @@ auto TableGenerator::MakeValues(ColumnInsertMeta *col_meta, uint32_t count) -> s
   }
 }
 
-void TableGenerator::FillTable(TableInfo *info, TableInsertMeta *table_meta) {
+void TableGenerator::FillTable(const std::shared_ptr<TableInfo> &info, TableInsertMeta *table_meta) {
   uint32_t num_inserted = 0;
   uint32_t batch_size = 128;
   while (num_inserted < table_meta->num_rows_) {
     std::vector<std::vector<Value>> values;
+    values.reserve(table_meta->col_meta_.size());
     uint32_t num_values = std::min(batch_size, table_meta->num_rows_ - num_inserted);
     for (auto &col_meta : table_meta->col_meta_) {
       values.emplace_back(MakeValues(&col_meta, num_values));
@@ -84,6 +97,9 @@ void TableGenerator::FillTable(TableInfo *info, TableInsertMeta *table_meta) {
   }
 }
 
+/**
+ * Generate test tables.
+ */
 void TableGenerator::GenerateTestTables() {
   /**
    * This array configures each of the test tables. Each table is configured

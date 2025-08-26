@@ -1,5 +1,4 @@
-# --- NOT TESTED IN Fall 2023 ---
-no test
+# 6 pts
 
 statement ok
 set force_optimizer_starter_rule=yes

@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// hyperloglog_presto.h
+//
+// Identification: src/include/primer/hyperloglog_presto.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #pragma once
 
 #include <bitset>
@@ -12,12 +24,12 @@
 #include "common/util/hash_util.h"
 
 /** @brief Dense bucket size. */
-#define DENSE_BUCKET_SIZE 4
+static constexpr int DENSE_BUCKET_SIZE = 4;
 /** @brief Overflow bucket size. */
-#define OVERFLOW_BUCKET_SIZE 3
+static constexpr int OVERFLOW_BUCKET_SIZE = 3;
 
 /** @brief Total bucket size. */
-#define TOTAL_BUCKET_SIZE (DENSE_BUCKET_SIZE + OVERFLOW_BUCKET_SIZE)
+static constexpr int TOTAL_BUCKET_SIZE = (DENSE_BUCKET_SIZE + OVERFLOW_BUCKET_SIZE);
 
 namespace bustub {
 
@@ -36,7 +48,6 @@ class HyperLogLogPresto {
   /** @brief Disabling default constructor. */
   HyperLogLogPresto() = delete;
 
-  /** @brief Parameterized constructor. */
   explicit HyperLogLogPresto(int16_t n_leading_bits);
 
   /** @brief Returns the dense_bucket_ data structure. */
@@ -45,13 +56,11 @@ class HyperLogLogPresto {
   /** @brief Returns overflow bucket of a specific given index. */
   auto GetOverflowBucketofIndex(uint16_t idx) { return overflow_bucket_[idx]; }
 
-  /** @brief Retusn the cardinality of the set. */
+  /** @brief Returns the cardinality of the set. */
   auto GetCardinality() const -> uint64_t { return cardinality_; }
 
-  /** @brief Element is added for HLL calculation. */
   auto AddElem(KeyType val) -> void;
 
-  /** @brief Function to compute cardinality. */
   auto ComputeCardinality() -> void;
 
  private:

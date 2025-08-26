@@ -1,13 +1,15 @@
 //===----------------------------------------------------------------------===//
 //
-//                         CMU-DB Project (15-445/645)
-//                         ***DO NO SHARE PUBLICLY***
+//                         BusTub
 //
-// Identification: src/include/page/b_plus_tree_page.h
+// b_plus_tree_page.h
 //
-// Copyright (c) 2018, Carnegie Mellon University Database Group
+// Identification: src/include/storage/page/b_plus_tree_page.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
+
 #pragma once
 
 #include <cassert>
@@ -50,16 +52,21 @@ class BPlusTreePage {
 
   auto GetSize() const -> int;
   void SetSize(int size);
-  void IncreaseSize(int amount);
+  void ChangeSizeBy(int amount);
 
   auto GetMaxSize() const -> int;
   void SetMaxSize(int max_size);
   auto GetMinSize() const -> int;
 
+  /*
+   * TODO(P2): Remove __attribute__((__unused__)) if you intend to use the fields.
+   */
  private:
   // Member variables, attributes that both internal and leaf page share
   IndexPageType page_type_ __attribute__((__unused__));
+  // Number of key & value pairs in a page
   int size_ __attribute__((__unused__));
+  // Max number of key & value pairs in a page
   int max_size_ __attribute__((__unused__));
 };
 

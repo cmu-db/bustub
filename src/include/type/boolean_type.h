@@ -6,7 +6,7 @@
 //
 // Identification: src/include/type/boolean_type.h
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -35,16 +35,12 @@ class BooleanType : public Type {
   // Decimal types are always inlined
   auto IsInlined(const Value &val) const -> bool override { return true; }
 
-  // Debug
   auto ToString(const Value &val) const -> std::string override;
 
-  // Serialize this value into the given storage space
   void SerializeTo(const Value &val, char *storage) const override;
 
-  // Deserialize a value of the given type from the given storage space.
   auto DeserializeFrom(const char *storage) const -> Value override;
 
-  // Create a copy of this value
   auto Copy(const Value &val) const -> Value override;
 
   auto CastAs(const Value &val, TypeId type_id) const -> Value override;

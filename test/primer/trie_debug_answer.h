@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// trie_debug_answer.h
+//
+// Identification: test/primer/trie_debug_answer.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "common/exception.h"
 
 auto Case1CorrectAnswer() -> int {

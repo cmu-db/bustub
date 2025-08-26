@@ -1,5 +1,18 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// table_generator.h
+//
+// Identification: src/include/catalog/table_generator.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #pragma once
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -26,9 +39,6 @@ class TableGenerator {
    */
   explicit TableGenerator(ExecutorContext *exec_ctx) : exec_ctx_{exec_ctx} {}
 
-  /**
-   * Generate test tables.
-   */
   void GenerateTestTables();
 
  private:
@@ -101,7 +111,7 @@ class TableGenerator {
         : name_(name), num_rows_(num_rows), col_meta_(std::move(col_meta)) {}
   };
 
-  void FillTable(TableInfo *info, TableInsertMeta *table_meta);
+  void FillTable(const std::shared_ptr<TableInfo> &info, TableInsertMeta *table_meta);
 
   auto MakeValues(ColumnInsertMeta *col_meta, uint32_t count) -> std::vector<Value>;
 

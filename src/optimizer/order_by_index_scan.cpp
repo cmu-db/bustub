@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// order_by_index_scan.cpp
+//
+// Identification: src/optimizer/order_by_index_scan.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <algorithm>
 #include <memory>
 
@@ -21,6 +33,9 @@
 
 namespace bustub {
 
+/**
+ * @brief optimize order by as index scan if there's an index on a table
+ */
 auto Optimizer::OptimizeOrderByAsIndexScan(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {
   std::vector<AbstractPlanNodeRef> children;
   for (const auto &child : plan->GetChildren()) {
@@ -35,7 +50,7 @@ auto Optimizer::OptimizeOrderByAsIndexScan(const AbstractPlanNodeRef &plan) -> A
     std::vector<uint32_t> order_by_column_ids;
     for (const auto &[order_type, expr] : order_bys) {
       // Order type is asc or default
-      if (!(order_type == OrderByType::ASC || order_type == OrderByType::DEFAULT)) {
+      if (order_type != OrderByType::ASC && order_type != OrderByType::DEFAULT) {
         return optimized_plan;
       }
 
@@ -54,10 +69,10 @@ auto Optimizer::OptimizeOrderByAsIndexScan(const AbstractPlanNodeRef &plan) -> A
 
     if (child_plan->GetType() == PlanType::SeqScan) {
       const auto &seq_scan = dynamic_cast<const SeqScanPlanNode &>(*child_plan);
-      const auto *table_info = catalog_.GetTable(seq_scan.GetTableOid());
+      const auto table_info = catalog_.GetTable(seq_scan.GetTableOid());
       const auto indices = catalog_.GetTableIndexes(table_info->name_);
 
-      for (const auto *index : indices) {
+      for (const auto &index : indices) {
         const auto &columns = index->index_->GetKeyAttrs();
         if (order_by_column_ids == columns) {
           return std::make_shared<IndexScanPlanNode>(optimized_plan->output_schema_, table_info->oid_,

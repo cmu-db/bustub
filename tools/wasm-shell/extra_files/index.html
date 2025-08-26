@@ -30,10 +30,10 @@
     <meta name="twitter:site" content="@CMUDB">
     <meta name="twitter:creator" content="@CMUDB">
     <meta name="twitter:domain" content=".">
-    <meta property="twitter:label1" content="Semester?" />
-    <meta property="twitter:data1" content="Fall 2022" />
-    <meta property="twitter:label1" content="Relational?" />
-    <meta property="twitter:data1" content="Hell Yes" />
+    <meta property="twitter:label1" content="Semester" />
+    <meta property="twitter:data1" content="Fall 2024" />
+    <meta property="twitter:label1" content="SQL Database?" />
+    <meta property="twitter:data1" content="You Know It!" />
 </head>
 
 <body>
@@ -85,10 +85,10 @@
         const initialize = Module.cwrap('BusTubInit', 'number', [])
         window.executeQuery = (x) => {
             const bufferSize = 64 * 1024
-            let output = "\0".repeat(bufferSize)
-            let ptrOutput = Module.allocateUTF8(output)
-            let output2 = "\0".repeat(bufferSize)
-            let ptrOutput2 = Module.allocateUTF8(output2)
+            const ptrOutput = Module._malloc(bufferSize)
+            Module.stringToUTF8("", ptrOutput, bufferSize)
+            const ptrOutput2 = Module._malloc(bufferSize)
+            Module.stringToUTF8("", ptrOutput2, bufferSize)
             const retCode = executeQuery(x, ptrOutput2, ptrOutput, bufferSize)
             output = Module.UTF8ToString(ptrOutput)
             output2 = Module.UTF8ToString(ptrOutput2)

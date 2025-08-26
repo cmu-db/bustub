@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// merge_projection.cpp
+//
+// Identification: src/optimizer/merge_projection.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <algorithm>
 #include <memory>
 #include "catalog/column.h"
@@ -9,6 +21,11 @@
 
 namespace bustub {
 
+/**
+ * @brief merge projections that do identical project.
+ * Identical projection might be produced when there's `SELECT *`, aggregation, or when we need to rename the columns
+ * in the planner. We merge these projections so as to make execution faster.
+ */
 auto Optimizer::OptimizeMergeProjection(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {
   std::vector<AbstractPlanNodeRef> children;
   for (const auto &child : plan->GetChildren()) {

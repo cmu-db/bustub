@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// hyperloglog_test.cpp
+//
+// Identification: test/primer/hyperloglog_test.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <limits>
 #include <memory>
 #include <string>
@@ -120,7 +132,7 @@ TEST(HyperLogLogTest, DISABLED_BasicParallelTest) {
 
   std::vector<std::thread> threads1;
   for (uint16_t i = 0; i < 10; i++) {
-    threads1.emplace_back(std::thread([&]() { obj.AddElem("Welcome to CMU DB (15-445/645)"); }));
+    threads1.emplace_back([&]() { obj.AddElem("Welcome to CMU DB (15-445/645)"); });
   }
 
   // Wait for all threads to finish execution
@@ -133,15 +145,15 @@ TEST(HyperLogLogTest, DISABLED_BasicParallelTest) {
 
   std::vector<std::thread> threads2;
   for (uint16_t k = 0; k < 10; k++) {
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Andy"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Connor"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("J-How"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Kunle"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Lan"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Prashanth"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("William"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Yash"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Yuanxin"); }));
+    threads2.emplace_back([&]() { obj.AddElem("Andy"); });
+    threads2.emplace_back([&]() { obj.AddElem("Connor"); });
+    threads2.emplace_back([&]() { obj.AddElem("J-How"); });
+    threads2.emplace_back([&]() { obj.AddElem("Kunle"); });
+    threads2.emplace_back([&]() { obj.AddElem("Lan"); });
+    threads2.emplace_back([&]() { obj.AddElem("Prashanth"); });
+    threads2.emplace_back([&]() { obj.AddElem("William"); });
+    threads2.emplace_back([&]() { obj.AddElem("Yash"); });
+    threads2.emplace_back([&]() { obj.AddElem("Yuanxin"); });
   }
 
   for (auto &thread : threads2) {
@@ -158,7 +170,7 @@ TEST(HyperLogLogTest, DISABLED_ParallelTest1) {
 
   std::vector<std::thread> threads1;
   for (uint16_t i = 0; i < 10; i++) {
-    threads1.emplace_back(std::thread([&]() { obj.AddElem("Welcome to CMU DB (15-445/645)"); }));
+    threads1.emplace_back([&]() { obj.AddElem("Welcome to CMU DB (15-445/645)"); });
   }
 
   // Wait for all threads to finish execution
@@ -171,10 +183,10 @@ TEST(HyperLogLogTest, DISABLED_ParallelTest1) {
 
   std::vector<std::thread> threads2;
   for (uint64_t k = 0; k < 3000; k++) {
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Andy"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Connor"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("J-How"); }));
-    threads2.emplace_back(std::thread([&]() { obj.AddElem("Kunle"); }));
+    threads2.emplace_back([&]() { obj.AddElem("Andy"); });
+    threads2.emplace_back([&]() { obj.AddElem("Connor"); });
+    threads2.emplace_back([&]() { obj.AddElem("J-How"); });
+    threads2.emplace_back([&]() { obj.AddElem("Kunle"); });
   }
 
   for (auto &thread : threads2) {

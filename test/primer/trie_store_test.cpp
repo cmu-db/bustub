@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// trie_store_test.cpp
+//
+// Identification: test/primer/trie_store_test.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <fmt/format.h>
 #include <atomic>
 #include <functional>
@@ -22,7 +34,8 @@ TEST(TrieStoreTest, BasicTest) {
   store.Put<uint32_t>("233", 2333);
   {
     auto guard = store.Get<uint32_t>("233");
-    ASSERT_EQ(**guard, 2333);
+    ASSERT_TRUE(guard.has_value());
+    ASSERT_EQ(**guard, 2333);  // NOLINT
   }
   store.Remove("233");
   {
@@ -37,7 +50,8 @@ TEST(TrieStoreTest, GuardTest) {
 
   store.Put<std::string>("233", "2333");
   auto guard = store.Get<std::string>("233");
-  ASSERT_EQ(**guard, "2333");
+  ASSERT_TRUE(guard.has_value());
+  ASSERT_EQ(**guard, "2333");  // NOLINT
 
   store.Remove("233");
   {
@@ -45,7 +59,8 @@ TEST(TrieStoreTest, GuardTest) {
     ASSERT_EQ(guard, std::nullopt);
   }
 
-  ASSERT_EQ(**guard, "2333");
+  ASSERT_TRUE(guard.has_value());
+  ASSERT_EQ(**guard, "2333");  // NOLINT
 }
 
 TEST(TrieStoreTest, MixedTest) {
@@ -73,11 +88,13 @@ TEST(TrieStoreTest, MixedTest) {
     } else if (i % 2 == 0) {
       std::string value = fmt::format("new-value-{:#08}", i);
       auto guard = store.Get<std::string>(key);
-      ASSERT_EQ(**guard, value);
+      ASSERT_TRUE(guard.has_value());
+      ASSERT_EQ(**guard, value);  // NOLINT
     } else {
       std::string value = fmt::format("value-{:#08}", i);
       auto guard = store.Get<std::string>(key);
-      ASSERT_EQ(**guard, value);
+      ASSERT_TRUE(guard.has_value());
+      ASSERT_EQ(**guard, value);  // NOLINT
     }
   }
 }
@@ -139,7 +156,8 @@ TEST(TrieStoreTest, MixedConcurrentTest) {
     std::string key = fmt::format("{:#05}", i);
     std::string value = fmt::format("new-value-{:#08}", i);
     auto guard = store.Get<std::string>(key);
-    ASSERT_EQ(**guard, value);
+    ASSERT_TRUE(guard.has_value());
+    ASSERT_EQ(**guard, value);  // NOLINT
   }
 }
 

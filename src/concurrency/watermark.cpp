@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// watermark.cpp
+//
+// Identification: src/concurrency/watermark.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "concurrency/watermark.h"
 #include <exception>
 #include "common/exception.h"

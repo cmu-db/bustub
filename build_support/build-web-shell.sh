@@ -28,9 +28,10 @@ cp bin/bustub-wasm-shell.js "deploy/${BUSTUB_SHELL_DIRECTORY}"
 cp bin/bustub-wasm-shell.wasm "deploy/${BUSTUB_SHELL_DIRECTORY}"
 cp -a ../tools/wasm-shell/extra_files/index.html "deploy/${BUSTUB_SHELL_DIRECTORY}"
 cp ../logo/bustub.svg "deploy/${BUSTUB_SHELL_DIRECTORY}"
-sed -i '' "s|\${BUSTUB_PRIVATE_VERSION}|${BUSTUB_PRIVATE_VERSION}|" "deploy/${BUSTUB_SHELL_DIRECTORY}/index.html"
-sed -i '' "s|\${BUSTUB_PUBLIC_VERSION}|${BUSTUB_PUBLIC_VERSION}|" "deploy/${BUSTUB_SHELL_DIRECTORY}/index.html"
-sed -i '' "s|\${BUSTUB_BUILD_TIME}|${BUSTUB_BUILD_TIME}|" "deploy/${BUSTUB_SHELL_DIRECTORY}/index.html"
+# Change `sed -i` to `sed -i ''` if you are on a Mac.
+sed -i "s|\${BUSTUB_PRIVATE_VERSION}|${BUSTUB_PRIVATE_VERSION}|" "deploy/${BUSTUB_SHELL_DIRECTORY}/index.html"
+sed -i "s|\${BUSTUB_PUBLIC_VERSION}|${BUSTUB_PUBLIC_VERSION}|" "deploy/${BUSTUB_SHELL_DIRECTORY}/index.html"
+sed -i "s|\${BUSTUB_BUILD_TIME}|${BUSTUB_BUILD_TIME}|" "deploy/${BUSTUB_SHELL_DIRECTORY}/index.html"
 
 make -j$(nproc) wasm-bpt-printer
 mkdir -p "deploy/${BUSTUB_BPT_DIRECTORY}"
@@ -38,9 +39,10 @@ cp bin/bustub-wasm-bpt-printer.js "deploy/${BUSTUB_BPT_DIRECTORY}"
 cp bin/bustub-wasm-bpt-printer.wasm "deploy/${BUSTUB_BPT_DIRECTORY}"
 cp -a ../tools/wasm-bpt-printer/extra_files/index.html "deploy/${BUSTUB_BPT_DIRECTORY}"
 cp ../logo/bustub.svg "deploy/${BUSTUB_BPT_DIRECTORY}"
-sed -i '' "s|\${BUSTUB_PRIVATE_VERSION}|${BUSTUB_PRIVATE_VERSION}|" "deploy/${BUSTUB_BPT_DIRECTORY}/index.html"
-sed -i '' "s|\${BUSTUB_PUBLIC_VERSION}|${BUSTUB_PUBLIC_VERSION}|" "deploy/${BUSTUB_BPT_DIRECTORY}/index.html"
-sed -i '' "s|\${BUSTUB_BUILD_TIME}|${BUSTUB_BUILD_TIME}|" "deploy/${BUSTUB_BPT_DIRECTORY}/index.html"
+# Change `sed -i` to `sed -i ''` if you are on a Mac.
+sed -i "s|\${BUSTUB_PRIVATE_VERSION}|${BUSTUB_PRIVATE_VERSION}|" "deploy/${BUSTUB_BPT_DIRECTORY}/index.html"
+sed -i "s|\${BUSTUB_PUBLIC_VERSION}|${BUSTUB_PUBLIC_VERSION}|" "deploy/${BUSTUB_BPT_DIRECTORY}/index.html"
+sed -i "s|\${BUSTUB_BUILD_TIME}|${BUSTUB_BUILD_TIME}|" "deploy/${BUSTUB_BPT_DIRECTORY}/index.html"
 
 ls -alh "deploy/${BUSTUB_SHELL_DIRECTORY}"
 ls -alh "deploy/${BUSTUB_BPT_DIRECTORY}"

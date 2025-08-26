@@ -6,7 +6,7 @@
 //
 // Identification: src/include/type/type.h
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -29,13 +29,10 @@ class Type {
 
   virtual ~Type() = default;
 
-  // Get the size of this data type in bytes
   static auto GetTypeSize(TypeId type_id) -> uint64_t;
 
-  // Is this type coercable from the other type
   auto IsCoercableFrom(TypeId type_id) const -> bool;
 
-  // Debug info
   static auto TypeIdToString(TypeId type_id) -> std::string;
 
   static auto GetMinValue(TypeId type_id) -> Value;

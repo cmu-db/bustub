@@ -6,7 +6,7 @@
 //
 // Identification: test/table/tuple_test.cpp
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -47,7 +47,9 @@ TEST(TupleTest, DISABLED_TableHeapTest) {
   std::vector<RID> rid_v;
   for (int i = 0; i < 5000; ++i) {
     auto rid = table->InsertTuple(TupleMeta{0, false}, tuple);
-    rid_v.push_back(*rid);
+    if (rid.has_value()) {
+      rid_v.push_back(*rid);
+    }
   }
 
   TableIterator itr = table->MakeIterator();

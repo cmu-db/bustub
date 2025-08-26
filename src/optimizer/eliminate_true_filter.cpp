@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// eliminate_true_filter.cpp
+//
+// Identification: src/optimizer/eliminate_true_filter.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <vector>
 #include "execution/plans/filter_plan.h"
 #include "execution/plans/limit_plan.h"
@@ -8,6 +20,9 @@
 
 namespace bustub {
 
+/**
+ * @brief eliminate always true filter
+ */
 auto Optimizer::OptimizeEliminateTrueFilter(const AbstractPlanNodeRef &plan) -> AbstractPlanNodeRef {
   std::vector<AbstractPlanNodeRef> children;
   for (const auto &child : plan->GetChildren()) {

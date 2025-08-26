@@ -6,7 +6,7 @@
 //
 // Identification: tools/b_plus_tree_printer/b_plus_tree_printer.cpp
 //
-// Copyright (c) 2015-2022, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -27,7 +27,6 @@ using bustub::GenericKey;
 using bustub::page_id_t;
 using bustub::ParseCreateStatement;
 using bustub::RID;
-using bustub::Transaction;
 
 auto UsageMessage() -> std::string {
   std::string message =
@@ -74,14 +73,13 @@ auto main(int argc, char **argv) -> int {
 
   auto *disk_manager = new DiskManager("test.bustub");
   auto *bpm = new BufferPoolManager(100, disk_manager);
+
   // create and fetch header_page
-  page_id_t page_id;
-  auto header_page = bpm->NewPage(&page_id);
+  page_id_t root_pid = bpm->NewPage();
   // create b+ tree
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, leaf_max_size,
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", root_pid, bpm, comparator, leaf_max_size,
                                                            internal_max_size);
-  // create transaction
-  auto *transaction = new Transaction(0);
+
   while (!quit) {
     std::cout << "> ";
     std::cin >> instruction;
@@ -91,26 +89,26 @@ auto main(int argc, char **argv) -> int {
     switch (instruction) {
       case 'c':
         std::cin >> filename;
-        tree.RemoveFromFile(filename, transaction);
+        tree.RemoveFromFile(filename);
         break;
       case 'x':
         std::cin >> filename;
-        tree.BatchOpsFromFile(filename, transaction);
+        tree.BatchOpsFromFile(filename);
         break;
       case 'd':
         std::cin >> key;
         index_key.SetFromInteger(key);
-        tree.Remove(index_key, transaction);
+        tree.Remove(index_key);
         break;
       case 'i':
         std::cin >> key;
         rid.Set(static_cast<int32_t>(key >> 32), static_cast<int>(key & 0xFFFFFFFF));
         index_key.SetFromInteger(key);
-        tree.Insert(index_key, rid, transaction);
+        tree.Insert(index_key, rid);
         break;
       case 'f':
         std::cin >> filename;
-        tree.InsertFromFile(filename, transaction);
+        tree.InsertFromFile(filename);
         break;
       case 'q':
         quit = true;
@@ -132,9 +130,11 @@ auto main(int argc, char **argv) -> int {
         break;
     }
   }
-  bpm->UnpinPage(header_page->GetPageId(), true);
+
+  BUSTUB_ASSERT(bpm->DeletePage(root_pid), "Unable to delete root page for some reason");
+
   delete bpm;
-  delete transaction;
+
   delete disk_manager;
   remove("test.bustub");
   remove("test.log");

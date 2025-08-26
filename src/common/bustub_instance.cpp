@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// bustub_instance.cpp
+//
+// Identification: src/common/bustub_instance.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <memory>
 #include <optional>
 #include <shared_mutex>
@@ -40,6 +52,9 @@
 
 namespace bustub {
 
+/**
+ * Get the executor context from the BusTub instance.
+ */
 auto BusTubInstance::MakeExecutorContext(Transaction *txn, bool is_modify) -> std::unique_ptr<ExecutorContext> {
   return std::make_unique<ExecutorContext>(txn, catalog_.get(), buffer_pool_manager_.get(), txn_manager_.get(),
                                            lock_manager_.get(), is_modify);
@@ -162,7 +177,7 @@ void BusTubInstance::CmdDbgMvcc(const std::vector<std::string> &params, ResultWr
     writer.OneCell("table " + table + " not found");
     return;
   }
-  TxnMgrDbg("\\dbgmvcc", txn_manager_.get(), table_info, table_info->table_.get());
+  TxnMgrDbg("\\dbgmvcc", txn_manager_.get(), table_info.get(), table_info->table_.get());
 }
 
 void BusTubInstance::CmdDisplayTables(ResultWriter &writer) {
@@ -175,7 +190,7 @@ void BusTubInstance::CmdDisplayTables(ResultWriter &writer) {
   writer.EndHeader();
   for (const auto &name : table_names) {
     writer.BeginRow();
-    const auto *table_info = catalog_->GetTable(name);
+    const auto table_info = catalog_->GetTable(name);
     writer.WriteCell(fmt::format("{}", table_info->oid_));
     writer.WriteCell(table_info->name_);
     writer.WriteCell(table_info->schema_.ToString());
@@ -194,7 +209,7 @@ void BusTubInstance::CmdDisplayIndices(ResultWriter &writer) {
   writer.WriteHeaderCell("index_cols");
   writer.EndHeader();
   for (const auto &table_name : table_names) {
-    for (const auto *index_info : catalog_->GetTableIndexes(table_name)) {
+    for (const auto &index_info : catalog_->GetTableIndexes(table_name)) {
       writer.BeginRow();
       writer.WriteCell(table_name);
       writer.WriteCell(fmt::format("{}", index_info->index_oid_));
@@ -231,6 +246,9 @@ see the execution plan of your query.
   WriteOneCell(help, writer);
 }
 
+/**
+ * Execute a SQL query in the BusTub instance.
+ */
 auto BusTubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer,
                                 std::shared_ptr<CheckOptions> check_options) -> bool {
   bool is_local_txn = current_txn_ != nullptr;
@@ -251,6 +269,9 @@ auto BusTubInstance::ExecuteSql(const std::string &sql, ResultWriter &writer,
   }
 }
 
+/**
+ * Execute a SQL query in the BusTub instance with provided txn.
+ */
 auto BusTubInstance::ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn,
                                    std::shared_ptr<CheckOptions> check_options) -> bool {
   if (!sql.empty() && sql[0] == '\\') {

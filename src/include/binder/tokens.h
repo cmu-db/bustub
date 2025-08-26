@@ -1,8 +1,12 @@
 //===----------------------------------------------------------------------===//
+//
 //                         BusTub
 //
-// bustub/binder/tokens.h
+// tokens.h
 //
+// Identification: src/include/binder/tokens.h
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

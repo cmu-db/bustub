@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// bind_insert.cpp
+//
+// Identification: src/binder/bind_insert.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <iterator>
 #include <memory>
 #include <optional>
@@ -78,7 +90,7 @@ auto Binder::BindUpdate(duckdb_libpgquery::PGUpdateStmt *stmt) -> std::unique_pt
   for (auto cell = root->head; cell != nullptr; cell = cell->next) {
     auto target = reinterpret_cast<duckdb_libpgquery::PGResTarget *>(cell->data.ptr_value);
     auto column = ResolveColumnRefFromBaseTableRef(*table, std::vector{std::string{target->name}});
-    target_expr.emplace_back(std::make_pair(std::move(column), BindExpression(target->val)));
+    target_expr.emplace_back(std::move(column), BindExpression(target->val));
   }
 
   return std::make_unique<UpdateStatement>(std::move(table), std::move(filter_expr), std::move(target_expr));

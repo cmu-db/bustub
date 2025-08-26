@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// backtrace.cpp
+//
+// Identification: tools/backtrace.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <cstdlib>
 #include <exception>
 #include "backward.hpp"

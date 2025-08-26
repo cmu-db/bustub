@@ -6,7 +6,7 @@
 //
 // Identification: test/container/disk/hash/extendible_htable_concurrent_test.cpp
 //
-// Copyright (c) 2015-2023, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -337,7 +337,7 @@ TEST(ExtendibleHTableConcurrentTest, DISABLED_MixTest2) {
 
   size_t num_threads = 6;
   for (size_t i = 0; i < num_threads; i++) {
-    threads.emplace_back(std::thread{tasks[i % tasks.size()], i});
+    threads.emplace_back(tasks[i % tasks.size()], i);
   }
   for (size_t i = 0; i < num_threads; i++) {
     threads[i].join();

@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// plan_table_ref.cpp
+//
+// Identification: src/planner/plan_table_ref.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <memory>
 #include <utility>
 
@@ -31,6 +43,15 @@
 
 namespace bustub {
 
+/**
+ * @brief Plan a `BoundTableRef`
+ *
+ * - For a BaseTableRef, this function will return a `SeqScanPlanNode`. Note that all tables with
+ *   names beginning with `__` will be planned as `MockScanPlanNode`.
+ * - For a `JoinRef` or `CrossProductRef`, this function will return a `NestedLoopJoinNode`.
+ * @param table_ref the bound table ref from binder.
+ * @return the plan node of this bound table ref.
+ */
 auto Planner::PlanTableRef(const BoundTableRef &table_ref) -> AbstractPlanNodeRef {
   switch (table_ref.type_) {
     case TableReferenceType::BASE_TABLE: {

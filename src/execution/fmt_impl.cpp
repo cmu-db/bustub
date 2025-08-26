@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// fmt_impl.cpp
+//
+// Identification: src/execution/fmt_impl.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <type_traits>
 #include "execution/expressions/column_value_expression.h"
 #include "execution/plans/update_plan.h"
@@ -72,7 +84,9 @@ auto UpdatePlanNode::PlanNodeToString() const -> std::string {
 }
 
 auto SortPlanNode::PlanNodeToString() const -> std::string {
-  return fmt::format("Sort {{ order_bys={} }}", order_bys_);
+  // Note(f24): A sort plan node will be converted to an external merge sort executor in
+  // Fall 2024. So `ExternalMergeSort` is returned instead of `Sort`.
+  return fmt::format("ExternalMergeSort {{ order_bys={} }}", order_bys_);
 }
 
 auto LimitPlanNode::PlanNodeToString() const -> std::string { return fmt::format("Limit {{ limit={} }}", limit_); }

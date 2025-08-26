@@ -6,7 +6,7 @@
 //
 // Identification: test/storage/b_plus_tree_sequential_scale_test.cpp
 //
-// Copyright (c) 2023, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -25,9 +25,9 @@ namespace bustub {
 using bustub::DiskManagerUnlimitedMemory;
 
 /**
- * This test should be passing with your Checkpoint 1 submission.
+ * (Fall 2024) You should pass this test after finishing insertion and point search.
  */
-TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
+TEST(BPlusTreeTests, DISABLED_BasicScaleTest) {  // NOLINT
   // create KeyComparator and index schema
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
@@ -35,23 +35,17 @@ TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
   auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
   auto *bpm = new BufferPoolManager(30, disk_manager.get());
 
-  // create and fetch header_page
-  page_id_t page_id;
-  auto *header_page = bpm->NewPage(&page_id);
-  (void)header_page;
+  // allocate header_page
+  page_id_t page_id = bpm->NewPage();
 
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, 2, 3);
   GenericKey<8> index_key;
   RID rid;
-  // create transaction
-  auto *transaction = new Transaction(0);
 
   int64_t scale = 5000;
-  std::vector<int64_t> keys;
-  for (int64_t key = 1; key < scale; key++) {
-    keys.push_back(key);
-  }
+  std::vector<int64_t> keys(scale);
+  std::iota(keys.begin(), keys.end(), 1);
 
   // randomized the insertion order
   auto rng = std::default_random_engine{};
@@ -60,7 +54,7 @@ TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
     int64_t value = key & 0xFFFFFFFF;
     rid.Set(static_cast<int32_t>(key >> 32), value);
     index_key.SetFromInteger(key);
-    tree.Insert(index_key, rid, transaction);
+    tree.Insert(index_key, rid);
   }
   std::vector<RID> rids;
   for (auto key : keys) {
@@ -72,9 +66,6 @@ TEST(BPlusTreeTests, DISABLED_ScaleTest) {  // NOLINT
     int64_t value = key & 0xFFFFFFFF;
     ASSERT_EQ(rids[0].GetSlotNum(), value);
   }
-
-  bpm->UnpinPage(HEADER_PAGE_ID, true);
-  delete transaction;
   delete bpm;
 }
 }  // namespace bustub

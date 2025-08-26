@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// parser.cpp
+//
+// Identification: tools/sqllogictest/parser.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <iostream>
 #include <memory>
 #include <string>
@@ -24,7 +36,7 @@ auto Tokenize(const std::string &str, char delimiter = ' ') -> std::vector<std::
     }
 
     if (pos != last_pos) {
-      tokens.emplace_back(std::string(str.cbegin() + last_pos, str.cbegin() + pos));
+      tokens.emplace_back(str.cbegin() + last_pos, str.cbegin() + pos);
     }
 
     last_pos = str.find_first_not_of(delimiter, pos + 1);
@@ -85,7 +97,7 @@ auto ParseInner(const std::string &filename, const std::string &script) -> std::
       for (auto iter = tokens.cbegin() + 2; iter != tokens.cend(); iter++) {
         if (iter->length() > 0) {
           if ((*iter)[0] == '+') {
-            extra_options.emplace_back(std::string(iter->cbegin() + 1, iter->cend()));
+            extra_options.emplace_back(iter->cbegin() + 1, iter->cend());
           }
         }
       }
@@ -120,7 +132,7 @@ auto ParseInner(const std::string &filename, const std::string &script) -> std::
       for (auto iter = tokens.cbegin() + 1; iter != tokens.cend(); iter++) {
         if (iter->length() > 0) {
           if ((*iter)[0] == '+') {
-            extra_options.emplace_back(std::string(iter->cbegin() + 1, iter->cend()));
+            extra_options.emplace_back(iter->cbegin() + 1, iter->cend());
           }
         }
       }

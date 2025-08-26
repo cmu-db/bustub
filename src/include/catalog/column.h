@@ -6,7 +6,7 @@
 //
 // Identification: src/include/catalog/column.h
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -86,7 +86,6 @@ class Column {
   /** @return true if column is inlined, false otherwise */
   auto IsInlined() const -> bool { return column_type_ != TypeId::VARCHAR && column_type_ != TypeId::VECTOR; }
 
-  /** @return a string representation of this column */
   auto ToString(bool simplified = true) const -> std::string;
 
  private:

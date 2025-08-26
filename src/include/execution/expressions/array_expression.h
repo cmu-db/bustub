@@ -2,11 +2,11 @@
 //
 //                         BusTub
 //
-// constant_value_expression.h
+// array_expression.h
 //
-// Identification: src/include/expression/constant_value_expression.h
+// Identification: src/include/execution/expressions/array_expression.h
 //
-// Copyright (c) 2015-19, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -18,6 +18,7 @@
 
 #include "common/exception.h"
 #include "execution/expressions/abstract_expression.h"
+#include "fmt/ranges.h"
 #include "type/value_factory.h"
 
 namespace bustub {

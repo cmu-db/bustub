@@ -6,7 +6,7 @@
 //
 // Identification: src/include/execution/plans/sort_plan.h
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -18,8 +18,6 @@
 #include <vector>
 
 #include "binder/bound_order_by.h"
-#include "catalog/catalog.h"
-#include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
 
 namespace bustub {
@@ -36,8 +34,7 @@ class SortPlanNode : public AbstractPlanNode {
    * @param child The child plan node
    * @param order_bys The sort expressions and their order by types.
    */
-  SortPlanNode(SchemaRef output, AbstractPlanNodeRef child,
-               std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys)
+  SortPlanNode(SchemaRef output, AbstractPlanNodeRef child, std::vector<OrderBy> order_bys)
       : AbstractPlanNode(std::move(output), {std::move(child)}), order_bys_(std::move(order_bys)) {}
 
   /** @return The type of the plan node */
@@ -50,11 +47,11 @@ class SortPlanNode : public AbstractPlanNode {
   }
 
   /** @return Get sort by expressions */
-  auto GetOrderBy() const -> const std::vector<std::pair<OrderByType, AbstractExpressionRef>> & { return order_bys_; }
+  auto GetOrderBy() const -> const std::vector<OrderBy> & { return order_bys_; }
 
   BUSTUB_PLAN_NODE_CLONE_WITH_CHILDREN(SortPlanNode);
 
-  std::vector<std::pair<OrderByType, AbstractExpressionRef>> order_bys_;
+  std::vector<OrderBy> order_bys_;
 
  protected:
   auto PlanNodeToString() const -> std::string override;

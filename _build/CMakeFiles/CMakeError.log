@@ -1,0 +1,84 @@
+Performing C++ SOURCE FILE Test ELF_GETSHDRSTRNDX failed with the following output:
+Change Dir: /tmp/bustub/_build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_f22fc/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_f22fc.dir/build.make CMakeFiles/cmTC_f22fc.dir/build
+gmake[1]: Entering directory '/tmp/bustub/_build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_f22fc.dir/src.cxx.o
+/usr/bin/c++   -DELF_GETSHDRSTRNDX -fPIE -std=gnu++17 -o CMakeFiles/cmTC_f22fc.dir/src.cxx.o -c /tmp/bustub/_build/CMakeFiles/CMakeTmp/src.cxx
+/tmp/bustub/_build/CMakeFiles/CMakeTmp/src.cxx:1:10: fatal error: libelf.h: No such file or directory
+    1 | #include <libelf.h>
+      |          ^~~~~~~~~~
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_f22fc.dir/build.make:85: CMakeFiles/cmTC_f22fc.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory '/tmp/bustub/_build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:140: cmTC_f22fc/fast] Error 2
+
+
+Source file was:
+#include <libelf.h>
+int main() {
+  Elf *e = (Elf*)0;
+  size_t sz;
+  elf_getshdrstrndx(e, &sz);
+  return 0;
+}
+Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
+Change Dir: /tmp/bustub/_build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_f5606/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_f5606.dir/build.make CMakeFiles/cmTC_f5606.dir/build
+gmake[1]: Entering directory '/tmp/bustub/_build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f5606.dir/src.c.o
+/usr/bin/cc   -DCMAKE_HAVE_LIBC_PTHREAD -fPIE -o CMakeFiles/cmTC_f5606.dir/src.c.o -c /tmp/bustub/_build/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_f5606
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f5606.dir/link.txt --verbose=1
+/usr/bin/cc  -DCMAKE_HAVE_LIBC_PTHREAD CMakeFiles/cmTC_f5606.dir/src.c.o -o cmTC_f5606 
+/usr/bin/ld: CMakeFiles/cmTC_f5606.dir/src.c.o: in function `main':
+src.c:(.text+0x34): undefined reference to `pthread_create'
+/usr/bin/ld: src.c:(.text+0x3c): undefined reference to `pthread_detach'
+/usr/bin/ld: src.c:(.text+0x44): undefined reference to `pthread_cancel'
+/usr/bin/ld: src.c:(.text+0x50): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [CMakeFiles/cmTC_f5606.dir/build.make:106: cmTC_f5606] Error 1
+gmake[1]: Leaving directory '/tmp/bustub/_build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:140: cmTC_f5606/fast] Error 2
+
+
+Source file was:
+#include <pthread.h>
+
+void* test_func(void* data)
+{
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_cancel(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
+  return 0;
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /tmp/bustub/_build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_5c9f4/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_5c9f4.dir/build.make CMakeFiles/cmTC_5c9f4.dir/build
+gmake[1]: Entering directory '/tmp/bustub/_build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_5c9f4.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create -fPIE -o CMakeFiles/cmTC_5c9f4.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.18/Modules/CheckFunctionExists.c
+Linking C executable cmTC_5c9f4
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5c9f4.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create CMakeFiles/cmTC_5c9f4.dir/CheckFunctionExists.c.o -o cmTC_5c9f4  -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [CMakeFiles/cmTC_5c9f4.dir/build.make:106: cmTC_5c9f4] Error 1
+gmake[1]: Leaving directory '/tmp/bustub/_build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:140: cmTC_5c9f4/fast] Error 2
+
+
+

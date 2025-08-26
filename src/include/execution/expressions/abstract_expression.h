@@ -4,9 +4,9 @@
 //
 // abstract_expression.h
 //
-// Identification: src/include/expression/abstract_expression.h
+// Identification: src/include/execution/expressions/abstract_expression.h
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

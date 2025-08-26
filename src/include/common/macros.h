@@ -6,7 +6,7 @@
 //
 // Identification: src/include/common/macros.h
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -14,11 +14,46 @@
 
 #include <cassert>
 #include <exception>
+#include <iostream>
+#include <sstream>
 #include <stdexcept>
 
 namespace bustub {
 
 #define BUSTUB_ASSERT(expr, message) assert((expr) && (message))
+
+namespace internal {
+
+// An internal stream, used to take C++ stream-style parameters for display, and exit the program with `std::abort`.
+class LogFatalStream {
+ public:
+  LogFatalStream(const char *file, int line) : file_(file), line_(line) {}
+
+  ~LogFatalStream() {
+    std::cerr << file_ << ":" << line_ << ": " << log_stream_.str() << std::endl;
+    std::abort();
+  }
+
+  template <typename T>
+  LogFatalStream &operator<<(const T &val) {
+    log_stream_ << val;
+    return *this;
+  }
+
+ private:
+  const char *file_;
+  int line_;
+  std::ostringstream log_stream_;
+};
+
+}  // namespace internal
+
+// A macro which checks `expr` value and performs assert.
+// Different from `BUSTUB_ASSERT`, it takes stream-style parameters.
+#define BUSTUB_ASSERT_AND_LOG(expr)                       /*NOLINT*/ \
+  if (bool val = (expr); !val) internal::LogFatalStream { /*NOLINT*/ \
+      __FILE__, __LINE__                                  /*NOLINT*/ \
+    }
 
 #define UNIMPLEMENTED(message) throw std::logic_error(message)
 

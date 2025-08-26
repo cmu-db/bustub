@@ -3,9 +3,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # For clang-tidy.
 set(BUILD_SHARED_LIBS OFF) # We expect external libraries to be linked statically.
 set(CMAKE_CXX_STANDARD 17) # Compile as C++17.
 set(CMAKE_CXX_STANDARD_REQUIRED ON) # Require C++17 support.
+set(CLANG_VERSION 15) # If you change this, make sure you change `packages.sh`
 
 project(BusTub
-        VERSION 2023.1
+        VERSION 2025.8
         DESCRIPTION "The BusTub Relational Database Management System (Educational) @ https://github.com/cmu-db/bustub"
         LANGUAGES C CXX
 )
@@ -18,6 +19,12 @@ endif()
 if(EMSCRIPTEN)
         add_compile_options(-fexceptions)
         add_link_options(-fexceptions)
+
+        # Memory configuration
+        add_compile_options(-sALLOW_MEMORY_GROWTH=1)
+        add_compile_options(-sMAXIMUM_MEMORY=64MB)
+        add_link_options(-sALLOW_MEMORY_GROWTH=1)
+        add_link_options(-sMAXIMUM_MEMORY=64MB)
 endif()
 
 # People keep running CMake in the wrong folder, completely nuking their project or creating weird bugs.
@@ -32,19 +39,19 @@ endif()
 
 # Expected directory structure.
 set(BUSTUB_BUILD_SUPPORT_DIR "${CMAKE_SOURCE_DIR}/build_support")
-set(BUSTUB_CLANG_SEARCH_PATH "/usr/local/bin" "/usr/bin" "/usr/local/opt/llvm/bin" "/usr/local/opt/llvm@14/bin"
-        "/opt/homebrew/opt/llvm@14/bin/")
+set(BUSTUB_CLANG_SEARCH_PATH "/usr/local/bin" "/usr/bin" "/usr/local/opt/llvm/bin" "/usr/local/opt/llvm@${CLANG_VERSION}/bin"
+        "/opt/homebrew/opt/llvm@${CLANG_VERSION}/bin/")
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        if(CMAKE_CXX_COMPILER_VERSION MATCHES "^14.")
+        if(CMAKE_CXX_COMPILER_VERSION MATCHES "^${CLANG_VERSION}.")
                 message(STATUS "You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
         else()
-                message(WARNING "!! We recommend that you use clang-14 for developing BusTub. You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, a different version.")
+                message(WARNING "!! We recommend that you use clang-${CLANG_VERSION} for developing BusTub. You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, a different version.")
         endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
         message(STATUS "You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 else()
-        message(WARNING "!! We recommend that you use clang-14 for developing BusTub. You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, which is not clang.")
+        message(WARNING "!! We recommend that you use clang-${CLANG_VERSION} for developing BusTub. You're using ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, which is not clang.")
 endif()
 
 # #####################################################################################################################
@@ -58,7 +65,7 @@ enable_testing()
 
 # attempt to find the binary if user did not specify
 find_program(CLANG_FORMAT_BIN
-        NAMES clang-format clang-format-14
+        NAMES clang-format clang-format-${CLANG_VERSION}
         HINTS ${BUSTUB_CLANG_SEARCH_PATH})
 
 if("${CLANG_FORMAT_BIN}" STREQUAL "CLANG_FORMAT_BIN-NOTFOUND")
@@ -69,7 +76,7 @@ endif()
 
 # attempt to find the binary if user did not specify
 find_program(CLANG_TIDY_BIN
-        NAMES clang-tidy clang-tidy-14
+        NAMES clang-tidy clang-tidy-${CLANG_VERSION}
         HINTS ${BUSTUB_CLANG_SEARCH_PATH})
 
 if("${CLANG_TIDY_BIN}" STREQUAL "CLANG_TIDY_BIN-NOTFOUND")
@@ -81,7 +88,7 @@ else()
 endif()
 
 find_program(CLANG_APPLY_REPLACEMENTS_BIN
-        NAMES clang-apply-replacements clang-apply-replacements-14
+        NAMES clang-apply-replacements clang-apply-replacements-${CLANG_VERSION}
         HINTS ${BUSTUB_CLANG_SEARCH_PATH})
 
 if("${CLANG_APPLY_REPLACEMENTS_BIN}" STREQUAL "CLANG_APPLY_REPLACEMENTS_BIN-NOTFOUND")
@@ -253,10 +260,8 @@ add_custom_target(fix-clang-tidy-diff
 # hardcode some files to check here for each project.
 # ##########################################################
 set(P0_FILES
-        "src/include/primer/hyperloglog.h"
-        "src/include/primer/hyperloglog_presto.h"
-        "src/primer/hyperloglog.cpp"
-        "src/primer/hyperloglog_presto.cpp"
+        "src/include/primer/count_min_sketch.h"
+        "src/primer/count_min_sketch.cpp"
 )
 
 add_custom_target(check-clang-tidy-p0
@@ -294,16 +299,17 @@ add_custom_target(submit-p1
 )
 
 set(P2_FILES
-        "src/include/storage/page/page_guard.h"
-        "src/storage/page/page_guard.cpp"
-        "src/include/storage/page/extendible_htable_bucket_page.h"
-        "src/storage/page/extendible_htable_bucket_page.cpp"
-        "src/include/storage/page/extendible_htable_directory_page.h"
-        "src/storage/page/extendible_htable_directory_page.cpp"
-        "src/include/storage/page/extendible_htable_header_page.h"
-        "src/storage/page/extendible_htable_header_page.cpp"
-        "src/include/container/disk/hash/disk_extendible_hash_table.h"
-        "src/container/disk/hash/disk_extendible_hash_table.cpp"
+        "src/include/storage/page/b_plus_tree_page.h"
+        "src/storage/page/b_plus_tree_page.cpp"
+        "src/include/storage/page/b_plus_tree_internal_page.h"
+        "src/storage/page/b_plus_tree_internal_page.cpp"
+        "src/include/storage/page/b_plus_tree_leaf_page.h"
+        "src/storage/page/b_plus_tree_leaf_page.cpp"
+        "src/include/storage/index/index_iterator.h"
+        "src/storage/index/index_iterator.cpp"
+        "src/include/storage/index/b_plus_tree.h"
+        "src/include/storage/index/b_plus_tree_debug.h"
+        "src/storage/index/b_plus_tree.cpp"
         ${P1_FILES}
 )
 add_custom_target(check-clang-tidy-p2
@@ -326,37 +332,33 @@ set(P3_FILES
         "src/include/execution/executors/index_scan_executor.h"
         "src/include/execution/executors/insert_executor.h"
         "src/include/execution/executors/limit_executor.h"
+        "src/include/execution/executors/nested_index_join_executor.h"
         "src/include/execution/executors/nested_loop_join_executor.h"
         "src/include/execution/executors/seq_scan_executor.h"
-        "src/include/execution/executors/sort_executor.h"
-        "src/include/execution/executors/topn_executor.h"
-        "src/include/execution/executors/topn_per_group_executor.h"
+        "src/include/execution/executors/external_merge_sort_executor.h"
         "src/include/execution/executors/update_executor.h"
-        "src/include/execution/executors/window_function_executor.h"
         "src/execution/aggregation_executor.cpp"
-        "src/execution/window_function_executor.cpp"
         "src/execution/delete_executor.cpp"
         "src/execution/filter_executor.cpp"
         "src/execution/hash_join_executor.cpp"
         "src/execution/index_scan_executor.cpp"
         "src/execution/insert_executor.cpp"
         "src/execution/limit_executor.cpp"
+        "src/execution/nested_index_join_executor.cpp"
         "src/execution/nested_loop_join_executor.cpp"
         "src/execution/seq_scan_executor.cpp"
-        "src/execution/sort_executor.cpp"
-        "src/execution/topn_executor.cpp"
-        "src/execution/topn_per_group_executor.cpp"
+        "src/execution/external_merge_sort_executor.cpp"
         "src/execution/update_executor.cpp"
+        "src/include/execution/execution_common.h"
         "src/include/optimizer/optimizer.h"
         "src/include/optimizer/optimizer_internal.h"
+        "src/execution/execution_common.cpp"
         "src/optimizer/nlj_as_hash_join.cpp"
         "src/optimizer/optimizer_custom_rules.cpp"
-        "src/optimizer/sort_limit_as_topn.cpp"
         "src/optimizer/optimizer_internal.cpp"
         "src/optimizer/seqscan_as_indexscan.cpp"
         "src/optimizer/column_pruning.cpp"
         "src/common/bustub_ddl.cpp"
-        "src/include/execution/plans/topn_per_group_plan.h"
         ${P2_FILES}
 )
 
@@ -377,8 +379,6 @@ set(P4_FILES
         "src/concurrency/transaction_manager.cpp"
         "src/include/concurrency/watermark.h"
         "src/concurrency/watermark.cpp"
-        "src/include/execution/execution_common.h"
-        "src/execution/execution_common.cpp"
         ${P3_FILES}
 )
 

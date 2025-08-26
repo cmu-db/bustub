@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// nc-shell.cpp
+//
+// Identification: tools/nc-shell/nc-shell.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include <netinet/in.h>
 #include <sys/signal.h>
 #include <sys/socket.h>

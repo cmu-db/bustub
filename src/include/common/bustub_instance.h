@@ -6,7 +6,7 @@
 //
 // Identification: src/include/common/bustub_instance.h
 //
-// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -236,48 +236,27 @@ class FortTableWriter : public ResultWriter {
 
 class BusTubInstance {
  private:
-  /**
-   * Get the executor context from the BusTub instance.
-   */
   auto MakeExecutorContext(Transaction *txn, bool is_modify) -> std::unique_ptr<ExecutorContext>;
 
  public:
-  explicit BusTubInstance(const std::filesystem::path &db_file_name, size_t bpm_size = 128);
+  explicit BusTubInstance(const std::filesystem::path &db_file_name, size_t bpm_size = BUFFER_POOL_SIZE);
 
   explicit BusTubInstance(size_t bpm_size = 128);
 
   ~BusTubInstance();
 
-  /**
-   * Execute a SQL query in the BusTub instance.
-   */
   auto ExecuteSql(const std::string &sql, ResultWriter &writer, std::shared_ptr<CheckOptions> check_options = nullptr)
       -> bool;
 
-  /**
-   * Execute a SQL query in the BusTub instance with provided txn.
-   */
   auto ExecuteSqlTxn(const std::string &sql, ResultWriter &writer, Transaction *txn,
                      std::shared_ptr<CheckOptions> check_options = nullptr) -> bool;
 
-  /** Enable managed txn mode on this BusTub instance, allowing statements like `BEGIN`. */
   void EnableManagedTxn();
 
-  /** Get the current transaction. */
   auto CurrentManagedTxn() -> Transaction *;
 
-  /**
-   * FOR TEST ONLY. Generate test tables in this BusTub instance.
-   * It's used in the shell to predefine some tables, as we don't support
-   * create / drop table and insert for now. Should remove it in the future.
-   */
   void GenerateTestTable();
 
-  /**
-   * FOR TEST ONLY. Generate mock tables in this BusTub instance.
-   * It's used in the shell to predefine some tables, as we don't support
-   * create / drop table and insert for now. Should remove it in the future.
-   */
   void GenerateMockTable();
 
   // Currently the followings are directly referenced by recovery test, so

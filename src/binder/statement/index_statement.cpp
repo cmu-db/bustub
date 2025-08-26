@@ -1,3 +1,15 @@
+//===----------------------------------------------------------------------===//
+//
+//                         BusTub
+//
+// index_statement.cpp
+//
+// Identification: src/binder/statement/index_statement.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
+
 #include "binder/statement/index_statement.h"
 #include "binder/bound_expression.h"
 #include "binder/expressions/bound_column_ref.h"

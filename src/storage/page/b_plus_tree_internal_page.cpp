@@ -1,11 +1,12 @@
 //===----------------------------------------------------------------------===//
 //
-//                         CMU-DB Project (15-445/645)
-//                         ***DO NO SHARE PUBLICLY***
+//                         BusTub
 //
-// Identification: src/page/b_plus_tree_internal_page.cpp
+// b_plus_tree_internal_page.cpp
 //
-// Copyright (c) 2018, Carnegie Mellon University Database Group
+// Identification: src/storage/page/b_plus_tree_internal_page.cpp
+//
+// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -19,32 +20,53 @@ namespace bustub {
 /*****************************************************************************
  * HELPER METHODS AND UTILITIES
  *****************************************************************************/
-/*
- * Init method after creating a new internal page
- * Including set page type, set current size, and set max page size
+
+/**
+ * @brief Init method after creating a new internal page.
+ *
+ * Writes the necessary header information to a newly created page,
+ * including set page type, set current size, set page id, set parent id and set max page size,
+ * must be called after the creation of a new page to make a valid BPlusTreeInternalPage.
+ *
+ * @param max_size Maximal size of the page
  */
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_INTERNAL_PAGE_TYPE::Init(int max_size) {}
-/*
- * Helper method to get/set the key associated with input "index"(a.k.a
- * array offset)
+void B_PLUS_TREE_INTERNAL_PAGE_TYPE::Init(int max_size) { UNIMPLEMENTED("TODO(P2): Add implementation."); }
+
+/**
+ * @brief Helper method to get/set the key associated with input "index"(a.k.a
+ * array offset).
+ *
+ * @param index The index of the key to get. Index must be non-zero.
+ * @return Key at index
  */
 INDEX_TEMPLATE_ARGUMENTS
 auto B_PLUS_TREE_INTERNAL_PAGE_TYPE::KeyAt(int index) const -> KeyType {
-  // replace with your own code
-  KeyType key{};
-  return key;
+  UNIMPLEMENTED("TODO(P2): Add implementation.");
 }
 
-INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_INTERNAL_PAGE_TYPE::SetKeyAt(int index, const KeyType &key) {}
-
-/*
- * Helper method to get the value associated with input "index"(a.k.a array
- * offset)
+/**
+ * @brief Set key at the specified index.
+ *
+ * @param index The index of the key to set. Index must be non-zero.
+ * @param key The new value for key
  */
 INDEX_TEMPLATE_ARGUMENTS
-auto B_PLUS_TREE_INTERNAL_PAGE_TYPE::ValueAt(int index) const -> ValueType { return 0; }
+void B_PLUS_TREE_INTERNAL_PAGE_TYPE::SetKeyAt(int index, const KeyType &key) {
+  UNIMPLEMENTED("TODO(P2): Add implementation.");
+}
+
+/**
+ * @brief Helper method to get the value associated with input "index"(a.k.a array
+ * offset)
+ *
+ * @param index The index of the value to get.
+ * @return Value at index
+ */
+INDEX_TEMPLATE_ARGUMENTS
+auto B_PLUS_TREE_INTERNAL_PAGE_TYPE::ValueAt(int index) const -> ValueType {
+  UNIMPLEMENTED("TODO(P2): Add implementation.");
+}
 
 // valuetype for internalNode should be page id_t
 template class BPlusTreeInternalPage<GenericKey<4>, page_id_t, GenericComparator<4>>;
