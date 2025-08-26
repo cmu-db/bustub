@@ -55,7 +55,7 @@ auto TablePage::GetNextTupleOffset(const TupleMeta &meta, const Tuple &tuple) co
  */
 auto TablePage::InsertTuple(const TupleMeta &meta, const Tuple &tuple) -> std::optional<uint16_t> {
   auto tuple_offset = GetNextTupleOffset(meta, tuple);
-  if (tuple_offset == std::nullopt) {
+  if (tuple_offset == std::nullopt || !tuple_offset.has_value()) {
     return std::nullopt;
   }
   auto tuple_id = num_tuples_;
