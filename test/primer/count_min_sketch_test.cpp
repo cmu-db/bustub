@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include <chrono>  // NOLINT
+#include <cmath>
 #include <cstdlib>
 #include <stdexcept>
 #include <string>
