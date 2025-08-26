@@ -1,5 +1,0 @@
-if(EXISTS "/tmp/bustub/_build/test/extendible_htable_page_test[1]_tests.cmake")
-  include("/tmp/bustub/_build/test/extendible_htable_page_test[1]_tests.cmake")
-else()
-  add_test(extendible_htable_page_test_NOT_BUILT extendible_htable_page_test_NOT_BUILT)
-endif()

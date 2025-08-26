@@ -1,5 +1,0 @@
-if(EXISTS "/tmp/bustub/_build/test/tuple_test[1]_tests.cmake")
-  include("/tmp/bustub/_build/test/tuple_test[1]_tests.cmake")
-else()
-  add_test(tuple_test_NOT_BUILT tuple_test_NOT_BUILT)
-endif()
