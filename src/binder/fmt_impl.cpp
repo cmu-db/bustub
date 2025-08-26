@@ -45,7 +45,8 @@ auto BoundCTERef::ToString() const -> std::string {
 }
 
 auto BoundSubqueryRef::ToString() const -> std::string {
-  std::vector<std::string> columns(select_list_name_.size());
+  std::vector<std::string> columns;
+  columns.reserve(select_list_name_.size());
   for (const auto &name : select_list_name_) {
     columns.push_back(fmt::format("{}", fmt::join(name, ".")));
   }
@@ -54,12 +55,14 @@ auto BoundSubqueryRef::ToString() const -> std::string {
 }
 
 auto BoundWindow::ToString() const -> std::string {
-  std::vector<std::string> partition_by(partition_by_.size());
+  std::vector<std::string> partition_by;
+  partition_by.reserve(partition_by_.size());
   for (const auto &expr : partition_by_) {
     partition_by.push_back(expr->ToString());
   }
 
-  std::vector<std::string> order_bys(order_bys_.size());
+  std::vector<std::string> order_bys;
+  order_bys.reserve(order_bys_.size());
   for (const auto &expr : order_bys_) {
     order_bys.push_back(expr->ToString());
   }
