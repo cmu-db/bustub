@@ -80,8 +80,8 @@ class CountMinSketch {
 
  private:
   /** Dimensions of the count-min sketch matrix */
-  const uint32_t width_;  // Number of buckets for each hash function
-  const uint32_t depth_;  // Number of independent hash functions
+  uint32_t width_;  // Number of buckets for each hash function
+  uint32_t depth_;  // Number of independent hash functions
   /** Pre-computed hash functions for each row */
   std::vector<std::function<size_t(const KeyType &)>> hash_functions_;
 
