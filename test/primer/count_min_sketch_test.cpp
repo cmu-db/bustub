@@ -10,7 +10,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <chrono>  // NOLINT
 #include <stdexcept>
 #include <string>
@@ -359,6 +359,7 @@ TEST(CountMinSketchTest, ParallelTest) {
       std::vector<std::thread> threads;
       const int iterations = iter;
       const int threads_count = num_threads;
+      threads.reserve(threads_count);
 
       // Create threads that concurrently insert items
       for (int i = 0; i < threads_count; i++) {
@@ -400,6 +401,7 @@ TEST(CountMinSketchTest, ComplexParallelTest) {
     const int iterations = iter;
 
     std::vector<std::thread> threads;
+    threads.reserve(num_threads);
     for (int i = 0; i < num_threads; i++) {
       threads.emplace_back([&cms1, iterations, i]() {
         for (int j = 0; j < iterations; j++) {
@@ -413,6 +415,7 @@ TEST(CountMinSketchTest, ComplexParallelTest) {
     }
 
     std::vector<std::thread> threads2;
+    threads2.reserve(num_threads / 2);
     for (int i = 0; i < num_threads / 2; i++) {
       threads2.emplace_back([&cms2, iterations, i]() {
         for (int j = 0; j < iterations / 2; j++) {
@@ -460,7 +463,7 @@ TEST(CountMinSketchTest, ComplexParallelTest) {
     int expected_42_count_2 = (num_threads / 2) * (iterations / 2);
     ASSERT_EQ(cms2.Count(42), expected_42_count_2);
 
-    int expected_200_count_iter = static_cast<int>(std::ceil(static_cast<double>(iterations / 2) / 3));
+    int expected_200_count_iter = static_cast<int>(std::ceil(static_cast<double>(iterations) / 2.0 / 3.0));
     int expected_200_count = (num_threads / 2) * expected_200_count_iter;
     ASSERT_EQ(cms2.Count(200), expected_200_count);
 
@@ -567,6 +570,8 @@ TEST(CountMinSketchTest, TopKComprehensiveTest) {
   const int num_threads1 = 12;
   const int num_threads2 = 8;
   const int iterations = 1000;
+  threads1.reserve(num_threads1);
+  threads2.reserve(num_threads2);
 
   // Create threads for first sketch
   for (int i = 0; i < num_threads1; i++) {
