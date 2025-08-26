@@ -13,8 +13,11 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #include <utility>
 #include <vector>
+
+#include "common/util/hash_util.h"
 
 namespace bustub {
 
@@ -79,6 +82,25 @@ class CountMinSketch {
   /** Dimensions of the count-min sketch matrix */
   const uint32_t width_;  // Number of buckets for each hash function
   const uint32_t depth_;  // Number of independent hash functions
+  /** Pre-computed hash functions for each row */
+  std::vector<std::function<size_t(const KeyType &)>> hash_functions_;
+
+  /** @fall2025 PLEASE DO NOT MODIFY THE FOLLOWING */
+  constexpr static size_t SEED_BASE = 15445;
+
+  /**
+   * @brief Seeded hash function generator
+   *
+   * @param seed Used for creating independent hash functions
+   * @return A function that maps items to column indices
+   */
+  inline auto HashFunction(size_t seed) -> std::function<size_t(const KeyType &)> {
+    return [seed, this](const KeyType &item) -> size_t {
+      auto h1 = std::hash<KeyType>{}(item);
+      auto h2 = bustub::HashUtil::CombineHashes(seed, SEED_BASE);
+      return bustub::HashUtil::CombineHashes(h1, h2) % width_;
+    };
+  }
 
   /** @todo (student) can add their data structures that support count-min sketch operations */
 };
