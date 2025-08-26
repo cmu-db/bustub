@@ -721,7 +721,7 @@ TEST(CountMinSketchTest, ContentionRatioTest) {
   std::vector<size_t> time_ms_wo_mutex;
 
   // Two Threads inserting 10000 entries each
-  auto cms = CountMinSketch<int>(500, 15);
+  auto cms = CountMinSketch<int64_t>(500, 15);
   const int insert_iters = 10000;
   const int num_threads = 2;
 
@@ -758,6 +758,11 @@ TEST(CountMinSketchTest, ContentionRatioTest) {
     } else {
       time_ms_wo_mutex.push_back(time);
     }
+  }
+
+  // Check result correctness
+  for (int i = 0; i < 10; i++) {
+    ASSERT_EQ(cms.Count(i), 20000);
   }
 
   std::cout << "<<< BEGIN" << std::endl;
