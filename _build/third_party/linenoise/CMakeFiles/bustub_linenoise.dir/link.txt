@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../lib/libbustub_linenoise.a CMakeFiles/bustub_linenoise.dir/linenoise.c.o
+/usr/bin/ranlib ../../lib/libbustub_linenoise.a
