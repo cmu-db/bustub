@@ -1,0 +1,5 @@
+if(EXISTS "/tmp/bustub/_build/test/txn_timestamp_test[1]_tests.cmake")
+  include("/tmp/bustub/_build/test/txn_timestamp_test[1]_tests.cmake")
+else()
+  add_test(txn_timestamp_test_NOT_BUILT txn_timestamp_test_NOT_BUILT)
+endif()
