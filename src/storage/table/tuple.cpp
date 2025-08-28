@@ -65,7 +65,7 @@ Tuple::Tuple(std::vector<Value> values, const Schema *schema) {
 }
 
 /**
- * constructor for creating a new tuple by copying fron existing bytes
+ * constructor for creating a new tuple by copying from existing bytes
  */
 Tuple::Tuple(RID rid, const char *data, uint32_t size) {
   rid_ = rid;

@@ -248,7 +248,7 @@
 //                         string.
 //
 // Integer types:
-//   TypeWithSize   - maps an integer to a int type.
+//   TypeWithSize   - maps an integer to an int type.
 //   TimeInMillis   - integers of known sizes.
 //   BiggestInt     - the biggest signed integer type.
 //

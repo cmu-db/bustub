@@ -65,7 +65,7 @@ struct TableInfo {
 };
 
 /**
- * The IndexInfo class maintains metadata about a index.
+ * The IndexInfo class maintains metadata about an index.
  */
 struct IndexInfo {
   /**
@@ -232,7 +232,7 @@ class Catalog {
       return NULL_INDEX_INFO;
     }
 
-    // Construct index metdata
+    // Construct index metadata
     auto meta = std::make_unique<IndexMetadata>(index_name, table_name, &schema, key_attrs, is_primary_key);
 
     // Construct the index, take ownership of metadata
@@ -361,6 +361,7 @@ class Catalog {
 
   auto GetTableNames() -> std::vector<std::string> {
     std::vector<std::string> result;
+    result.reserve(table_names_.size());
     for (const auto &x : table_names_) {
       result.push_back(x.first);
     }

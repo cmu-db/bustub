@@ -1172,7 +1172,7 @@ namespace detail {
 DOCTEST_CLANG_SUPPRESS_WARNING_WITH_PUSH("-Wunused-comparison")
 #endif
 
-// This will check if there is any way it could find a operator like member or friend and uses it.
+// This will check if there is any way it could find an operator like member or friend and uses it.
 // If not it doesn't find the operator or if the operator at global scope is defined after
 // this template, the template won't be instantiated due to SFINAE. Once the template is not
 // instantiated it can look for global operator using normal conversions.

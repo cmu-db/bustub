@@ -21,7 +21,7 @@
 
 namespace bustub {
 /**
- * Store indexed key and and value together within bucket page. Supports
+ * Store indexed key and value together within bucket page. Supports
  * non-unique keys.
  *
  * Bucket page format (keys are stored in order):

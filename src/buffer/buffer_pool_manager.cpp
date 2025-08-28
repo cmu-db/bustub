@@ -126,8 +126,8 @@ auto BufferPoolManager::NewPage() -> page_id_t { UNIMPLEMENTED("TODO(P1): Add im
  *
  * ### Implementation
  *
- * Think about all of the places a page or a page's metadata could be, and use that to guide you on implementing this
- * function. You will probably want to implement this function _after_ you have implemented `CheckedReadPage` and
+ * Think about all of the places that a page or a page's metadata could be, and use that to guide you on implementing
+ * this function. You will probably want to implement this function _after_ you have implemented `CheckedReadPage` and
  * `CheckedWritePage`.
  *
  * You should call `DeallocatePage` in the disk scheduler to make the space available for new pages.
@@ -155,7 +155,7 @@ auto BufferPoolManager::DeletePage(page_id_t page_id) -> bool { UNIMPLEMENTED("T
  *
  * ### Implementation
  *
- * There are 3 main cases that you will have to implement. The first two are relatively simple: one is when there is
+ * There are three main cases that you will have to implement. The first two are relatively simple: one is when there is
  * plenty of available memory, and the other is when we don't actually need to perform any additional I/O. Think about
  * what exactly these two cases entail.
  *
@@ -176,7 +176,7 @@ auto BufferPoolManager::DeletePage(page_id_t page_id) -> bool { UNIMPLEMENTED("T
  * @param page_id The ID of the page we want to write to.
  * @param access_type The type of page access.
  * @return std::optional<WritePageGuard> An optional latch guard where if there are no more free frames (out of memory)
- * returns `std::nullopt`, otherwise returns a `WritePageGuard` ensuring exclusive and mutable access to a page's data.
+ * returns `std::nullopt`; otherwise, returns a `WritePageGuard` ensuring exclusive and mutable access to a page's data.
  */
 auto BufferPoolManager::CheckedWritePage(page_id_t page_id, AccessType access_type) -> std::optional<WritePageGuard> {
   UNIMPLEMENTED("TODO(P1): Add implementation.");
@@ -204,7 +204,7 @@ auto BufferPoolManager::CheckedWritePage(page_id_t page_id, AccessType access_ty
  * @param page_id The ID of the page we want to read.
  * @param access_type The type of page access.
  * @return std::optional<ReadPageGuard> An optional latch guard where if there are no more free frames (out of memory)
- * returns `std::nullopt`, otherwise returns a `ReadPageGuard` ensuring shared and read-only access to a page's data.
+ * returns `std::nullopt`; otherwise, returns a `ReadPageGuard` ensuring shared and read-only access to a page's data.
  */
 auto BufferPoolManager::CheckedReadPage(page_id_t page_id, AccessType access_type) -> std::optional<ReadPageGuard> {
   UNIMPLEMENTED("TODO(P1): Add implementation.");
@@ -277,7 +277,7 @@ auto BufferPoolManager::ReadPage(page_id_t page_id, AccessType access_type) -> R
  * TODO(P1): Add implementation
  *
  * @param page_id The page ID of the page to be flushed.
- * @return `false` if the page could not be found in the page table, otherwise `true`.
+ * @return `false` if the page could not be found in the page table; otherwise, `true`.
  */
 auto BufferPoolManager::FlushPageUnsafe(page_id_t page_id) -> bool { UNIMPLEMENTED("TODO(P1): Add implementation."); }
 
@@ -297,7 +297,7 @@ auto BufferPoolManager::FlushPageUnsafe(page_id_t page_id) -> bool { UNIMPLEMENT
  * TODO(P1): Add implementation
  *
  * @param page_id The page ID of the page to be flushed.
- * @return `false` if the page could not be found in the page table, otherwise `true`.
+ * @return `false` if the page could not be found in the page table; otherwise, `true`.
  */
 auto BufferPoolManager::FlushPage(page_id_t page_id) -> bool { UNIMPLEMENTED("TODO(P1): Add implementation."); }
 
@@ -342,17 +342,15 @@ void BufferPoolManager::FlushAllPages() { UNIMPLEMENTED("TODO(P1): Add implement
  * # Implementation
  *
  * We will use this function to test if your buffer pool manager is managing pin counts correctly. Since the
- * `pin_count_` field in `FrameHeader` is an atomic type, you do not need to take the latch on the frame that holds the
+ * `pin_count_` field in `FrameHeader` is an [atomic type](https://en.cppreference.com/w/cpp/atomic/atomic),
+ * you do not need to take the latch on the frame that holds the
  * page we want to look at. Instead, you can simply use an atomic `load` to safely load the value stored. You will still
  * need to take the buffer pool latch, however.
- *
- * Again, if you are unfamiliar with atomic types, see the official C++ docs
- * [here](https://en.cppreference.com/w/cpp/atomic/atomic).
  *
  * TODO(P1): Add implementation
  *
  * @param page_id The page ID of the page we want to get the pin count of.
- * @return std::optional<size_t> The pin count if the page exists, otherwise `std::nullopt`.
+ * @return std::optional<size_t> The pin count if the page exists; otherwise, `std::nullopt`.
  */
 auto BufferPoolManager::GetPinCount(page_id_t page_id) -> std::optional<size_t> {
   UNIMPLEMENTED("TODO(P1): Add implementation.");

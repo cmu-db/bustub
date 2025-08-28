@@ -58,7 +58,7 @@ auto LockManager::UnlockTable(Transaction *txn, const table_oid_t &oid) -> bool 
  *
  * @param txn the transaction requesting the lock upgrade
  * @param lock_mode the lock mode for the requested lock
- * @param oid the table_oid_t of the table the row belongs to
+ * @param oid the table_oid_t of the table to which the row belongs
  * @param rid the RID of the row to be locked
  * @return true if the upgrade is successful, false otherwise
  */
@@ -75,7 +75,7 @@ auto LockManager::LockRow(Transaction *txn, LockMode lock_mode, const table_oid_
  *
  * @param txn the transaction releasing the lock
  * @param rid the RID that is locked by the transaction
- * @param oid the table_oid_t of the table the row belongs to
+ * @param oid the table_oid_t of the table to which the row belongs
  * @param rid the RID of the row to be unlocked
  * @param force unlock the tuple regardless of isolation level, not changing the transaction state
  * @return true if the unlock is successful, false otherwise
@@ -105,7 +105,7 @@ void LockManager::RemoveEdge(txn_id_t t1, txn_id_t t2) {}
 /**
  * Checks if the graph has a cycle, returning the newest transaction ID in the cycle if so.
  * @param[out] txn_id if the graph has a cycle, will contain the newest transaction ID
- * @return false if the graph has no cycle, otherwise stores the newest transaction ID in the cycle to txn_id
+ * @return false if the graph has no cycle; otherwise, stores the newest transaction ID in the cycle to txn_id
  */
 auto LockManager::HasCycle(txn_id_t *txn_id) -> bool { return false; }
 

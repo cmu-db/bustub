@@ -538,7 +538,7 @@ class GTEST_API_ Matcher<std::string>
 
 #if GTEST_INTERNAL_HAS_STRING_VIEW
 // The following two specializations allow the user to write str
-// instead of Eq(str) and "foo" instead of Eq("foo") when a absl::string_view
+// instead of Eq(str) and "foo" instead of Eq("foo") when an absl::string_view
 // matcher is expected.
 template <>
 class GTEST_API_ Matcher<const internal::StringView&>

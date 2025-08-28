@@ -22,7 +22,7 @@
 
 namespace bustub {
 /**
- * Store indexed key and and value together within block page. Supports
+ * Store indexed key and value together within block page. Supports
  * non-unique keys.
  *
  * Block page format (keys are stored in order):

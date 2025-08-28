@@ -70,7 +70,7 @@ class Optimizer {
   auto EstimatedCardinality(const std::string &table_name) -> std::optional<size_t>;
 
   /** Catalog will be used during the planning process. USERS SHOULD ENSURE IT OUTLIVES
-   * OPTIMIZER, otherwise it's a dangling reference.
+   * OPTIMIZER; otherwise, it's a dangling reference.
    */
   const Catalog &catalog_;
 

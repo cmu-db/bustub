@@ -27,7 +27,7 @@ namespace bustub {
 #define SKIPLIST_TEMPLATE_ARGUMENTS template <typename K, typename Compare, size_t MaxHeight, uint32_t Seed>
 
 /**
- * @brief A probablistic data structure that implements the ordered set abstract data type.
+ * @brief A probabilistic data structure that implements the ordered set abstract data type.
  *
  * The skip list is implemented as a linked list of nodes. Each node has a list of forward links. The number of
  * forward links is determined by a geometric distribution. The skip list maintains a header node that is always at the

@@ -118,7 +118,7 @@ class ReadPageGuard {
   /**
    * TODO(P1): You may add any fields under here that you think are necessary.
    *
-   * If you want extra (non-existent) style points, and you want to be extra fancy, then you can look into the
+   * If you want extra (nonexistent) style points, and you want to be extra fancy, then you can look into the
    * `std::shared_lock` type and use that for the latching mechanism instead of manually calling `lock` and `unlock`.
    */
 };
@@ -129,10 +129,10 @@ class ReadPageGuard {
  * The _only_ way that the BusTub system should interact with the buffer pool's page data is via page guards. Since
  * `WritePageGuard` is an RAII object, the system never has to manually lock and unlock a page's latch.
  *
- * With a `WritePageGuard`, there can be only be 1 thread that has exclusive ownership over the page's data. This means
- * that the owner of the `WritePageGuard` can mutate the page's data as much as they want. However, the existence of a
- * `WritePageGuard` implies that no other `WritePageGuard` or any `ReadPageGuard`s for the same page can exist at the
- * same time.
+ * With a `WritePageGuard`, there can be only be one thread that has exclusive ownership over the page's data. This
+ * means that the owner of the `WritePageGuard` can mutate the page's data as much as they want. However, the existence
+ * of a `WritePageGuard` implies that no other `WritePageGuard` or any `ReadPageGuard`s for the same page can exist at
+ * the same time.
  */
 class WritePageGuard {
   /** @brief Only the buffer pool manager is allowed to construct a valid `WritePageGuard.` */
@@ -225,7 +225,7 @@ class WritePageGuard {
   /**
    * TODO(P1): You may add any fields under here that you think are necessary.
    *
-   * If you want extra (non-existent) style points, and you want to be extra fancy, then you can look into the
+   * If you want extra (nonexistent) style points, and you want to be extra fancy, then you can look into the
    * `std::unique_lock` type and use that for the latching mechanism instead of manually calling `lock` and `unlock`.
    */
 };

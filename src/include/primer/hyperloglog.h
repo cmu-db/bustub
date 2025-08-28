@@ -22,7 +22,7 @@
 #include "common/util/hash_util.h"
 
 /** @brief Capacity of the bitset stream. */
-#define BITSET_CAPACITY 64
+static constexpr int BITSET_CAPACITY = 64;
 
 namespace bustub {
 

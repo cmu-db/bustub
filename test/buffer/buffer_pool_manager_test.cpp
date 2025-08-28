@@ -23,7 +23,7 @@ static std::filesystem::path db_fname("test.bustub");
 
 // The number of frames we give to the buffer pool.
 const size_t FRAMES = 10;
-// Note that this test assumes you are using the an LRU-K replacement policy.
+// Note that this test assumes you are using an LRU-K replacement policy.
 const size_t K_DIST = 5;
 
 void CopyString(char *dest, const std::string &src) {
@@ -77,12 +77,12 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinEasyTest) {
   {
     auto page0_write_opt = bpm->CheckedWritePage(pageid0);
     ASSERT_TRUE(page0_write_opt.has_value());
-    auto page0_write = std::move(page0_write_opt.value());
+    auto page0_write = std::move(page0_write_opt.value());  // NOLINT
     CopyString(page0_write.GetDataMut(), str0);
 
     auto page1_write_opt = bpm->CheckedWritePage(pageid1);
     ASSERT_TRUE(page1_write_opt.has_value());
-    auto page1_write = std::move(page1_write_opt.value());
+    auto page1_write = std::move(page1_write_opt.value());  // NOLINT
     CopyString(page1_write.GetDataMut(), str1);
 
     ASSERT_EQ(1, bpm->GetPinCount(pageid0));
@@ -121,13 +121,13 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinEasyTest) {
   {
     auto page0_write_opt = bpm->CheckedWritePage(pageid0);
     ASSERT_TRUE(page0_write_opt.has_value());
-    auto page0_write = std::move(page0_write_opt.value());
+    auto page0_write = std::move(page0_write_opt.value());  // NOLINT
     EXPECT_STREQ(page0_write.GetData(), str0.c_str());
     CopyString(page0_write.GetDataMut(), str0updated);
 
     auto page1_write_opt = bpm->CheckedWritePage(pageid1);
     ASSERT_TRUE(page1_write_opt.has_value());
-    auto page1_write = std::move(page1_write_opt.value());
+    auto page1_write = std::move(page1_write_opt.value());  // NOLINT
     EXPECT_STREQ(page1_write.GetData(), str1.c_str());
     CopyString(page1_write.GetDataMut(), str1updated);
 
@@ -141,12 +141,12 @@ TEST(BufferPoolManagerTest, DISABLED_PagePinEasyTest) {
   {
     auto page0_read_opt = bpm->CheckedReadPage(pageid0);
     ASSERT_TRUE(page0_read_opt.has_value());
-    const auto page0_read = std::move(page0_read_opt.value());
+    const auto page0_read = std::move(page0_read_opt.value());  // NOLINT
     EXPECT_STREQ(page0_read.GetData(), str0updated.c_str());
 
     auto page1_read_opt = bpm->CheckedReadPage(pageid1);
     ASSERT_TRUE(page1_read_opt.has_value());
-    const auto page1_read = std::move(page1_read_opt.value());
+    const auto page1_read = std::move(page1_read_opt.value());  // NOLINT
     EXPECT_STREQ(page1_read.GetData(), str1updated.c_str());
 
     ASSERT_EQ(1, bpm->GetPinCount(pageid0));
@@ -365,7 +365,7 @@ TEST(BufferPoolManagerTest, DISABLED_EvictableTest) {
   const size_t num_readers = 8;
 
   auto disk_manager = std::make_shared<DiskManager>(db_fname);
-  // Only allocate 1 frame of memory to the buffer pool manager.
+  // Only allocate one frame of memory to the buffer pool manager.
   auto bpm = std::make_shared<BufferPoolManager>(1, disk_manager.get(), K_DIST);
 
   for (size_t i = 0; i < rounds; i++) {

@@ -65,7 +65,7 @@ class TableHeap {
 
   /** For binder tests */
   static auto CreateEmptyHeap(bool create_table_heap = false) -> std::unique_ptr<TableHeap> {
-    // The input parameter should be false in order to generate a empty heap
+    // The input parameter should be false in order to generate an empty heap
     assert(!create_table_heap);
     return std::unique_ptr<TableHeap>(new TableHeap(create_table_heap));
   }

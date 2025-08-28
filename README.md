@@ -12,15 +12,15 @@ BusTub supports basic SQL and comes with an interactive shell. You can get it ru
 
 **WARNING: IF YOU ARE A STUDENT IN THE CLASS, DO NOT DIRECTLY FORK THIS REPO. DO NOT PUSH PROJECT SOLUTIONS PUBLICLY. THIS IS AN ACADEMIC INTEGRITY VIOLATION AND CAN LEAD TO GETTING YOUR DEGREE REVOKED, EVEN AFTER YOU GRADUATE.**
 
-We make the autograder for each assignment available to non-CMU students on Gradescope after their due date for CMU students. In exchange for making this available to the public, we ask that you do not make your project implementations public on Github or other source code repositories. Please read the course FAQ on how to use the autograder on Gradescope. Run `python3 gradescope_sign.py` to sign an agreement before submitting to the autograder.
+We make the autograder for each assignment available to non-CMU students on Gradescope after their due date for CMU students. In exchange for making this available to the public, we ask that you do not make your project implementations public on GitHub or other source code repositories. Please read the course FAQ on how to use the autograder on Gradescope. Run `python3 gradescope_sign.py` to sign an agreement before submitting to the autograder.
 
 **WARNING: IF YOU ARE A STUDENT OUTSIDE CMU, DO NOT MAKE YOUR SOLUTION PUBLICLY AVAILABLE, AND DO SUBMIT YOUR OWN WORK. OTHERWISE, YOU WILL BE BANNED FROM USING THE AUTOGRADER.** Thank you for creating a fair learning environment.
 
 ## Cloning this Repository
 
-The following instructions are adapted from the Github documentation on [duplicating a repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-on-github/duplicating-a-repository). The procedure below walks you through creating a private BusTub repository that you can use for development.
+The following instructions are adapted from the GitHub documentation on [duplicating a repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-on-github/duplicating-a-repository). The procedure below walks you through creating a private BusTub repository that you can use for development.
 
-1. Go [here](https://github.com/new) to create a new repository under your account. Pick a name (e.g. `bustub-private`) and select **Private** for the repository visibility level.
+1. [Create a new repository](https://github.com/new) under your account. Pick a name (e.g. `bustub-private`) and select **Private** for the repository visibility level.
 2. On your development machine, create a bare clone of the public BusTub repository:
    ```console
    $ git clone --bare https://github.com/cmu-db/bustub.git bustub-public
@@ -64,7 +64,7 @@ The following instructions are adapted from the Github documentation on [duplica
    ```console
    $ git pull public master
    ```
-7. **Disable GitHub Actions** from the project settings of your private repository, otherwise you may run out of GitHub Actions quota.
+7. **Disable GitHub Actions** from the project settings of your private repository; otherwise, you may run out of GitHub Actions quota.
    ```
    Settings > Actions > General > Actions permissions > Disable actions.
    ```

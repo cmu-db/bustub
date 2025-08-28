@@ -47,7 +47,7 @@ ReadPageGuard::ReadPageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> fra
  * If you are unfamiliar with move semantics, please familiarize yourself with learning materials online. There are many
  * great resources (including articles, Microsoft tutorials, YouTube videos) that explain this in depth.
  *
- * Make sure you invalidate the other guard, otherwise you might run into double free problems! For both objects, you
+ * Make sure you invalidate the other guard; otherwise, you might run into double free problems! For both objects, you
  * need to update _at least_ 5 fields each.
  *
  * TODO(P1): Add implementation.
@@ -64,7 +64,7 @@ ReadPageGuard::ReadPageGuard(ReadPageGuard &&that) noexcept {}
  * If you are unfamiliar with move semantics, please familiarize yourself with learning materials online. There are many
  * great resources (including articles, Microsoft tutorials, YouTube videos) that explain this in depth.
  *
- * Make sure you invalidate the other guard, otherwise you might run into double free problems! For both objects, you
+ * Make sure you invalidate the other guard; otherwise, you might run into double free problems! For both objects, you
  * need to update _at least_ 5 fields each, and for the current object, make sure you release any resources it might be
  * holding on to.
  *
@@ -158,7 +158,7 @@ WritePageGuard::WritePageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> f
  * If you are unfamiliar with move semantics, please familiarize yourself with learning materials online. There are many
  * great resources (including articles, Microsoft tutorials, YouTube videos) that explain this in depth.
  *
- * Make sure you invalidate the other guard, otherwise you might run into double free problems! For both objects, you
+ * Make sure you invalidate the other guard; otherwise, you might run into double free problems! For both objects, you
  * need to update _at least_ 5 fields each.
  *
  * TODO(P1): Add implementation.
@@ -175,7 +175,7 @@ WritePageGuard::WritePageGuard(WritePageGuard &&that) noexcept {}
  * If you are unfamiliar with move semantics, please familiarize yourself with learning materials online. There are many
  * great resources (including articles, Microsoft tutorials, YouTube videos) that explain this in depth.
  *
- * Make sure you invalidate the other guard, otherwise you might run into double free problems! For both objects, you
+ * Make sure you invalidate the other guard; otherwise, you might run into double free problems! For both objects, you
  * need to update _at least_ 5 fields each, and for the current object, make sure you release any resources it might be
  * holding on to.
  *

@@ -25,7 +25,7 @@ namespace bustub {
 /**
  * The WindowFunctionExecutor executor executes a window function for columns using window function.
  *
- * Window function is different from normal aggregation as it outputs one row for each inputing rows,
+ * Window function is different from normal aggregation as it outputs one row for each inputting rows,
  * and can be combined with normal selected columns. The columns in WindowFunctionPlanNode contains both
  * normal selected columns and placeholder columns for window functions.
  *
@@ -51,7 +51,7 @@ namespace bustub {
  *    }
  *
  * Your executor should use child executor and exprs in columns to produce selected columns except for window
- * function columns, and use window_agg_indexes, partition_bys, order_bys, functionss and window_agg_types to
+ * function columns, and use window_agg_indexes, partition_bys, order_bys, functions and window_agg_types to
  * generate window function columns results. Directly use placeholders for window function columns in columns is
  * not allowed, as it contains invalid column id.
  *

@@ -7,9 +7,11 @@
 ## build and run the DBMS.
 ##
 ## Supported environments:
-##  * Ubuntu 22.04 (x86-64)
+##  * Ubuntu 24.04 (x86-64)
 ##  * macOS 13 Ventura (x86-64 or ARM)
 ## =================================================================
+
+CLANG_VERSION=15
 
 main() {
   set -o errexit
@@ -41,9 +43,8 @@ install() {
     LINUX)
       version=$(cat /etc/os-release | grep VERSION_ID | cut -d '"' -f 2)
       case $version in
-        18.04) install_linux ;;
-        20.04) install_linux ;;
         22.04) install_linux ;;
+        24.04) install_linux ;;
         *) give_up ;;
       esac
       ;;
@@ -77,7 +78,7 @@ install_mac() {
   brew ls --versions coreutils || brew install coreutils
   brew ls --versions doxygen || brew install doxygen
   brew ls --versions git || brew install git
-  (brew ls --versions llvm | grep 14) || brew install llvm@14
+  (brew ls --versions llvm | grep ${CLANG_VERSION}) || brew install llvm@${CLANG_VERSION}
   brew ls --versions libelf || brew install libelf
 }
 
@@ -87,9 +88,9 @@ install_linux() {
   # Install packages.
   apt-get -y install \
       build-essential \
-      clang-14 \
-      clang-format-14 \
-      clang-tidy-14 \
+      clang-${CLANG_VERSION} \
+      clang-format-${CLANG_VERSION} \
+      clang-tidy-${CLANG_VERSION} \
       cmake \
       doxygen \
       git \

@@ -463,7 +463,7 @@ auto Binder::BindExpressionList(duckdb_libpgquery::PGList *list) -> std::vector<
     auto expr = BindExpression(target);
 
     if (expr->type_ == ExpressionType::STAR) {
-      throw bustub::Exception("unsupport * in expression list");
+      throw bustub::Exception("unsupported * in expression list");
     }
 
     select_list.push_back(std::move(expr));

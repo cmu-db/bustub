@@ -73,9 +73,9 @@ struct HTableTotalMetrics {
 
   void Report() {
     auto now = ClockMs();
-    auto elsped = now - start_time_;
-    auto write_per_sec = write_cnt_ / static_cast<double>(elsped) * 1000;
-    auto read_per_sec = read_cnt_ / static_cast<double>(elsped) * 1000;
+    auto elapsed = now - start_time_;
+    auto write_per_sec = write_cnt_ / static_cast<double>(elapsed) * 1000;
+    auto read_per_sec = read_cnt_ / static_cast<double>(elapsed) * 1000;
 
     fmt::print("<<< BEGIN\n");
     fmt::print("write: {}\n", write_per_sec);
@@ -101,13 +101,13 @@ struct HTableMetrics {
 
   void Report() {
     auto now = ClockMs();
-    auto elsped = now - start_time_;
-    if (elsped - last_report_at_ > 1000) {
+    auto elapsed = now - start_time_;
+    if (elapsed - last_report_at_ > 1000) {
       fmt::print(stderr, "[{:5.2f}] {}: total_cnt={:<10} throughput={:<10.3f} avg_throughput={:<10.3f}\n",
-                 elsped / 1000.0, reporter_, cnt_,
-                 (cnt_ - last_cnt_) / static_cast<double>(elsped - last_report_at_) * 1000,
-                 cnt_ / static_cast<double>(elsped) * 1000);
-      last_report_at_ = elsped;
+                 elapsed / 1000.0, reporter_, cnt_,
+                 (cnt_ - last_cnt_) / static_cast<double>(elapsed - last_report_at_) * 1000,
+                 cnt_ / static_cast<double>(elapsed) * 1000);
+      last_report_at_ = elapsed;
       last_cnt_ = cnt_;
     }
   }
@@ -182,7 +182,7 @@ auto main(int argc, char **argv) -> int {
   std::vector<std::thread> threads;
 
   for (size_t thread_id = 0; thread_id < BUSTUB_READ_THREAD; thread_id++) {
-    threads.emplace_back(std::thread([thread_id, &index, duration_ms, &total_metrics] {
+    threads.emplace_back([thread_id, &index, duration_ms, &total_metrics] {
       HTableMetrics metrics(fmt::format("read  {:>2}", thread_id), duration_ms);
       metrics.Begin();
 
@@ -224,11 +224,11 @@ auto main(int argc, char **argv) -> int {
       }
 
       total_metrics.ReportRead(metrics.cnt_);
-    }));
+    });
   }
 
   for (size_t thread_id = 0; thread_id < BUSTUB_WRITE_THREAD; thread_id++) {
-    threads.emplace_back(std::thread([thread_id, &index, duration_ms, &total_metrics] {
+    threads.emplace_back([thread_id, &index, duration_ms, &total_metrics] {
       HTableMetrics metrics(fmt::format("write {:>2}", thread_id), duration_ms);
       metrics.Begin();
 
@@ -271,7 +271,7 @@ auto main(int argc, char **argv) -> int {
       }
 
       total_metrics.ReportWrite(metrics.cnt_);
-    }));
+    });
   }
 
   for (auto &thread : threads) {

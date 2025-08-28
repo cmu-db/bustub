@@ -238,10 +238,10 @@ TEST(TxnExecutorTest, DISABLED_GenerateUndoLogTest) {
     auto schema = ParseCreateStatement("a integer,b double,c boolean");
     auto partial_schema = ParseCreateStatement("b double,c boolean");
     auto base_tuple = Tuple{{Int(0), Double(0.0), Bool(true)}, schema.get()};
-    auto intermidiate_tuple = Tuple{{Int(0), Double(0.0), Bool(false)}, schema.get()};
-    auto undo_log = GenerateNewUndoLog(schema.get(), &base_tuple, &intermidiate_tuple, 0, {});
+    auto intermediate_tuple = Tuple{{Int(0), Double(0.0), Bool(false)}, schema.get()};
+    auto undo_log = GenerateNewUndoLog(schema.get(), &base_tuple, &intermediate_tuple, 0, {});
     auto target_tuple = Tuple{{Int(0), Double(1.0), Bool(false)}, schema.get()};
-    auto updated_undo_log = GenerateUpdatedUndoLog(schema.get(), &intermidiate_tuple, &target_tuple, undo_log);
+    auto updated_undo_log = GenerateUpdatedUndoLog(schema.get(), &intermediate_tuple, &target_tuple, undo_log);
 
     auto tuple = ReconstructTuple(schema.get(), target_tuple, {0, false}, {updated_undo_log});
     ASSERT_TRUE(tuple.has_value());

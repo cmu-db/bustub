@@ -187,7 +187,7 @@ class Planner {
   auto MakeOutputSchema(const std::vector<std::pair<std::string, TypeId>> &exprs) -> SchemaRef;
 
   /** Catalog will be used during the planning process. SHOULD ONLY BE USED IN
-   * CODE PATH OF `PlanQuery`, otherwise it's a dangling reference.
+   * CODE PATH OF `PlanQuery`; otherwise, it's a dangling reference.
    */
   const Catalog &catalog_;
 

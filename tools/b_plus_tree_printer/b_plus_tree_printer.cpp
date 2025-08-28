@@ -38,7 +38,7 @@ auto UsageMessage() -> std::string {
       "\td <k>  -- Delete key <k> and its associated value.\n"
       "\tg <filename>.dot  -- Output the tree in graph format to a dot file\n"
       "\tp -- Print the B+ tree.\n"
-      "\tq -- Quit. (Or use Ctl-D.)\n"
+      "\tq -- Quit. (Or use Ctrl-D.)\n"
       "\t? -- Print this help message.\n\n"
       "Please Enter Leaf node max size and Internal node max size:\n"
       "Example: 5 5\n"

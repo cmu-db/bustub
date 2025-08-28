@@ -57,7 +57,7 @@ void InsertHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, con
   }
 }
 
-// helper function to seperate insert
+// helper function to separate insert
 void InsertHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, const std::vector<int64_t> &keys,
                        int total_threads, __attribute__((unused)) uint64_t thread_itr) {
   GenericKey<8> index_key;
@@ -84,7 +84,7 @@ void DeleteHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, con
   }
 }
 
-// helper function to seperate delete
+// helper function to separate delete
 void DeleteHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree,
                        const std::vector<int64_t> &remove_keys, int total_threads,
                        __attribute__((unused)) uint64_t thread_itr) {
@@ -392,25 +392,25 @@ void MixTest2Call() {
     // create b+ tree
     BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator);
 
-    // Add perserved_keys
-    std::vector<int64_t> perserved_keys;
+    // Add preserved_keys
+    std::vector<int64_t> preserved_keys;
     std::vector<int64_t> dynamic_keys;
     int64_t total_keys = 1000;
     int64_t sieve = 5;
     for (int64_t i = 1; i <= total_keys; i++) {
       if (i % sieve == 0) {
-        perserved_keys.push_back(i);
+        preserved_keys.push_back(i);
       } else {
         dynamic_keys.push_back(i);
       }
     }
-    InsertHelper(&tree, perserved_keys);
+    InsertHelper(&tree, preserved_keys);
 
     size_t size;
 
     auto insert_task = [&](int tid) { InsertHelper(&tree, dynamic_keys); };
     auto delete_task = [&](int tid) { DeleteHelper(&tree, dynamic_keys); };
-    auto lookup_task = [&](int tid) { LookupHelper(&tree, perserved_keys); };
+    auto lookup_task = [&](int tid) { LookupHelper(&tree, preserved_keys); };
 
     std::vector<std::thread> threads;
     std::vector<std::function<void(int)>> tasks;
@@ -436,7 +436,7 @@ void MixTest2Call() {
       }
     }
 
-    ASSERT_EQ(size, perserved_keys.size());
+    ASSERT_EQ(size, preserved_keys.size());
 
     delete disk_manager;
     delete bpm;
