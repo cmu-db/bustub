@@ -12,9 +12,7 @@
 
 #pragma once
 
-#include <map>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "container/hash/hash_function.h"
