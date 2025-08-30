@@ -19,7 +19,6 @@
 
 #include "catalog/schema.h"
 #include "storage/table/tuple.h"
-#include "type/value.h"
 
 namespace bustub {
 
