@@ -25,7 +25,7 @@
 #include "argparse/argparse.hpp"
 #include "binder/binder.h"
 #include "buffer/buffer_pool_manager.h"
-#include "buffer/replacer.h"
+#include "buffer/arc_replacer.h"
 #include "common/config.h"
 #include "common/exception.h"
 #include "common/rid.h"
