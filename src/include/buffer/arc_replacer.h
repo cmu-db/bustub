@@ -28,6 +28,7 @@ enum class AccessType { Unknown = 0, Lookup, Scan, Index };
 
 enum class ArcStatus { MRU, MFU, MRU_GHOST, MFU_GHOST };
 
+// TODO(student): You can modify or remove this struct as you like.
 struct FrameStatus {
   page_id_t page_id_;
   frame_id_t frame_id_;
@@ -60,11 +61,12 @@ class ArcReplacer {
   auto Size() -> size_t;
 
  private:
-  // TODO(student): implement me! You can replace these member variables as you like.
+  // TODO(student): implement me! You can replace or remove these member variables as you like.
   std::list<frame_id_t> mru_;
   std::list<frame_id_t> mfu_;
   std::list<page_id_t> mru_ghost_;
   std::list<page_id_t> mfu_ghost_;
+
   /* record entries in mru_ and mfu_
    * this uses frame_id_t to guarantee no duplicate records for the same
    * frame when they are alive */
