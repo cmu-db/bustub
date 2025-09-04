@@ -27,7 +27,6 @@
 #include "argparse/argparse.hpp"
 #include "binder/binder.h"
 #include "buffer/buffer_pool_manager.h"
-#include "buffer/lru_k_replacer.h"
 #include "common/config.h"
 #include "common/exception.h"
 #include "common/util/string_util.h"
@@ -207,7 +206,7 @@ auto main(int argc, char **argv) -> int {
   }
 
   auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
-  auto bpm = std::make_unique<BufferPoolManager>(bustub_bpm_size, disk_manager.get(), lru_k_size);
+  auto bpm = std::make_unique<BufferPoolManager>(bustub_bpm_size, disk_manager.get());
   std::vector<page_id_t> page_ids;
 
   fmt::print(stderr,

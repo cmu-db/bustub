@@ -14,6 +14,7 @@
 
 #include <memory>
 
+#include "buffer/arc_replacer.h"
 #include "buffer/buffer_pool_manager.h"
 #include "storage/disk/disk_scheduler.h"
 #include "storage/page/page.h"
@@ -67,7 +68,7 @@ class ReadPageGuard {
 
  private:
   /** @brief Only the buffer pool manager is allowed to construct a valid `ReadPageGuard.` */
-  explicit ReadPageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> frame, std::shared_ptr<LRUKReplacer> replacer,
+  explicit ReadPageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> frame, std::shared_ptr<ArcReplacer> replacer,
                          std::shared_ptr<std::mutex> bpm_latch, std::shared_ptr<DiskScheduler> disk_scheduler);
 
   /** @brief The page ID of the page we are guarding. */
@@ -86,7 +87,7 @@ class ReadPageGuard {
    * Since the buffer pool cannot know when this `ReadPageGuard` gets destructed, we maintain a pointer to the buffer
    * pool's replacer in order to set the frame as evictable on destruction.
    */
-  std::shared_ptr<LRUKReplacer> replacer_;
+  std::shared_ptr<ArcReplacer> replacer_;
 
   /**
    * @brief A shared pointer to the buffer pool's latch.
@@ -174,7 +175,7 @@ class WritePageGuard {
 
  private:
   /** @brief Only the buffer pool manager is allowed to construct a valid `WritePageGuard.` */
-  explicit WritePageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> frame, std::shared_ptr<LRUKReplacer> replacer,
+  explicit WritePageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> frame, std::shared_ptr<ArcReplacer> replacer,
                           std::shared_ptr<std::mutex> bpm_latch, std::shared_ptr<DiskScheduler> disk_scheduler);
 
   /** @brief The page ID of the page we are guarding. */
@@ -193,7 +194,7 @@ class WritePageGuard {
    * Since the buffer pool cannot know when this `WritePageGuard` gets destructed, we maintain a pointer to the buffer
    * pool's replacer in order to set the frame as evictable on destruction.
    */
-  std::shared_ptr<LRUKReplacer> replacer_;
+  std::shared_ptr<ArcReplacer> replacer_;
 
   /**
    * @brief A shared pointer to the buffer pool's latch.
