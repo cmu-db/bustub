@@ -40,6 +40,12 @@ jobs:
               format: "/opt/homebrew/opt/llvm@15/bin/clang-format",
               tidy: "/opt/homebrew/opt/llvm@15/bin/clang-tidy",
             }
+          - {
+              name: "macOS 15 (Sequoia) AppleClang",
+              os: macos-15,
+              format: "/opt/homebrew/opt/llvm@15/bin/clang-format",
+              tidy: "/opt/homebrew/opt/llvm@15/bin/clang-tidy",
+          }
     steps:
       - uses: actions/checkout@v2
 
