@@ -23,6 +23,7 @@ namespace bustub {
 
 TEST(ArcReplacerPerformanceTest, RecordAccessPerformanceTest) {
   // Test RecordAccess performance
+  std::cout << "BEGIN" << std::endl;
   std::cout << "This test will see how your RecordAccess performs when the list is large. " << std::endl;
   std::cout << "If this takes above 3s on average, "
                "you might get into trouble trying to get full score in some following projects... "
@@ -57,10 +58,12 @@ TEST(ArcReplacerPerformanceTest, RecordAccessPerformanceTest) {
   }
   total /= 1000;
   double avg = total / access_times.size();
-  std::cout << "Average time used: " << avg
-            << "s. If this takes above 3s on average, "
+  std::cout << "END" << std::endl;
+  std::cout << "Average time used: " << avg << "s." << std::endl;
+  std::cout << "If this takes above 3s on average, "
                "you might get into trouble trying to get full score in some following projects... "
-               "if you care, try optimizing RecordAccess for a bit";
+            << std::endl;
+  std::cout << "If you care, try optimizing RecordAccess for a bit" << std::endl;
   ASSERT_LT(avg, 3);
 }
 
