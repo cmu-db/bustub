@@ -103,7 +103,7 @@ void ArcReplacer::SetEvictable(frame_id_t frame_id, bool set_evictable) {}
  * This function should also decrement replacer's size if removal is successful.
  *
  * Note that this is different from evicting a frame, which always remove the frame
- * with largest backward distance, according to the ARC algorithm.
+ * decided by the ARC algorithm.
  *
  * If Remove is called on a non-evictable frame, throw an exception or abort the
  * process.
