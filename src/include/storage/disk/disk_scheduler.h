@@ -15,6 +15,7 @@
 #include <future>  // NOLINT
 #include <optional>
 #include <thread>  // NOLINT
+#include <vector>
 
 #include "common/channel.h"
 #include "storage/disk/disk_manager.h"
@@ -54,7 +55,7 @@ class DiskScheduler {
   explicit DiskScheduler(DiskManager *disk_manager);
   ~DiskScheduler();
 
-  void Schedule(DiskRequest r);
+  void Schedule(std::vector<DiskRequest> &requests);
 
   void StartWorkerThread();
 

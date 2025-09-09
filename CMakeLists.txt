@@ -274,8 +274,8 @@ add_custom_target(submit-p0
 )
 
 set(P1_FILES
-        "src/include/buffer/lru_k_replacer.h"
-        "src/buffer/lru_k_replacer.cpp"
+        "src/include/buffer/arc_replacer.h"
+        "src/buffer/arc_replacer.cpp"
         "src/include/buffer/buffer_pool_manager.h"
         "src/buffer/buffer_pool_manager.cpp"
         "src/include/storage/disk/disk_scheduler.h"

@@ -25,7 +25,7 @@
 #include "argparse/argparse.hpp"
 #include "binder/binder.h"
 #include "buffer/buffer_pool_manager.h"
-#include "buffer/lru_k_replacer.h"
+#include "buffer/arc_replacer.h"
 #include "common/config.h"
 #include "common/exception.h"
 #include "common/rid.h"
@@ -46,7 +46,6 @@ auto ClockMs() -> uint64_t {
 
 static const size_t BUSTUB_READ_THREAD = 5;
 static const size_t BUSTUB_WRITE_THREAD = 3;
-static const size_t LRU_K_SIZE = 4;
 static const size_t BUSTUB_BPM_SIZE = 2048;
 static const size_t TOTAL_KEYS = 200000;
 static const size_t KEY_MODIFY_RANGE = 2048;
@@ -151,10 +150,9 @@ auto main(int argc, char **argv) -> int {
   }
 
   auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
-  auto bpm = std::make_unique<BufferPoolManager>(BUSTUB_BPM_SIZE, disk_manager.get(), LRU_K_SIZE);
+  auto bpm = std::make_unique<BufferPoolManager>(BUSTUB_BPM_SIZE, disk_manager.get());
 
-  fmt::print(stderr, "[info] total_keys={}, duration_ms={}, lru_k_size={}, bpm_size={}\n", TOTAL_KEYS, duration_ms,
-             LRU_K_SIZE, BUSTUB_BPM_SIZE);
+  fmt::print(stderr, "[info] total_keys={}, duration_ms={}, bpm_size={}\n", TOTAL_KEYS, duration_ms, BUSTUB_BPM_SIZE);
 
   auto key_schema = bustub::ParseCreateStatement("a bigint");
   bustub::GenericComparator<8> comparator(key_schema.get());

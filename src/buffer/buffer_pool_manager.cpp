@@ -11,6 +11,9 @@
 //===----------------------------------------------------------------------===//
 
 #include "buffer/buffer_pool_manager.h"
+#include "buffer/arc_replacer.h"
+#include "common/config.h"
+#include "common/macros.h"
 
 namespace bustub {
 
@@ -63,15 +66,13 @@ void FrameHeader::Reset() {
  *
  * @param num_frames The size of the buffer pool.
  * @param disk_manager The disk manager.
- * @param k_dist The backward k-distance for the LRU-K replacer.
  * @param log_manager The log manager. Please ignore this for P1.
  */
-BufferPoolManager::BufferPoolManager(size_t num_frames, DiskManager *disk_manager, size_t k_dist,
-                                     LogManager *log_manager)
+BufferPoolManager::BufferPoolManager(size_t num_frames, DiskManager *disk_manager, LogManager *log_manager)
     : num_frames_(num_frames),
       next_page_id_(0),
       bpm_latch_(std::make_shared<std::mutex>()),
-      replacer_(std::make_shared<LRUKReplacer>(num_frames, k_dist)),
+      replacer_(std::make_shared<ArcReplacer>(num_frames)),
       disk_scheduler_(std::make_shared<DiskScheduler>(disk_manager)),
       log_manager_(log_manager) {
   // Not strictly necessary...
@@ -342,10 +343,12 @@ void BufferPoolManager::FlushAllPages() { UNIMPLEMENTED("TODO(P1): Add implement
  * # Implementation
  *
  * We will use this function to test if your buffer pool manager is managing pin counts correctly. Since the
- * `pin_count_` field in `FrameHeader` is an [atomic type](https://en.cppreference.com/w/cpp/atomic/atomic),
- * you do not need to take the latch on the frame that holds the
+ * `pin_count_` field in `FrameHeader` is an atomic type, you do not need to take the latch on the frame that holds the
  * page we want to look at. Instead, you can simply use an atomic `load` to safely load the value stored. You will still
  * need to take the buffer pool latch, however.
+ *
+ * Again, if you are unfamiliar with atomic types, see the official C++ docs
+ * [here](https://en.cppreference.com/w/cpp/atomic/atomic).
  *
  * TODO(P1): Add implementation
  *

@@ -19,12 +19,11 @@
 #include <unordered_map>
 #include <vector>
 
+#include "buffer/arc_replacer.h"
 #include "common/config.h"
 #include "common/macros.h"
 
 namespace bustub {
-
-enum class AccessType { Unknown = 0, Lookup, Scan, Index };
 
 class LRUKNode {
  private:
