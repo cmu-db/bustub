@@ -2,6 +2,7 @@ add_library(
         bustub_buffer
         OBJECT
         buffer_pool_manager.cpp
+        arc_replacer.cpp
         clock_replacer.cpp
         lru_replacer.cpp
         lru_k_replacer.cpp)

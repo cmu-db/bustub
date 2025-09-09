@@ -38,8 +38,15 @@ TEST(DiskSchedulerTest, DISABLED_ScheduleWriteReadPageTest) {
   auto promise2 = disk_scheduler->CreatePromise();
   auto future2 = promise2.get_future();
 
-  disk_scheduler->Schedule({/*is_write=*/true, data, /*page_id=*/0, std::move(promise1)});
-  disk_scheduler->Schedule({/*is_write=*/false, buf, /*page_id=*/0, std::move(promise2)});
+  DiskRequest r1{/*is_write=*/true, data, /*page_id=*/0, std::move(promise1)};
+  std::vector<DiskRequest> requests1;
+  requests1.push_back(std::move(r1));
+  disk_scheduler->Schedule(requests1);
+
+  DiskRequest r2{/*is_write=*/false, buf, /*page_id=*/0, std::move(promise2)};
+  std::vector<DiskRequest> requests2;
+  requests2.push_back(std::move(r2));
+  disk_scheduler->Schedule(requests2);
 
   ASSERT_TRUE(future1.get());
   ASSERT_TRUE(future2.get());

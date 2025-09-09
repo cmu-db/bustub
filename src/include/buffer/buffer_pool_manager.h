@@ -18,7 +18,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "buffer/lru_k_replacer.h"
+#include "buffer/arc_replacer.h"
 #include "common/config.h"
 #include "recovery/log_manager.h"
 #include "storage/disk/disk_scheduler.h"
@@ -105,12 +105,11 @@ class FrameHeader {
  * faster access, and evicting unused or cold pages back out to storage.
  *
  * Make sure you read the writeup in its entirety before attempting to implement the buffer pool manager. You also need
- * to have completed the implementation of both the `LRUKReplacer` and `DiskManager` classes.
+ * to have completed the implementation of both the `ArcReplacer` and `DiskManager` classes.
  */
 class BufferPoolManager {
  public:
-  BufferPoolManager(size_t num_frames, DiskManager *disk_manager, size_t k_dist = LRUK_REPLACER_K,
-                    LogManager *log_manager = nullptr);
+  BufferPoolManager(size_t num_frames, DiskManager *disk_manager, LogManager *log_manager = nullptr);
   ~BufferPoolManager();
 
   auto Size() const -> size_t;
@@ -151,7 +150,7 @@ class BufferPoolManager {
   std::list<frame_id_t> free_frames_;
 
   /** @brief The replacer to find unpinned / candidate pages for eviction. */
-  std::shared_ptr<LRUKReplacer> replacer_;
+  std::shared_ptr<ArcReplacer> replacer_;
 
   /** @brief A pointer to the disk scheduler. Shared with the page guards for flushing. */
   std::shared_ptr<DiskScheduler> disk_scheduler_;
