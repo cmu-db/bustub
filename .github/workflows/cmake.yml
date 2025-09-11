@@ -20,7 +20,7 @@ jobs:
         config:
           - {
               name: "Ubuntu 24.04 GCC",
-              os: "ubuntu-24.04",
+              os: "self-hosted",
               cc: "/usr/bin/gcc",
               cxx: "/usr/bin/g++",
               format: "/usr/bin/clang-format-15",
@@ -28,7 +28,7 @@ jobs:
             }
           - {
               name: "Ubuntu 24.04 Clang",
-              os: "ubuntu-24.04",
+              os: "self-hosted",
               cc: "/usr/bin/clang-15",
               cxx: "/usr/bin/clang++-15",
               format: "/usr/bin/clang-format-15",
