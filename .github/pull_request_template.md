@@ -1,5 +1,22 @@
-DO NOT PUSH PROJECT SOLUTIONS PUBLICLY.
-
-And especially do NOT open pull requests with project solutions!
+```
+⠀⠀⠀⠀⠀⠀⠀⣀⡾⠛⡛⠛⠛⠛⠛⠛⠛⠛⠛⢛⠛⢷⣀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⢀⡴⠋⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠙⢦⡀⠀⠀⠀⠀⠀
+⠀⠀⠀⢀⡴⠋⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠙⢦⡀⠀⠀⠀
+⠀⢀⣴⠋⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠙⢦⡀⠀
+⢰⡟⢡⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡄⢻⡆
+⢸⡇⢸⣿⡿⠛⠉⠙⢿⡟⠉⠉⠉⠉⣿⡿⠛⠉⠙⢻⣿⡏⠉⠉⠛⢿⣿⡇⢸⡇
+⢸⡇⢸⣿⡇⠘⠿⣧⣼⣿⣿⠁⢸⣿⣿⠁⣼⣿⣷⠀⢿⡇⢸⣿⡇⢈⣿⡇⢸⡇
+⢸⡇⢸⣿⣿⣦⣄⡀⠙⣿⣿⠀⢸⣿⣿⠀⣿⣿⣿⠀⣸⡇⢈⣉⣀⣼⣿⡇⢸⡇
+⢸⡇⢸⣿⣇⠘⠿⠟⢀⣿⣿⠄⢸⣿⣿⡄⠙⠿⠋⢀⣿⡇⢸⣿⣿⣿⣿⡇⢸⡇
+⢸⡇⢸⣿⣿⣷⣶⣶⣿⣿⣿⣷⣾⣿⣿⣿⣶⣶⣶⣿⣿⣷⣾⣿⣿⣿⣿⡇⢸⡇
+⠘⢷⣌⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⣡⡾⠃
+⠀⠀⠙⢷⣌⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⣡⡾⠋⠀⠀
+⠀⠀⠀⠀⠙⢷⣌⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⣡⡾⠋⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠙⢷⣌⠻⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠟⣁⡾⠋⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠙⠷⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠾⠋⠀⠀⠀⠀⠀⠀⠀⠀
+```
+**DO NOT SUBMIT A PULL REQUEST WITH YOUR PROJECT SOLUTION**
 
 Please be considerate of this free educational resource.
+
+If you ignore this warning, you will be added to the [Wall of Shame](https://github.com/cmu-db/bustub/blob/master/WALL-OF-SHAME.md)
