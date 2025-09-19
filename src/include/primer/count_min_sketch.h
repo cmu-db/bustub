@@ -12,8 +12,10 @@
 
 #pragma once
 
+#include <atomic>
 #include <cstdint>
 #include <functional>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -95,14 +97,15 @@ class CountMinSketch {
    * @return A function that maps items to column indices
    */
   inline auto HashFunction(size_t seed) -> std::function<size_t(const KeyType &)> {
-    return [seed, this](const KeyType &item) -> size_t {
+    auto width = width_;
+    return [seed, width](const KeyType &item) -> size_t {
       auto h1 = std::hash<KeyType>{}(item);
       auto h2 = bustub::HashUtil::CombineHashes(seed, SEED_BASE);
-      return bustub::HashUtil::CombineHashes(h1, h2) % width_;
+      return bustub::HashUtil::CombineHashes(h1, h2) % width;
     };
   }
 
-  /** @todo (student) can add their data structures that support count-min sketch operations */
+  std::vector<std::vector<std::shared_ptr<std::atomic_uint32_t>>> sketch_matrix_;
 };
 
 }  // namespace bustub
