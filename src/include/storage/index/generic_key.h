@@ -41,6 +41,13 @@ class GenericKey {
     memcpy(data_, &key, sizeof(int64_t));
   }
 
+  // NOTE: for test purpose only
+  inline auto GetAsInteger() const -> int64_t {
+    int64_t out;
+    memcpy(&out, data_, sizeof(int64_t));
+    return out;
+  }
+
   inline auto ToValue(Schema *schema, uint32_t column_idx) const -> Value {
     const char *data_ptr;
     const auto &col = schema->GetColumn(column_idx);

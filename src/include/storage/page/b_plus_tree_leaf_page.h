@@ -20,19 +20,27 @@
 
 namespace bustub {
 
-#define B_PLUS_TREE_LEAF_PAGE_TYPE BPlusTreeLeafPage<KeyType, ValueType, KeyComparator>
+#define B_PLUS_TREE_LEAF_PAGE_TYPE BPlusTreeLeafPage<KeyType, ValueType, KeyComparator, NumTombs>
 #define LEAF_PAGE_HEADER_SIZE 16
-#define LEAF_PAGE_SLOT_CNT ((BUSTUB_PAGE_SIZE - LEAF_PAGE_HEADER_SIZE) / (sizeof(KeyType) + sizeof(ValueType)))
+#define LEAF_PAGE_SLOT_CNT                                                                     \
+  ((BUSTUB_PAGE_SIZE - LEAF_PAGE_HEADER_SIZE - sizeof(size_t) - (NumTombs * sizeof(size_t))) / \
+   (sizeof(KeyType) + sizeof(ValueType)))  // NOLINT
 
 /**
- * Store indexed key and record id (record id = page id combined with slot id,
- * see `include/common/rid.h` for detailed implementation) together within leaf
+ * Store indexed key and record id(record id = page id combined with slot id,
+ * see include/common/rid.h for detailed implementation) together within leaf
  * page. Only support unique key.
  *
- * Leaf page format (keys are stored in order):
- *  ---------
- * | HEADER |
- *  ---------
+ * Leaf pages also contain a fixed buffer of "tombstone" indexes for entries
+ * that have been deleted.
+ *
+ * Leaf page format (keys are stored in order, tomb order is up to you):
+ *  --------------------
+ * | HEADER | TOMB_SIZE | (where TOMB_SIZE is num_tombstones_)
+ *  --------------------
+ *  -----------------------------------
+ * | TOMB(0) | TOMB(1) | ... | TOMB(k) |
+ *  -----------------------------------
  *  ---------------------------------
  * | KEY(1) | KEY(2) | ... | KEY(n) |
  *  ---------------------------------
@@ -48,7 +56,7 @@ namespace bustub {
  * | NextPageId (4) |
  *  -----------------
  */
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS_DEFN
 class BPlusTreeLeafPage : public BPlusTreePage {
  public:
   // Delete all constructor / destructor to ensure memory safety
@@ -56,6 +64,8 @@ class BPlusTreeLeafPage : public BPlusTreePage {
   BPlusTreeLeafPage(const BPlusTreeLeafPage &other) = delete;
 
   void Init(int max_size = LEAF_PAGE_SLOT_CNT);
+
+  auto GetTombstones() const -> std::vector<KeyType>;
 
   // Helper methods
   auto GetNextPageId() const -> page_id_t;
@@ -89,6 +99,9 @@ class BPlusTreeLeafPage : public BPlusTreePage {
 
  private:
   page_id_t next_page_id_;
+  size_t num_tombstones_;
+  // Fixed-size tombstone buffer (indexes into key_array_ / rid_array_).
+  size_t tombstones_[NumTombs];
   // Array members for page data.
   KeyType key_array_[LEAF_PAGE_SLOT_CNT];
   ValueType rid_array_[LEAF_PAGE_SLOT_CNT];

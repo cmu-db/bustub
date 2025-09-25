@@ -16,13 +16,17 @@
  */
 #pragma once
 #include <utility>
+#include "buffer/traced_buffer_pool_manager.h"
+#include "common/config.h"
+#include "common/macros.h"
 #include "storage/page/b_plus_tree_leaf_page.h"
 
 namespace bustub {
 
-#define INDEXITERATOR_TYPE IndexIterator<KeyType, ValueType, KeyComparator>
+#define INDEXITERATOR_TYPE IndexIterator<KeyType, ValueType, KeyComparator, NumTombs>
+#define SHORT_INDEXITERATOR_TYPE IndexIterator<KeyType, ValueType, KeyComparator>
 
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS_DEFN
 class IndexIterator {
  public:
   // you may define your own constructor based on your member variables

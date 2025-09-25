@@ -20,6 +20,8 @@
 #include "container/hash/hash_function.h"
 #include "storage/index/b_plus_tree.h"
 #include "storage/index/index.h"
+#include "storage/index/index_iterator.h"
+#include "storage/page/b_plus_tree_page.h"
 
 namespace bustub {
 
@@ -36,11 +38,11 @@ class BPlusTreeIndex : public Index {
 
   void ScanKey(const Tuple &key, std::vector<RID> *result, Transaction *transaction) override;
 
-  auto GetBeginIterator() -> INDEXITERATOR_TYPE;
+  auto GetBeginIterator() -> SHORT_INDEXITERATOR_TYPE;
 
-  auto GetBeginIterator(const KeyType &key) -> INDEXITERATOR_TYPE;
+  auto GetBeginIterator(const KeyType &key) -> SHORT_INDEXITERATOR_TYPE;
 
-  auto GetEndIterator() -> INDEXITERATOR_TYPE;
+  auto GetEndIterator() -> SHORT_INDEXITERATOR_TYPE;
 
  protected:
   // comparator for key
