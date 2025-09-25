@@ -103,9 +103,7 @@ void BPLUSTREE_TYPE::Remove(const KeyType &key) {
  * @return read page guard for the leftmost leaf page in tree.
  */
 FULL_INDEX_TEMPLATE_ARGUMENTS
-auto BPLUSTREE_TYPE::FindLeftmostPage() -> ReadPageGuard {
-  UNIMPLEMENTED("TODO(P2): Add implementation.");
-}
+auto BPLUSTREE_TYPE::FindLeftmostPage() -> ReadPageGuard { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
 /**
  * @brief Input parameter is void, find the leftmost leaf page first, then construct
