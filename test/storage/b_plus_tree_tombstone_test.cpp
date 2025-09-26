@@ -55,7 +55,7 @@ TEST(BPlusTreeTests, DISABLED_TombstoneBasicTest) {
   }
 
   std::vector<int64_t> tombstones;
-  auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 2>(tree.FindLeftmostPage(), bpm);
+  auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 2>(tree.GetRootPageId(), bpm);
   while (leaf.Valid()) {
     for (auto t : (*leaf)->GetTombstones()) {
       tombstones.push_back(t.GetAsInteger());
@@ -77,7 +77,7 @@ TEST(BPlusTreeTests, DISABLED_TombstoneBasicTest) {
     tree.Insert(index_key, rid);
   }
 
-  leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 2>(tree.FindLeftmostPage(), bpm);
+  leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 2>(tree.GetRootPageId(), bpm);
   while (leaf.Valid()) {
     EXPECT_EQ((*leaf)->GetTombstones().size(), 0);
     ++leaf;
@@ -95,7 +95,7 @@ TEST(BPlusTreeTests, DISABLED_TombstoneBasicTest) {
 
   to_delete.clear();
   {
-    auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 2>(tree.FindLeftmostPage(), bpm);
+    auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 2>(tree.GetRootPageId(), bpm);
     while (leaf.Valid()) {
       EXPECT_EQ(2, (*leaf)->GetMinSize());
       if ((*leaf)->GetSize() > (*leaf)->GetMinSize()) {
@@ -114,7 +114,7 @@ TEST(BPlusTreeTests, DISABLED_TombstoneBasicTest) {
   }
 
   tombstones.clear();
-  leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 2>(tree.FindLeftmostPage(), bpm);
+  leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 2>(tree.GetRootPageId(), bpm);
   while (leaf.Valid()) {
     for (auto t : (*leaf)->GetTombstones()) {
       tombstones.push_back(t.GetAsInteger());
@@ -138,7 +138,7 @@ TEST(BPlusTreeTests, DISABLED_TombstoneBasicTest) {
     tree.Remove(index_key);
   }
 
-  leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 2>(tree.FindLeftmostPage(), bpm);
+  leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 2>(tree.GetRootPageId(), bpm);
   size_t tot_tombs = 0;
   while (leaf.Valid()) {
     tot_tombs += (*leaf)->GetTombstones().size();
@@ -155,7 +155,7 @@ TEST(BPlusTreeTests, DISABLED_TombstoneBasicTest) {
 }
 
 auto GetNumLeaves(BPlusTree<GenericKey<8>, RID, GenericComparator<8>, 3> &tree, BufferPoolManager *bpm) -> size_t {
-  auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 3>(tree.FindLeftmostPage(), bpm);
+  auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 3>(tree.GetRootPageId(), bpm);
   size_t count = 0;
   while (leaf.Valid()) {
     count++;
@@ -205,7 +205,7 @@ TEST(BPlusTreeTests, DISABLED_TombstoneSplitTest) {
     i++;
   }
 
-  auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 3>(tree.FindLeftmostPage(), bpm);
+  auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 3>(tree.GetRootPageId(), bpm);
   while (leaf.Valid()) {
     std::vector<size_t> expected;
     for (int i = 0; i < (*leaf)->GetSize(); i++) {
@@ -251,7 +251,9 @@ TEST(BPlusTreeTests, DISABLED_TombstoneBorrowTest) {
     tree.Insert(index_key, rid);
   }
 
-  auto left_page = tree.FindLeftmostPage().As<LeafPage>();
+  auto left_pid =
+	GetLeftMostLeafPageId<GenericKey<8>, RID, GenericComparator<8>>(tree.GetRootPageId(), bpm);
+  auto left_page = bpm->ReadPage(left_pid).As<LeafPage>();
   EXPECT_NE(left_page->GetNextPageId(), INVALID_PAGE_ID);
   auto right_page = bpm->ReadPage(left_page->GetNextPageId()).As<LeafPage>();
 
@@ -271,7 +273,7 @@ TEST(BPlusTreeTests, DISABLED_TombstoneBorrowTest) {
   }
 
   std::vector<int64_t> tombstones;
-  auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 1>(tree.FindLeftmostPage(), bpm);
+  auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 1>(tree.GetRootPageId(), bpm);
   while (leaf.Valid()) {
     EXPECT_GE((*leaf)->GetSize(), (*leaf)->GetMinSize());
     for (auto t : (*leaf)->GetTombstones()) {

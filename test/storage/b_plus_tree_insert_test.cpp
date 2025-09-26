@@ -79,7 +79,7 @@ TEST(BPlusTreeTests, DISABLED_OptimisticInsertTest) {
   }
 
   size_t to_insert = num_keys + 1;
-  auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>>(tree.FindLeftmostPage(), bpm);
+  auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>>(tree.GetRootPageId(), bpm);
   while (leaf.Valid()) {
     if (((*leaf)->GetSize() + 1) < (*leaf)->GetMaxSize()) {
       to_insert = (*leaf)->KeyAt(0).GetAsInteger() + 1;
