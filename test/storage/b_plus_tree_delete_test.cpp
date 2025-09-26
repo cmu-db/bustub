@@ -121,14 +121,14 @@ TEST(BPlusTreeTests, DISABLED_OptimisticDeleteTest) {
     ++leaf;
   }
 
-  auto base_reads = tree.bpm_.GetReads();
-  auto base_writes = tree.bpm_.GetWrites();
+  auto base_reads = tree.bpm_->GetReads();
+  auto base_writes = tree.bpm_->GetWrites();
 
   index_key.SetFromInteger(to_delete);
   tree.Remove(index_key);
 
-  auto new_reads = tree.bpm_.GetReads();
-  auto new_writes = tree.bpm_.GetWrites();
+  auto new_reads = tree.bpm_->GetReads();
+  auto new_writes = tree.bpm_->GetWrites();
 
   EXPECT_GT(new_reads - base_reads, 0);
   EXPECT_EQ(new_writes - base_writes, 1);

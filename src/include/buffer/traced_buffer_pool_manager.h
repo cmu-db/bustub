@@ -1,13 +1,14 @@
 #pragma once
 
+#include <atomic>
 #include "./buffer_pool_manager.h"
 
 namespace bustub {
 
 class TracedBufferPoolManager {
  private:
-  size_t reads_ = 0;
-  size_t writes_ = 0;
+  std::atomic<size_t> reads_ = 0;
+  std::atomic<size_t> writes_ = 0;
   BufferPoolManager *bpm_;
 
  public:

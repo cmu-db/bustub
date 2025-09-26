@@ -22,8 +22,10 @@ namespace bustub {
 
 #define B_PLUS_TREE_LEAF_PAGE_TYPE BPlusTreeLeafPage<KeyType, ValueType, KeyComparator, NumTombs>
 #define LEAF_PAGE_HEADER_SIZE 16
-#define LEAF_PAGE_SLOT_CNT                                                                     \
-  ((BUSTUB_PAGE_SIZE - LEAF_PAGE_HEADER_SIZE - sizeof(size_t) - (NumTombs * sizeof(size_t))) / \
+#define LEAF_PAGE_DEFAULT_TOMB_CNT 0
+#define LEAF_PAGE_TOMB_CNT ((NumTombs < 0) ? LEAF_PAGE_DEFAULT_TOMB_CNT : NumTombs)
+#define LEAF_PAGE_SLOT_CNT                                                                               \
+  ((BUSTUB_PAGE_SIZE - LEAF_PAGE_HEADER_SIZE - sizeof(size_t) - (LEAF_PAGE_TOMB_CNT * sizeof(size_t))) / \
    (sizeof(KeyType) + sizeof(ValueType)))  // NOLINT
 
 /**
@@ -101,7 +103,7 @@ class BPlusTreeLeafPage : public BPlusTreePage {
   page_id_t next_page_id_;
   size_t num_tombstones_;
   // Fixed-size tombstone buffer (indexes into key_array_ / rid_array_).
-  size_t tombstones_[NumTombs];
+  size_t tombstones_[LEAF_PAGE_TOMB_CNT];
   // Array members for page data.
   KeyType key_array_[LEAF_PAGE_SLOT_CNT];
   ValueType rid_array_[LEAF_PAGE_SLOT_CNT];

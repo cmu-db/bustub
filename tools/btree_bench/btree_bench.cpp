@@ -156,8 +156,8 @@ auto main(int argc, char **argv) -> int {
 
   page_id_t page_id = bpm->NewPage();
 
-  bustub::BPlusTree<bustub::GenericKey<8>, bustub::RID, bustub::GenericComparator<8>> index("foo_pk", page_id,
-                                                                                            bpm.get(), comparator);
+  bustub::BPlusTree<bustub::GenericKey<8>, bustub::RID, bustub::GenericComparator<8>, -1> index("foo_pk", page_id,
+																								bpm.get(), comparator);
 
   for (size_t key = 0; key < TOTAL_KEYS; key++) {
     bustub::GenericKey<8> index_key;

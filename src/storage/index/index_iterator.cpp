@@ -46,6 +46,7 @@ template class IndexIterator<GenericKey<8>, RID, GenericComparator<8>>;
 template class IndexIterator<GenericKey<8>, RID, GenericComparator<8>, 3>;
 template class IndexIterator<GenericKey<8>, RID, GenericComparator<8>, 2>;
 template class IndexIterator<GenericKey<8>, RID, GenericComparator<8>, 1>;
+template class IndexIterator<GenericKey<8>, RID, GenericComparator<8>, -1>;
 
 template class IndexIterator<GenericKey<16>, RID, GenericComparator<16>>;
 

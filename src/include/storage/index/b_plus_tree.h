@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <deque>
+#include <memory>
 #include <filesystem>
 #include <iostream>
 #include <optional>
@@ -99,8 +100,6 @@ class BPlusTree {
   // Index iterator
   auto Begin() -> INDEXITERATOR_TYPE;
 
-  auto FindLeftmostPage() -> ReadPageGuard;
-
   auto End() -> INDEXITERATOR_TYPE;
 
   auto Begin(const KeyType &key) -> INDEXITERATOR_TYPE;
@@ -120,7 +119,7 @@ class BPlusTree {
   void BatchOpsFromFile(const std::filesystem::path &file_name);
 
   // Do not change this type to a BufferPoolManager!
-  TracedBufferPoolManager bpm_;
+  std::shared_ptr<TracedBufferPoolManager> bpm_;
 
  private:
   void ToGraph(page_id_t page_id, const BPlusTreePage *page, std::ofstream &out);

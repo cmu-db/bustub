@@ -88,16 +88,16 @@ TEST(BPlusTreeTests, DISABLED_OptimisticInsertTest) {
   }
   EXPECT_NE(to_insert, num_keys + 1);
 
-  auto base_reads = tree.bpm_.GetReads();
-  auto base_writes = tree.bpm_.GetWrites();
+  auto base_reads = tree.bpm_->GetReads();
+  auto base_writes = tree.bpm_->GetWrites();
 
   index_key.SetFromInteger(to_insert);
   int64_t value = to_insert & 0xFFFFFFFF;
   rid.Set(static_cast<int32_t>(to_insert >> 32), value);
   tree.Insert(index_key, rid);
 
-  auto new_reads = tree.bpm_.GetReads();
-  auto new_writes = tree.bpm_.GetWrites();
+  auto new_reads = tree.bpm_->GetReads();
+  auto new_writes = tree.bpm_->GetWrites();
 
   EXPECT_GT(new_reads - base_reads, 0);
   EXPECT_EQ(new_writes - base_writes, 1);

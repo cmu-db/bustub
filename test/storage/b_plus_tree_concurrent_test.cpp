@@ -44,7 +44,7 @@ void LaunchParallelTest(uint64_t num_threads, Args &&...args) {
 }
 
 // helper function to insert
-template <size_t Tombs>
+template <ssize_t Tombs>
 void InsertHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> *tree, const std::vector<int64_t> &keys,
                   __attribute__((unused)) uint64_t thread_itr = 0) {
   GenericKey<8> index_key;
@@ -59,7 +59,7 @@ void InsertHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> *tr
 }
 
 // helper function to separate insert
-template <size_t Tombs>
+template <ssize_t Tombs>
 void InsertHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> *tree,
                        const std::vector<int64_t> &keys, int total_threads,
                        __attribute__((unused)) uint64_t thread_itr) {
@@ -77,7 +77,7 @@ void InsertHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs
 }
 
 // helper function to delete
-template <size_t Tombs>
+template <ssize_t Tombs>
 void DeleteHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> *tree,
                   const std::vector<int64_t> &remove_keys, __attribute__((unused)) uint64_t thread_itr = 0) {
   GenericKey<8> index_key;
@@ -89,7 +89,7 @@ void DeleteHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> *tr
 }
 
 // helper function to separate delete
-template <size_t Tombs>
+template <ssize_t Tombs>
 void DeleteHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> *tree,
                        const std::vector<int64_t> &remove_keys, int total_threads,
                        __attribute__((unused)) uint64_t thread_itr) {
@@ -103,7 +103,7 @@ void DeleteHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs
   }
 }
 
-template <size_t Tombs>
+template <ssize_t Tombs>
 void LookupHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> *tree, const std::vector<int64_t> &keys,
                   __attribute__((unused)) uint64_t thread_itr = 0) {
   GenericKey<8> index_key;
@@ -124,7 +124,7 @@ const size_t NUM_ITERS = 50;
 const size_t MIXTEST_NUM_ITERS = 20;
 static const size_t BPM_SIZE = 50;
 
-template <size_t Tombs>
+template <ssize_t Tombs>
 void InsertTest1Call() {
   for (size_t iter = 0; iter < NUM_ITERS; iter++) {
     // create KeyComparator and index schema
@@ -180,7 +180,7 @@ void InsertTest1Call() {
   }
 }
 
-template <size_t Tombs>
+template <ssize_t Tombs>
 void InsertTest2Call() {
   for (size_t iter = 0; iter < NUM_ITERS; iter++) {
     // create KeyComparator and index schema
@@ -236,7 +236,7 @@ void InsertTest2Call() {
   }
 }
 
-template <size_t Tombs>
+template <ssize_t Tombs>
 void DeleteTest1Call() {
   for (size_t iter = 0; iter < NUM_ITERS; iter++) {
     // create KeyComparator and index schema
@@ -281,7 +281,7 @@ void DeleteTest1Call() {
   }
 }
 
-template <size_t Tombs>
+template <ssize_t Tombs>
 void DeleteTest2Call() {
   for (size_t iter = 0; iter < NUM_ITERS; iter++) {
     // create KeyComparator and index schema
@@ -326,7 +326,7 @@ void DeleteTest2Call() {
   }
 }
 
-template <size_t Tombs>
+template <ssize_t Tombs>
 void MixTest1Call() {
   for (size_t iter = 0; iter < MIXTEST_NUM_ITERS; iter++) {
     // create KeyComparator and index schema
@@ -388,7 +388,7 @@ void MixTest1Call() {
   }
 }
 
-template <size_t Tombs>
+template <ssize_t Tombs>
 void MixTest2Call() {
   for (size_t iter = 0; iter < MIXTEST_NUM_ITERS; iter++) {
     // create KeyComparator and index schema

@@ -109,7 +109,7 @@ void BPLUSTREE_TYPE::PrintTree(page_id_t page_id, const BPlusTreePage *page) {
     std::cout << std::endl;
     std::cout << std::endl;
     for (int i = 0; i < internal->GetSize(); i++) {
-      auto guard = bpm_.ReadPage(internal->ValueAt(i));
+      auto guard = bpm_->ReadPage(internal->ValueAt(i));
       PrintTree(guard.GetPageId(), guard.template As<BPlusTreePage>());
     }
   }
@@ -190,11 +190,11 @@ void BPLUSTREE_TYPE::ToGraph(page_id_t page_id, const BPlusTreePage *page, std::
     out << "</TABLE>>];\n";
     // Print leaves
     for (int i = 0; i < inner->GetSize(); i++) {
-      auto child_guard = bpm_.ReadPage(inner->ValueAt(i));
+      auto child_guard = bpm_->ReadPage(inner->ValueAt(i));
       auto child_page = child_guard.template As<BPlusTreePage>();
       ToGraph(child_guard.GetPageId(), child_page, out);
       if (i > 0) {
-        auto sibling_guard = bpm_.ReadPage(inner->ValueAt(i - 1));
+        auto sibling_guard = bpm_->ReadPage(inner->ValueAt(i - 1));
         auto sibling_page = sibling_guard.template As<BPlusTreePage>();
         if (!sibling_page->IsLeafPage() && !child_page->IsLeafPage()) {
           out << "{rank=same " << internal_prefix << sibling_guard.GetPageId() << " " << internal_prefix
@@ -284,7 +284,7 @@ void BPLUSTREE_TYPE::BatchOpsFromFile(const std::filesystem::path &file_name) {
  */
 FULL_INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::ToPrintableBPlusTree(page_id_t root_id) -> PrintableBPlusTree {
-  auto root_page_guard = bpm_.ReadPage(root_id);
+  auto root_page_guard = bpm_->ReadPage(root_id);
   auto root_page = root_page_guard.template As<BPlusTreePage>();
   PrintableBPlusTree proot;
 

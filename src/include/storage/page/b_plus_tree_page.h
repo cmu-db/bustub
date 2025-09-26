@@ -25,9 +25,9 @@ namespace bustub {
 #define MappingType std::pair<KeyType, ValueType>
 
 #define FULL_INDEX_TEMPLATE_ARGUMENTS_DEFN \
-  template <typename KeyType, typename ValueType, typename KeyComparator, size_t NumTombs = 0>
+  template <typename KeyType, typename ValueType, typename KeyComparator, ssize_t NumTombs = 0>
 #define FULL_INDEX_TEMPLATE_ARGUMENTS \
-  template <typename KeyType, typename ValueType, typename KeyComparator, size_t NumTombs>
+  template <typename KeyType, typename ValueType, typename KeyComparator, ssize_t NumTombs>
 #define INDEX_TEMPLATE_ARGUMENTS template <typename KeyType, typename ValueType, typename KeyComparator>
 
 // define page type enum

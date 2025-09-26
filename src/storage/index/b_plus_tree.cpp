@@ -10,6 +10,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "buffer/traced_buffer_pool_manager.h"
 #include "storage/index/b_plus_tree.h"
 #include "storage/index/b_plus_tree_debug.h"
 
@@ -18,13 +19,13 @@ namespace bustub {
 FULL_INDEX_TEMPLATE_ARGUMENTS
 BPLUSTREE_TYPE::BPlusTree(std::string name, page_id_t header_page_id, BufferPoolManager *buffer_pool_manager,
                           const KeyComparator &comparator, int leaf_max_size, int internal_max_size)
-    : bpm_(buffer_pool_manager),
+    : bpm_(std::make_shared<TracedBufferPoolManager>(buffer_pool_manager)),
       index_name_(std::move(name)),
       comparator_(std::move(comparator)),
       leaf_max_size_(leaf_max_size),
       internal_max_size_(internal_max_size),
       header_page_id_(header_page_id) {
-  WritePageGuard guard = bpm_.WritePage(header_page_id_);
+  WritePageGuard guard = bpm_->WritePage(header_page_id_);
   auto root_page = guard.AsMut<BPlusTreeHeaderPage>();
   root_page->root_page_id_ = INVALID_PAGE_ID;
 }
@@ -146,6 +147,7 @@ template class BPlusTree<GenericKey<8>, RID, GenericComparator<8>>;
 template class BPlusTree<GenericKey<8>, RID, GenericComparator<8>, 3>;
 template class BPlusTree<GenericKey<8>, RID, GenericComparator<8>, 2>;
 template class BPlusTree<GenericKey<8>, RID, GenericComparator<8>, 1>;
+template class BPlusTree<GenericKey<8>, RID, GenericComparator<8>, -1>;
 
 template class BPlusTree<GenericKey<16>, RID, GenericComparator<16>>;
 
