@@ -131,13 +131,11 @@ class IndexLeaves {
   BufferPoolManager *buffer_pool_manager_;
   std::optional<ReadPageGuard> guard_;
 
-  IndexLeaves(page_id_t root_page, BufferPoolManager *buffer_pool_manager)
-	: buffer_pool_manager_(buffer_pool_manager)
-  {
-	auto pid = GetLeftMostLeafPageId<KeyType, ValueType, KeyComparator>(root_page, buffer_pool_manager);
-	guard_ = buffer_pool_manager->ReadPage(pid);
+  IndexLeaves(page_id_t root_page, BufferPoolManager *buffer_pool_manager) : buffer_pool_manager_(buffer_pool_manager) {
+    auto pid = GetLeftMostLeafPageId<KeyType, ValueType, KeyComparator>(root_page, buffer_pool_manager);
+    guard_ = buffer_pool_manager->ReadPage(pid);
   }
-  
+
   ~IndexLeaves() = default;
 
   IndexLeaves(IndexLeaves &&) noexcept = default;

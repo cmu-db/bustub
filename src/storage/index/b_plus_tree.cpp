@@ -10,8 +10,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "buffer/traced_buffer_pool_manager.h"
 #include "storage/index/b_plus_tree.h"
+#include "buffer/traced_buffer_pool_manager.h"
 #include "storage/index/b_plus_tree_debug.h"
 
 namespace bustub {
@@ -99,13 +99,6 @@ void BPLUSTREE_TYPE::Remove(const KeyType &key) {
 /*****************************************************************************
  * INDEX ITERATOR
  *****************************************************************************/
-/**
- * @brief Testing function that is only called on nonempty trees.
- * @return read page guard for the leftmost leaf page in tree.
- */
-FULL_INDEX_TEMPLATE_ARGUMENTS
-auto BPLUSTREE_TYPE::FindLeftmostPage() -> ReadPageGuard { UNIMPLEMENTED("TODO(P2): Add implementation."); }
-
 /**
  * @brief Input parameter is void, find the leftmost leaf page first, then construct
  * index iterator

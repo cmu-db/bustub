@@ -251,8 +251,7 @@ TEST(BPlusTreeTests, DISABLED_TombstoneBorrowTest) {
     tree.Insert(index_key, rid);
   }
 
-  auto left_pid =
-	GetLeftMostLeafPageId<GenericKey<8>, RID, GenericComparator<8>>(tree.GetRootPageId(), bpm);
+  auto left_pid = GetLeftMostLeafPageId<GenericKey<8>, RID, GenericComparator<8>>(tree.GetRootPageId(), bpm);
   auto left_page = bpm->ReadPage(left_pid).As<LeafPage>();
   EXPECT_NE(left_page->GetNextPageId(), INVALID_PAGE_ID);
   auto right_page = bpm->ReadPage(left_page->GetNextPageId()).As<LeafPage>();
