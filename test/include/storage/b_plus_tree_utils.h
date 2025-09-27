@@ -163,4 +163,15 @@ class IndexLeaves {
   auto Valid() -> bool { return guard_.has_value(); }
 };
 
+FULL_INDEX_TEMPLATE_ARGUMENTS
+auto GetNumLeaves(BPlusTree<KeyType, ValueType, KeyComparator, NumTombs> &tree, BufferPoolManager *bpm) -> size_t {
+  auto leaf = IndexLeaves<KeyType, ValueType, KeyComparator, NumTombs>(tree.GetRootPageId(), bpm);
+  size_t count = 0;
+  while (leaf.Valid()) {
+    count++;
+    ++leaf;
+  }
+  return count;
+}
+
 }  // namespace bustub

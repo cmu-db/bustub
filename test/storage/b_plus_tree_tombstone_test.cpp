@@ -8,6 +8,7 @@
 #include "storage/index/b_plus_tree.h"
 #include "storage/index/generic_key.h"
 #include "storage/page/b_plus_tree_leaf_page.h"
+#include "storage/page/page_guard.h"
 #include "test_util.h"  // NOLINT
 
 namespace bustub {
@@ -154,16 +155,6 @@ TEST(BPlusTreeTests, DISABLED_TombstoneBasicTest) {
   delete disk_manager;
 }
 
-auto GetNumLeaves(BPlusTree<GenericKey<8>, RID, GenericComparator<8>, 3> &tree, BufferPoolManager *bpm) -> size_t {
-  auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 3>(tree.GetRootPageId(), bpm);
-  size_t count = 0;
-  while (leaf.Valid()) {
-    count++;
-    ++leaf;
-  }
-  return count;
-}
-
 TEST(BPlusTreeTests, DISABLED_TombstoneSplitTest) {
   auto key_schema = ParseCreateStatement("a bigint");
   GenericComparator<8> comparator(key_schema.get());
@@ -195,7 +186,6 @@ TEST(BPlusTreeTests, DISABLED_TombstoneSplitTest) {
   index_key.SetFromInteger(0);
   tree.Remove(index_key);
 
-  // Don't know when split will happen, so try both.
   size_t i = 4;
   while (GetNumLeaves(tree, bpm) < 2 && i < 6) {
     int64_t value = i & 0xFFFFFFFF;
@@ -283,6 +273,88 @@ TEST(BPlusTreeTests, DISABLED_TombstoneBorrowTest) {
 
   EXPECT_EQ(tombstones.size(), 1);
   EXPECT_EQ(tombstones[0], to_remove[0].GetAsInteger());
+
+  delete bpm;
+  delete disk_manager;
+}
+
+TEST(BPlusTreeTests, DISABLED_TombstoneCoalesceTest) {
+  using LeafPage = BPlusTreeLeafPage<GenericKey<8>, RID, GenericComparator<8>, 2>;
+  auto key_schema = ParseCreateStatement("a bigint");
+  GenericComparator<8> comparator(key_schema.get());
+
+  auto *disk_manager = new DiskManagerUnlimitedMemory();
+  auto *bpm = new BufferPoolManager(50, disk_manager);
+
+  // create and fetch header_page
+  page_id_t page_id = bpm->NewPage();
+
+  // create b+ tree
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>, 2> tree("foo_pk", page_id, bpm, comparator, 6, 6);
+  GenericKey<8> index_key;
+  RID rid;
+
+  size_t num_keys = 7;
+  for (size_t i = 0; i < num_keys; i++) {
+    int64_t value = i & 0xFFFFFFFF;
+    rid.Set(static_cast<int32_t>(i >> 32), value);
+    index_key.SetFromInteger(i);
+    tree.Insert(index_key, rid);
+  }
+
+  page_id_t larger_pid;
+  page_id_t smaller_pid;
+  auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 2>(tree.GetRootPageId(), bpm);
+  while (leaf.Valid()) {
+    if ((*leaf)->GetSize() == 4) {
+      larger_pid = leaf.guard_->GetPageId();
+    } else {
+      smaller_pid = leaf.guard_->GetPageId();
+    }
+    ++leaf;
+  }
+
+  std::vector<GenericKey<8>> to_delete;
+  {
+    auto larger_page = bpm->ReadPage(larger_pid).As<LeafPage>();
+    auto smaller_page = bpm->ReadPage(smaller_pid).As<LeafPage>();
+    for (size_t i = 0; i < 2; i++) {
+      to_delete.push_back(larger_page->KeyAt(2 + i));
+      to_delete.push_back(smaller_page->KeyAt(i));
+    }
+    to_delete.push_back(larger_page->KeyAt(0));
+    to_delete.push_back(smaller_page->KeyAt(2));
+  }
+  for (auto k : to_delete) {
+    tree.Remove(k);
+  }
+
+  size_t num_leaves = 0;
+  page_id_t remaining_pid;
+  leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 2>(tree.GetRootPageId(), bpm);
+  while (leaf.Valid()) {
+    remaining_pid = leaf.guard_->GetPageId();
+    num_leaves++;
+    ++leaf;
+  }
+
+  EXPECT_EQ(num_leaves, 1);
+  auto page = bpm->ReadPage(remaining_pid).As<LeafPage>();
+  auto tombstones = page->GetTombstones();
+  EXPECT_EQ(tombstones.size(), 2);
+  if (remaining_pid == smaller_pid) {
+    EXPECT_EQ(tombstones[0].GetAsInteger(), to_delete[2].GetAsInteger());
+    EXPECT_EQ(tombstones[1].GetAsInteger(), to_delete[4].GetAsInteger());
+    index_key.SetFromInteger(7);
+    int64_t value = 7 & 0xFFFFFFFF;
+    rid.Set(static_cast<int32_t>(7L >> 32), value);
+    tree.Insert(index_key, rid);
+    EXPECT_EQ(tombstones[0].GetAsInteger(), to_delete[2].GetAsInteger());
+    EXPECT_EQ(tombstones[1].GetAsInteger(), to_delete[4].GetAsInteger());
+  } else {
+    EXPECT_EQ(tombstones[0].GetAsInteger(), to_delete[3].GetAsInteger());
+    EXPECT_EQ(tombstones[1].GetAsInteger(), to_delete[5].GetAsInteger());
+  }
 
   delete bpm;
   delete disk_manager;
