@@ -40,7 +40,9 @@ auto UsageMessage() -> std::string {
       "\tp -- Print the B+ tree.\n"
       "\tq -- Quit. (Or use Ctrl-D.)\n"
       "\t? -- Print this help message.\n\n"
-      "Please Enter Leaf node max size and Internal node max size:\n"
+	  "Note: if you want to test out different tombstone buffer sizes you must modify the "
+	  "tools/b_plus_tree_printer.cpp file yourself first.\n"
+      "Please enter leaf node max size and internal node max size:\n"
       "Example: 5 5\n"
       "> ";
   return message;
@@ -77,8 +79,8 @@ auto main(int argc, char **argv) -> int {
   // create and fetch header_page
   page_id_t root_pid = bpm->NewPage();
   // create b+ tree
-  BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", root_pid, bpm, comparator, leaf_max_size,
-                                                           internal_max_size);
+  BPlusTree<GenericKey<8>, RID, GenericComparator<8>,2> tree("foo_pk", root_pid, bpm, comparator, leaf_max_size,
+															 internal_max_size);
 
   while (!quit) {
     std::cout << "> ";

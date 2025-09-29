@@ -75,14 +75,24 @@ class BPlusTreeLeafPage : public BPlusTreePage {
   auto KeyAt(int index) const -> KeyType;
 
   /**
-   * @brief For test only return a string representing all keys in
-   * this leaf page formatted as "(key1,key2,key3,...)"
+   * @brief for test only return a string representing all keys in
+   * this leaf page formatted as "(tombkey1, tombkey2, ...|key1,key2,key3,...)"
    *
-   * @return The string representation of all keys in the current internal page
+   * @return std::string
    */
   auto ToString() const -> std::string {
     std::string kstr = "(";
     bool first = true;
+
+	auto tombs = GetTombstones();
+	for (size_t i = 0; i < tombs.size(); i++) {
+	  kstr.append(std::to_string(tombs[i].ToString()));
+	  if ((i + 1) < tombs.size()) {
+		kstr.append(",");
+	  }
+	}
+
+	kstr.append("|");
 
     for (int i = 0; i < GetSize(); i++) {
       KeyType key = KeyAt(i);
