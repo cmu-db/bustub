@@ -11,15 +11,16 @@
 //===----------------------------------------------------------------------===//
 
 #include "storage/index/b_plus_tree.h"
+#include "buffer/traced_buffer_pool_manager.h"
 #include "storage/index/b_plus_tree_debug.h"
 
 namespace bustub {
 
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS
 BPLUSTREE_TYPE::BPlusTree(std::string name, page_id_t header_page_id, BufferPoolManager *buffer_pool_manager,
                           const KeyComparator &comparator, int leaf_max_size, int internal_max_size)
-    : index_name_(std::move(name)),
-      bpm_(buffer_pool_manager),
+    : bpm_(std::make_shared<TracedBufferPoolManager>(buffer_pool_manager)),
+      index_name_(std::move(name)),
       comparator_(std::move(comparator)),
       leaf_max_size_(leaf_max_size),
       internal_max_size_(internal_max_size),
@@ -33,7 +34,7 @@ BPLUSTREE_TYPE::BPlusTree(std::string name, page_id_t header_page_id, BufferPool
  * @brief Helper function to decide whether current b+tree is empty
  * @return Returns true if this B+ tree has no keys and values.
  */
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::IsEmpty() const -> bool { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
 /*****************************************************************************
@@ -48,7 +49,7 @@ auto BPLUSTREE_TYPE::IsEmpty() const -> bool { UNIMPLEMENTED("TODO(P2): Add impl
  * @param[out] result vector that stores the only value that associated with input key, if the value exists
  * @return : true means key exists
  */
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::GetValue(const KeyType &key, std::vector<ValueType> *result) -> bool {
   UNIMPLEMENTED("TODO(P2): Add implementation.");
   // Declaration of context instance. Using the Context is not necessary but advised.
@@ -69,7 +70,7 @@ auto BPLUSTREE_TYPE::GetValue(const KeyType &key, std::vector<ValueType> *result
  * @return: since we only support unique key, if user try to insert duplicate
  * keys return false; otherwise, return true.
  */
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::Insert(const KeyType &key, const ValueType &value) -> bool {
   UNIMPLEMENTED("TODO(P2): Add implementation.");
   // Declaration of context instance. Using the Context is not necessary but advised.
@@ -88,7 +89,7 @@ auto BPLUSTREE_TYPE::Insert(const KeyType &key, const ValueType &value) -> bool 
  *
  * @param key input key
  */
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS
 void BPLUSTREE_TYPE::Remove(const KeyType &key) {
   // Declaration of context instance.
   Context ctx;
@@ -106,7 +107,7 @@ void BPLUSTREE_TYPE::Remove(const KeyType &key) {
  *
  * @return : index iterator
  */
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::Begin() -> INDEXITERATOR_TYPE { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
 /**
@@ -114,7 +115,7 @@ auto BPLUSTREE_TYPE::Begin() -> INDEXITERATOR_TYPE { UNIMPLEMENTED("TODO(P2): Ad
  * first, then construct index iterator
  * @return : index iterator
  */
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::Begin(const KeyType &key) -> INDEXITERATOR_TYPE { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
 /**
@@ -122,7 +123,7 @@ auto BPLUSTREE_TYPE::Begin(const KeyType &key) -> INDEXITERATOR_TYPE { UNIMPLEME
  * of the key/value pair in the leaf node
  * @return : index iterator
  */
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::End() -> INDEXITERATOR_TYPE { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
 /**
@@ -130,12 +131,16 @@ auto BPLUSTREE_TYPE::End() -> INDEXITERATOR_TYPE { UNIMPLEMENTED("TODO(P2): Add 
  *
  * You may want to implement this while implementing Task #3.
  */
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::GetRootPageId() -> page_id_t { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
 template class BPlusTree<GenericKey<4>, RID, GenericComparator<4>>;
 
 template class BPlusTree<GenericKey<8>, RID, GenericComparator<8>>;
+template class BPlusTree<GenericKey<8>, RID, GenericComparator<8>, 3>;
+template class BPlusTree<GenericKey<8>, RID, GenericComparator<8>, 2>;
+template class BPlusTree<GenericKey<8>, RID, GenericComparator<8>, 1>;
+template class BPlusTree<GenericKey<8>, RID, GenericComparator<8>, -1>;
 
 template class BPlusTree<GenericKey<16>, RID, GenericComparator<16>>;
 

@@ -26,6 +26,7 @@
 #include <deque>
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <optional>
 #include <queue>
 #include <shared_mutex>
@@ -68,10 +69,10 @@ class Context {
   auto IsRootPage(page_id_t page_id) -> bool { return page_id == root_page_id_; }
 };
 
-#define BPLUSTREE_TYPE BPlusTree<KeyType, ValueType, KeyComparator>
+#define BPLUSTREE_TYPE BPlusTree<KeyType, ValueType, KeyComparator, NumTombs>
 
 // Main class providing the API for the Interactive B+ Tree.
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS_DEFN
 class BPlusTree {
   using InternalPage = BPlusTreeInternalPage<KeyType, page_id_t, KeyComparator>;
   using LeafPage = BPlusTreeLeafPage<KeyType, ValueType, KeyComparator>;
@@ -117,6 +118,9 @@ class BPlusTree {
 
   void BatchOpsFromFile(const std::filesystem::path &file_name);
 
+  // Do not change this type to a BufferPoolManager!
+  std::shared_ptr<TracedBufferPoolManager> bpm_;
+
  private:
   void ToGraph(page_id_t page_id, const BPlusTreePage *page, std::ofstream &out);
 
@@ -126,7 +130,6 @@ class BPlusTree {
 
   // member variable
   std::string index_name_;
-  BufferPoolManager *bpm_;
   KeyComparator comparator_;
   std::vector<std::string> log;  // NOLINT
   int leaf_max_size_;

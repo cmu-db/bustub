@@ -23,26 +23,30 @@ namespace bustub {
  * @note you can change the destructor/constructor method here
  * set your own input parameters
  */
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS
 INDEXITERATOR_TYPE::IndexIterator() = default;
 
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS
 INDEXITERATOR_TYPE::~IndexIterator() = default;  // NOLINT
 
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS
 auto INDEXITERATOR_TYPE::IsEnd() -> bool { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS
 auto INDEXITERATOR_TYPE::operator*() -> std::pair<const KeyType &, const ValueType &> {
   UNIMPLEMENTED("TODO(P2): Add implementation.");
 }
 
-INDEX_TEMPLATE_ARGUMENTS
+FULL_INDEX_TEMPLATE_ARGUMENTS
 auto INDEXITERATOR_TYPE::operator++() -> INDEXITERATOR_TYPE & { UNIMPLEMENTED("TODO(P2): Add implementation."); }
 
 template class IndexIterator<GenericKey<4>, RID, GenericComparator<4>>;
 
 template class IndexIterator<GenericKey<8>, RID, GenericComparator<8>>;
+template class IndexIterator<GenericKey<8>, RID, GenericComparator<8>, 3>;
+template class IndexIterator<GenericKey<8>, RID, GenericComparator<8>, 2>;
+template class IndexIterator<GenericKey<8>, RID, GenericComparator<8>, 1>;
+template class IndexIterator<GenericKey<8>, RID, GenericComparator<8>, -1>;
 
 template class IndexIterator<GenericKey<16>, RID, GenericComparator<16>>;
 

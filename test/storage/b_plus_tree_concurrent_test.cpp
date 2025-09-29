@@ -44,7 +44,8 @@ void LaunchParallelTest(uint64_t num_threads, Args &&...args) {
 }
 
 // helper function to insert
-void InsertHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, const std::vector<int64_t> &keys,
+template <ssize_t Tombs>
+void InsertHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> *tree, const std::vector<int64_t> &keys,
                   __attribute__((unused)) uint64_t thread_itr = 0) {
   GenericKey<8> index_key;
   RID rid;
@@ -58,8 +59,10 @@ void InsertHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, con
 }
 
 // helper function to separate insert
-void InsertHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, const std::vector<int64_t> &keys,
-                       int total_threads, __attribute__((unused)) uint64_t thread_itr) {
+template <ssize_t Tombs>
+void InsertHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> *tree,
+                       const std::vector<int64_t> &keys, int total_threads,
+                       __attribute__((unused)) uint64_t thread_itr) {
   GenericKey<8> index_key;
   RID rid;
 
@@ -74,8 +77,9 @@ void InsertHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree
 }
 
 // helper function to delete
-void DeleteHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, const std::vector<int64_t> &remove_keys,
-                  __attribute__((unused)) uint64_t thread_itr = 0) {
+template <ssize_t Tombs>
+void DeleteHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> *tree,
+                  const std::vector<int64_t> &remove_keys, __attribute__((unused)) uint64_t thread_itr = 0) {
   GenericKey<8> index_key;
 
   for (auto key : remove_keys) {
@@ -85,7 +89,8 @@ void DeleteHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, con
 }
 
 // helper function to separate delete
-void DeleteHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree,
+template <ssize_t Tombs>
+void DeleteHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> *tree,
                        const std::vector<int64_t> &remove_keys, int total_threads,
                        __attribute__((unused)) uint64_t thread_itr) {
   GenericKey<8> index_key;
@@ -98,7 +103,8 @@ void DeleteHelperSplit(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree
   }
 }
 
-void LookupHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> *tree, const std::vector<int64_t> &keys,
+template <ssize_t Tombs>
+void LookupHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> *tree, const std::vector<int64_t> &keys,
                   __attribute__((unused)) uint64_t thread_itr = 0) {
   GenericKey<8> index_key;
   RID rid;
@@ -118,6 +124,7 @@ const size_t NUM_ITERS = 50;
 const size_t MIXTEST_NUM_ITERS = 20;
 static const size_t BPM_SIZE = 50;
 
+template <ssize_t Tombs>
 void InsertTest1Call() {
   for (size_t iter = 0; iter < NUM_ITERS; iter++) {
     // create KeyComparator and index schema
@@ -131,7 +138,7 @@ void InsertTest1Call() {
     page_id_t page_id = bpm->NewPage();
 
     // create b+ tree
-    BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, 3, 5);
+    BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> tree("foo_pk", page_id, bpm, comparator, 3, 5);
 
     // keys to Insert
     std::vector<int64_t> keys;
@@ -139,7 +146,7 @@ void InsertTest1Call() {
     for (int64_t key = 1; key < scale_factor; key++) {
       keys.push_back(key);
     }
-    LaunchParallelTest(2, InsertHelper, &tree, keys);
+    LaunchParallelTest(2, InsertHelper<Tombs>, &tree, keys);
 
     std::vector<RID> rids;
     GenericKey<8> index_key;
@@ -173,6 +180,7 @@ void InsertTest1Call() {
   }
 }
 
+template <ssize_t Tombs>
 void InsertTest2Call() {
   for (size_t iter = 0; iter < NUM_ITERS; iter++) {
     // create KeyComparator and index schema
@@ -186,7 +194,7 @@ void InsertTest2Call() {
     page_id_t page_id = bpm->NewPage();
 
     // create b+ tree
-    BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, 3, 5);
+    BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> tree("foo_pk", page_id, bpm, comparator, 3, 5);
 
     // keys to Insert
     std::vector<int64_t> keys;
@@ -194,7 +202,7 @@ void InsertTest2Call() {
     for (int64_t key = 1; key < scale_factor; key++) {
       keys.push_back(key);
     }
-    LaunchParallelTest(2, InsertHelperSplit, &tree, keys, 2);
+    LaunchParallelTest(2, InsertHelperSplit<Tombs>, &tree, keys, 2);
 
     std::vector<RID> rids;
     GenericKey<8> index_key;
@@ -228,6 +236,7 @@ void InsertTest2Call() {
   }
 }
 
+template <ssize_t Tombs>
 void DeleteTest1Call() {
   for (size_t iter = 0; iter < NUM_ITERS; iter++) {
     // create KeyComparator and index schema
@@ -241,14 +250,14 @@ void DeleteTest1Call() {
     page_id_t page_id = bpm->NewPage();
 
     // create b+ tree
-    BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, 3, 5);
+    BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> tree("foo_pk", page_id, bpm, comparator, 3, 5);
 
     // sequential insert
     std::vector<int64_t> keys = {1, 2, 3, 4, 5};
     InsertHelper(&tree, keys);
 
     std::vector<int64_t> remove_keys = {1, 5, 3, 4};
-    LaunchParallelTest(2, DeleteHelper, &tree, remove_keys);
+    LaunchParallelTest(2, DeleteHelper<Tombs>, &tree, remove_keys);
 
     int64_t start_key = 2;
     int64_t current_key = start_key;
@@ -272,6 +281,7 @@ void DeleteTest1Call() {
   }
 }
 
+template <ssize_t Tombs>
 void DeleteTest2Call() {
   for (size_t iter = 0; iter < NUM_ITERS; iter++) {
     // create KeyComparator and index schema
@@ -285,14 +295,14 @@ void DeleteTest2Call() {
     page_id_t page_id = bpm->NewPage();
 
     // create b+ tree
-    BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, 3, 5);
+    BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> tree("foo_pk", page_id, bpm, comparator, 3, 5);
 
     // sequential insert
     std::vector<int64_t> keys = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     InsertHelper(&tree, keys);
 
     std::vector<int64_t> remove_keys = {1, 4, 3, 2, 5, 6};
-    LaunchParallelTest(2, DeleteHelperSplit, &tree, remove_keys, 2);
+    LaunchParallelTest(2, DeleteHelperSplit<Tombs>, &tree, remove_keys, 2);
 
     int64_t start_key = 7;
     int64_t current_key = start_key;
@@ -316,6 +326,7 @@ void DeleteTest2Call() {
   }
 }
 
+template <ssize_t Tombs>
 void MixTest1Call() {
   for (size_t iter = 0; iter < MIXTEST_NUM_ITERS; iter++) {
     // create KeyComparator and index schema
@@ -329,7 +340,7 @@ void MixTest1Call() {
     page_id_t page_id = bpm->NewPage();
 
     // create b+ tree
-    BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator, 3, 5);
+    BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> tree("foo_pk", page_id, bpm, comparator, 3, 5);
 
     // first, populate index
     std::vector<int64_t> for_insert;
@@ -377,6 +388,7 @@ void MixTest1Call() {
   }
 }
 
+template <ssize_t Tombs>
 void MixTest2Call() {
   for (size_t iter = 0; iter < MIXTEST_NUM_ITERS; iter++) {
     // create KeyComparator and index schema
@@ -390,13 +402,13 @@ void MixTest2Call() {
     page_id_t page_id = bpm->NewPage();
 
     // create b+ tree
-    BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", page_id, bpm, comparator);
+    BPlusTree<GenericKey<8>, RID, GenericComparator<8>, Tombs> tree("foo_pk", page_id, bpm, comparator);
 
     // Add preserved_keys
     std::vector<int64_t> preserved_keys;
     std::vector<int64_t> dynamic_keys;
     int64_t total_keys = 1000;
-    int64_t sieve = 5;
+    int64_t sieve = 10;
     for (int64_t i = 1; i <= total_keys; i++) {
       if (i % sieve == 0) {
         preserved_keys.push_back(i);
@@ -444,26 +456,32 @@ void MixTest2Call() {
 }
 
 TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest1) {  // NOLINT
-  InsertTest1Call();
+  InsertTest1Call<0>();
+  InsertTest1Call<3>();
 }
 
 TEST(BPlusTreeConcurrentTest, DISABLED_InsertTest2) {  // NOLINT
-  InsertTest2Call();
+  InsertTest2Call<0>();
+  InsertTest2Call<3>();
 }
 
 TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest1) {  // NOLINT
-  DeleteTest1Call();
+  DeleteTest1Call<0>();
+  DeleteTest1Call<3>();
 }
 
 TEST(BPlusTreeConcurrentTest, DISABLED_DeleteTest2) {  // NOLINT
-  DeleteTest2Call();
+  DeleteTest2Call<0>();
+  DeleteTest2Call<3>();
 }
 
 TEST(BPlusTreeConcurrentTest, DISABLED_MixTest1) {  // NOLINT
-  MixTest1Call();
+  MixTest1Call<0>();
+  MixTest1Call<3>();
 }
 
 TEST(BPlusTreeConcurrentTest, DISABLED_MixTest2) {  // NOLINT
-  MixTest2Call();
+  MixTest2Call<0>();
+  MixTest2Call<3>();
 }
 }  // namespace bustub
