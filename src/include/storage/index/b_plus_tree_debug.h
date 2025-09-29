@@ -87,11 +87,11 @@ void BPLUSTREE_TYPE::PrintTree(page_id_t page_id, const BPlusTreePage *page) {
         std::cout << ", ";
       }
     }
-	std::cout << std::endl;
-	std::cout << "Tombstoned keys: ";
-	auto tombs = leaf->GetTombstones();
+    std::cout << std::endl;
+    std::cout << "Tombstoned keys: ";
+    auto tombs = leaf->GetTombstones();
     for (size_t i = 0; i < tombs.size(); i++) {
-	  std::cout << tombs[i];
+      std::cout << tombs[i];
       if ((i + 1) < tombs.size()) {
         std::cout << ", ";
       }

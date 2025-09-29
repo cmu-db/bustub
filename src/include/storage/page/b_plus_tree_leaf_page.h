@@ -84,15 +84,15 @@ class BPlusTreeLeafPage : public BPlusTreePage {
     std::string kstr = "(";
     bool first = true;
 
-	auto tombs = GetTombstones();
-	for (size_t i = 0; i < tombs.size(); i++) {
-	  kstr.append(std::to_string(tombs[i].ToString()));
-	  if ((i + 1) < tombs.size()) {
-		kstr.append(",");
-	  }
-	}
+    auto tombs = GetTombstones();
+    for (size_t i = 0; i < tombs.size(); i++) {
+      kstr.append(std::to_string(tombs[i].ToString()));
+      if ((i + 1) < tombs.size()) {
+        kstr.append(",");
+      }
+    }
 
-	kstr.append("|");
+    kstr.append("|");
 
     for (int i = 0; i < GetSize(); i++) {
       KeyType key = KeyAt(i);
