@@ -159,6 +159,21 @@ void BPLUSTREE_TYPE::ToGraph(page_id_t page_id, const BPlusTreePage *page, std::
     out << "<TR><TD COLSPAN=\"" << leaf->GetSize() << "\">"
         << "max_size=" << leaf->GetMaxSize() << ",min_size=" << leaf->GetMinSize() << ",size=" << leaf->GetSize()
         << "</TD></TR>\n";
+
+    auto tombs = leaf->GetTombstones();
+    out << "<TR>";
+    for (size_t i = 0; i < tombs.size(); i++) {
+      out << "<TD>" << tombs[i] << "</TD>\n";
+    }
+    if (static_cast<size_t>(leaf->GetSize()) > tombs.size()) {
+      out << "<TD COLSPAN=\"" << leaf->GetSize() - tombs.size() << "\"> </TD>";
+    }
+    out << "</TR>";
+    out << "<TR>";
+    for (int i = 0; i < leaf->GetSize(); i++) {
+      out << "<TD>" << leaf->KeyAt(i) << "</TD>\n";
+    }
+    out << "</TR>";
     out << "<TR>";
     for (int i = 0; i < leaf->GetSize(); i++) {
       out << "<TD>" << leaf->KeyAt(i) << "</TD>\n";
