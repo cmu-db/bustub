@@ -74,7 +74,7 @@ TEST(BPlusTreeTests, DISABLED_OptimisticInsertTest) {
   for (size_t i = 0; i < num_keys; i++) {
     int64_t value = i & 0xFFFFFFFF;
     rid.Set(static_cast<int32_t>(i >> 32), value);
-    index_key.SetFromInteger(i);
+    index_key.SetFromInteger(2 * i);
     tree.Insert(index_key, rid);
   }
 
