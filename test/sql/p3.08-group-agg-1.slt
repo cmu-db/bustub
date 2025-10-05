@@ -4,11 +4,11 @@
 # "rowsort" means that the order of result doesn't matter.
 
 query rowsort
-select office_hour, count(*) from __mock_table_tas_2025_spring group by office_hour;
+select office_hour, count(*) from __mock_table_tas_2025_fall group by office_hour;
 ----
-Tuesday 2
+Tuesday 3
 Friday 2
-Monday 2
+Monday 1
 Wednesday 1
 Thursday 1
 

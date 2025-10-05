@@ -54,6 +54,30 @@ query
 select * from temp_1 order by col1;
 ----
 
+# testing sort on null / varchar
+
+query
+select * from __mock_table_tas_2025_fall order by github_id limit 5;
+----
+17zhangw Tuesday 
+MrWhitezz Wednesday 
+notSaranshMalik Friday 
+quantumish Monday 
+rayhhome Friday
+
+query
+select * from __mock_table_4 order by colH desc, colG nulls first limit 10;
+----
+integer_null 💩💩💩 
+integer_null 💩💩💩 
+integer_null 💩💩💩 
+integer_null 💩💩💩 
+integer_null 💩💩💩 
+integer_null 💩💩💩 
+integer_null 💩💩💩 
+1 💩💩💩 
+1 💩💩💩 
+1 💩💩💩
 
 statement ok
 insert into temp_1 values
