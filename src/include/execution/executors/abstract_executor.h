@@ -45,7 +45,7 @@ class AbstractExecutor {
    * @param[out] rid The next tuple RID produced by this executor
    * @return `true` if a tuple was produced, `false` if there are no more tuples
    */
-  virtual auto Next(Tuple *tuple, RID *rid) -> bool = 0;
+  virtual auto Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch, size_t batch_size) -> bool = 0;
 
   /** @return The schema of the tuples that this executor produces */
   virtual auto GetOutputSchema() const -> const Schema & = 0;

@@ -30,7 +30,7 @@ class InitCheckExecutor : public AbstractExecutor {
                     std::unique_ptr<AbstractExecutor> &&child_executor);
 
   void Init() override;
-  auto Next(Tuple *tuple, RID *rid) -> bool override;
+  auto Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch, size_t batch_size) -> bool override;
 
   /** @return The output schema for the child executor */
   auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); };

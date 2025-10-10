@@ -98,7 +98,7 @@ struct AggregateKey {
   std::vector<Value> group_bys_;
 
   /**
-   * Compares two aggregate keys for equality.
+   * Compares two aggregate keys for equality. TODO(p3): you may need to change this to handle NULLs.
    * @param other the other aggregate key to be compared with
    * @return `true` if both aggregate keys have equivalent group-by expressions, `false` otherwise
    */
