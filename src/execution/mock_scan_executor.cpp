@@ -21,6 +21,78 @@
 
 namespace bustub {
 
+  // Toggle for random values
+inline bool MockRandomValuesEnabled() {
+  if (const char *v = std::getenv("BUSTUB_ENABLE_RANDOM"); v && *v) {
+    return std::string_view(v) != "0";
+  }
+  return false;
+}
+
+
+inline uint64_t MockSeed() {
+  if (const char *s = std::getenv("BUSTUB_MOCKSCAN_SEED"); s && *s) {
+    try { return std::stoull(s); } catch (...) {}
+  }
+  if (const char *s = std::getenv("BUSTUB_TABLEGEN_SEED"); s && *s) {
+    try { return std::stoull(s); } catch (...) {}
+  }
+  std::random_device rd;
+  return (static_cast<uint64_t>(rd()) << 32) ^ static_cast<uint64_t>(rd());
+}
+
+// Per-table RNG: deterministic within a run, different across runs/seeds
+inline std::mt19937_64 MakeTableRng(const std::string &table) {
+  const uint64_t h = std::hash<std::string>{}(table);
+  const uint64_t seed = MockSeed() ^ (h * 0x9E3779B97F4A7C15ULL);
+  std::seed_seq seq{static_cast<uint32_t>(seed),
+                    static_cast<uint32_t>(seed >> 32),
+                    static_cast<uint32_t>(h),
+                    static_cast<uint32_t>(h >> 32)};
+  return std::mt19937_64(seq);
+}
+
+// Generic random value for a column (keeps types/sensible ranges)
+inline Value RandomValueForColumn(const Column &col, std::mt19937_64 &rng) {
+  switch (col.GetType()) {
+    case TypeId::TINYINT: {
+      std::uniform_int_distribution<int8_t> d(-128, 127);
+      return ValueFactory::GetTinyIntValue(d(rng));
+    }
+    case TypeId::SMALLINT: {
+      std::uniform_int_distribution<int16_t> d(-32768, 32767);
+      return ValueFactory::GetSmallIntValue(d(rng));
+    }
+    case TypeId::INTEGER: {
+      // Keep modest range so joins can still occasionally match
+      std::uniform_int_distribution<int32_t> d(0, 100000);
+      return ValueFactory::GetIntegerValue(d(rng));
+    }
+    case TypeId::BIGINT: {
+      std::uniform_int_distribution<int64_t> d(0, 1'000'000'000);
+      return ValueFactory::GetBigIntValue(d(rng));
+    }
+    case TypeId::DECIMAL: {
+      std::uniform_real_distribution<double> d(0.0, 1.0);
+      return ValueFactory::GetDecimalValue(d(rng));
+    }
+    case TypeId::VARCHAR: {
+      // Length cap respects column length
+      const uint32_t max_len = std::min<uint32_t>(col.GetStorageSize(), 32);
+      std::uniform_int_distribution<int> len_d(0, static_cast<int>(max_len));
+      const int len = len_d(rng);
+      std::uniform_int_distribution<int> ch_d(33, 126); // printable ASCII
+      std::string s;
+      s.reserve(len);
+      for (int i = 0; i < len; i++) s.push_back(static_cast<char>(ch_d(rng)));
+      return ValueFactory::GetVarcharValue(s);
+    }
+    default:
+      // Fallback: zero by type (same as old default)
+      return ValueFactory::GetZeroValueByType(col.GetType());
+  }
+}
+
 static const char *ta_list_2022[] = {"amstqq",      "durovo",     "joyceliaoo", "karthik-ramanathan-3006",
                                      "kush789",     "lmwnshn",    "mkpjnx",     "skyzh",
                                      "thepinetree", "timlee0119", "yliang412"};
@@ -319,61 +391,6 @@ auto GetShuffled(const MockScanPlanNode *plan) -> bool {
 
 auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)> {
   const auto &table = plan->GetTable();
-
-  if (table == "__mock_table_1") {
-    return [plan](size_t cursor) {
-      std::vector<Value> values{};
-      values.reserve(2);
-      values.push_back(ValueFactory::GetIntegerValue(cursor));
-      values.push_back(ValueFactory::GetIntegerValue(cursor * 100));
-      return Tuple{values, &plan->OutputSchema()};
-    };
-  }
-
-  if (table == "__mock_table_2") {
-    return [plan](size_t cursor) {
-      std::vector<Value> values{};
-      values.reserve(2);
-      values.push_back(ValueFactory::GetVarcharValue(fmt::format("{}-\U0001F4A9", cursor)));  // the poop emoji
-      values.push_back(
-          ValueFactory::GetVarcharValue(StringUtil::Repeat("\U0001F607", cursor % 8)));  // the innocent emoji
-      return Tuple{values, &plan->OutputSchema()};
-    };
-  }
-
-  if (table == "__mock_table_3") {
-    return [plan](size_t cursor) {
-      std::vector<Value> values{};
-      values.reserve(2);
-      if (cursor % 2 == 0) {
-        values.push_back(ValueFactory::GetIntegerValue(cursor));
-      } else {
-        values.push_back(ValueFactory::GetNullValueByType(TypeId::INTEGER));
-      }
-      values.push_back(ValueFactory::GetVarcharValue(fmt::format("{}-\U0001F4A9", cursor)));  // the poop emoji
-      return Tuple{values, &plan->OutputSchema()};
-    };
-  }
-
-  if (table == "__mock_table_4") {
-    return [plan](size_t cursor) {
-      std::vector<Value> values{};
-      values.reserve(2);
-      if (cursor % 5 != 0) {
-        values.push_back(ValueFactory::GetIntegerValue(cursor % 5));
-      } else {
-        values.push_back(ValueFactory::GetNullValueByType(TypeId::INTEGER));
-      }
-
-      std::string str = "\U0001F4A9"; // the poop emoji
-      for (size_t i = 0; i < (cursor % 3); i++) {
-        str += "\U0001F4A9";
-      }
-      values.push_back(ValueFactory::GetVarcharValue(str));
-      return Tuple{values, &plan->OutputSchema()};
-    };
-  }
-
   if (table == "__mock_table_tas_2022") {
     return [plan](size_t cursor) {
       std::vector<Value> values{};
@@ -454,6 +471,74 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
       return Tuple{values, &plan->OutputSchema()};
     };
   }
+  
+  if (MockRandomValuesEnabled()) {
+    auto rng = MakeTableRng(table);
+    const Schema *schema = &plan->OutputSchema();
+    return [schema, rng = std::move(rng)](size_t /*cursor*/) mutable {
+      std::vector<Value> values;
+      values.reserve(schema->GetColumnCount());
+      for (const auto &col : schema->GetColumns()) {
+        values.emplace_back(RandomValueForColumn(col, rng));
+      }
+      return Tuple{values, schema};
+    };
+  }
+
+  if (table == "__mock_table_1") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.reserve(2);
+      values.push_back(ValueFactory::GetIntegerValue(cursor));
+      values.push_back(ValueFactory::GetIntegerValue(cursor * 100));
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
+  if (table == "__mock_table_2") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.reserve(2);
+      values.push_back(ValueFactory::GetVarcharValue(fmt::format("{}-\U0001F4A9", cursor)));  // the poop emoji
+      values.push_back(
+          ValueFactory::GetVarcharValue(StringUtil::Repeat("\U0001F607", cursor % 8)));  // the innocent emoji
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
+  if (table == "__mock_table_3") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.reserve(2);
+      if (cursor % 2 == 0) {
+        values.push_back(ValueFactory::GetIntegerValue(cursor));
+      } else {
+        values.push_back(ValueFactory::GetNullValueByType(TypeId::INTEGER));
+      }
+      values.push_back(ValueFactory::GetVarcharValue(fmt::format("{}-\U0001F4A9", cursor)));  // the poop emoji
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
+  if (table == "__mock_table_4") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.reserve(2);
+      if (cursor % 5 != 0) {
+        values.push_back(ValueFactory::GetIntegerValue(cursor % 5));
+      } else {
+        values.push_back(ValueFactory::GetNullValueByType(TypeId::INTEGER));
+      }
+
+      std::string str = "\U0001F4A9"; // the poop emoji
+      for (size_t i = 0; i < (cursor % 3); i++) {
+        str += "\U0001F4A9";
+      }
+      values.push_back(ValueFactory::GetVarcharValue(str));
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
 
   if (table == "__mock_agg_input_small") {
     return [plan](size_t cursor) {
@@ -648,18 +733,25 @@ void MockScanExecutor::Init() {
  * @return `true` if a tuple was produced, `false` if there are no more tuples
  */
 auto MockScanExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch, size_t batch_size) -> bool {
-  if (cursor_ == size_) {
-    // Scan complete
-    return EXECUTOR_EXHAUSTED;
+  tuple_batch->clear();
+  rid_batch->clear();
+
+  while (tuple_batch->size() < batch_size && cursor_ < size_) {
+    Tuple tuple{};
+    RID rid{};
+    if (shuffled_idx_.empty()) {
+      tuple = func_(cursor_);
+    } else {
+      tuple = func_(shuffled_idx_[cursor_]);
+    }
+    ++cursor_;
+    rid = MakeDummyRID();
+    
+    tuple_batch->push_back(tuple);
+    rid_batch->push_back(rid);
   }
-  if (shuffled_idx_.empty()) {
-    *tuple = func_(cursor_);
-  } else {
-    *tuple = func_(shuffled_idx_[cursor_]);
-  }
-  ++cursor_;
-  *rid = MakeDummyRID();
-  return EXECUTOR_ACTIVE;
+
+  return !tuple_batch->empty();
 }
 
 /** @return A dummy RID value */
