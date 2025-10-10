@@ -641,12 +641,13 @@ void MockScanExecutor::Init() {
 }
 
 /**
- * Yield the next tuple from the sequential scan.
- * @param[out] tuple The next tuple produced by the scan
- * @param[out] rid The next tuple RID produced by the scan
+ * Yield the next tuple batch from the scan.
+ * @param[out] tuple_batch The next tuple batch produced by the scan
+ * @param[out] rid_batch The next tuple RID batch produced by the scan
+ * @param batch_size The number of tuples to be included in the batch (default: BUSTUB_BATCH_SIZE)
  * @return `true` if a tuple was produced, `false` if there are no more tuples
  */
-auto MockScanExecutor::Next(Tuple *tuple, RID *rid) -> bool {
+auto MockScanExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch, size_t batch_size) -> bool {
   if (cursor_ == size_) {
     // Scan complete
     return EXECUTOR_EXHAUSTED;

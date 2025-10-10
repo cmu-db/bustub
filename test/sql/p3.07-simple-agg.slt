@@ -1,8 +1,8 @@
 # 4 pts
 
-# How many TAs are there in 2024 Spring?
+# How many TAs are there in 2025 Fall?
 query
-select count(*) from __mock_table_tas_2025_spring;
+select count(*) from __mock_table_tas_2025_fall;
 ----
 8
 

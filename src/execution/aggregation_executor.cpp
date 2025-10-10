@@ -33,13 +33,14 @@ AggregationExecutor::AggregationExecutor(ExecutorContext *exec_ctx, const Aggreg
 void AggregationExecutor::Init() { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
 /**
- * Yield the next tuple from the insert.
- * @param[out] tuple The next tuple produced by the aggregation
- * @param[out] rid The next tuple RID produced by the aggregation
- * @return `true` if a tuple was produced, `false` if there are no more tuples
+ * Yield the next tuple batch from the aggregation.
+ * @param[out] tuple_batch The next batch of tuples produced by the aggregation
+ * @param[out] rid_batch The next batch of tuple RIDs produced by the aggregation
+ * @param batch_size The number of tuples to be included in the batch (default: BUSTUB_BATCH_SIZE)
+ * @return `true` if any tuples were produced, `false` if there are no more tuples
  */
 
-auto AggregationExecutor::Next(Tuple *tuple, RID *rid) -> bool { UNIMPLEMENTED("TODO(P3): Add implementation."); }
+auto AggregationExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch, size_t batch_size) -> bool { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
 /** Do not use or remove this function; otherwise, you will get zero points. */
 auto AggregationExecutor::GetChildExecutor() const -> const AbstractExecutor * { return child_executor_.get(); }

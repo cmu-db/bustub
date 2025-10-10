@@ -33,14 +33,16 @@ UpdateExecutor::UpdateExecutor(ExecutorContext *exec_ctx, const UpdatePlanNode *
 void UpdateExecutor::Init() { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
 /**
- * Yield the next tuple from the update.
- * @param[out] tuple The next tuple produced by the update
- * @param[out] rid The next tuple RID produced by the update (ignore this)
+ * Yield the number of rows updated in the table.
+ * @param[out] tuple_batch The tuple batch with one integer indicating the number of rows updated in the table
+ * @param[out] rid_batch The next tuple RID batch produced by the update (ignore, not used)
+ * @param batch_size The number of tuples to be included in the batch (default: BUSTUB_BATCH_SIZE)
  * @return `true` if a tuple was produced, `false` if there are no more tuples
  *
- * NOTE: UpdateExecutor::Next() does not use the `rid` out-parameter.
+ * NOTE: UpdateExecutor::Next() does not use the `rid_batch` out-parameter.
+ * NOTE: UpdateExecutor::Next() returns true with the number of updated rows produced only once.
  */
-auto UpdateExecutor::Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool {
+auto UpdateExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch, size_t batch_size) -> bool {
   UNIMPLEMENTED("TODO(P3): Add implementation.");
 }
 
