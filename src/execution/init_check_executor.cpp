@@ -43,8 +43,11 @@ void InitCheckExecutor::Init() {
  * @return `true` if a tuple was produced, `false` if there are no more tuples
  */
 auto InitCheckExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch, size_t batch_size) -> bool {
+  tuple_batch->clear();
+  rid_batch->clear();
+
   // Emit the next tuple
-  auto result = child_executor_->Next(tuple, rid);
+  auto result = child_executor_->Next(tuple_batch, rid_batch, batch_size);
   if (result) {
     n_next_++;
   }
