@@ -334,6 +334,8 @@ set(P3_FILES
         "src/include/execution/executors/seq_scan_executor.h"
         "src/include/execution/executors/external_merge_sort_executor.h"
         "src/include/execution/executors/update_executor.h"
+        "src/include/execution/plans/aggregation_plan.h"
+        "src/include/storage/page/intermediate_result_page.h"
         "src/execution/aggregation_executor.cpp"
         "src/execution/delete_executor.cpp"
         "src/execution/filter_executor.cpp"

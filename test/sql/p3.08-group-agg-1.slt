@@ -107,3 +107,27 @@ select v4+v5+count(*), sum(v1+v2), min(v3+v4), count(*) from t1
 ----
 339 65400 6 100 
 340 75400 7 100
+
+# testing group by on columns with null values
+# if you see a seg fault here, it is likely because you are not currently supporting group by on columns with nulls
+
+query rowsort
+select colH, count(*) from __mock_table_4 group by colH;
+----
+💩 30 
+💩💩💩 30 
+💩💩 30 
+varlen_null 10 
+
+query rowsort
+select distinct count(*) from __mock_table_4 group by colG;
+----
+20
+
+query rowsort
+select colH, min(colG) from __mock_table_4 group by colH;
+----
+💩 1 
+💩💩💩 1 
+💩💩 1 
+varlen_null integer_null 

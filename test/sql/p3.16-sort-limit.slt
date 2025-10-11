@@ -66,18 +66,32 @@ quantumish Monday
 rayhhome Friday
 
 query
-select * from __mock_table_4 order by colH desc, colG nulls first limit 10;
+select * from __mock_table_4 order by colH limit 3;
+----
+integer_null varlen_null 
+integer_null varlen_null 
+integer_null varlen_null 
+
+query
+select * from __mock_table_4 order by colH desc, colG asc limit 3;
 ----
 integer_null 💩💩💩 
 integer_null 💩💩💩 
 integer_null 💩💩💩 
-integer_null 💩💩💩 
-integer_null 💩💩💩 
-integer_null 💩💩💩 
-integer_null 💩💩💩 
-1 💩💩💩 
-1 💩💩💩 
-1 💩💩💩
+
+query
+select * from __mock_table_4 order by colG desc nulls first, colH nulls last limit 3;
+----
+integer_null 💩 
+integer_null 💩 
+integer_null 💩 
+
+query
+select * from __mock_table_4 order by colG asc nulls last, colH limit 3;
+----
+1 💩 
+1 💩 
+1 💩 
 
 statement ok
 insert into temp_1 values

@@ -534,7 +534,12 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
       for (size_t i = 0; i < (cursor % 3); i++) {
         str += "\U0001F4A9";
       }
-      values.push_back(ValueFactory::GetVarcharValue(str));
+      if (cursor % 10 != 0) {
+        values.push_back(ValueFactory::GetVarcharValue(str));
+      } else {
+        values.push_back(ValueFactory::GetNullValueByType(TypeId::VARCHAR));
+      }
+      
       return Tuple{values, &plan->OutputSchema()};
     };
   }
