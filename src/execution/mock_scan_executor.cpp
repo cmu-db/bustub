@@ -21,7 +21,7 @@
 
 namespace bustub {
 
-  // Toggle for random values
+
 inline bool MockRandomValuesEnabled() {
   if (const char *v = std::getenv("BUSTUB_ENABLE_RANDOM"); v && *v) {
     return std::string_view(v) != "0";
@@ -55,26 +55,10 @@ inline std::mt19937_64 MakeTableRng(const std::string &table) {
 // Generic random value for a column (keeps types/sensible ranges)
 inline Value RandomValueForColumn(const Column &col, std::mt19937_64 &rng) {
   switch (col.GetType()) {
-    case TypeId::TINYINT: {
-      std::uniform_int_distribution<int8_t> d(-128, 127);
-      return ValueFactory::GetTinyIntValue(d(rng));
-    }
-    case TypeId::SMALLINT: {
-      std::uniform_int_distribution<int16_t> d(-32768, 32767);
-      return ValueFactory::GetSmallIntValue(d(rng));
-    }
     case TypeId::INTEGER: {
       // Keep modest range so joins can still occasionally match
-      std::uniform_int_distribution<int32_t> d(0, 100000);
+      std::uniform_int_distribution<int32_t> d(0, 2000000);
       return ValueFactory::GetIntegerValue(d(rng));
-    }
-    case TypeId::BIGINT: {
-      std::uniform_int_distribution<int64_t> d(0, 1'000'000'000);
-      return ValueFactory::GetBigIntValue(d(rng));
-    }
-    case TypeId::DECIMAL: {
-      std::uniform_real_distribution<double> d(0.0, 1.0);
-      return ValueFactory::GetDecimalValue(d(rng));
     }
     case TypeId::VARCHAR: {
       // Length cap respects column length
@@ -88,7 +72,6 @@ inline Value RandomValueForColumn(const Column &col, std::mt19937_64 &rng) {
       return ValueFactory::GetVarcharValue(s);
     }
     default:
-      // Fallback: zero by type (same as old default)
       return ValueFactory::GetZeroValueByType(col.GetType());
   }
 }
@@ -471,19 +454,7 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
       return Tuple{values, &plan->OutputSchema()};
     };
   }
-  
-  if (MockRandomValuesEnabled()) {
-    auto rng = MakeTableRng(table);
-    const Schema *schema = &plan->OutputSchema();
-    return [schema, rng = std::move(rng)](size_t /*cursor*/) mutable {
-      std::vector<Value> values;
-      values.reserve(schema->GetColumnCount());
-      for (const auto &col : schema->GetColumns()) {
-        values.emplace_back(RandomValueForColumn(col, rng));
-      }
-      return Tuple{values, schema};
-    };
-  }
+
 
   if (table == "__mock_table_1") {
     return [plan](size_t cursor) {
@@ -617,6 +588,19 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
       values.push_back(ValueFactory::GetIntegerValue(cursor % 10000));
       values.push_back(ValueFactory::GetIntegerValue(cursor));
       return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
+  if (MockRandomValuesEnabled()) {
+    auto rng = MakeTableRng(table);
+    const Schema *schema = &plan->OutputSchema();
+    return [schema, rng = std::move(rng)](size_t /*cursor*/) mutable {
+      std::vector<Value> values;
+      values.reserve(schema->GetColumnCount());
+      for (const auto &col : schema->GetColumns()) {
+        values.emplace_back(RandomValueForColumn(col, rng));
+      }
+      return Tuple{values, schema};
     };
   }
 
