@@ -1,4 +1,5 @@
-# 7 pts
+# 0 pts
+# Fall 2025 - TopN Not Implemented
 
 query +ensure:topn
 select * from test_simple_seq_2 order by col1 desc limit 5;
