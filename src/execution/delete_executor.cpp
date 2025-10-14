@@ -42,7 +42,8 @@ void DeleteExecutor::Init() { UNIMPLEMENTED("TODO(P3): Add implementation."); }
  * NOTE: DeleteExecutor::Next() does not use the `rid_batch` out-parameter.
  * NOTE: DeleteExecutor::Next() returns true with the number of deleted rows produced only once.
  */
-auto DeleteExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch, size_t batch_size) -> bool {
+auto DeleteExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch,
+                          size_t batch_size) -> bool {
   UNIMPLEMENTED("TODO(P3): Add implementation.");
 }
 

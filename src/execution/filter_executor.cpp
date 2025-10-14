@@ -39,7 +39,8 @@ void FilterExecutor::Init() {
  * @param batch_size The number of tuples to be included in the batch (default: BUSTUB_BATCH_SIZE)
  * @return `true` if a tuple was produced, `false` if there are no more tuples
  */
-auto FilterExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch, size_t batch_size) -> bool {
+auto FilterExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch,
+                          size_t batch_size) -> bool {
   tuple_batch->clear();
   rid_batch->clear();
 
@@ -48,9 +49,9 @@ auto FilterExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<b
   while (true) {
     // If the child offset is not zero, process remaining tuples in the last fetched batch
     if (child_offset_ != 0) {
-      for (size_t i = child_offset_; i < child_tuples.size(); ++i) {
-        auto &tuple = child_tuples[i];
-        auto &rid = child_rids[i];
+      for (size_t i = child_offset_; i < child_tuples_.size(); ++i) {
+        auto &tuple = child_tuples_[i];
+        auto &rid = child_rids_[i];
         // Evaluate the filter predicate
         if (filter_expr == nullptr || filter_expr->Evaluate(&tuple, child_executor_->GetOutputSchema()).GetAs<bool>()) {
           tuple_batch->push_back(tuple);
@@ -62,7 +63,7 @@ auto FilterExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<b
     child_offset_ = 0;
 
     // Get the next tuple batch from the child executor
-    const auto status = child_executor_->Next(&child_tuples, &child_rids, batch_size);
+    const auto status = child_executor_->Next(&child_tuples_, &child_rids_, batch_size);
 
     // If no more tuples and output batch is empty, return false
     if (!status && tuple_batch->empty()) {
@@ -74,16 +75,17 @@ auto FilterExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<b
       return true;
     }
 
-    for (size_t i = 0; i < child_tuples.size(); ++i) {
-      auto &tuple = child_tuples[i];
-      auto &rid = child_rids[i];
+    for (size_t i = 0; i < child_tuples_.size(); ++i) {
+      auto &tuple = child_tuples_[i];
+      auto &rid = child_rids_[i];
       // Evaluate the filter predicate
       if (filter_expr == nullptr || filter_expr->Evaluate(&tuple, child_executor_->GetOutputSchema()).GetAs<bool>()) {
         tuple_batch->push_back(tuple);
         rid_batch->push_back(rid);
         if (tuple_batch->size() >= batch_size) {
-          // If we have filled the output batch but not yet reached the end of the current child batch, update the offset and return
-          if (i + 1 < child_tuples.size()) {
+          // If we have filled the output batch but not yet reached the end of the current child batch, update the
+          // offset and return
+          if (i + 1 < child_tuples_.size()) {
             child_offset_ = i + 1;
           } else {
             child_offset_ = 0;

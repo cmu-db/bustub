@@ -32,7 +32,7 @@ class ProjectionExecutor : public AbstractExecutor {
                      std::unique_ptr<AbstractExecutor> &&child_executor);
 
   void Init() override;
-  auto Next(std::vector<Tuple> *tuple_batch,std::vector<RID> *rid_batch, size_t batch_size) -> bool override;
+  auto Next(std::vector<Tuple> *tuple_batch, std::vector<RID> *rid_batch, size_t batch_size) -> bool override;
 
   /** @return The output schema for the projection plan */
   auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); }
@@ -45,8 +45,8 @@ class ProjectionExecutor : public AbstractExecutor {
   std::unique_ptr<AbstractExecutor> child_executor_;
 
   /** child tuple batch & child RID batch */
-  std::vector<Tuple> child_tuples{};
-  std::vector<RID> child_rids{};
+  std::vector<Tuple> child_tuples_{};
+  std::vector<RID> child_rids_{};
 
   /** child tuple batch offset */
   size_t child_offset_ = 0;

@@ -42,7 +42,8 @@ void UpdateExecutor::Init() { UNIMPLEMENTED("TODO(P3): Add implementation."); }
  * NOTE: UpdateExecutor::Next() does not use the `rid_batch` out-parameter.
  * NOTE: UpdateExecutor::Next() returns true with the number of updated rows produced only once.
  */
-auto UpdateExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch, size_t batch_size) -> bool {
+auto UpdateExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch,
+                          size_t batch_size) -> bool {
   UNIMPLEMENTED("TODO(P3): Add implementation.");
 }
 

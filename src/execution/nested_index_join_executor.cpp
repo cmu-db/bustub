@@ -33,6 +33,9 @@ NestedIndexJoinExecutor::NestedIndexJoinExecutor(ExecutorContext *exec_ctx, cons
 
 void NestedIndexJoinExecutor::Init() { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
-auto NestedIndexJoinExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch, size_t batch_size) -> bool { UNIMPLEMENTED("TODO(P3): Add implementation."); }
+auto NestedIndexJoinExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch,
+                                   size_t batch_size) -> bool {
+  UNIMPLEMENTED("TODO(P3): Add implementation.");
+}
 
 }  // namespace bustub

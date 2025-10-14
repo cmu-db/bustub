@@ -40,7 +40,10 @@ void AggregationExecutor::Init() { UNIMPLEMENTED("TODO(P3): Add implementation."
  * @return `true` if any tuples were produced, `false` if there are no more tuples
  */
 
-auto AggregationExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch, size_t batch_size) -> bool { UNIMPLEMENTED("TODO(P3): Add implementation."); }
+auto AggregationExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch,
+                               size_t batch_size) -> bool {
+  UNIMPLEMENTED("TODO(P3): Add implementation.");
+}
 
 /** Do not use or remove this function; otherwise, you will get zero points. */
 auto AggregationExecutor::GetChildExecutor() const -> const AbstractExecutor * { return child_executor_.get(); }

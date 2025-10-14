@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <string>
+#include <tuple>
 #include <utility>
 
 #include "binder/bound_expression.h"
@@ -37,9 +38,9 @@ enum class OrderByType : uint8_t {
  * All types of order by nulls in binder.
  */
 enum class OrderByNullType : uint8_t {
-  DEFAULT = 0, /**< Default order by type. */
-  NULLS_FIRST = 1,     /**< Ascending order by type. */
-  NULLS_LAST = 2,    /**< Descending order by type. */
+  DEFAULT = 0,     /**< Default order by type. */
+  NULLS_FIRST = 1, /**< Ascending order by type. */
+  NULLS_LAST = 2,  /**< Descending order by type. */
 };
 
 using OrderBy = std::tuple<OrderByType, OrderByNullType, AbstractExpressionRef>;
@@ -63,12 +64,7 @@ class BoundOrderBy {
 
   /** Render this statement as a string. */
   auto ToString() const -> std::string {
-    return fmt::format(
-        "BoundOrderBy {{ type={}, nulls={}, expr={} }}",
-        type_,
-        null_order_,
-        expr_
-    );
+    return fmt::format("BoundOrderBy {{ type={}, nulls={}, expr={} }}", type_, null_order_, expr_);
   }
 };
 
