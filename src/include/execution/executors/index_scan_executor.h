@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include "common/rid.h"
 #include "execution/executor_context.h"
 #include "execution/executors/abstract_executor.h"
@@ -32,7 +34,8 @@ class IndexScanExecutor : public AbstractExecutor {
 
   void Init() override;
 
-  auto Next(Tuple *tuple, RID *rid) -> bool override;
+  auto Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch, size_t batch_size)
+      -> bool override;
 
  private:
   /** The index scan plan node to be executed. */

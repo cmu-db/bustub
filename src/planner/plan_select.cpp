@@ -133,7 +133,7 @@ auto Planner::PlanSelect(const SelectStatement &statement) -> AbstractPlanNodeRe
     for (const auto &order_by : statement.sort_) {
       auto [_, expr] = PlanExpression(*order_by->expr_, {plan});
       auto abstract_expr = std::move(expr);
-      order_bys.emplace_back(order_by->type_, abstract_expr);
+      order_bys.emplace_back(order_by->type_, order_by->null_order_, abstract_expr);
     }
     plan = std::make_shared<SortPlanNode>(std::make_shared<Schema>(plan->OutputSchema()), plan, std::move(order_bys));
   }

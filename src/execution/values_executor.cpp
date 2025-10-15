@@ -26,28 +26,31 @@ ValuesExecutor::ValuesExecutor(ExecutorContext *exec_ctx, const ValuesPlanNode *
 void ValuesExecutor::Init() { cursor_ = 0; }
 
 /**
- * Yield the next tuple from the values.
- * @param[out] tuple The next tuple produced by the values
- * @param[out] rid The next tuple RID produced by the values, not used by values executor
+ * Yield the next tuple batch from the values.
+ * @param[out] tuple_batch The next tuple batch produced by the values
+ * @param[out] rid_batch The next tuple RID batch produced by the values
+ * @param batch_size The number of tuples to be included in the batch (default: BUSTUB_BATCH_SIZE)
  * @return `true` if a tuple was produced, `false` if there are no more tuples
  */
-auto ValuesExecutor::Next(Tuple *tuple, RID *rid) -> bool {
-  if (cursor_ >= plan_->GetValues().size()) {
-    return false;
+auto ValuesExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch,
+                          size_t batch_size) -> bool {
+  tuple_batch->clear();
+  rid_batch->clear();
+
+  while (tuple_batch->size() < batch_size && cursor_ < plan_->GetValues().size()) {
+    std::vector<Value> values{};
+    values.reserve(GetOutputSchema().GetColumnCount());
+
+    const auto &row_expr = plan_->GetValues()[cursor_];
+    for (const auto &col : row_expr) {
+      values.push_back(col->Evaluate(nullptr, dummy_schema_));
+    }
+
+    tuple_batch->emplace_back(values, &GetOutputSchema());
+    rid_batch->emplace_back(RID{});
+    cursor_ += 1;
   }
-
-  std::vector<Value> values{};
-  values.reserve(GetOutputSchema().GetColumnCount());
-
-  const auto &row_expr = plan_->GetValues()[cursor_];
-  for (const auto &col : row_expr) {
-    values.push_back(col->Evaluate(nullptr, dummy_schema_));
-  }
-
-  *tuple = Tuple{values, &GetOutputSchema()};
-  cursor_ += 1;
-
-  return true;
+  return !tuple_batch->empty();
 }
 
 }  // namespace bustub

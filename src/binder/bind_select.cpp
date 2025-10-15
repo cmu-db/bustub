@@ -945,8 +945,20 @@ auto Binder::BindSort(duckdb_libpgquery::PGList *list) -> std::vector<std::uniqu
       } else {
         throw NotImplementedException("unimplemented order by type");
       }
+
+      OrderByNullType null_order;
+      if (sort->sortby_nulls == duckdb_libpgquery::PG_SORTBY_NULLS_DEFAULT) {
+        null_order = OrderByNullType::DEFAULT;
+      } else if (sort->sortby_nulls == duckdb_libpgquery::PG_SORTBY_NULLS_FIRST) {
+        null_order = OrderByNullType::NULLS_FIRST;
+      } else if (sort->sortby_nulls == duckdb_libpgquery::PG_SORTBY_NULLS_LAST) {
+        null_order = OrderByNullType::NULLS_LAST;
+      } else {
+        throw NotImplementedException("unimplemented nulls order type");
+      }
+
       auto order_expression = BindExpression(target);
-      order_by.emplace_back(std::make_unique<BoundOrderBy>(type, std::move(order_expression)));
+      order_by.emplace_back(std::make_unique<BoundOrderBy>(type, null_order, std::move(order_expression)));
     } else {
       throw NotImplementedException("unsupported order by node");
     }

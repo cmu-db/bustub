@@ -36,14 +36,19 @@ void InitCheckExecutor::Init() {
 }
 
 /**
- * Yield the next tuple from the child executor.
- * @param[out] tuple The next tuple produced by the child executor
- * @param[out] rid The next tuple RID produced by the child executor
+ * Yield the next tuple batch from the child executor.
+ * @param[out] tuple_batch The next tuple batch produced by the child executor
+ * @param[out] rid_batch The next tuple RID batch produced by the child executor
+ * @param batch_size The number of tuples to be included in the batch (default: BUSTUB_BATCH_SIZE)
  * @return `true` if a tuple was produced, `false` if there are no more tuples
  */
-auto InitCheckExecutor::Next(Tuple *tuple, RID *rid) -> bool {
+auto InitCheckExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch,
+                             size_t batch_size) -> bool {
+  tuple_batch->clear();
+  rid_batch->clear();
+
   // Emit the next tuple
-  auto result = child_executor_->Next(tuple, rid);
+  auto result = child_executor_->Next(tuple_batch, rid_batch, batch_size);
   if (result) {
     n_next_++;
   }

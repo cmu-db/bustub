@@ -21,27 +21,10 @@
 #include "execution/execution_common.h"
 #include "execution/executors/abstract_executor.h"
 #include "execution/plans/sort_plan.h"
+#include "storage/page/intermediate_result_page.h"
 #include "storage/table/tuple.h"
 
 namespace bustub {
-
-/**
- * Page to hold the intermediate data for external merge sort.
- *
- * Only fixed-length data will be supported in Spring 2025.
- */
-class SortPage {
- public:
-  /**
-   * TODO(P3): Define and implement the methods for reading data from and writing data to the sort
-   * page. Feel free to add other helper methods.
-   */
- private:
-  /**
-   * TODO(P3): Define the private members. You may want to have some necessary metadata for
-   * the sort page before the start of the actual data.
-   */
-};
 
 /**
  * A data structure that holds the sorted tuples as a run during external merge sort.
@@ -131,7 +114,8 @@ class ExternalMergeSortExecutor : public AbstractExecutor {
 
   void Init() override;
 
-  auto Next(Tuple *tuple, RID *rid) -> bool override;
+  auto Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch, size_t batch_size)
+      -> bool override;
 
   /** @return The output schema for the external merge sort */
   auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); }

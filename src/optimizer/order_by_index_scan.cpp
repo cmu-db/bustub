@@ -48,7 +48,7 @@ auto Optimizer::OptimizeOrderByAsIndexScan(const AbstractPlanNodeRef &plan) -> A
     const auto &order_bys = sort_plan.GetOrderBy();
 
     std::vector<uint32_t> order_by_column_ids;
-    for (const auto &[order_type, expr] : order_bys) {
+    for (const auto &[order_type, order_null, expr] : order_bys) {
       // Order type is asc or default
       if (order_type != OrderByType::ASC && order_type != OrderByType::DEFAULT) {
         return optimized_plan;

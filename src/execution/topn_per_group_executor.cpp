@@ -27,11 +27,15 @@ TopNPerGroupExecutor::TopNPerGroupExecutor(ExecutorContext *exec_ctx, const TopN
 void TopNPerGroupExecutor::Init() { throw NotImplementedException("TopNPerGroupExecutor is not implemented"); }
 
 /**
- * Yield the next tuple from the TopNPerGroup.
- * @param[out] tuple The next tuple produced by the TopNPerGroup
- * @param[out] rid The next tuple RID produced by the TopNPerGroup
+ * Yield the next tuple batch from the TopNPerGroup.
+ * @param[out] tuple_batch The next tuple batch produced by the TopNPerGroup
+ * @param[out] rid_batch The next tuple RID batch produced by the TopNPerGroup
+ * @param batch_size The number of tuples to be included in the batch (default: BUSTUB_BATCH_SIZE)
  * @return `true` if a tuple was produced, `false` if there are no more tuples
  */
-auto TopNPerGroupExecutor::Next(Tuple *tuple, RID *rid) -> bool { return false; }
+auto TopNPerGroupExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch,
+                                size_t batch_size) -> bool {
+  return false;
+}
 
 }  // namespace bustub

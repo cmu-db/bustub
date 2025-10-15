@@ -269,6 +269,18 @@ insert into temp_2 values
     (98, 351, 8),
     (99, 722, 9);
 
+statement ok
+create table big_l(a int, b int, c int, d int);
+
+statement ok
+insert into big_l
+  select t1.colA, t1.colB, t1.colC, t1.colD
+  from temp_1 t1, temp_2 t2;
+
+query +ensure:hash_join
+select count(*) from big_l b inner join temp_2 t2 on b.a = t2.colA;
+----
+10000
 
 statement ok
 create table temp_3(colA int, colB int);
