@@ -53,7 +53,8 @@ auto FilterExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<b
         auto &tuple = child_tuples_[i];
         auto &rid = child_rids_[i];
         // Evaluate the filter predicate
-        if (filter_expr == nullptr || filter_expr->Evaluate(&tuple, child_executor_->GetOutputSchema()).GetAs<bool>()) {
+        auto value = filter_expr->Evaluate(&tuple, child_executor_->GetOutputSchema());
+        if (filter_expr == nullptr || (!value.IsNull() && value.GetAs<bool>())) {
           tuple_batch->push_back(tuple);
           rid_batch->push_back(rid);
         }
@@ -79,7 +80,8 @@ auto FilterExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<b
       auto &tuple = child_tuples_[i];
       auto &rid = child_rids_[i];
       // Evaluate the filter predicate
-      if (filter_expr == nullptr || filter_expr->Evaluate(&tuple, child_executor_->GetOutputSchema()).GetAs<bool>()) {
+      auto value = filter_expr->Evaluate(&tuple, child_executor_->GetOutputSchema());
+      if (filter_expr == nullptr || (!value.IsNull() && value.GetAs<bool>())) {
         tuple_batch->push_back(tuple);
         rid_batch->push_back(rid);
         if (tuple_batch->size() >= batch_size) {

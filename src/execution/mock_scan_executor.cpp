@@ -21,21 +21,21 @@
 
 namespace bustub {
 
-inline bool MockRandomValuesEnabled() {
-  if (const char *v = std::getenv("BUSTUB_ENABLE_RANDOM"); v && *v) {
+inline auto MockRandomValuesEnabled() -> bool {
+  if (const char *v = std::getenv("BUSTUB_ENABLE_RANDOM"); (v != nullptr) && (*v != 0)) {
     return std::string_view(v) != "0";
   }
   return false;
 }
 
-inline uint64_t MockSeed() {
-  if (const char *s = std::getenv("BUSTUB_MOCKSCAN_SEED"); s && *s) {
+inline auto MockSeed() -> uint64_t {
+  if (const char *s = std::getenv("BUSTUB_MOCKSCAN_SEED"); (s != nullptr) && (*s != 0)) {
     try {
       return std::stoull(s);
     } catch (...) {
     }
   }
-  if (const char *s = std::getenv("BUSTUB_TABLEGEN_SEED"); s && *s) {
+  if (const char *s = std::getenv("BUSTUB_TABLEGEN_SEED"); (s != nullptr) && (*s != 0)) {
     try {
       return std::stoull(s);
     } catch (...) {
@@ -46,7 +46,7 @@ inline uint64_t MockSeed() {
 }
 
 // Per-table RNG: deterministic within a run, different across runs/seeds
-inline std::mt19937_64 MakeTableRng(const std::string &table) {
+inline auto MakeTableRng(const std::string &table) -> std::mt19937_64 {
   const uint64_t h = std::hash<std::string>{}(table);
   const uint64_t seed = MockSeed() ^ (h * 0x9E3779B97F4A7C15ULL);
   std::seed_seq seq{static_cast<uint32_t>(seed), static_cast<uint32_t>(seed >> 32), static_cast<uint32_t>(h),
@@ -55,7 +55,7 @@ inline std::mt19937_64 MakeTableRng(const std::string &table) {
 }
 
 // Generic random value for a column (keeps types/sensible ranges)
-inline Value RandomValueForColumn(const Column &col, std::mt19937_64 &rng) {
+inline auto RandomValueForColumn(const Column &col, std::mt19937_64 &rng) -> Value {
   switch (col.GetType()) {
     case TypeId::INTEGER: {
       // Keep modest range so joins can still occasionally match
@@ -70,7 +70,9 @@ inline Value RandomValueForColumn(const Column &col, std::mt19937_64 &rng) {
       std::uniform_int_distribution<int> ch_d(33, 126);  // printable ASCII
       std::string s;
       s.reserve(len);
-      for (int i = 0; i < len; i++) s.push_back(static_cast<char>(ch_d(rng)));
+      for (int i = 0; i < len; i++) {
+        s.push_back(static_cast<char>(ch_d(rng)));
+      }
       return ValueFactory::GetVarcharValue(s);
     }
     default:
@@ -595,7 +597,7 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
   if (MockRandomValuesEnabled()) {
     auto rng = MakeTableRng(table);
     const Schema *schema = &plan->OutputSchema();
-    return [schema, rng = std::move(rng)](size_t /*cursor*/) mutable {
+    return [schema, rng](size_t /*cursor*/) mutable {
       std::vector<Value> values;
       values.reserve(schema->GetColumnCount());
       for (const auto &col : schema->GetColumns()) {
