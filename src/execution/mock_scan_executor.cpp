@@ -594,6 +594,33 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
     };
   }
 
+  if (table == "__mock_t8") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.push_back(ValueFactory::GetIntegerValue(cursor));
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
+  if (MockRandomValuesEnabled() && table == "__mock_t7") {
+    auto rng = MakeTableRng(table);
+    const Schema *schema = &plan->OutputSchema();
+
+    constexpr int32_t kGroups = 100;
+    constexpr int32_t kValDomain = 1000000;
+
+    return [schema, rng = std::move(rng)](size_t /*cursor*/) mutable {
+      int32_t v = static_cast<int32_t>(rng() % kGroups);
+      int32_t v1 = static_cast<int32_t>(rng() % kValDomain);
+      int32_t v2 = static_cast<int32_t>(rng() % kValDomain);
+      std::vector<Value> values;
+      values.emplace_back(ValueFactory::GetIntegerValue(v));
+      values.emplace_back(ValueFactory::GetIntegerValue(v1));
+      values.emplace_back(ValueFactory::GetIntegerValue(v2));
+      return Tuple{values, schema};
+    };
+  }
+
   if (MockRandomValuesEnabled()) {
     auto rng = MakeTableRng(table);
     const Schema *schema = &plan->OutputSchema();
@@ -642,14 +669,6 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
       std::vector<Value> values{};
       values.push_back(ValueFactory::GetIntegerValue(cursor % 20));
       values.push_back(ValueFactory::GetIntegerValue(cursor));
-      values.push_back(ValueFactory::GetIntegerValue(cursor));
-      return Tuple{values, &plan->OutputSchema()};
-    };
-  }
-
-  if (table == "__mock_t8") {
-    return [plan](size_t cursor) {
-      std::vector<Value> values{};
       values.push_back(ValueFactory::GetIntegerValue(cursor));
       return Tuple{values, &plan->OutputSchema()};
     };
