@@ -606,13 +606,13 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
     auto rng = MakeTableRng(table);
     const Schema *schema = &plan->OutputSchema();
 
-    constexpr int32_t kGroups = 100;
-    constexpr int32_t kValDomain = 1000000;
+    constexpr int32_t k_groups = 100;
+    constexpr int32_t k_val_domain = 1000000;
 
-    return [schema, rng = std::move(rng)](size_t /*cursor*/) mutable {
-      int32_t v = static_cast<int32_t>(rng() % kGroups);
-      int32_t v1 = static_cast<int32_t>(rng() % kValDomain);
-      int32_t v2 = static_cast<int32_t>(rng() % kValDomain);
+    return [schema, rng](size_t /*cursor*/) mutable {
+      auto v = static_cast<int32_t>(rng() % k_groups);
+      auto v1 = static_cast<int32_t>(rng() % k_val_domain);
+      auto v2 = static_cast<int32_t>(rng() % k_val_domain);
       std::vector<Value> values;
       values.emplace_back(ValueFactory::GetIntegerValue(v));
       values.emplace_back(ValueFactory::GetIntegerValue(v1));
