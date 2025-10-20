@@ -640,6 +640,7 @@ void MockScanExecutor::Init() {
   cursor_ = 0;
 }
 
+
 /**
  * Yield the next tuple batch from the scan.
  * @param[out] tuple_batch The next tuple batch produced by the scan
@@ -647,19 +648,27 @@ void MockScanExecutor::Init() {
  * @param batch_size The number of tuples to be included in the batch (default: BUSTUB_BATCH_SIZE)
  * @return `true` if a tuple was produced, `false` if there are no more tuples
  */
-auto MockScanExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch, size_t batch_size) -> bool {
-  if (cursor_ == size_) {
-    // Scan complete
-    return EXECUTOR_EXHAUSTED;
+auto MockScanExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch,
+                            size_t batch_size) -> bool {
+  tuple_batch->clear();
+  rid_batch->clear();
+
+  while (tuple_batch->size() < batch_size && cursor_ < size_) {
+    Tuple tuple{};
+    RID rid{};
+    if (shuffled_idx_.empty()) {
+      tuple = func_(cursor_);
+    } else {
+      tuple = func_(shuffled_idx_[cursor_]);
+    }
+    ++cursor_;
+    rid = MakeDummyRID();
+
+    tuple_batch->push_back(tuple);
+    rid_batch->push_back(rid);
   }
-  if (shuffled_idx_.empty()) {
-    *tuple = func_(cursor_);
-  } else {
-    *tuple = func_(shuffled_idx_[cursor_]);
-  }
-  ++cursor_;
-  *rid = MakeDummyRID();
-  return EXECUTOR_ACTIVE;
+
+  return !tuple_batch->empty();
 }
 
 /** @return A dummy RID value */
