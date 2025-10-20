@@ -21,6 +21,65 @@
 
 namespace bustub {
 
+inline auto MockRandomValuesEnabled() -> bool {
+  if (const char *v = std::getenv("BUSTUB_ENABLE_RANDOM"); (v != nullptr) && (*v != 0)) {
+    return std::string_view(v) != "0";
+  }
+  return false;
+}
+
+inline auto MockSeed() -> uint64_t {
+  if (const char *s = std::getenv("BUSTUB_MOCKSCAN_SEED"); (s != nullptr) && (*s != 0)) {
+    try {
+      return std::stoull(s);
+    } catch (...) {
+    }
+  }
+  if (const char *s = std::getenv("BUSTUB_TABLEGEN_SEED"); (s != nullptr) && (*s != 0)) {
+    try {
+      return std::stoull(s);
+    } catch (...) {
+    }
+  }
+  std::random_device rd;
+  return (static_cast<uint64_t>(rd()) << 32) ^ static_cast<uint64_t>(rd());
+}
+
+// Per-table RNG: deterministic within a run, different across runs/seeds
+inline auto MakeTableRng(const std::string &table) -> std::mt19937_64 {
+  const uint64_t h = std::hash<std::string>{}(table);
+  const uint64_t seed = MockSeed() ^ (h * 0x9E3779B97F4A7C15ULL);
+  std::seed_seq seq{static_cast<uint32_t>(seed), static_cast<uint32_t>(seed >> 32), static_cast<uint32_t>(h),
+                    static_cast<uint32_t>(h >> 32)};
+  return std::mt19937_64(seq);
+}
+
+// Generic random value for a column (keeps types/sensible ranges)
+inline auto RandomValueForColumn(const Column &col, std::mt19937_64 &rng) -> Value {
+  switch (col.GetType()) {
+    case TypeId::INTEGER: {
+      // Keep modest range so joins can still occasionally match
+      std::uniform_int_distribution<int32_t> d(0, 2000000);
+      return ValueFactory::GetIntegerValue(d(rng));
+    }
+    case TypeId::VARCHAR: {
+      // Length cap respects column length
+      const uint32_t max_len = std::min<uint32_t>(col.GetStorageSize(), 32);
+      std::uniform_int_distribution<int> len_d(0, static_cast<int>(max_len));
+      const int len = len_d(rng);
+      std::uniform_int_distribution<int> ch_d(33, 126);  // printable ASCII
+      std::string s;
+      s.reserve(len);
+      for (int i = 0; i < len; i++) {
+        s.push_back(static_cast<char>(ch_d(rng)));
+      }
+      return ValueFactory::GetVarcharValue(s);
+    }
+    default:
+      return ValueFactory::GetZeroValueByType(col.GetType());
+  }
+}
+
 static const char *ta_list_2022[] = {"amstqq",      "durovo",     "joyceliaoo", "karthik-ramanathan-3006",
                                      "kush789",     "lmwnshn",    "mkpjnx",     "skyzh",
                                      "thepinetree", "timlee0119", "yliang412"};
@@ -41,8 +100,8 @@ static const char *ta_list_2024_fall[] = {"17zhangw",         "connortsui20", "J
 static const char *ta_list_2025_spring[] = {"AlSchlo",     "carpecodeum", "ChrisLaspias", "hyoungjook",
                                             "joesunil123", "mrwhitezz",   "rmboyce",      "yliang412"};
 
-static const char *ta_list_2025_fall[] = {"17zhangw",     "quantumish", "songwdfu", "notSaranshMalik",
-                                            "shinyumh", "s-wangru",   "rayhhome",      "MrWhitezz"};
+static const char *ta_list_2025_fall[] = {"17zhangw", "quantumish", "songwdfu", "notSaranshMalik",
+                                          "shinyumh", "s-wangru",   "rayhhome", "MrWhitezz"};
 
 static const char *ta_oh_2022[] = {"Tuesday",   "Wednesday", "Monday",  "Wednesday", "Thursday", "Friday",
                                    "Wednesday", "Randomly",  "Tuesday", "Monday",    "Tuesday"};
@@ -62,24 +121,25 @@ static const char *ta_oh_2024_fall[] = {"Wednesday", "Thursday", "Tuesday", "Mon
 static const char *ta_oh_2025_spring[] = {"Friday", "Monday",   "Wednesday", "Tuesday",
                                           "Friday", "Thursday", "Monday",    "Tuesday"};
 
-static const char *ta_oh_2025_fall[] = {"Tuesday", "Monday",   "Thursday", "Friday",
-                                          "Tuesday", "Tuesday", "Friday",    "Wednesday"};
+static const char *ta_oh_2025_fall[] = {"Tuesday", "Monday",  "Thursday", "Friday",
+                                        "Tuesday", "Tuesday", "Friday",   "Wednesday"};
 
 static const char *course_on_date[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
-const char *mock_table_list[] = {
-    "__mock_table_1", "__mock_table_2", "__mock_table_3", "__mock_table_4", "__mock_table_tas_2022", "__mock_table_tas_2023",
-    "__mock_table_tas_2023_fall", "__mock_table_tas_2024", "__mock_table_tas_2024_fall", "__mock_table_tas_2025_spring",
-    "__mock_table_tas_2025_fall", "__mock_agg_input_small", "__mock_agg_input_big", "__mock_external_merge_sort_input", 
-    "__mock_table_schedule_2022", "__mock_table_schedule", "__mock_table_123", "__mock_graph",
-    // For leaderboard Q1
-    "__mock_t1",
-    // For leaderboard Q2
-    "__mock_t4_1m", "__mock_t5_1m", "__mock_t6_1m",
-    // For leaderboard Q3
-    "__mock_t7", "__mock_t8", "__mock_t9",
-    // For P3 leaderboard Q4
-    "__mock_t10", "__mock_t11", nullptr};
+const char *mock_table_list[] = {"__mock_table_1", "__mock_table_2", "__mock_table_3", "__mock_table_4",
+                                 "__mock_table_tas_2022", "__mock_table_tas_2023", "__mock_table_tas_2023_fall",
+                                 "__mock_table_tas_2024", "__mock_table_tas_2024_fall", "__mock_table_tas_2025_spring",
+                                 "__mock_table_tas_2025_fall", "__mock_agg_input_small", "__mock_agg_input_big",
+                                 "__mock_external_merge_sort_input", "__mock_table_schedule_2022",
+                                 "__mock_table_schedule", "__mock_table_123", "__mock_graph",
+                                 // For leaderboard Q1
+                                 "__mock_t1",
+                                 // For leaderboard Q2
+                                 "__mock_t4_1m", "__mock_t5_1m", "__mock_t6_1m",
+                                 // For leaderboard Q3
+                                 "__mock_t7", "__mock_t8", "__mock_t9",
+                                 // For P3 leaderboard Q4
+                                 "__mock_t10", "__mock_t11", nullptr};
 
 static const int GRAPH_NODE_CNT = 10;
 
@@ -319,61 +379,6 @@ auto GetShuffled(const MockScanPlanNode *plan) -> bool {
 
 auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)> {
   const auto &table = plan->GetTable();
-
-  if (table == "__mock_table_1") {
-    return [plan](size_t cursor) {
-      std::vector<Value> values{};
-      values.reserve(2);
-      values.push_back(ValueFactory::GetIntegerValue(cursor));
-      values.push_back(ValueFactory::GetIntegerValue(cursor * 100));
-      return Tuple{values, &plan->OutputSchema()};
-    };
-  }
-
-  if (table == "__mock_table_2") {
-    return [plan](size_t cursor) {
-      std::vector<Value> values{};
-      values.reserve(2);
-      values.push_back(ValueFactory::GetVarcharValue(fmt::format("{}-\U0001F4A9", cursor)));  // the poop emoji
-      values.push_back(
-          ValueFactory::GetVarcharValue(StringUtil::Repeat("\U0001F607", cursor % 8)));  // the innocent emoji
-      return Tuple{values, &plan->OutputSchema()};
-    };
-  }
-
-  if (table == "__mock_table_3") {
-    return [plan](size_t cursor) {
-      std::vector<Value> values{};
-      values.reserve(2);
-      if (cursor % 2 == 0) {
-        values.push_back(ValueFactory::GetIntegerValue(cursor));
-      } else {
-        values.push_back(ValueFactory::GetNullValueByType(TypeId::INTEGER));
-      }
-      values.push_back(ValueFactory::GetVarcharValue(fmt::format("{}-\U0001F4A9", cursor)));  // the poop emoji
-      return Tuple{values, &plan->OutputSchema()};
-    };
-  }
-
-  if (table == "__mock_table_4") {
-    return [plan](size_t cursor) {
-      std::vector<Value> values{};
-      values.reserve(2);
-      if (cursor % 5 != 0) {
-        values.push_back(ValueFactory::GetIntegerValue(cursor % 5));
-      } else {
-        values.push_back(ValueFactory::GetNullValueByType(TypeId::INTEGER));
-      }
-
-      std::string str = "\U0001F4A9"; // the poop emoji
-      for (size_t i = 0; i < (cursor % 3); i++) {
-        str += "\U0001F4A9";
-      }
-      values.push_back(ValueFactory::GetVarcharValue(str));
-      return Tuple{values, &plan->OutputSchema()};
-    };
-  }
-
   if (table == "__mock_table_tas_2022") {
     return [plan](size_t cursor) {
       std::vector<Value> values{};
@@ -455,6 +460,65 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
     };
   }
 
+  if (table == "__mock_table_1") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.reserve(2);
+      values.push_back(ValueFactory::GetIntegerValue(cursor));
+      values.push_back(ValueFactory::GetIntegerValue(cursor * 100));
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
+  if (table == "__mock_table_2") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.reserve(2);
+      values.push_back(ValueFactory::GetVarcharValue(fmt::format("{}-\U0001F4A9", cursor)));  // the poop emoji
+      values.push_back(
+          ValueFactory::GetVarcharValue(StringUtil::Repeat("\U0001F607", cursor % 8)));  // the innocent emoji
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
+  if (table == "__mock_table_3") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.reserve(2);
+      if (cursor % 2 == 0) {
+        values.push_back(ValueFactory::GetIntegerValue(cursor));
+      } else {
+        values.push_back(ValueFactory::GetNullValueByType(TypeId::INTEGER));
+      }
+      values.push_back(ValueFactory::GetVarcharValue(fmt::format("{}-\U0001F4A9", cursor)));  // the poop emoji
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
+  if (table == "__mock_table_4") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.reserve(2);
+      if (cursor % 5 != 0) {
+        values.push_back(ValueFactory::GetIntegerValue(cursor % 5));
+      } else {
+        values.push_back(ValueFactory::GetNullValueByType(TypeId::INTEGER));
+      }
+
+      std::string str = "\U0001F4A9";  // the poop emoji
+      for (size_t i = 0; i < (cursor % 3); i++) {
+        str += "\U0001F4A9";
+      }
+      if (cursor % 10 != 0) {
+        values.push_back(ValueFactory::GetVarcharValue(str));
+      } else {
+        values.push_back(ValueFactory::GetNullValueByType(TypeId::VARCHAR));
+      }
+
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
   if (table == "__mock_agg_input_small") {
     return [plan](size_t cursor) {
       std::vector<Value> values{};
@@ -530,6 +594,46 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
     };
   }
 
+  if (table == "__mock_t8") {
+    return [plan](size_t cursor) {
+      std::vector<Value> values{};
+      values.push_back(ValueFactory::GetIntegerValue(cursor));
+      return Tuple{values, &plan->OutputSchema()};
+    };
+  }
+
+  if (MockRandomValuesEnabled() && table == "__mock_t7") {
+    auto rng = MakeTableRng(table);
+    const Schema *schema = &plan->OutputSchema();
+
+    constexpr int32_t k_groups = 100;
+    constexpr int32_t k_val_domain = 1000000;
+
+    return [schema, rng](size_t /*cursor*/) mutable {
+      auto v = static_cast<int32_t>(rng() % k_groups);
+      auto v1 = static_cast<int32_t>(rng() % k_val_domain);
+      auto v2 = static_cast<int32_t>(rng() % k_val_domain);
+      std::vector<Value> values;
+      values.emplace_back(ValueFactory::GetIntegerValue(v));
+      values.emplace_back(ValueFactory::GetIntegerValue(v1));
+      values.emplace_back(ValueFactory::GetIntegerValue(v2));
+      return Tuple{values, schema};
+    };
+  }
+
+  if (MockRandomValuesEnabled()) {
+    auto rng = MakeTableRng(table);
+    const Schema *schema = &plan->OutputSchema();
+    return [schema, rng](size_t /*cursor*/) mutable {
+      std::vector<Value> values;
+      values.reserve(schema->GetColumnCount());
+      for (const auto &col : schema->GetColumns()) {
+        values.emplace_back(RandomValueForColumn(col, rng));
+      }
+      return Tuple{values, schema};
+    };
+  }
+
   if (table == "__mock_t4_1m") {
     return [plan](size_t cursor) {
       std::vector<Value> values{};
@@ -565,14 +669,6 @@ auto GetFunctionOf(const MockScanPlanNode *plan) -> std::function<Tuple(size_t)>
       std::vector<Value> values{};
       values.push_back(ValueFactory::GetIntegerValue(cursor % 20));
       values.push_back(ValueFactory::GetIntegerValue(cursor));
-      values.push_back(ValueFactory::GetIntegerValue(cursor));
-      return Tuple{values, &plan->OutputSchema()};
-    };
-  }
-
-  if (table == "__mock_t8") {
-    return [plan](size_t cursor) {
-      std::vector<Value> values{};
       values.push_back(ValueFactory::GetIntegerValue(cursor));
       return Tuple{values, &plan->OutputSchema()};
     };
@@ -639,7 +735,6 @@ void MockScanExecutor::Init() {
   // Reset the cursor
   cursor_ = 0;
 }
-
 
 /**
  * Yield the next tuple batch from the scan.
