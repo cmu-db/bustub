@@ -27,11 +27,15 @@ SortExecutor::SortExecutor(ExecutorContext *exec_ctx, const SortPlanNode *plan,
 void SortExecutor::Init() { throw NotImplementedException("SortExecutor is not implemented"); }
 
 /**
- * Yield the next tuple from the sort.
- * @param[out] tuple The next tuple produced by the sort
- * @param[out] rid The next tuple RID produced by the sort
+ * Yield the next tuple batch from the sort.
+ * @param[out] tuple_batch The next tuple batch produced by the sort
+ * @param[out] rid_batch The next tuple RID batch produced by the sort
+ * @param batch_size The number of tuples to be included in the batch (default: BUSTUB_BATCH_SIZE)
  * @return `true` if a tuple was produced, `false` if there are no more tuples
  */
-auto SortExecutor::Next(Tuple *tuple, RID *rid) -> bool { return false; }
+auto SortExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch, size_t batch_size)
+    -> bool {
+  return false;
+}
 
 }  // namespace bustub

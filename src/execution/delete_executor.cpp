@@ -34,14 +34,16 @@ void DeleteExecutor::Init() { UNIMPLEMENTED("TODO(P3): Add implementation."); }
 
 /**
  * Yield the number of rows deleted from the table.
- * @param[out] tuple The integer tuple indicating the number of rows deleted from the table
- * @param[out] rid The next tuple RID produced by the delete (ignore, not used)
+ * @param[out] tuple_batch The tuple batch with one integer indicating the number of rows deleted from the table
+ * @param[out] rid_batch The next tuple RID batch produced by the delete (ignore, not used)
+ * @param batch_size The number of tuples to be included in the batch (default: BUSTUB_BATCH_SIZE)
  * @return `true` if a tuple was produced, `false` if there are no more tuples
  *
- * NOTE: DeleteExecutor::Next() does not use the `rid` out-parameter.
+ * NOTE: DeleteExecutor::Next() does not use the `rid_batch` out-parameter.
  * NOTE: DeleteExecutor::Next() returns true with the number of deleted rows produced only once.
  */
-auto DeleteExecutor::Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool {
+auto DeleteExecutor::Next(std::vector<bustub::Tuple> *tuple_batch, std::vector<bustub::RID> *rid_batch,
+                          size_t batch_size) -> bool {
   UNIMPLEMENTED("TODO(P3): Add implementation.");
 }
 

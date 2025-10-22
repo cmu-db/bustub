@@ -94,11 +94,11 @@ class ExecutionEngine {
    */
   static void PollExecutor(AbstractExecutor *executor, const AbstractPlanNodeRef &plan,
                            std::vector<Tuple> *result_set) {
-    RID rid{};
-    Tuple tuple{};
-    while (executor->Next(&tuple, &rid)) {
+    std::vector<RID> rids{};
+    std::vector<Tuple> tuples{};
+    while (executor->Next(&tuples, &rids, BUSTUB_BATCH_SIZE)) {
       if (result_set != nullptr) {
-        result_set->push_back(tuple);
+        result_set->insert(result_set->end(), tuples.begin(), tuples.end());
       }
     }
   }

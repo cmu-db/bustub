@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <string>
+#include <tuple>
 #include <utility>
 
 #include "binder/bound_expression.h"
@@ -33,24 +34,38 @@ enum class OrderByType : uint8_t {
   DESC = 3,    /**< Descending order by type. */
 };
 
-using OrderBy = std::pair<OrderByType, AbstractExpressionRef>;
+/**
+ * All types of order by nulls in binder.
+ */
+enum class OrderByNullType : uint8_t {
+  DEFAULT = 0,     /**< Default order by type. */
+  NULLS_FIRST = 1, /**< Ascending order by type. */
+  NULLS_LAST = 2,  /**< Descending order by type. */
+};
+
+using OrderBy = std::tuple<OrderByType, OrderByNullType, AbstractExpressionRef>;
 
 /**
  * BoundOrderBy is an item in the ORDER BY clause.
  */
 class BoundOrderBy {
  public:
-  explicit BoundOrderBy(OrderByType type, std::unique_ptr<BoundExpression> expr)
-      : type_(type), expr_(std::move(expr)) {}
+  BoundOrderBy(OrderByType type, OrderByNullType null_order, std::unique_ptr<BoundExpression> expr)
+      : type_(type), null_order_(null_order), expr_(std::move(expr)) {}
 
-  /** The order by type. */
+  /** The order by type (ASC/DESC/DEFAULT). */
   OrderByType type_;
+
+  /** The null ordering (NULLS FIRST/LAST/DEFAULT). */
+  OrderByNullType null_order_;
 
   /** The order by expression */
   std::unique_ptr<BoundExpression> expr_;
 
   /** Render this statement as a string. */
-  auto ToString() const -> std::string { return fmt::format("BoundOrderBy {{ type={}, expr={} }}", type_, expr_); }
+  auto ToString() const -> std::string {
+    return fmt::format("BoundOrderBy {{ type={}, nulls={}, expr={} }}", type_, null_order_, expr_);
+  }
 };
 
 }  // namespace bustub
@@ -96,5 +111,28 @@ struct fmt::formatter<bustub::OrderByType> : formatter<string_view> {
         break;
     }
     return formatter<string_view>::format(name, ctx);
+  }
+};
+
+template <>
+struct fmt::formatter<bustub::OrderByNullType> : fmt::formatter<std::string_view> {
+  template <typename FormatContext>
+  auto format(bustub::OrderByNullType c, FormatContext &ctx) const {
+    std::string_view name;
+    switch (c) {
+      case bustub::OrderByNullType::DEFAULT:
+        name = "Default";
+        break;
+      case bustub::OrderByNullType::NULLS_FIRST:
+        name = "NullsFirst";
+        break;
+      case bustub::OrderByNullType::NULLS_LAST:
+        name = "NullsLast";
+        break;
+      default:
+        name = "Unknown";
+        break;
+    }
+    return fmt::formatter<std::string_view>::format(name, ctx);
   }
 };
