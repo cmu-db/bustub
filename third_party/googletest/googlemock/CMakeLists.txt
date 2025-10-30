@@ -102,10 +102,11 @@ else()
 endif()
 
 string(REPLACE ";" "$<SEMICOLON>" dirs "${gmock_build_include_dirs}")
-target_include_directories(gmock SYSTEM INTERFACE
+# Don't add SYSTEM as CMake uses -isystem compiler flag which will override the bundled headers & use system specific headers
+target_include_directories(gmock INTERFACE
   "$<BUILD_INTERFACE:${dirs}>"
   "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
-target_include_directories(gmock_main SYSTEM INTERFACE
+target_include_directories(gmock_main INTERFACE
   "$<BUILD_INTERFACE:${dirs}>"
   "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
 
