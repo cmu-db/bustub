@@ -151,8 +151,11 @@ set(BUSTUB_THIRD_PARTY_INCLUDE_DIR
 include_directories(${BUSTUB_SRC_INCLUDE_DIR} ${BUSTUB_TEST_INCLUDE_DIR} ${BUSTUB_THIRD_PARTY_INCLUDE_DIR})
 include_directories(BEFORE src) # This is needed for gtest.
 # This ensures that the bundled headers are searched before system paths
-include_directories(BEFORE ${PROJECT_SOURCE_DIR}/third_party/googletest/googletest/include)
-include_directories(BEFORE ${PROJECT_SOURCE_DIR}/third_party/googletest/googlemock/include)
+if (EXISTS "/usr/local/include/gtest" OR EXISTS "/opt/homebrew/include/gtest")
+        message(STATUS "System googletest detected, prioritizing bundled version")
+        include_directories(BEFORE ${PROJECT_SOURCE_DIR}/third_party/googletest/googletest/include)
+        include_directories(BEFORE ${PROJECT_SOURCE_DIR}/third_party/googletest/googlemock/include)
+endif()
 
 function(disable_target_warnings NAME)
         target_compile_options(${NAME} PRIVATE "-w")
