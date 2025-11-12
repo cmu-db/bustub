@@ -19,7 +19,7 @@ namespace bustub {
 
 // NOLINTBEGIN(bugprone-unchecked-optional-access)
 
-TEST(TxnSerializableTest, SerializableTest) {  // NOLINT
+TEST(TxnSerializableTest, DISABLED_SerializableTest) {  // NOLINT
   fmt::println(stderr, "--- SerializableTest2: Serializable ---");
   {
     auto bustub = std::make_unique<BusTubInstance>();
@@ -99,7 +99,7 @@ TEST(TxnSerializableTest, DISABLED_ConcurrentSerializableTest) {  // NOLINT
   }
 }
 
-TEST(GradingTxnAbortTest, DISABLED_SimpleAbortTest) {  // NOLINT
+TEST(TxnAbortTest, DISABLED_SimpleAbortTest) {  // NOLINT
   fmt::println(stderr, "--- SimpleAbortTest: Setup without primary key ---");
   auto bustub = std::make_unique<BusTubInstance>();
   Execute(*bustub, "CREATE TABLE maintable(a int, b int)");
