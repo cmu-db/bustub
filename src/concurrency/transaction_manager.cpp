@@ -47,7 +47,7 @@ auto TransactionManager::Begin(IsolationLevel isolation_level) -> Transaction * 
   auto *txn_ref = txn.get();
   txn_map_.insert(std::make_pair(txn_id, std::move(txn)));
 
-  // TODO(fall2023): set the timestamps here. Watermark updated below.
+  // TODO(P4): set the timestamps here. Watermark updated below.
 
   running_txns_.AddTxn(txn_ref->read_ts_);
   return txn_ref;
@@ -65,7 +65,7 @@ auto TransactionManager::VerifyTxn(Transaction *txn) -> bool { return true; }
 auto TransactionManager::Commit(Transaction *txn) -> bool {
   std::unique_lock<std::mutex> commit_lck(commit_mutex_);
 
-  // TODO(fall2023): acquire commit ts!
+  // TODO(P4): acquire commit ts!
 
   if (txn->state_ != TransactionState::RUNNING) {
     throw Exception("txn not in running state");
@@ -79,11 +79,11 @@ auto TransactionManager::Commit(Transaction *txn) -> bool {
     }
   }
 
-  // TODO(fall2023): Implement the commit logic!
+  // TODO(P4): Implement the commit logic!
 
   std::unique_lock<std::shared_mutex> lck(txn_map_mutex_);
 
-  // TODO(fall2023): set commit timestamp + update last committed timestamp here.
+  // TODO(P4): set commit timestamp + update last committed timestamp here.
 
   txn->state_ = TransactionState::COMMITTED;
   running_txns_.UpdateCommitTs(txn->commit_ts_);
@@ -101,7 +101,7 @@ void TransactionManager::Abort(Transaction *txn) {
     throw Exception("txn not in running / tainted state");
   }
 
-  // TODO(fall2023): Implement the abort logic!
+  // TODO(P4): Implement the abort logic!
 
   std::unique_lock<std::shared_mutex> lck(txn_map_mutex_);
   txn->state_ = TransactionState::ABORTED;

@@ -21,11 +21,11 @@ auto Watermark::AddTxn(timestamp_t read_ts) -> void {
     throw Exception("read ts < commit ts");
   }
 
-  // TODO(fall2023): implement me!
+  // TODO(P4): implement me!
 }
 
 auto Watermark::RemoveTxn(timestamp_t read_ts) -> void {
-  // TODO(fall2023): implement me!
+  // TODO(P4): implement me!
 }
 
 }  // namespace bustub
