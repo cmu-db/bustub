@@ -115,8 +115,7 @@ TEST(TxnAbortTest, DISABLED_SimpleAbortTest) {  // NOLINT
   }
   {
     auto txn_check = BeginTxn(*bustub, "txn_check_after_abort_insert");
-    WithTxn(txn_check,
-            QueryShowResult(*bustub, _var, _txn, "SELECT a, b FROM maintable ORDER BY a, b", IntResult{}));
+    WithTxn(txn_check, QueryShowResult(*bustub, _var, _txn, "SELECT a, b FROM maintable ORDER BY a, b", IntResult{}));
     WithTxn(txn_check, CommitTxn(*bustub, _var, _txn));
   }
 
