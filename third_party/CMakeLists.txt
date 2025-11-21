@@ -2,6 +2,12 @@ add_subdirectory(murmur3)
 add_subdirectory(libpg_query)
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE) # don't override our compiler/linker options when building gtest
+if (EXISTS "/usr/local/include/gtest" OR EXISTS "/opt/homebrew/include/gtest")
+    message(STATUS "System googletest detected, prioritizing bundled version")
+# Prevent system googletest headers from being used - add our include paths with higher priority
+    include_directories(BEFORE ${PROJECT_SOURCE_DIR}/third_party/googletest/googletest/include)
+    include_directories(BEFORE ${PROJECT_SOURCE_DIR}/third_party/googletest/googlemock/include)
+endif()
 add_subdirectory(googletest)
 
 add_subdirectory(fmt)
