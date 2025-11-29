@@ -296,7 +296,7 @@ TEST(TxnExecutorTest, DISABLED_GenerateUndoLogTest) {
     auto base_tuple = Tuple{{Int(0), Double(0.0), Bool(true)}, schema.get()};
     auto undo_log = GenerateNewUndoLog(schema.get(), &base_tuple, nullptr, 0, {});
     auto target_tuple = Tuple{{Int(0), Double(1.0), Bool(false)}, schema.get()};
-    auto updated_undo_log = GenerateUpdatedUndoLog(schema.get(), &base_tuple, &target_tuple, undo_log);
+    auto updated_undo_log = GenerateUpdatedUndoLog(schema.get(), nullptr, &target_tuple, undo_log);
 
     auto tuple = ReconstructTuple(schema.get(), target_tuple, {0, false}, {updated_undo_log});
     ASSERT_TRUE(tuple.has_value());

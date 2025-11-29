@@ -205,7 +205,7 @@ TEST(TxnIndexTest, DISABLED_IndexConcurrentUpdateTest) {  // NOLINT
   }
 }
 
-TEST(TxnIndexTest, DISABLED_IndexConcurrentUpdateAbortTest) {  // NOLINT
+TEST(TxnAbortTest, DISABLED_IndexConcurrentUpdateAbortTest) {  // NOLINT
   const auto generate_sql = [](int n) -> std::string {
     return fmt::format("UPDATE maintable SET b = b + {} WHERE a = {}", 1, n);
   };
