@@ -19,7 +19,7 @@ template <typename KeyType>
 HyperLogLog<KeyType>::HyperLogLog(int16_t n_bits) : cardinality_(0) {
   if (n_bits >= 0) {
     n_bits_ = n_bits;
-    registers_.resize(1<<n_bits_);
+    register_.resize(1<<n_bits_);
   }
 }
 
@@ -48,9 +48,9 @@ auto HyperLogLog<KeyType>::ComputeBinary(const hash_t &hash) const -> std::bitse
 template <typename KeyType>
 auto HyperLogLog<KeyType>::PositionOfLeftmostOne(const std::bitset<BITSET_CAPACITY> &bset) const -> uint64_t {
   /** @TODO(student) Implement this function! */
-  for (uint64_t i = bset.size() - 1; i >=0; --i) {
+  for (uint64_t i = bset.size() - 1; i >= 0; --i) {
     if (bset[i]) {
-      return i;
+      return BITSET_CAPACITY - i;
     }
   }
   return 0;
@@ -64,18 +64,18 @@ auto HyperLogLog<KeyType>::PositionOfLeftmostOne(const std::bitset<BITSET_CAPACI
 template <typename KeyType>
 auto HyperLogLog<KeyType>::AddElem(KeyType val) -> void {
   /** @TODO(student) Implement this function! */
-  auto hash = CalculateHash(val);
-  auto bset = ComputerBinary(hash);
+  auto hash = CalculateHash(std::move(val));
+  auto bset = ComputeBinary(hash);
 
-  auto register_idx = (bset >> BITSET_CAPACITY - n_bits_).to_ullong();
+  auto register_idx = (bset >> (BITSET_CAPACITY - n_bits_)).to_ullong();
 
-  for (size_t i = 0; i < register_idx; i++) {
+  for (size_t i = 0; i < n_bits_; i++) {
     bset[BITSET_CAPACITY - 1 - i] = false;
   }
 
-  uint64_t p_val = BITSET_CAPACITY - PositionOfLeftmostOne(bset) - n_bits_;
+  uint64_t p_val = PositionOfLeftmostOne(bset) - n_bits_;
 
-  register_[register_idx] = std::max(registers_[register_idx], p_val);
+  register_[register_idx] = std::max(register_[register_idx], p_val);
 }
 
 /**

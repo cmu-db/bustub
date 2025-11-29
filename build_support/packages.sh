@@ -11,7 +11,7 @@
 ##  * macOS 13 Ventura (x86-64 or ARM)
 ## =================================================================
 
-CLANG_VERSION=15
+CLANG_VERSION=17
 
 main() {
   set -o errexit
