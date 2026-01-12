@@ -85,7 +85,7 @@ class CountMinSketch {
   /** Pre-computed hash functions for each row */
   std::vector<std::function<size_t(const KeyType &)>> hash_functions_;
 
-  /** @fall2025 PLEASE DO NOT MODIFY THE FOLLOWING */
+  /** @spring2026 PLEASE DO NOT MODIFY THE FOLLOWING */
   constexpr static size_t SEED_BASE = 15445;
 
   /**
