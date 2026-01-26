@@ -31,11 +31,14 @@ enum class ArcStatus { MRU, MFU, MRU_GHOST, MFU_GHOST };
 // TODO(student): You can modify or remove this struct as you like.
 struct FrameStatus {
   page_id_t page_id_;
-  frame_id_t frame_id_;
+  frame_id_t frame_id_;  // memory slot
   bool evictable_;
   ArcStatus arc_status_;
   FrameStatus(page_id_t pid, frame_id_t fid, bool ev, ArcStatus st)
-      : page_id_(pid), frame_id_(fid), evictable_(ev), arc_status_(st) {}
+      : page_id_(pid),
+        frame_id_(fid),
+        evictable_(ev),
+        arc_status_(st) {}  // constructor
 };
 
 /**
@@ -55,33 +58,39 @@ class ArcReplacer {
   ~ArcReplacer() = default;
 
   auto Evict() -> std::optional<frame_id_t>;
-  void RecordAccess(frame_id_t frame_id, page_id_t page_id, AccessType access_type = AccessType::Unknown);
+  void RecordAccess(frame_id_t frame_id, page_id_t page_id,
+                    AccessType access_type = AccessType::Unknown);
   void SetEvictable(frame_id_t frame_id, bool set_evictable);
   void Remove(frame_id_t frame_id);
   auto Size() -> size_t;
+  void TrimGhostLists();
+  auto EvictInternal() -> std::optional<frame_id_t>;
 
  private:
-  // TODO(student): implement me! You can replace or remove these member variables as you like.
-  std::list<frame_id_t> mru_;
-  std::list<frame_id_t> mfu_;
-  std::list<page_id_t> mru_ghost_;
-  std::list<page_id_t> mfu_ghost_;
+  // TODO(student): implement me! You can replace or remove these member
+  // variables as you like.
+  std::list<frame_id_t> mru_;       // T1
+  std::list<frame_id_t> mfu_;       // T2
+  std::list<page_id_t> mru_ghost_;  // B1
+  std::list<page_id_t> mfu_ghost_;  // B2
 
   /* record entries in mru_ and mfu_
    * this uses frame_id_t to guarantee no duplicate records for the same
-   * frame when they are alive */
+   * frame when they are alive
+   * map<frameID,frame metadata> for all T1 and T2 */
   std::unordered_map<frame_id_t, std::shared_ptr<FrameStatus>> alive_map_;
+
   /* record entries in mru_ghost_ and mfu_ghost_
    * this uses page_id_t but not frame_id_t because page_id is the unique
    * identifier in ghost lists */
   std::unordered_map<page_id_t, std::shared_ptr<FrameStatus>> ghost_map_;
 
   /* alive, evictable entries count */
-  [[maybe_unused]] size_t curr_size_{0};
+  [[maybe_unused]] size_t curr_size_{0};  // number of evictable frames
   /* p as in original paper */
-  [[maybe_unused]] size_t mru_target_size_{0};
+  [[maybe_unused]] size_t mru_target_size_{0};  // p size of(T1)
   /* c as in original paper */
-  [[maybe_unused]] size_t replacer_size_;
+  [[maybe_unused]] size_t replacer_size_;  // c size of (T1 + T2)
   std::mutex latch_;
 
   // TODO(student): You can add member variables / functions as you like.
