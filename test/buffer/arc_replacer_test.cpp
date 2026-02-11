@@ -214,6 +214,163 @@ TEST(ArcReplacerTest, DISABLED_SampleTest2) {
   ASSERT_EQ(1, arc_replacer.Evict());
 }
 
+TEST(ArcReplacerTest, DISABLED_RemoveBehaviorTest) {
+  // Scenario 1: Remove from empty replacer — should be a no-op
+  {
+    ArcReplacer arc_replacer(5);
+    arc_replacer.Remove(0);
+    ASSERT_EQ(0, arc_replacer.Size());
+  }
+
+  // Scenario 2: Remove a non-existent frame_id — should be a no-op
+  {
+    ArcReplacer arc_replacer(5);
+    arc_replacer.RecordAccess(0, 10);
+    arc_replacer.SetEvictable(0, true);
+    ASSERT_EQ(1, arc_replacer.Size());
+    arc_replacer.Remove(99);  // never inserted
+    ASSERT_EQ(1, arc_replacer.Size());
+  }
+
+  // Scenario 3: Remove an evictable frame from MRU
+  {
+    ArcReplacer arc_replacer(5);
+    arc_replacer.RecordAccess(0, 10);
+    arc_replacer.SetEvictable(0, true);
+    arc_replacer.RecordAccess(1, 11);
+    arc_replacer.SetEvictable(1, true);
+    arc_replacer.RecordAccess(2, 12);
+    arc_replacer.SetEvictable(2, true);
+    // State: [][(10,f0),(11,f1),(12,f2)]![][] p=0
+    ASSERT_EQ(3, arc_replacer.Size());
+
+    arc_replacer.Remove(1);  // remove middle frame from MRU
+    ASSERT_EQ(2, arc_replacer.Size());
+
+    // Evict remaining: should be f0 then f2 (oldest to newest in MRU)
+    ASSERT_EQ(0, arc_replacer.Evict());
+    ASSERT_EQ(2, arc_replacer.Evict());
+    ASSERT_FALSE(arc_replacer.Evict().has_value());
+  }
+
+  // Scenario 4: Remove an evictable frame from MFU
+  {
+    ArcReplacer arc_replacer(4);
+    arc_replacer.RecordAccess(0, 20);
+    arc_replacer.SetEvictable(0, true);
+    arc_replacer.RecordAccess(1, 21);
+    arc_replacer.SetEvictable(1, true);
+    // Move frame 0 to MFU by accessing again
+    arc_replacer.RecordAccess(0, 20);
+    // State: [][(21,f1)]![(20,f0)][] p=0
+    ASSERT_EQ(2, arc_replacer.Size());
+
+    arc_replacer.Remove(0);  // remove from MFU
+    ASSERT_EQ(1, arc_replacer.Size());
+
+    // Only frame 1 remains
+    ASSERT_EQ(1, arc_replacer.Evict());
+    ASSERT_FALSE(arc_replacer.Evict().has_value());
+  }
+
+  // Scenario 5: Remove does NOT create ghost entries
+  // If Evict were used instead of Remove, page_id 30 would go into a ghost list.
+  // On re-access, it would be a ghost hit → placed in MFU and target size adjusted.
+  // With Remove, no ghost is created → re-access goes to MRU as a fresh entry.
+  {
+    ArcReplacer arc_replacer(3);
+    arc_replacer.RecordAccess(0, 30);
+    arc_replacer.SetEvictable(0, true);
+    arc_replacer.RecordAccess(1, 31);
+    arc_replacer.SetEvictable(1, true);
+    arc_replacer.RecordAccess(2, 32);
+    arc_replacer.SetEvictable(2, true);
+    // State: [][(30,f0),(31,f1),(32,f2)]![][] p=0
+
+    // Remove frame 0 (page 30) — no ghost created
+    arc_replacer.Remove(0);
+    ASSERT_EQ(2, arc_replacer.Size());
+    // State: [][(31,f1),(32,f2)]![][] p=0
+
+    // Re-add frame 0 with the same page_id 30.
+    // Since no ghost exists, this is Case IV (miss all lists) → goes to MRU.
+    arc_replacer.RecordAccess(0, 30);
+    arc_replacer.SetEvictable(0, true);
+    // State: [][(31,f1),(32,f2),(30,f0)]![][] p=0
+
+    // Evict order from MRU (target=0, all in MRU): f1, f2, f0
+    ASSERT_EQ(1, arc_replacer.Evict());
+    ASSERT_EQ(2, arc_replacer.Evict());
+    ASSERT_EQ(0, arc_replacer.Evict());
+  }
+
+  // Scenario 6: Double remove (same frame_id twice)
+  {
+    ArcReplacer arc_replacer(3);
+    arc_replacer.RecordAccess(0, 40);
+    arc_replacer.SetEvictable(0, true);
+    ASSERT_EQ(1, arc_replacer.Size());
+
+    arc_replacer.Remove(0);
+    ASSERT_EQ(0, arc_replacer.Size());
+
+    // Second remove is a no-op (frame no longer in alive_map_)
+    arc_replacer.Remove(0);
+    ASSERT_EQ(0, arc_replacer.Size());
+  }
+
+  // Scenario 7: Remove then re-insert same frame with a different page_id
+  {
+    ArcReplacer arc_replacer(3);
+    arc_replacer.RecordAccess(0, 50);
+    arc_replacer.SetEvictable(0, true);
+
+    arc_replacer.Remove(0);
+    ASSERT_EQ(0, arc_replacer.Size());
+
+    // Re-use frame 0 with a new page
+    arc_replacer.RecordAccess(0, 51);
+    arc_replacer.SetEvictable(0, true);
+    ASSERT_EQ(1, arc_replacer.Size());
+    ASSERT_EQ(0, arc_replacer.Evict());
+  }
+
+  // Scenario 8: Remove middle frame preserves eviction order of remaining frames
+  {
+    ArcReplacer arc_replacer(5);
+    for (int i = 0; i < 5; i++) {
+      arc_replacer.RecordAccess(i, 60 + i);
+      arc_replacer.SetEvictable(i, true);
+    }
+    // MRU: [(60,f0),(61,f1),(62,f2),(63,f3),(64,f4)]
+    arc_replacer.Remove(2);
+    ASSERT_EQ(4, arc_replacer.Size());
+
+    // Evict order: f0, f1, f3, f4 (frame 2 skipped)
+    ASSERT_EQ(0, arc_replacer.Evict());
+    ASSERT_EQ(1, arc_replacer.Evict());
+    ASSERT_EQ(3, arc_replacer.Evict());
+    ASSERT_EQ(4, arc_replacer.Evict());
+    ASSERT_FALSE(arc_replacer.Evict().has_value());
+  }
+
+  // Scenario 9: Remove all frames one by one
+  {
+    ArcReplacer arc_replacer(5);
+    for (int i = 0; i < 5; i++) {
+      arc_replacer.RecordAccess(i, 80 + i);
+      arc_replacer.SetEvictable(i, true);
+    }
+    ASSERT_EQ(5, arc_replacer.Size());
+
+    for (int i = 0; i < 5; i++) {
+      arc_replacer.Remove(i);
+    }
+    ASSERT_EQ(0, arc_replacer.Size());
+    ASSERT_FALSE(arc_replacer.Evict().has_value());
+  }
+}
+
 // Feel free to write more tests!
 
 }  // namespace bustub
