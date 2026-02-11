@@ -16,3 +16,4 @@ as a public shaming and a warning to others to not repeat the same mistake.
 | Date       | Username                            |
 | ---------- | ----------------------------------- |
 | 2025-09-14 | [HuoYa0](https://github.com/HuoYa0) |
+| 2026-01-26 | [ziad73](https://github.com/ziad73) |
