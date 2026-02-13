@@ -353,6 +353,15 @@ TEST(BPlusTreeTests, DISABLED_TombstoneCoalesceTest) {
     tree.Remove(k);
   }
 
+  // ensure index is still correct
+  std::vector<page_id_t> leaves;
+  leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 2>(tree.GetRootPageId(), bpm);
+  while (leaf.Valid()) {
+    leaves.push_back(leaf.guard_->GetPageId());
+    ++leaf;
+  }
+  ASSERT_EQ(leaves, std::vector<page_id_t>{tree.GetRootPageId()});
+
   // get the only leaf page in the b+ tree
   page_id_t root_page_id = tree.GetRootPageId();
   auto root_page = bpm->ReadPage(root_page_id).As<LeafPage>();
