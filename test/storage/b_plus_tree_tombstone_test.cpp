@@ -294,6 +294,7 @@ TEST(BPlusTreeTests, DISABLED_TombstoneCoalesceTest) {
   GenericKey<8> index_key;
   RID rid;
 
+  // insert 0, 1, 2, 3, 4, 5, 6 into the b+ tree
   size_t num_keys = 7;
   for (size_t i = 0; i < num_keys; i++) {
     int64_t value = i & 0xFFFFFFFF;
@@ -302,8 +303,9 @@ TEST(BPlusTreeTests, DISABLED_TombstoneCoalesceTest) {
     tree.Insert(index_key, rid);
   }
 
-  page_id_t larger_pid;
-  page_id_t smaller_pid;
+  // there should be a larger leaf page and a smaller leaf page
+  page_id_t larger_pid = INVALID_PAGE_ID;
+  page_id_t smaller_pid = INVALID_PAGE_ID;
   auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 2>(tree.GetRootPageId(), bpm);
   while (leaf.Valid()) {
     if ((*leaf)->GetSize() == 4) {
@@ -313,48 +315,64 @@ TEST(BPlusTreeTests, DISABLED_TombstoneCoalesceTest) {
     }
     ++leaf;
   }
+  ASSERT_NE(larger_pid, INVALID_PAGE_ID);
+  ASSERT_NE(smaller_pid, INVALID_PAGE_ID);
 
-  std::vector<GenericKey<8>> to_delete;
+  // figure out keys to delete from the larger and smaller pages
+  std::vector<GenericKey<8>> to_del_from_larger_page;
+  std::vector<GenericKey<8>> to_del_from_smaller_page;
   {
     auto larger_page = bpm->ReadPage(larger_pid).As<LeafPage>();
     auto smaller_page = bpm->ReadPage(smaller_pid).As<LeafPage>();
-    for (size_t i = 0; i < 2; i++) {
-      to_delete.push_back(larger_page->KeyAt(2 + i));
-      to_delete.push_back(smaller_page->KeyAt(i));
-    }
-    to_delete.push_back(larger_page->KeyAt(0));
-    to_delete.push_back(smaller_page->KeyAt(2));
+
+    to_del_from_larger_page = {
+        larger_page->KeyAt(0),
+        larger_page->KeyAt(1),
+        larger_page->KeyAt(2),
+    };
+    to_del_from_smaller_page = {
+        smaller_page->KeyAt(0),
+        smaller_page->KeyAt(1),
+        smaller_page->KeyAt(2),
+    };
   }
-  for (auto k : to_delete) {
+
+  // delete keys alternating between the larger and smaller pages.
+  // The final delete from the smaller page should force a coalesce.
+  std::vector<GenericKey<8>> to_del = {
+      // clang-format off
+      to_del_from_larger_page[0],
+      to_del_from_smaller_page[0],
+      to_del_from_larger_page[1],
+      to_del_from_smaller_page[1],
+      to_del_from_larger_page[2],
+      to_del_from_smaller_page[2],
+      // clang-format on
+  };
+  for (auto k : to_del) {
     tree.Remove(k);
   }
 
-  size_t num_leaves = 0;
-  page_id_t remaining_pid;
-  leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>, 2>(tree.GetRootPageId(), bpm);
-  while (leaf.Valid()) {
-    remaining_pid = leaf.guard_->GetPageId();
-    num_leaves++;
-    ++leaf;
+  // get the only leaf page in the b+ tree
+  page_id_t root_page_id = tree.GetRootPageId();
+  auto root_page = bpm->ReadPage(root_page_id).As<LeafPage>();
+  ASSERT_EQ(root_page->IsLeafPage(), true);
+
+  auto tombstones = root_page->GetTombstones();
+  EXPECT_EQ(tombstones.size(), 2);
+
+  // final set of tombstones should either be the last two keys logically
+  // deleted from the smaller page or the last two keys logically deleted
+  // from the larger page.
+  bool eq_to_smaller_page = true;
+  bool eq_to_larger_page = true;
+  for (int i = 0; i < 2; i++) {
+    eq_to_smaller_page &= tombstones[i].GetAsInteger() == to_del_from_smaller_page[1 + i].GetAsInteger();
+    eq_to_larger_page &= tombstones[i].GetAsInteger() == to_del_from_larger_page[1 + i].GetAsInteger();
   }
 
-  EXPECT_EQ(num_leaves, 1);
-  auto page = bpm->ReadPage(remaining_pid).As<LeafPage>();
-  auto tombstones = page->GetTombstones();
-  EXPECT_EQ(tombstones.size(), 2);
-  if (remaining_pid == smaller_pid) {
-    EXPECT_EQ(tombstones[0].GetAsInteger(), to_delete[2].GetAsInteger());
-    EXPECT_EQ(tombstones[1].GetAsInteger(), to_delete[4].GetAsInteger());
-    index_key.SetFromInteger(7);
-    int64_t value = 7 & 0xFFFFFFFF;
-    rid.Set(static_cast<int32_t>(7L >> 32), value);
-    tree.Insert(index_key, rid);
-    EXPECT_EQ(tombstones[0].GetAsInteger(), to_delete[2].GetAsInteger());
-    EXPECT_EQ(tombstones[1].GetAsInteger(), to_delete[4].GetAsInteger());
-  } else {
-    EXPECT_EQ(tombstones[0].GetAsInteger(), to_delete[3].GetAsInteger());
-    EXPECT_EQ(tombstones[1].GetAsInteger(), to_delete[5].GetAsInteger());
-  }
+  ASSERT_EQ(!eq_to_smaller_page || !eq_to_larger_page, true);
+  EXPECT_EQ(eq_to_smaller_page || eq_to_larger_page, true);
 
   delete bpm;
   delete disk_manager;
