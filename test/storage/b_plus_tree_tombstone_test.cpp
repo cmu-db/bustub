@@ -341,6 +341,7 @@ TEST(BPlusTreeTests, DISABLED_TombstoneCoalesceTest) {
   // The final delete from the smaller page should force a coalesce.
   std::vector<GenericKey<8>> to_del = {
       // clang-format off
+      // Otherwise these are folded into two hard-to-read lines
       to_del_from_larger_page[0],
       to_del_from_smaller_page[0],
       to_del_from_larger_page[1],
