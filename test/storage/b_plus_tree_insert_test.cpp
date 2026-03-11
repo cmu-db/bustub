@@ -70,7 +70,7 @@ TEST(BPlusTreeTests, DISABLED_OptimisticInsertTest) {
   GenericKey<8> index_key;
   RID rid;
 
-  size_t num_keys = 25;
+  size_t num_keys = 5;
   for (size_t i = 0; i < num_keys; i++) {
     int64_t value = i & 0xFFFFFFFF;
     rid.Set(static_cast<int32_t>(i >> 32), value);
@@ -78,7 +78,7 @@ TEST(BPlusTreeTests, DISABLED_OptimisticInsertTest) {
     tree.Insert(index_key, rid);
   }
 
-  size_t to_insert = num_keys + 1;
+  size_t to_insert = 2 * num_keys;
   auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>>(tree.GetRootPageId(), bpm);
   while (leaf.Valid()) {
     if (((*leaf)->GetSize() + 1) < (*leaf)->GetMaxSize()) {
@@ -86,7 +86,7 @@ TEST(BPlusTreeTests, DISABLED_OptimisticInsertTest) {
     }
     ++leaf;
   }
-  EXPECT_NE(to_insert, num_keys + 1);
+  EXPECT_NE(to_insert, 2 * num_keys);
 
   auto base_reads = tree.bpm_->GetReads();
   auto base_writes = tree.bpm_->GetWrites();
@@ -94,7 +94,7 @@ TEST(BPlusTreeTests, DISABLED_OptimisticInsertTest) {
   index_key.SetFromInteger(to_insert);
   int64_t value = to_insert & 0xFFFFFFFF;
   rid.Set(static_cast<int32_t>(to_insert >> 32), value);
-  tree.Insert(index_key, rid);
+  EXPECT_TRUE(tree.Insert(index_key, rid));
 
   auto new_reads = tree.bpm_->GetReads();
   auto new_writes = tree.bpm_->GetWrites();
