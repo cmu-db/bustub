@@ -70,6 +70,16 @@ TEST(BPlusTreeTests, DISABLED_OptimisticInsertTest) {
   GenericKey<8> index_key;
   RID rid;
 
+  // Inserting 5 keys ensures there is at least one leaf page with at most 2 keys. This allows reliably testing for
+  // optimistic insertions across any combination of design decisions such as when a leaf page is considered to have
+  // overflowed, how keys are distributed on splits, etc.
+  //
+  // Previously, 25 keys were being inserted. This was problematic for a particular combination of design decisions
+  // where a leaf page is considered to have overflowed only when it exceeds the maximum size, and if the number of keys
+  // is odd, more keys are distributed to the page left of the spilt. This resulted in leaf pages of size 3 and one leaf
+  // page of size 4, making it impossible to guarantee an optimistic insertion on any of the leaves.
+  //
+  // For Spring 2026, this test is disabled on Gradescope.
   size_t num_keys = 5;
   for (size_t i = 0; i < num_keys; i++) {
     int64_t value = i & 0xFFFFFFFF;
