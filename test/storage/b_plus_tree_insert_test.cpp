@@ -70,7 +70,17 @@ TEST(BPlusTreeTests, DISABLED_OptimisticInsertTest) {
   GenericKey<8> index_key;
   RID rid;
 
-  size_t num_keys = 25;
+  // Inserting 5 keys ensures there is at least one leaf page with at most 2 keys. This allows reliably testing for
+  // optimistic insertions across any combination of design decisions such as when a leaf page is considered to have
+  // overflowed, how keys are distributed on splits, etc.
+  //
+  // Previously, 25 keys were being inserted. This was problematic for a particular combination of design decisions
+  // where a leaf page is considered to have overflowed only when it exceeds the maximum size, and if the number of keys
+  // is odd, more keys are distributed to the page left of the spilt. This resulted in leaf pages of size 3 and one leaf
+  // page of size 4, making it impossible to guarantee an optimistic insertion on any of the leaves.
+  //
+  // For Spring 2026, this test is disabled on Gradescope.
+  size_t num_keys = 5;
   for (size_t i = 0; i < num_keys; i++) {
     int64_t value = i & 0xFFFFFFFF;
     rid.Set(static_cast<int32_t>(i >> 32), value);
@@ -78,7 +88,7 @@ TEST(BPlusTreeTests, DISABLED_OptimisticInsertTest) {
     tree.Insert(index_key, rid);
   }
 
-  size_t to_insert = num_keys + 1;
+  size_t to_insert = 2 * num_keys;
   auto leaf = IndexLeaves<GenericKey<8>, RID, GenericComparator<8>>(tree.GetRootPageId(), bpm);
   while (leaf.Valid()) {
     if (((*leaf)->GetSize() + 1) < (*leaf)->GetMaxSize()) {
@@ -86,7 +96,7 @@ TEST(BPlusTreeTests, DISABLED_OptimisticInsertTest) {
     }
     ++leaf;
   }
-  EXPECT_NE(to_insert, num_keys + 1);
+  EXPECT_NE(to_insert, 2 * num_keys);
 
   auto base_reads = tree.bpm_->GetReads();
   auto base_writes = tree.bpm_->GetWrites();
@@ -94,7 +104,7 @@ TEST(BPlusTreeTests, DISABLED_OptimisticInsertTest) {
   index_key.SetFromInteger(to_insert);
   int64_t value = to_insert & 0xFFFFFFFF;
   rid.Set(static_cast<int32_t>(to_insert >> 32), value);
-  tree.Insert(index_key, rid);
+  EXPECT_TRUE(tree.Insert(index_key, rid));
 
   auto new_reads = tree.bpm_->GetReads();
   auto new_writes = tree.bpm_->GetWrites();
