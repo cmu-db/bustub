@@ -82,30 +82,25 @@ void BusTubInstance::HandleCreateStatement(Transaction *txn, const CreateStateme
     //! NOTE: Currently, we support key sizes of at most 64 bytes.
     //!       This can be easily extended to support larger key sizes.
     if (key_size <= 4) {
-      index = catalog_->CreateIndex<GenericKey<4>, RID, GenericComparator<4>>(
-                          txn, stmt.table_ + "_pk", stmt.table_,
-                          info->schema_, key_schema, col_ids, 4,
-                          HashFunction<GenericKey<4>>{}, true);
+      index = catalog_->CreateIndex<GenericKey<4>, RID, GenericComparator<4>>(txn, stmt.table_ + "_pk", stmt.table_,
+                                                                              info->schema_, key_schema, col_ids, 4,
+                                                                              HashFunction<GenericKey<4>>{}, true);
     } else if (key_size <= 8) {
-      index = catalog_->CreateIndex<GenericKey<8>, RID, GenericComparator<8>>(
-                          txn, stmt.table_ + "_pk", stmt.table_,
-                          info->schema_, key_schema, col_ids, 8,
-                          HashFunction<GenericKey<8>>{}, true);
+      index = catalog_->CreateIndex<GenericKey<8>, RID, GenericComparator<8>>(txn, stmt.table_ + "_pk", stmt.table_,
+                                                                              info->schema_, key_schema, col_ids, 8,
+                                                                              HashFunction<GenericKey<8>>{}, true);
     } else if (key_size <= 16) {
-      index = catalog_->CreateIndex<GenericKey<16>, RID, GenericComparator<16>>(
-                          txn, stmt.table_ + "_pk", stmt.table_,
-                          info->schema_, key_schema, col_ids, 16,
-                          HashFunction<GenericKey<16>>{}, true);
+      index = catalog_->CreateIndex<GenericKey<16>, RID, GenericComparator<16>>(txn, stmt.table_ + "_pk", stmt.table_,
+                                                                                info->schema_, key_schema, col_ids, 16,
+                                                                                HashFunction<GenericKey<16>>{}, true);
     } else if (key_size <= 32) {
-      index = catalog_->CreateIndex<GenericKey<32>, RID, GenericComparator<32>>(
-                          txn, stmt.table_ + "_pk", stmt.table_,
-                          info->schema_, key_schema, col_ids, 32,
-                          HashFunction<GenericKey<32>>{}, true);
+      index = catalog_->CreateIndex<GenericKey<32>, RID, GenericComparator<32>>(txn, stmt.table_ + "_pk", stmt.table_,
+                                                                                info->schema_, key_schema, col_ids, 32,
+                                                                                HashFunction<GenericKey<32>>{}, true);
     } else if (key_size <= 64) {
-      index = catalog_->CreateIndex<GenericKey<64>, RID, GenericComparator<64>>(
-                          txn, stmt.table_ + "_pk", stmt.table_,
-                          info->schema_, key_schema, col_ids, 64,
-                          HashFunction<GenericKey<64>>{}, true);
+      index = catalog_->CreateIndex<GenericKey<64>, RID, GenericComparator<64>>(txn, stmt.table_ + "_pk", stmt.table_,
+                                                                                info->schema_, key_schema, col_ids, 64,
+                                                                                HashFunction<GenericKey<64>>{}, true);
     } else {
       throw NotImplementedException("Unsupported: primary key size exceeds 64 bytes");
     }
@@ -160,8 +155,8 @@ void BusTubInstance::HandleIndexStatement(Transaction *txn, const IndexStatement
   uint32_t key_size = col_ids.size() * 4;
 
   // We create an index of sufficient size depending on the key size.
-    //! NOTE: Currently, we support key sizes of at most 64 bytes.
-    //!       This can be easily extended to support larger key sizes.
+  //! NOTE: Currently, we support key sizes of at most 64 bytes.
+  //!       This can be easily extended to support larger key sizes.
   if (key_size <= 4) {
     info = catalog_->CreateIndex<GenericKey<4>, RID, GenericComparator<4>>(
         txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, 4,
