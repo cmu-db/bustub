@@ -1,0 +1,176 @@
+# 6 pts
+
+statement ok
+set force_optimizer_starter_rule=yes
+
+# Create a table
+statement ok
+create table t1(v1 int, v2 int, v3 int);
+
+query
+insert into t1 values (1, 50, 645), (2, 40, 721), (4, 20, 445), (5, 10, 445), (3, 30, 645);
+----
+5
+
+# Build index
+statement ok
+create index t1v1v2 on t1(v1, v2);
+
+statement ok
+explain select * from t1 where v1 = 1 and v2 = 50;
+
+query +ensure:index_scan
+select * from t1 where v1 = 1 and v2 = 50;
+----
+1 50 645
+
+statement ok
+explain select * from t1 where v1 = 1;
+
+query +ensure:index_scan
+select * from t1 where v1 = 1;
+----
+1 50 645
+
+query +ensure:index_scan
+select * from t1 where v1 = 0;
+----
+
+query +ensure:index_scan
+select * from t1 where v1 = 5 and v2 = 10 and v3 = 445;
+----
+5 10 445
+
+# Create another table
+statement ok
+create table t2(v1 int, v2 int, v3 int, v4 int);
+
+query
+insert into t2 values (1, 50, 6, 7), (2, 10, 8, 9), (4, 20, 7, 11), (5, 40, 3, 15), (3, 30, 100, 200);
+----
+5
+
+# Build index
+statement ok
+create index t2v2 on t2(v2);
+
+statement ok
+create index t2v3v4 on t2(v3, v4);
+
+query +ensure:index_scan
+select * from t2 where v2 = 50;
+----
+1 50 6 7
+
+query +ensure:index_scan
+select * from t2 where v3 = 8;
+----
+2 10 8 9
+
+query +ensure:index_scan
+select * from t2 where v3 = 8 and v4 = 9;
+----
+2 10 8 9
+
+query +ensure:seq_scan
+select * from t2 where v1 = 5;
+----
+5 40 3 15
+
+query +ensure:seq_scan
+select * from t2 where v4 = 15;
+----
+5 40 3 15
+
+query +ensure:index_scan
+select * from t2 where v2 = 20 and v3 = 7;
+----
+4 20 7 11
+
+query +ensure:index_scan
+select * from t2 where v1 = 4 and v3 = 7;
+----
+4 20 7 11
+
+# Create another table
+statement ok
+create table t3(v1 int, v2 int, v3 int, v4 int);
+
+# Build index
+statement ok
+create index t3v1v2v3 on t3(v1, v2, v3);
+
+query
+insert into t3 values (1, 21, 31, 41), (1, 21, 32, 42), (1, 22, 31, 42), (2, 22, 33, 43), (3, 23, 34, 44);
+----
+5
+
+query +ensure:index_scan
+select * from t3 where v1 = 1;
+----
+1 21 31 41
+1 21 32 42
+1 22 31 42
+
+query +ensure:index_scan
+select * from t3 where v1 = 1 and v2 = 21;
+----
+1 21 31 41
+1 21 32 42
+
+query +ensure:index_scan
+select * from t3 where v1 = 1 and v2 = 21 and v3 = 31;
+----
+1 21 31 41
+
+query +ensure:index_scan
+select * from t3 where v1 = 1 and v2 = 21 and v3 = 31 and v4 = 41;
+----
+1 21 31 41
+
+query +ensure:seq_scan
+select * from t3 where v2 = 22;
+----
+1 22 31 42
+2 22 33 43
+
+# Create another table
+statement ok
+create table t4(v1 int, v2 int, v3 int);
+
+query
+insert into t4 values (1, 21, 32), (1, 22, 33), (2, 23, 34), (3, 24, 35), (4, 25, 38);
+----
+5
+
+# Build index
+statement ok
+create index t4v1v2 on t4(v1, v2);
+
+statement ok
+create index t4v3 on t4(v3);
+
+query +ensure:index_scan
+select * from t4 where v1 = 1;
+----
+1 21 32
+1 22 33
+
+# Insert elements
+query
+insert into t4 values (1, 23, 36), (1, 24, 37), (3, 25, 39);
+----
+3
+
+query +ensure:index_scan
+select * from t4 where v1 = 1;
+----
+1 21 32
+1 22 33
+1 23 36
+1 24 37
+
+query +ensure:index_scan
+select * from t4 where v3 = 39;
+----
+3 25 39
