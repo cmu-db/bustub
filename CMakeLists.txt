@@ -322,6 +322,7 @@ add_custom_target(submit-p2
 )
 
 set(P3_FILES
+        "src/include/execution/plans/index_scan_plan.h"
         "src/include/execution/executors/aggregation_executor.h"
         "src/include/execution/executors/delete_executor.h"
         "src/include/execution/executors/filter_executor.h"
