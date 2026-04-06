@@ -56,7 +56,7 @@ class LRUKReplacer {
   /**
    * TODO(P1): Add implementation
    *
-   * @brief Destroys the LRUReplacer.
+   * @brief Destroys the LRUKReplacer.
    */
   ~LRUKReplacer() = default;
 

@@ -50,7 +50,7 @@ class ArcReplacer {
   /**
    * TODO(P1): Add implementation
    *
-   * @brief Destroys the LRUReplacer.
+   * @brief Destroys the ArcReplacer.
    */
   ~ArcReplacer() = default;
 
