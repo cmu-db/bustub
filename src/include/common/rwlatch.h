@@ -20,7 +20,7 @@
 namespace bustub {
 
 /**
- * Reader-Writer latch backed by std::mutex.
+ * Reader-Writer latch backed by std::shared_mutex.
  */
 class ReaderWriterLatch {
  public:
