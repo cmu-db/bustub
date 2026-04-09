@@ -31,7 +31,7 @@ auto TimestampType::CompareEquals(const Value &left, const Value &right) const -
 
 auto TimestampType::CompareNotEquals(const Value &left, const Value &right) const -> CmpBool {
   assert(left.CheckComparable(right));
-  if (right.IsNull()) {
+  if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
   }
   return GetCmpBool(left.GetAs<uint64_t>() != right.GetAs<uint64_t>());
@@ -58,7 +58,7 @@ auto TimestampType::CompareGreaterThan(const Value &left, const Value &right) co
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
   }
-  return GetCmpBool(left.GetAs<int64_t>() > right.GetAs<int64_t>());
+  return GetCmpBool(left.GetAs<uint64_t>() > right.GetAs<uint64_t>());
 }
 
 auto TimestampType::CompareGreaterThanEquals(const Value &left, const Value &right) const -> CmpBool {
