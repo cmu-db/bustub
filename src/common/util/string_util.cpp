@@ -63,6 +63,9 @@ auto StringUtil::Indent(int num_indent) -> std::string { return std::string(num_
 
 /** @return true if target string starts with given prefix, false otherwise */
 auto StringUtil::StartsWith(const std::string &str, const std::string &prefix) -> bool {
+  if (prefix.size() > str.size()) {
+    return false;
+  }
   return std::equal(prefix.begin(), prefix.end(), str.begin());
 }
 
