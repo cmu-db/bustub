@@ -36,14 +36,6 @@
 #include "storage/index/generic_key.h"
 #include "test_util.h"
 
-#include <sys/time.h>
-
-auto ClockMs() -> uint64_t {
-  struct timeval tm;
-  gettimeofday(&tm, nullptr);
-  return static_cast<uint64_t>(tm.tv_sec * 1000) + static_cast<uint64_t>(tm.tv_usec / 1000);
-}
-
 static const size_t BUSTUB_READ_THREAD = 5;
 static const size_t BUSTUB_WRITE_THREAD = 3;
 static const size_t BUSTUB_BPM_SIZE = 2048;
@@ -55,10 +47,10 @@ static const size_t HTABLE_DIRECTORY_DEPTH = 9;
 struct HTableTotalMetrics {
   uint64_t write_cnt_{0};
   uint64_t read_cnt_{0};
-  uint64_t start_time_{0};
+  std::chrono::steady_clock::time_point start_time_;
   std::mutex mutex_;
 
-  void Begin() { start_time_ = ClockMs(); }
+  void Begin() { start_time_ = std::chrono::steady_clock::now(); }
 
   void ReportWrite(uint64_t scan_cnt) {
     std::unique_lock<std::mutex> l(mutex_);
@@ -71,8 +63,8 @@ struct HTableTotalMetrics {
   }
 
   void Report() {
-    auto now = ClockMs();
-    auto elapsed = now - start_time_;
+    auto now = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time_).count();
     auto write_per_sec = write_cnt_ / static_cast<double>(elapsed) * 1000;
     auto read_per_sec = read_cnt_ / static_cast<double>(elapsed) * 1000;
 
@@ -84,7 +76,7 @@ struct HTableTotalMetrics {
 };
 
 struct HTableMetrics {
-  uint64_t start_time_{0};
+  std::chrono::steady_clock::time_point start_time_;
   uint64_t last_report_at_{0};
   uint64_t last_cnt_{0};
   uint64_t cnt_{0};
@@ -96,12 +88,12 @@ struct HTableMetrics {
 
   void Tick() { cnt_ += 1; }
 
-  void Begin() { start_time_ = ClockMs(); }
+  void Begin() { start_time_ = std::chrono::steady_clock::now(); }
 
   void Report() {
-    auto now = ClockMs();
-    auto elapsed = now - start_time_;
-    if (elapsed - last_report_at_ > 1000) {
+    auto now = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time_).count();
+    if (elapsed - last_report_at_ >= 1000) {
       fmt::print(stderr, "[{:5.2f}] {}: total_cnt={:<10} throughput={:<10.3f} avg_throughput={:<10.3f}\n",
                  elapsed / 1000.0, reporter_, cnt_,
                  (cnt_ - last_cnt_) / static_cast<double>(elapsed - last_report_at_) * 1000,
@@ -112,8 +104,9 @@ struct HTableMetrics {
   }
 
   auto ShouldFinish() -> bool {
-    auto now = ClockMs();
-    return now - start_time_ > duration_ms_;
+    auto now = std::chrono::steady_clock::now();
+    uint64_t elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time_).count();
+    return elapsed > duration_ms_;
   }
 };
 
