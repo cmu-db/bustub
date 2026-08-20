@@ -158,7 +158,7 @@ TEST(RobinHoodHashingTest, MoveTest) {
   EXPECT_EQ(moved.Size(), 2);
   EXPECT_TRUE(moved.Contains(1));
   EXPECT_TRUE(moved.Contains(9));
-  EXPECT_EQ(source.Capacity(), 0);
+  EXPECT_EQ(source.Capacity(), 0);  // NOLINT
   EXPECT_EQ(source.Size(), 0);
 
   RobinHoodHashSet<int> assigned(4);
@@ -188,7 +188,7 @@ TEST(RobinHoodHashingTest, ClearTest) {
 
   RobinHoodHashSet<int> moved_from(4);
   RobinHoodHashSet<int> moved(std::move(moved_from));
-  moved_from.Clear();
+  moved_from.Clear();  // NOLINT
   EXPECT_EQ(moved_from.Size(), 0);
   EXPECT_EQ(moved_from.Capacity(), 0);
   moved.Clear();
