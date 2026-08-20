@@ -8,9 +8,8 @@ set(PRIMER_SOURCES
   trie.cpp
   trie_store.cpp)
 
-# Robin Hood hashing is a private Project 0 exercise. The autograder copies a
-# student's implementation before configuring Project 0, while other projects
-# build from the public starter repository where this source file is absent.
+# Some older release snapshots do not include the Project 0 Robin Hood source.
+# Build it when the student-facing scaffold is available.
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/robin_hood_hashing.cpp")
   list(APPEND PRIMER_SOURCES robin_hood_hashing.cpp)
 endif()
