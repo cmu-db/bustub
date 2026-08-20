@@ -15,7 +15,7 @@
 #include <atomic>
 #include <cstddef>
 #include <functional>
-#include <mutex>
+#include <mutex>  // NOLINT
 #include <utility>
 
 namespace bustub {

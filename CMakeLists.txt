@@ -259,6 +259,9 @@ add_custom_target(fix-clang-tidy-diff
 set(P0_FILES
         "src/include/primer/count_min_sketch.h"
         "src/primer/count_min_sketch.cpp"
+)
+
+set(P0_ROBIN_HOOD_FILES
         "src/include/primer/robin_hood_hashing.h"
         "src/primer/robin_hood_hashing.cpp"
 )
@@ -268,6 +271,13 @@ add_custom_target(check-clang-tidy-p0
         -clang-tidy-binary ${CLANG_TIDY_BIN} # using our clang-tidy binary
         -p ${CMAKE_BINARY_DIR} # using cmake's generated compile commands
         ${P0_FILES}
+)
+
+add_custom_target(check-clang-tidy-p0-robin-hood-hashing
+        ${BUSTUB_BUILD_SUPPORT_DIR}/run_clang_tidy.py # run LLVM's clang-tidy script
+        -clang-tidy-binary ${CLANG_TIDY_BIN} # using our clang-tidy binary
+        -p ${CMAKE_BINARY_DIR} # using cmake's generated compile commands
+        ${P0_ROBIN_HOOD_FILES}
 )
 add_custom_target(submit-p0
         zip project0-submission.zip
