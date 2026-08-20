@@ -7,6 +7,7 @@ add_library(
   orset_driver.cpp
   skiplist.cpp
   count_min_sketch.cpp
+  robin_hood_hashing.cpp
   trie.cpp
   trie_store.cpp)
 

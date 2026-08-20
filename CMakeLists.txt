@@ -259,6 +259,8 @@ add_custom_target(fix-clang-tidy-diff
 set(P0_FILES
         "src/include/primer/count_min_sketch.h"
         "src/primer/count_min_sketch.cpp"
+        "src/include/primer/robin_hood_hashing.h"
+        "src/primer/robin_hood_hashing.cpp"
 )
 
 add_custom_target(check-clang-tidy-p0
@@ -322,7 +324,6 @@ add_custom_target(submit-p2
 )
 
 set(P3_FILES
-        "src/include/execution/plans/index_scan_plan.h"
         "src/include/execution/executors/aggregation_executor.h"
         "src/include/execution/executors/delete_executor.h"
         "src/include/execution/executors/filter_executor.h"
