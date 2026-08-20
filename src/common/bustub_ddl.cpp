@@ -6,7 +6,7 @@
 //
 // Identification: src/common/bustub_ddl.cpp
 //
-// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2026, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -37,6 +37,7 @@
 #include "common/util/string_util.h"
 #include "concurrency/lock_manager.h"
 #include "concurrency/transaction.h"
+#include "container/hash/hash_function.h"
 #include "execution/execution_engine.h"
 #include "execution/executor_context.h"
 #include "execution/executors/mock_scan_executor.h"
@@ -50,6 +51,7 @@
 #include "recovery/log_manager.h"
 #include "storage/disk/disk_manager.h"
 #include "storage/disk/disk_manager_memory.h"
+#include "storage/index/generic_key.h"
 #include "type/value_factory.h"
 
 namespace bustub {
@@ -69,18 +71,39 @@ void BusTubInstance::HandleCreateStatement(Transaction *txn, const CreateStateme
     }
     auto key_schema = Schema::CopySchema(&info->schema_, col_ids);
 
-    // TODO(spring2023): If you want to support composite index key for leaderboard optimization, remove this assertion
-    // and create index with different key type that can hold multiple keys based on number of index columns.
-    //
-    // You can also create clustered index that directly stores value inside the index by modifying the value type.
-
-    if (col_ids.empty() || col_ids.size() > 2) {
-      throw NotImplementedException("only support creating index with exactly one or two columns");
+    if (col_ids.empty()) {
+      throw NotImplementedException("Primary key cannot be empty");
     }
 
-    index = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
-        txn, stmt.table_ + "_pk", stmt.table_, info->schema_, key_schema, col_ids, TWO_INTEGER_SIZE,
-        IntegerHashFunctionType{}, true);
+    // We compute the size (in bytes) of the index key
+    uint32_t key_size = col_ids.size() * 4;
+
+    // We create an index of sufficient size depending on the key size.
+    //! NOTE: Currently, we support key sizes of at most 64 bytes.
+    //!       This can be easily extended to support larger key sizes.
+    if (key_size <= 4) {
+      index = catalog_->CreateIndex<GenericKey<4>, RID, GenericComparator<4>>(txn, stmt.table_ + "_pk", stmt.table_,
+                                                                              info->schema_, key_schema, col_ids, 4,
+                                                                              HashFunction<GenericKey<4>>{}, true);
+    } else if (key_size <= 8) {
+      index = catalog_->CreateIndex<GenericKey<8>, RID, GenericComparator<8>>(txn, stmt.table_ + "_pk", stmt.table_,
+                                                                              info->schema_, key_schema, col_ids, 8,
+                                                                              HashFunction<GenericKey<8>>{}, true);
+    } else if (key_size <= 16) {
+      index = catalog_->CreateIndex<GenericKey<16>, RID, GenericComparator<16>>(txn, stmt.table_ + "_pk", stmt.table_,
+                                                                                info->schema_, key_schema, col_ids, 16,
+                                                                                HashFunction<GenericKey<16>>{}, true);
+    } else if (key_size <= 32) {
+      index = catalog_->CreateIndex<GenericKey<32>, RID, GenericComparator<32>>(txn, stmt.table_ + "_pk", stmt.table_,
+                                                                                info->schema_, key_schema, col_ids, 32,
+                                                                                HashFunction<GenericKey<32>>{}, true);
+    } else if (key_size <= 64) {
+      index = catalog_->CreateIndex<GenericKey<64>, RID, GenericComparator<64>>(txn, stmt.table_ + "_pk", stmt.table_,
+                                                                                info->schema_, key_schema, col_ids, 64,
+                                                                                HashFunction<GenericKey<64>>{}, true);
+    } else {
+      throw NotImplementedException("Unsupported: primary key size exceeds 64 bytes");
+    }
   }
   l.unlock();
 
@@ -108,41 +131,56 @@ void BusTubInstance::HandleIndexStatement(Transaction *txn, const IndexStatement
   }
   auto key_schema = Schema::CopySchema(&stmt.table_->schema_, col_ids);
 
-  // TODO(spring2023): If you want to support composite index key for leaderboard optimization, remove this assertion
-  // and create index with different key type that can hold multiple keys based on number of index columns.
-  //
-  // You can also create clustered index that directly stores value inside the index by modifying the value type.
-
-  if (col_ids.empty() || col_ids.size() > 2) {
-    throw NotImplementedException("only support creating index with exactly one or two columns");
+  if (col_ids.empty()) {
+    throw NotImplementedException("Index columns cannot be empty");
   }
 
   std::unique_lock<std::shared_mutex> l(catalog_lock_);
   std::shared_ptr<IndexInfo> info = nullptr;
 
-  if (stmt.index_type_.empty()) {
-    info = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
-        txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, TWO_INTEGER_SIZE,
-        IntegerHashFunctionType{}, false);  // create default index
-  } else if (stmt.index_type_ == "hash") {
-    info = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
-        txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, TWO_INTEGER_SIZE,
-        IntegerHashFunctionType{}, false, IndexType::HashTableIndex);
-  } else if (stmt.index_type_ == "bplustree") {
-    info = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
-        txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, TWO_INTEGER_SIZE,
-        IntegerHashFunctionType{}, false, IndexType::BPlusTreeIndex);
+  IndexType index_type = IndexType::BPlusTreeIndex;  // Default
+  if (stmt.index_type_ == "hash") {
+    index_type = IndexType::HashTableIndex;
+  } else if (stmt.index_type_ == "bplustree" || stmt.index_type_.empty()) {
+    index_type = IndexType::BPlusTreeIndex;
   } else if (stmt.index_type_ == "stl_ordered") {
-    info = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
-        txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, TWO_INTEGER_SIZE,
-        IntegerHashFunctionType{}, false, IndexType::STLOrderedIndex);
+    index_type = IndexType::STLOrderedIndex;
   } else if (stmt.index_type_ == "stl_unordered") {
-    info = catalog_->CreateIndex<IntegerKeyType, IntegerValueType, IntegerComparatorType>(
-        txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, TWO_INTEGER_SIZE,
-        IntegerHashFunctionType{}, false, IndexType::STLUnorderedIndex);
+    index_type = IndexType::STLUnorderedIndex;
   } else {
     UNIMPLEMENTED("unsupported index type " + stmt.index_type_);
   }
+
+  // We compute the size (in bytes) of the index key
+  uint32_t key_size = col_ids.size() * 4;
+
+  // We create an index of sufficient size depending on the key size.
+  //! NOTE: Currently, we support key sizes of at most 64 bytes.
+  //!       This can be easily extended to support larger key sizes.
+  if (key_size <= 4) {
+    info = catalog_->CreateIndex<GenericKey<4>, RID, GenericComparator<4>>(
+        txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, 4,
+        HashFunction<GenericKey<4>>{}, false, index_type);
+  } else if (key_size <= 8) {
+    info = catalog_->CreateIndex<GenericKey<8>, RID, GenericComparator<8>>(
+        txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, 8,
+        HashFunction<GenericKey<8>>{}, false, index_type);
+  } else if (key_size <= 16) {
+    info = catalog_->CreateIndex<GenericKey<16>, RID, GenericComparator<16>>(
+        txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, 16,
+        HashFunction<GenericKey<16>>{}, false, index_type);
+  } else if (key_size <= 32) {
+    info = catalog_->CreateIndex<GenericKey<32>, RID, GenericComparator<32>>(
+        txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, 32,
+        HashFunction<GenericKey<32>>{}, false, index_type);
+  } else if (key_size <= 64) {
+    info = catalog_->CreateIndex<GenericKey<64>, RID, GenericComparator<64>>(
+        txn, stmt.index_name_, stmt.table_->table_, stmt.table_->schema_, key_schema, col_ids, 64,
+        HashFunction<GenericKey<64>>{}, false, index_type);
+  } else {
+    throw NotImplementedException("Unsupported: index key size exceeds 64 bytes");
+  }
+
   l.unlock();
 
   if (info == nullptr) {
