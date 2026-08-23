@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "primer/robin_hood_hashing.h"
+#include "primer/robin_hood_hash_set.h"
 
 namespace bustub {
 
@@ -65,7 +65,7 @@ TEST(RobinHoodHashingTest, DuplicateInsertTest) {
 TEST(RobinHoodHashingTest, CollisionAndRobinHoodDisplacementTest) {
   RobinHoodHashSet<int> table(4);
 
-  // std::hash<int> maps these values to the same home bucket on the supported platforms.
+  // RobinHoodHash<int> maps these values to the same home bucket deterministically.
   EXPECT_TRUE(table.Insert(0));
   EXPECT_TRUE(table.Insert(4));
   EXPECT_TRUE(table.Insert(1));

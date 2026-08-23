@@ -2,15 +2,15 @@
 //
 //                         BusTub
 //
-// robin_hood_hashing.cpp
+// robin_hood_hash_set.cpp
 //
-// Identification: src/primer/robin_hood_hashing.cpp
+// Identification: src/primer/robin_hood_hash_set.cpp
 //
 // Copyright (c) 2015-2026, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
-#include "primer/robin_hood_hashing.h"
+#include "primer/robin_hood_hash_set.h"
 
 #include <cstdint>
 #include <string>
