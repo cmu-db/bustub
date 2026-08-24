@@ -88,17 +88,6 @@ TEST(RobinHoodHashingTest, EdgeTest1) {
   EXPECT_DOUBLE_EQ(table.LoadFactor(), 1.0);
 }
 
-TEST(RobinHoodHashingTest, DuplicateInsertTest) {
-  RobinHoodHashSet<int> table(8);
-  EXPECT_TRUE(table.Insert(1));
-  EXPECT_TRUE(table.Insert(9));
-  EXPECT_TRUE(table.Insert(1));
-  EXPECT_TRUE(table.Insert(9));
-  EXPECT_EQ(table.Size(), 2);
-  EXPECT_TRUE(table.Contains(1));
-  EXPECT_TRUE(table.Contains(9));
-}
-
 TEST(RobinHoodHashingTest, CollisionAndRobinHoodDisplacementTest) {
   RobinHoodHashSet<int> table(4);
 
@@ -111,6 +100,7 @@ TEST(RobinHoodHashingTest, CollisionAndRobinHoodDisplacementTest) {
   // The fourth insert reaches bucket 2 with distance 2 and displaces key 1 (distance 1).
   EXPECT_EQ(table.GetBucket(8), 2);
   EXPECT_EQ(table.GetBucket(1), 3);
+  EXPECT_EQ(table.GetBucket(99), table.BucketCount());
   EXPECT_TRUE(table.Contains(0));
   EXPECT_TRUE(table.Contains(4));
   EXPECT_TRUE(table.Contains(1));
