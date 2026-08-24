@@ -396,6 +396,7 @@ TEST(RobinHoodHashingTest, ParallelSpeedupTest) {
   constexpr int inserts_per_thread = 100000;
   constexpr int total_inserts = num_threads * inserts_per_thread;
   constexpr int trials = 5;
+  // Keep the table below its fixed capacity so each trial measures insertion rather than saturation.
   constexpr size_t capacity = 262144;
   int64_t sequential_time_us = 0;
   int64_t parallel_time_us = 0;
