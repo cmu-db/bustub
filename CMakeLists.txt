@@ -262,8 +262,8 @@ set(P0_FILES
 )
 
 set(P0_ROBIN_HOOD_FILES
-        "src/include/primer/robin_hood_hashing.h"
-        "src/primer/robin_hood_hashing.cpp"
+        "src/include/primer/robin_hood_hash_set.h"
+        "src/primer/robin_hood_hash_set.cpp"
 )
 
 add_custom_target(check-clang-tidy-p0

@@ -2,9 +2,9 @@
 //
 //                         BusTub
 //
-// robin_hood_hashing.h
+// robin_hood_hash_set.h
 //
-// Identification: src/include/primer/robin_hood_hashing.h
+// Identification: src/include/primer/robin_hood_hash_set.h
 //
 // Copyright (c) 2015-2026, Carnegie Mellon University Database Group
 //

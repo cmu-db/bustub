@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "primer/robin_hood_hashing.h"
+#include "primer/robin_hood_hash_set.h"
 
 namespace bustub {
 
