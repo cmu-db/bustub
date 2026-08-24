@@ -20,30 +20,41 @@
 #include <string>
 #include <utility>
 
+#include "common/util/hash_util.h"
+
 namespace bustub {
 
-/** Deterministic hash function for the key types supported by this project. */
+/** Avalanches a deterministic key value so power-of-two capacities use entropy from every hash bit. */
+inline auto MixRobinHoodHash(uint64_t hash) -> size_t {
+  hash ^= hash >> 33U;
+  hash *= 0xff51afd7ed558ccdULL;
+  hash ^= hash >> 33U;
+  hash *= 0xc4ceb9fe1a85ec53ULL;
+  return hash ^ (hash >> 33U);
+}
+
+/** Deterministic key hash for supported types; strings hash their bytes through HashUtil before mixing. */
 template <typename KeyType>
 struct RobinHoodHash;
 
 template <>
 struct RobinHoodHash<int> {
-  auto operator()(int key) const -> size_t { return static_cast<size_t>(key); }
+  auto operator()(int key) const -> size_t {
+    return static_cast<size_t>(static_cast<uint64_t>(static_cast<int64_t>(key)) * 0x9e3779b97f4a7c15ULL);
+  }
 };
 
 template <>
 struct RobinHoodHash<int64_t> {
-  auto operator()(int64_t key) const -> size_t { return static_cast<size_t>(key); }
+  auto operator()(int64_t key) const -> size_t {
+    return static_cast<size_t>(static_cast<uint64_t>(key) * 0x9e3779b97f4a7c15ULL);
+  }
 };
 
 template <>
 struct RobinHoodHash<std::string> {
   auto operator()(const std::string &key) const -> size_t {
-    size_t hash = 0;
-    for (const unsigned char byte : key) {
-      hash = hash * 31 + byte;
-    }
-    return hash;
+    return MixRobinHoodHash(HashUtil::HashBytes(key.data(), key.size()));
   }
 };
 

@@ -48,6 +48,20 @@ class ThreadGate {
   std::condition_variable start_cv_;
 };
 
+auto FindKeysWithHomeBucket(size_t capacity, size_t home_bucket, size_t count) -> std::vector<int> {
+  std::vector<int> keys;
+  for (int key = 0; key < 10000 && keys.size() < count; key++) {
+    if (RobinHoodHash<int>{}(key) % capacity == home_bucket) {
+      keys.push_back(key);
+    }
+  }
+  if (keys.size() != count) {
+    throw std::runtime_error("Could not find enough colliding keys for the test.");
+  }
+  return keys;
+}
+
+// Verifies basic insertion, duplicate replacement, lookup, and table statistics.
 TEST(RobinHoodHashingTest, BasicTest1) {
   RobinHoodHashSet<int> table(8);
   EXPECT_EQ(table.Capacity(), 8);
@@ -65,6 +79,7 @@ TEST(RobinHoodHashingTest, BasicTest1) {
   EXPECT_DOUBLE_EQ(table.LoadFactor(), 0.25);
 }
 
+// Verifies that the set supports the string key type.
 TEST(RobinHoodHashingTest, BasicTest2) {
   RobinHoodHashSet<std::string> table(7);
   EXPECT_TRUE(table.Insert("BusTub"));
@@ -77,6 +92,7 @@ TEST(RobinHoodHashingTest, BasicTest2) {
   EXPECT_EQ(table.Size(), 3);
 }
 
+// Verifies constructor validation, single-bucket behavior, and full-table rejection.
 TEST(RobinHoodHashingTest, EdgeTest1) {
   EXPECT_THROW(RobinHoodHashSet<int>(0), std::invalid_argument);
 
@@ -88,26 +104,29 @@ TEST(RobinHoodHashingTest, EdgeTest1) {
   EXPECT_DOUBLE_EQ(table.LoadFactor(), 1.0);
 }
 
+// Verifies Robin Hood displacement when an incoming key has a greater probe distance.
 TEST(RobinHoodHashingTest, CollisionAndRobinHoodDisplacementTest) {
   RobinHoodHashSet<int> table(4);
+  const auto colliding_keys = FindKeysWithHomeBucket(4, 0, 3);
+  const auto next_bucket_key = FindKeysWithHomeBucket(4, 1, 1).front();
 
-  // RobinHoodHash<int> maps these values to the same home bucket deterministically.
-  EXPECT_TRUE(table.Insert(0));
-  EXPECT_TRUE(table.Insert(4));
-  EXPECT_TRUE(table.Insert(1));
-  EXPECT_TRUE(table.Insert(8));
+  EXPECT_TRUE(table.Insert(colliding_keys[0]));
+  EXPECT_TRUE(table.Insert(colliding_keys[1]));
+  EXPECT_TRUE(table.Insert(next_bucket_key));
+  EXPECT_TRUE(table.Insert(colliding_keys[2]));
 
-  // The fourth insert reaches bucket 2 with distance 2 and displaces key 1 (distance 1).
-  EXPECT_EQ(table.GetBucket(8), 2);
-  EXPECT_EQ(table.GetBucket(1), 3);
+  // The fourth insert displaces the key whose home bucket is 1.
+  EXPECT_EQ(table.GetBucket(colliding_keys[2]), 2);
+  EXPECT_EQ(table.GetBucket(next_bucket_key), 3);
   EXPECT_EQ(table.GetBucket(99), table.BucketCount());
-  EXPECT_TRUE(table.Contains(0));
-  EXPECT_TRUE(table.Contains(4));
-  EXPECT_TRUE(table.Contains(1));
-  EXPECT_TRUE(table.Contains(8));
+  EXPECT_TRUE(table.Contains(colliding_keys[0]));
+  EXPECT_TRUE(table.Contains(colliding_keys[1]));
+  EXPECT_TRUE(table.Contains(next_bucket_key));
+  EXPECT_TRUE(table.Contains(colliding_keys[2]));
   EXPECT_EQ(table.Size(), 4);
 }
 
+// Verifies that insertion reports failure only after every bucket is occupied.
 TEST(RobinHoodHashingTest, FullTableTest) {
   RobinHoodHashSet<int> table(4);
   EXPECT_TRUE(table.Insert(0));
@@ -122,59 +141,70 @@ TEST(RobinHoodHashingTest, FullTableTest) {
   EXPECT_TRUE(table.Contains(8));
 }
 
+// Verifies the maximum probe distance among live entries after a tombstone is created.
 TEST(RobinHoodHashSetTest, MaxProbeDistanceTest) {
   RobinHoodHashSet<int> table(4);
+  const auto colliding_keys = FindKeysWithHomeBucket(4, 0, 3);
   EXPECT_EQ(table.MaxProbeDistance(), 0);
 
-  EXPECT_TRUE(table.Insert(0));
-  EXPECT_TRUE(table.Insert(4));
-  EXPECT_TRUE(table.Insert(1));
-  EXPECT_TRUE(table.Insert(8));
+  EXPECT_TRUE(table.Insert(colliding_keys[0]));
+  EXPECT_TRUE(table.Insert(colliding_keys[1]));
+  EXPECT_TRUE(table.Insert(colliding_keys[2]));
 
-  // Inserting 8 displaces 1, leaving both 8 and 1 two slots from home.
+  // The final colliding key lands two positions after its home bucket.
+  EXPECT_EQ(table.GetBucket(colliding_keys[0]), 0);
+  EXPECT_EQ(table.GetBucket(colliding_keys[1]), 1);
+  EXPECT_EQ(table.GetBucket(colliding_keys[2]), 2);
   EXPECT_EQ(table.MaxProbeDistance(), 2);
-  EXPECT_TRUE(table.Remove(8));
-  EXPECT_EQ(table.MaxProbeDistance(), 2);
+  EXPECT_TRUE(table.Remove(colliding_keys[2]));
+  EXPECT_EQ(table.MaxProbeDistance(), 1);
 }
 
+// Verifies linear probing wraps from the final bucket back to bucket zero.
 TEST(RobinHoodHashingTest, WraparoundTest) {
   RobinHoodHashSet<int> table(8);
-  EXPECT_TRUE(table.Insert(6));
-  EXPECT_TRUE(table.Insert(14));
-  EXPECT_TRUE(table.Insert(22));
-  EXPECT_EQ(table.GetBucket(6), 6);
-  EXPECT_EQ(table.GetBucket(14), 7);
-  EXPECT_EQ(table.GetBucket(22), 0);
-  EXPECT_TRUE(table.Contains(22));
+  const auto colliding_keys = FindKeysWithHomeBucket(8, 6, 3);
+  EXPECT_TRUE(table.Insert(colliding_keys[0]));
+  EXPECT_TRUE(table.Insert(colliding_keys[1]));
+  EXPECT_TRUE(table.Insert(colliding_keys[2]));
+  EXPECT_EQ(table.GetBucket(colliding_keys[0]), 6);
+  EXPECT_EQ(table.GetBucket(colliding_keys[1]), 7);
+  EXPECT_EQ(table.GetBucket(colliding_keys[2]), 0);
+  EXPECT_TRUE(table.Contains(colliding_keys[2]));
 }
 
+// Verifies that lookups continue through a tombstone created inside a probe chain.
 TEST(RobinHoodHashingTest, TombstoneDeletionTest) {
   RobinHoodHashSet<int> table(8);
-  EXPECT_TRUE(table.Insert(6));
-  EXPECT_TRUE(table.Insert(14));
-  EXPECT_TRUE(table.Insert(22));  // Wraps from buckets 6, 7, then 0.
+  const auto colliding_keys = FindKeysWithHomeBucket(8, 6, 3);
+  EXPECT_TRUE(table.Insert(colliding_keys[0]));
+  EXPECT_TRUE(table.Insert(colliding_keys[1]));
+  EXPECT_TRUE(table.Insert(colliding_keys[2]));  // Wraps from buckets 6, 7, then 0.
 
-  EXPECT_EQ(table.GetBucket(22), 0);
-  EXPECT_TRUE(table.Remove(14));
-  EXPECT_FALSE(table.Contains(14));
-  EXPECT_TRUE(table.Contains(22));  // Lookup must continue past the tombstone at bucket 7.
-  EXPECT_FALSE(table.Remove(14));
+  EXPECT_EQ(table.GetBucket(colliding_keys[2]), 0);
+  EXPECT_TRUE(table.Remove(colliding_keys[1]));
+  EXPECT_FALSE(table.Contains(colliding_keys[1]));
+  EXPECT_TRUE(table.Contains(colliding_keys[2]));  // Lookup must continue past the tombstone at bucket 7.
+  EXPECT_FALSE(table.Remove(colliding_keys[1]));
   EXPECT_EQ(table.Size(), 2);
 }
 
+// Verifies that insertion reuses a tombstone without breaking later probe-chain lookups.
 TEST(RobinHoodHashingTest, TombstoneReuseTest) {
   RobinHoodHashSet<int> table(8);
-  EXPECT_TRUE(table.Insert(6));
-  EXPECT_TRUE(table.Insert(14));
-  EXPECT_TRUE(table.Insert(22));
-  EXPECT_TRUE(table.Remove(14));
-  EXPECT_TRUE(table.Insert(30));
-  EXPECT_EQ(table.GetBucket(30), 7);
-  EXPECT_TRUE(table.Contains(30));
-  EXPECT_TRUE(table.Contains(22));
+  const auto colliding_keys = FindKeysWithHomeBucket(8, 6, 4);
+  EXPECT_TRUE(table.Insert(colliding_keys[0]));
+  EXPECT_TRUE(table.Insert(colliding_keys[1]));
+  EXPECT_TRUE(table.Insert(colliding_keys[2]));
+  EXPECT_TRUE(table.Remove(colliding_keys[1]));
+  EXPECT_TRUE(table.Insert(colliding_keys[3]));
+  EXPECT_EQ(table.GetBucket(colliding_keys[3]), 7);
+  EXPECT_TRUE(table.Contains(colliding_keys[3]));
+  EXPECT_TRUE(table.Contains(colliding_keys[2]));
   EXPECT_EQ(table.Size(), 3);
 }
 
+// Verifies move construction and assignment transfer contents and leave sources usable.
 TEST(RobinHoodHashingTest, MoveTest) {
   RobinHoodHashSet<int> source(8);
   EXPECT_TRUE(source.Insert(1));
@@ -208,6 +238,7 @@ TEST(RobinHoodHashingTest, MoveTest) {
   EXPECT_EQ(assigned.Size(), 2);
 }
 
+// Verifies clearing live entries and tombstones, including moved-from and assigned tables.
 TEST(RobinHoodHashingTest, ClearTest) {
   RobinHoodHashSet<int> table(8);
   EXPECT_TRUE(table.Insert(1));
@@ -240,6 +271,7 @@ TEST(RobinHoodHashingTest, ClearTest) {
   EXPECT_DOUBLE_EQ(assigned.LoadFactor(), 0.0);
 }
 
+// Verifies concurrent duplicate inserts preserve one logical set entry.
 TEST(RobinHoodHashingTest, ConcurrentDuplicateInsertTest) {
   RobinHoodHashSet<int> table(64);
   constexpr int num_threads = 16;
@@ -267,6 +299,7 @@ TEST(RobinHoodHashingTest, ConcurrentDuplicateInsertTest) {
   EXPECT_TRUE(table.Contains(42));
 }
 
+// Verifies concurrent writers and readers complete without losing inserted keys.
 TEST(RobinHoodHashingTest, ConcurrentInsertAndLookupTest) {
   RobinHoodHashSet<int> table(512);
   constexpr int writer_count = 4;
@@ -309,6 +342,7 @@ TEST(RobinHoodHashingTest, ConcurrentInsertAndLookupTest) {
   }
 }
 
+// Verifies concurrent removes report exactly one successful removal per key.
 TEST(RobinHoodHashingTest, ConcurrentRemoveTest) {
   RobinHoodHashSet<int> table(128);
   constexpr int key_count = 64;
@@ -344,6 +378,7 @@ TEST(RobinHoodHashingTest, ConcurrentRemoveTest) {
   }
 }
 
+// Verifies overlapping inserts, lookups, and removes make progress without corrupting metadata.
 TEST(RobinHoodHashingTest, ConcurrentOverlappingOperationsStressTest) {
   RobinHoodHashSet<int> table(64);
   constexpr int num_threads = 8;
@@ -377,6 +412,7 @@ TEST(RobinHoodHashingTest, ConcurrentOverlappingOperationsStressTest) {
   EXPECT_LE(table.Size(), table.Capacity());
 }
 
+// Verifies independent insert workloads benefit from the table's striped synchronization.
 TEST(RobinHoodHashingTest, ParallelSpeedupTest) {
   if (std::thread::hardware_concurrency() < 2) {
     GTEST_SKIP() << "Parallel speedup requires at least two hardware threads.";
