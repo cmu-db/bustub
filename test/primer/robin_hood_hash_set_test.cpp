@@ -1,6 +1,8 @@
 #include <atomic>
 #include <chrono>  // NOLINT
+#include <condition_variable>
 #include <iostream>
+#include <mutex>  // NOLINT
 #include <stdexcept>
 #include <thread>  // NOLINT
 #include <utility>
@@ -10,6 +12,41 @@
 #include "primer/robin_hood_hash_set.h"
 
 namespace bustub {
+
+class ThreadGate {
+ public:
+  explicit ThreadGate(size_t thread_count) : thread_count_(thread_count) {}
+
+  void ArriveAndWait() {
+    std::unique_lock lock(mutex_);
+    ready_++;
+    if (ready_ == thread_count_) {
+      ready_cv_.notify_one();
+    }
+    start_cv_.wait(lock, [this] { return started_; });
+  }
+
+  void WaitUntilReady() {
+    std::unique_lock lock(mutex_);
+    ready_cv_.wait(lock, [this] { return ready_ == thread_count_; });
+  }
+
+  void Open() {
+    {
+      std::lock_guard lock(mutex_);
+      started_ = true;
+    }
+    start_cv_.notify_all();
+  }
+
+ private:
+  const size_t thread_count_;
+  size_t ready_{0};
+  bool started_{false};
+  std::mutex mutex_;
+  std::condition_variable ready_cv_;
+  std::condition_variable start_cv_;
+};
 
 TEST(RobinHoodHashingTest, BasicTest1) {
   RobinHoodHashSet<int> table(8);
@@ -65,7 +102,7 @@ TEST(RobinHoodHashingTest, DuplicateInsertTest) {
 TEST(RobinHoodHashingTest, CollisionAndRobinHoodDisplacementTest) {
   RobinHoodHashSet<int> table(4);
 
-  // std::hash<int> maps these values to the same home bucket on the supported platforms.
+  // RobinHoodHash<int> maps these values to the same home bucket deterministically.
   EXPECT_TRUE(table.Insert(0));
   EXPECT_TRUE(table.Insert(4));
   EXPECT_TRUE(table.Insert(1));
@@ -158,7 +195,7 @@ TEST(RobinHoodHashingTest, MoveTest) {
   EXPECT_EQ(moved.Size(), 2);
   EXPECT_TRUE(moved.Contains(1));
   EXPECT_TRUE(moved.Contains(9));
-  EXPECT_EQ(source.Capacity(), 0);  // NOLINT
+  EXPECT_EQ(source.Capacity(), 0);  // NOLINT(bugprone-use-after-move)
   EXPECT_EQ(source.Size(), 0);
 
   RobinHoodHashSet<int> assigned(4);
@@ -168,6 +205,17 @@ TEST(RobinHoodHashingTest, MoveTest) {
   EXPECT_EQ(assigned.Size(), 2);
   EXPECT_TRUE(assigned.Contains(1));
   EXPECT_TRUE(assigned.Contains(9));
+  EXPECT_FALSE(assigned.Contains(42));
+
+  EXPECT_TRUE(assigned.Insert(17));
+  EXPECT_TRUE(assigned.Contains(17));
+  EXPECT_EQ(assigned.Size(), 3);
+
+  EXPECT_TRUE(assigned.Remove(1));
+  EXPECT_FALSE(assigned.Contains(1));
+  EXPECT_TRUE(assigned.Contains(9));
+  EXPECT_TRUE(assigned.Contains(17));
+  EXPECT_EQ(assigned.Size(), 2);
 }
 
 TEST(RobinHoodHashingTest, ClearTest) {
@@ -188,7 +236,7 @@ TEST(RobinHoodHashingTest, ClearTest) {
 
   RobinHoodHashSet<int> moved_from(4);
   RobinHoodHashSet<int> moved(std::move(moved_from));
-  moved_from.Clear();  // NOLINT
+  moved_from.Clear();  // NOLINT(bugprone-use-after-move)
   EXPECT_EQ(moved_from.Size(), 0);
   EXPECT_EQ(moved_from.Capacity(), 0);
   moved.Clear();
@@ -205,25 +253,21 @@ TEST(RobinHoodHashingTest, ClearTest) {
 TEST(RobinHoodHashingTest, ConcurrentDuplicateInsertTest) {
   RobinHoodHashSet<int> table(64);
   constexpr int num_threads = 16;
-  std::atomic<int> ready{0};
-  std::atomic<bool> start{false};
+  ThreadGate gate(num_threads);
   std::atomic<int> successful_inserts{0};
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
   for (int i = 0; i < num_threads; i++) {
     threads.emplace_back([&]() {
-      ready.fetch_add(1);
-      while (!start.load()) {
-      }
+      gate.ArriveAndWait();
       if (table.Insert(42)) {
         successful_inserts.fetch_add(1);
       }
     });
   }
-  while (ready.load() != num_threads) {
-  }
-  start.store(true);
+  gate.WaitUntilReady();
+  gate.Open();
   for (auto &thread : threads) {
     thread.join();
   }
@@ -238,17 +282,14 @@ TEST(RobinHoodHashingTest, ConcurrentInsertAndLookupTest) {
   constexpr int writer_count = 4;
   constexpr int reader_count = 4;
   constexpr int inserts_per_writer = 64;
-  std::atomic<int> ready{0};
-  std::atomic<bool> start{false};
+  ThreadGate gate(writer_count + reader_count);
   std::atomic<int> successful_inserts{0};
   std::vector<std::thread> threads;
   threads.reserve(writer_count + reader_count);
 
   for (int writer = 0; writer < writer_count; writer++) {
     threads.emplace_back([&, writer]() {
-      ready.fetch_add(1);
-      while (!start.load()) {
-      }
+      gate.ArriveAndWait();
       for (int i = 0; i < inserts_per_writer; i++) {
         if (table.Insert(writer * inserts_per_writer + i)) {
           successful_inserts.fetch_add(1);
@@ -258,17 +299,16 @@ TEST(RobinHoodHashingTest, ConcurrentInsertAndLookupTest) {
   }
   for (int reader = 0; reader < reader_count; reader++) {
     threads.emplace_back([&, reader]() {
-      ready.fetch_add(1);
-      while (!start.load()) {
-      }
+      gate.ArriveAndWait();
       for (int i = 0; i < writer_count * inserts_per_writer; i++) {
-        static_cast<void>(table.Contains((i + reader) % (writer_count * inserts_per_writer)));
+        // Concurrent writers make each individual lookup result nondeterministic.
+        // NOLINTNEXTLINE(bugprone-unused-return-value)
+        table.Contains((i + reader) % (writer_count * inserts_per_writer));
       }
     });
   }
-  while (ready.load() != writer_count + reader_count) {
-  }
-  start.store(true);
+  gate.WaitUntilReady();
+  gate.Open();
   for (auto &thread : threads) {
     thread.join();
   }
@@ -288,16 +328,13 @@ TEST(RobinHoodHashingTest, ConcurrentRemoveTest) {
     ASSERT_TRUE(table.Insert(key));
   }
 
-  std::atomic<int> ready{0};
-  std::atomic<bool> start{false};
+  ThreadGate gate(num_threads);
   std::atomic<int> successful_removes{0};
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
   for (int thread_id = 0; thread_id < num_threads; thread_id++) {
     threads.emplace_back([&]() {
-      ready.fetch_add(1);
-      while (!start.load()) {
-      }
+      gate.ArriveAndWait();
       for (int key = 0; key < key_count; key++) {
         if (table.Remove(key)) {
           successful_removes.fetch_add(1);
@@ -305,9 +342,8 @@ TEST(RobinHoodHashingTest, ConcurrentRemoveTest) {
       }
     });
   }
-  while (ready.load() != num_threads) {
-  }
-  start.store(true);
+  gate.WaitUntilReady();
+  gate.Open();
   for (auto &thread : threads) {
     thread.join();
   }
@@ -323,29 +359,29 @@ TEST(RobinHoodHashingTest, ConcurrentOverlappingOperationsStressTest) {
   RobinHoodHashSet<int> table(64);
   constexpr int num_threads = 8;
   constexpr int iterations = 500;
-  std::atomic<int> ready{0};
-  std::atomic<bool> start{false};
+  ThreadGate gate(num_threads);
   std::atomic<int> completed{0};
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
   for (int thread_id = 0; thread_id < num_threads; thread_id++) {
     threads.emplace_back([&, thread_id]() {
-      ready.fetch_add(1);
-      while (!start.load()) {
-      }
+      gate.ArriveAndWait();
       for (int i = 0; i < iterations; i++) {
         const int key = (thread_id * 17 + i) % 96;
-        static_cast<void>(table.Insert(key));
-        static_cast<void>(table.Contains((key + 1) % 96));
-        static_cast<void>(table.Remove((key + 32) % 96));
+        // Overlapping operations make individual return values nondeterministic.
+        // NOLINTNEXTLINE(bugprone-unused-return-value)
+        table.Insert(key);
+        // NOLINTNEXTLINE(bugprone-unused-return-value)
+        table.Contains((key + 1) % 96);
+        // NOLINTNEXTLINE(bugprone-unused-return-value)
+        table.Remove((key + 32) % 96);
       }
       completed.fetch_add(1);
     });
   }
-  while (ready.load() != num_threads) {
-  }
-  start.store(true);
+  gate.WaitUntilReady();
+  gate.Open();
   for (auto &thread : threads) {
     thread.join();
   }
@@ -381,17 +417,14 @@ TEST(RobinHoodHashingTest, ParallelSpeedupTest) {
 
   for (int trial = 0; trial < trials; trial++) {
     RobinHoodHashSet<int> table(capacity);
-    std::atomic<int> ready{0};
-    std::atomic<bool> start{false};
+    ThreadGate gate(num_threads);
     std::atomic<bool> insert_failed{false};
     std::vector<std::thread> threads;
     threads.reserve(num_threads);
 
     for (int thread_id = 0; thread_id < num_threads; thread_id++) {
       threads.emplace_back([&, thread_id]() {
-        ready.fetch_add(1);
-        while (!start.load()) {
-        }
+        gate.ArriveAndWait();
         const int first_key = thread_id * inserts_per_thread;
         for (int key = first_key; key < first_key + inserts_per_thread; key++) {
           if (!table.Insert(key)) {
@@ -400,10 +433,9 @@ TEST(RobinHoodHashingTest, ParallelSpeedupTest) {
         }
       });
     }
-    while (ready.load() != num_threads) {
-    }
+    gate.WaitUntilReady();
     const auto start_time = std::chrono::steady_clock::now();
-    start.store(true);
+    gate.Open();
     for (auto &thread : threads) {
       thread.join();
     }

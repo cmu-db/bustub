@@ -14,14 +14,41 @@
 
 #include <atomic>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <mutex>  // NOLINT
+#include <string>
 #include <utility>
 
 namespace bustub {
 
+/** Deterministic hash function for the key types supported by this project. */
+template <typename KeyType>
+struct RobinHoodHash;
+
+template <>
+struct RobinHoodHash<int> {
+  auto operator()(int key) const -> size_t { return static_cast<size_t>(key); }
+};
+
+template <>
+struct RobinHoodHash<int64_t> {
+  auto operator()(int64_t key) const -> size_t { return static_cast<size_t>(key); }
+};
+
+template <>
+struct RobinHoodHash<std::string> {
+  auto operator()(const std::string &key) const -> size_t {
+    size_t hash = 0;
+    for (const unsigned char byte : key) {
+      hash = hash * 31 + byte;
+    }
+    return hash;
+  }
+};
+
 /** A fixed-capacity, concurrent hash set using Robin Hood open addressing. */
-template <typename KeyType, typename Hash = std::hash<KeyType>, typename KeyEqual = std::equal_to<KeyType>>
+template <typename KeyType, typename Hash = RobinHoodHash<KeyType>, typename KeyEqual = std::equal_to<KeyType>>
 class RobinHoodHashSet {
  public:
   explicit RobinHoodHashSet(size_t capacity, Hash hasher = Hash{}, KeyEqual key_equal = KeyEqual{});
