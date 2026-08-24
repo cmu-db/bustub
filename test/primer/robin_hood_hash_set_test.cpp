@@ -1,6 +1,6 @@
 #include <atomic>
 #include <chrono>  // NOLINT
-#include <condition_variable>
+#include <condition_variable>  // NOLINT
 #include <iostream>
 #include <mutex>  // NOLINT
 #include <stdexcept>
@@ -195,7 +195,7 @@ TEST(RobinHoodHashingTest, MoveTest) {
   EXPECT_EQ(moved.Size(), 2);
   EXPECT_TRUE(moved.Contains(1));
   EXPECT_TRUE(moved.Contains(9));
-  EXPECT_EQ(source.Capacity(), 0);  // NOLINT(bugprone-use-after-move)
+  EXPECT_EQ(source.Capacity(), 0);  // NOLINT
   EXPECT_EQ(source.Size(), 0);
 
   RobinHoodHashSet<int> assigned(4);
@@ -236,7 +236,7 @@ TEST(RobinHoodHashingTest, ClearTest) {
 
   RobinHoodHashSet<int> moved_from(4);
   RobinHoodHashSet<int> moved(std::move(moved_from));
-  moved_from.Clear();  // NOLINT(bugprone-use-after-move)
+  moved_from.Clear();  // NOLINT
   EXPECT_EQ(moved_from.Size(), 0);
   EXPECT_EQ(moved_from.Capacity(), 0);
   moved.Clear();
@@ -302,8 +302,7 @@ TEST(RobinHoodHashingTest, ConcurrentInsertAndLookupTest) {
       gate.ArriveAndWait();
       for (int i = 0; i < writer_count * inserts_per_writer; i++) {
         // Concurrent writers make each individual lookup result nondeterministic.
-        // NOLINTNEXTLINE(bugprone-unused-return-value)
-        table.Contains((i + reader) % (writer_count * inserts_per_writer));
+        static_cast<void>(table.Contains((i + reader) % (writer_count * inserts_per_writer)));
       }
     });
   }
@@ -370,12 +369,9 @@ TEST(RobinHoodHashingTest, ConcurrentOverlappingOperationsStressTest) {
       for (int i = 0; i < iterations; i++) {
         const int key = (thread_id * 17 + i) % 96;
         // Overlapping operations make individual return values nondeterministic.
-        // NOLINTNEXTLINE(bugprone-unused-return-value)
-        table.Insert(key);
-        // NOLINTNEXTLINE(bugprone-unused-return-value)
-        table.Contains((key + 1) % 96);
-        // NOLINTNEXTLINE(bugprone-unused-return-value)
-        table.Remove((key + 32) % 96);
+        static_cast<void>(table.Insert(key));
+        static_cast<void>(table.Contains((key + 1) % 96));
+        static_cast<void>(table.Remove((key + 32) % 96));
       }
       completed.fetch_add(1);
     });
