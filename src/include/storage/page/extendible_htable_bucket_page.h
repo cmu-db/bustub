@@ -30,7 +30,6 @@
 #include "common/config.h"
 #include "common/macros.h"
 #include "storage/index/int_comparator.h"
-#include "storage/page/b_plus_tree_page.h"
 #include "type/value.h"
 
 namespace bustub {
