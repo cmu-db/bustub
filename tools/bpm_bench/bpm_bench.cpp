@@ -10,7 +10,9 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include <atomic>
 #include <chrono>
+#include <cstdlib>
 #include <exception>
 #include <iostream>
 #include <memory>
@@ -36,16 +38,42 @@
 
 #include <sys/time.h>
 
+#if (defined(__APPLE__) && defined(__MACH__)) || defined(__linux__)
+#define BUSTUB_HAS_RUSAGE
+#include <sys/resource.h>
+#endif
+
 auto ClockMs() -> uint64_t {
   struct timeval tm;
   gettimeofday(&tm, nullptr);
   return static_cast<uint64_t>(tm.tv_sec * 1000) + static_cast<uint64_t>(tm.tv_usec / 1000);
 }
 
+/// Peak resident set size in kB, or 0 where it cannot be determined.
+auto PeakRssKb() -> uint64_t {
+#if defined(BUSTUB_HAS_RUSAGE)
+  struct rusage usage {};
+  if (getrusage(RUSAGE_SELF, &usage) != 0) {
+    return 0;
+  }
+#if defined(__APPLE__) && defined(__MACH__)
+  return static_cast<uint64_t>(usage.ru_maxrss) / 1024;
+#else
+  return static_cast<uint64_t>(usage.ru_maxrss);
+#endif
+#else
+  return 0;
+#endif
+}
+
 struct BpmTotalMetrics {
   uint64_t scan_cnt_{0};
   uint64_t get_cnt_{0};
   uint64_t start_time_{0};
+  uint64_t rss_start_kb_{0};
+  uint64_t disk_bytes_{0};
+  uint64_t db_pages_{0};
+  uint64_t bpm_bytes_{0};
   std::mutex mutex_;
 
   void Begin() { start_time_ = ClockMs(); }
@@ -69,6 +97,11 @@ struct BpmTotalMetrics {
     fmt::print("<<< BEGIN\n");
     fmt::print("scan: {}\n", scan_per_sec);
     fmt::print("get: {}\n", get_per_sec);
+    fmt::print("rss_start_kb: {}\n", rss_start_kb_);
+    fmt::print("rss_peak_kb: {}\n", PeakRssKb());
+    fmt::print("disk_bytes: {}\n", disk_bytes_);
+    fmt::print("db_pages: {}\n", db_pages_);
+    fmt::print("bpm_bytes: {}\n", bpm_bytes_);
     fmt::print(">>> END\n");
   }
 };
@@ -161,6 +194,8 @@ auto main(int argc, char **argv) -> int {
   program.add_argument("--bpm-size").help("buffer pool size");
   program.add_argument("--db-size").help("number of pages");
   program.add_argument("--lru-k-size").help("lru-k size");
+  program.add_argument("--memory-budget-kb")
+      .help("abort if peak RSS exceeds this many kB; 0 or absent means report only");
 
   try {
     program.parse_args(argc, argv);
@@ -205,6 +240,15 @@ auto main(int argc, char **argv) -> int {
     lru_k_size = std::stoi(program.get("--lru-k-size"));
   }
 
+  uint64_t memory_budget_kb = 0;
+  if (program.present("--memory-budget-kb")) {
+    memory_budget_kb = std::stoull(program.get("--memory-budget-kb"));
+  }
+
+  // Taken before anything is allocated, so the autograder can subtract the fixed cost of
+  // the process from what the buffer pool is responsible for.
+  auto rss_start_kb = PeakRssKb();
+
   auto disk_manager = std::make_unique<DiskManagerUnlimitedMemory>();
   auto bpm = std::make_unique<BufferPoolManager>(bustub_bpm_size, disk_manager.get());
   std::vector<page_id_t> page_ids;
@@ -229,7 +273,36 @@ auto main(int argc, char **argv) -> int {
   fmt::print(stderr, "[info] benchmark start\n");
 
   BpmTotalMetrics total_metrics;
+  total_metrics.rss_start_kb_ = rss_start_kb;
+  total_metrics.disk_bytes_ = disk_manager->GetMemoryUsage();
+  total_metrics.db_pages_ = bustub_page_cnt;
+  total_metrics.bpm_bytes_ = bustub_bpm_size * bustub::BUSTUB_PAGE_SIZE;
   total_metrics.Begin();
+
+  // Watchdog. Without a budget this does nothing; with one, a submission that blows past
+  // it is stopped rather than left to burn the rest of the benchmark's wall clock.
+  std::atomic<bool> watchdog_stop{false};
+  std::thread watchdog;
+  if (memory_budget_kb != 0) {
+    watchdog = std::thread([memory_budget_kb, &watchdog_stop] {
+      while (!watchdog_stop.load()) {
+        auto peak = PeakRssKb();
+        if (peak > memory_budget_kb) {
+          fmt::print(stderr, "[fatal] peak RSS {} kB exceeded the budget of {} kB, aborting\n", peak,
+                     memory_budget_kb);
+          fmt::print(
+              "<<< BEGIN\nscan: 0\nget: 0\nrss_start_kb: 0\nrss_peak_kb: {}\ndisk_bytes: 0\ndb_pages: 0\n"
+              "bpm_bytes: 0\n>>> END\n",
+              peak);
+          std::fflush(stdout);
+          // _Exit rather than exit: the benchmark threads are still running and unwinding
+          // through their destructors from here would be a data race.
+          std::_Exit(1);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      }
+    });
+  }
 
   std::vector<std::thread> threads;
   using ModifyRecord = std::unordered_map<page_id_t, uint64_t>;
@@ -292,6 +365,11 @@ auto main(int argc, char **argv) -> int {
 
   for (auto &thread : threads) {
     thread.join();
+  }
+
+  watchdog_stop.store(true);
+  if (watchdog.joinable()) {
+    watchdog.join();
   }
 
   total_metrics.Report();

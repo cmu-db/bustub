@@ -170,6 +170,17 @@ void DiskManagerUnlimitedMemory::PostProcessLatency(page_id_t page_id) {
   }
 }
 
+auto DiskManagerUnlimitedMemory::GetMemoryUsage() -> size_t {
+  std::scoped_lock l(mutex_);
+  size_t pages = 0;
+  for (const auto &page : data_) {
+    if (page != nullptr) {
+      pages += 1;
+    }
+  }
+  return pages * sizeof(ProtectedPage);
+}
+
 auto DiskManagerUnlimitedMemory::GetLastReadThreadAndClear() -> std::optional<std::thread::id> {
   std::unique_lock<std::mutex> lck(mutex_);
   auto t = thread_id_;

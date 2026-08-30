@@ -74,6 +74,8 @@ class DiskManagerUnlimitedMemory : public DiskManager {
 
   auto GetLastReadThreadAndClear() -> std::optional<std::thread::id>;
 
+  auto GetMemoryUsage() -> size_t;
+
  private:
   bool latency_simulator_enabled_{false};
 
