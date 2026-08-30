@@ -34,21 +34,13 @@
 #include "fmt/std.h"
 #include "storage/disk/disk_manager_memory.h"
 
-#include <sys/time.h>
-
-auto ClockMs() -> uint64_t {
-  struct timeval tm;
-  gettimeofday(&tm, nullptr);
-  return static_cast<uint64_t>(tm.tv_sec * 1000) + static_cast<uint64_t>(tm.tv_usec / 1000);
-}
-
 struct BpmTotalMetrics {
   uint64_t scan_cnt_{0};
   uint64_t get_cnt_{0};
-  uint64_t start_time_{0};
+  std::chrono::steady_clock::time_point start_time_;
   std::mutex mutex_;
 
-  void Begin() { start_time_ = ClockMs(); }
+  void Begin() { start_time_ = std::chrono::steady_clock::now(); }
 
   void ReportScan(uint64_t scan_cnt) {
     std::unique_lock<std::mutex> l(mutex_);
@@ -61,8 +53,8 @@ struct BpmTotalMetrics {
   }
 
   void Report() {
-    auto now = ClockMs();
-    auto elapsed = now - start_time_;
+    auto now = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time_).count();
     auto scan_per_sec = scan_cnt_ / static_cast<double>(elapsed) * 1000;
     auto get_per_sec = get_cnt_ / static_cast<double>(elapsed) * 1000;
 
@@ -74,7 +66,7 @@ struct BpmTotalMetrics {
 };
 
 struct BpmMetrics {
-  uint64_t start_time_{0};
+  std::chrono::steady_clock::time_point start_time_;
   uint64_t last_report_at_{0};
   uint64_t last_cnt_{0};
   uint64_t cnt_{0};
@@ -86,12 +78,12 @@ struct BpmMetrics {
 
   void Tick() { cnt_ += 1; }
 
-  void Begin() { start_time_ = ClockMs(); }
+  void Begin() { start_time_ = std::chrono::steady_clock::now(); }
 
   void Report() {
-    auto now = ClockMs();
-    auto elapsed = now - start_time_;
-    if (elapsed - last_report_at_ > 1000) {
+    auto now = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time_).count();
+    if (elapsed - last_report_at_ >= 1000) {
       fmt::print(stderr, "[{:5.2f}] {}: total_cnt={:<10} throughput={:<10.3f} avg_throughput={:<10.3f}\n",
                  elapsed / 1000.0, reporter_, cnt_,
                  (cnt_ - last_cnt_) / static_cast<double>(elapsed - last_report_at_) * 1000,
@@ -102,8 +94,9 @@ struct BpmMetrics {
   }
 
   auto ShouldFinish() -> bool {
-    auto now = ClockMs();
-    return now - start_time_ > duration_ms_;
+    auto now = std::chrono::steady_clock::now();
+    uint64_t elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time_).count();
+    return elapsed > duration_ms_;
   }
 };
 

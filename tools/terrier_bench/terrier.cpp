@@ -35,24 +35,16 @@
 #include "fmt/core.h"
 #include "fmt/std.h"
 
-#include <sys/time.h>
-
-auto ClockMs() -> uint64_t {
-  struct timeval tm;
-  gettimeofday(&tm, nullptr);
-  return static_cast<uint64_t>(tm.tv_sec * 1000) + static_cast<uint64_t>(tm.tv_usec / 1000);
-}
-
 struct TerrierTotalMetrics {
   uint64_t aborted_transfer_txn_cnt_{0};
   uint64_t committed_transfer_txn_cnt_{0};
   uint64_t aborted_join_txn_cnt_{0};
   uint64_t committed_join_txn_cnt_{0};
-  uint64_t start_time_{0};
+  std::chrono::steady_clock::time_point start_time_;
   uint64_t elapsed_{0};
   std::mutex mutex_;
 
-  void Begin() { start_time_ = ClockMs(); }
+  void Begin() { start_time_ = std::chrono::steady_clock::now(); }
 
   void ReportTransfer(uint64_t aborted_cnt, uint64_t committed_cnt) {
     std::unique_lock<std::mutex> l(mutex_);
@@ -67,8 +59,8 @@ struct TerrierTotalMetrics {
   }
 
   void End() {
-    auto now = ClockMs();
-    elapsed_ = now - start_time_;
+    auto now = std::chrono::steady_clock::now();
+    elapsed_ = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time_).count();
   }
 
   void Report(uint64_t db_size) {
@@ -93,7 +85,7 @@ struct TerrierTotalMetrics {
 };
 
 struct TerrierMetrics {
-  uint64_t start_time_{0};
+  std::chrono::steady_clock::time_point start_time_;
   uint64_t last_report_at_{0};
   uint64_t last_committed_txn_cnt_{0};
   uint64_t last_aborted_txn_cnt_{0};
@@ -109,12 +101,12 @@ struct TerrierMetrics {
 
   void TxnCommitted() { committed_txn_cnt_ += 1; }
 
-  void Begin() { start_time_ = ClockMs(); }
+  void Begin() { start_time_ = std::chrono::steady_clock::now(); }
 
   void Report() {
-    auto now = ClockMs();
-    auto elapsed = now - start_time_;
-    if (elapsed - last_report_at_ > 1000) {
+    auto now = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time_).count();
+    if (elapsed - last_report_at_ >= 1000) {
       fmt::print(stderr,
                  "[{:5.2f}] {}: total_committed_txn={:<8} total_aborted_txn={:<8} throughput={:<8.3f} "
                  "avg_throughput={:<8.3f}\n",
@@ -127,8 +119,9 @@ struct TerrierMetrics {
   }
 
   auto ShouldFinish() -> bool {
-    auto now = ClockMs();
-    return now - start_time_ > duration_ms_;
+    auto now = std::chrono::steady_clock::now();
+    uint64_t elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time_).count();
+    return elapsed > duration_ms_;
   }
 };
 
