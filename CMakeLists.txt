@@ -301,9 +301,7 @@ add_custom_target(check-clang-tidy-p1
         -p ${CMAKE_BINARY_DIR} # using cmake's generated compile commands
         ${P1_FILES}
 )
-# The design document is attached to the P1 submission only. It deliberately does NOT go
-# into P1_FILES: that variable is reused by P2_FILES onwards and is also handed to
-# check-clang-tidy-p1, neither of which wants a Markdown file.
+
 add_custom_target(submit-p1
         zip project1-submission.zip
         ${P1_FILES}

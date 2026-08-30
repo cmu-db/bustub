@@ -1,7 +1,7 @@
 # Project 1 Design Document
 
 <!--
-Replace every placeholder below with your own writing. About one page total
+A draft outline for you Project 1 Design Document. About one page total
 (250-900 words). This document is part of your Project 1 submission and is
 included automatically when you run `make submit-p1`.
 -->
@@ -35,3 +35,10 @@ frame count, so this section should match what it measures.
 
 If you made changes aimed at the leaderboard, describe them and what they bought
 you. If you did not, say so.
+
+## AI Usage
+
+Disclose how you used AI tools on this project. Be specific about which tools and
+what you used them for: understanding the writeup, generating code you submitted,
+debugging, explaining an error, or reviewing your design. If AI produced any code
+you are submitting, say which parts. If you did not use AI at all, write "None".
