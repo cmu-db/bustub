@@ -99,6 +99,26 @@ TEST(TxnSerializableTest, DISABLED_ConcurrentSerializableTest) {  // NOLINT
   }
 }
 
+TEST(TxnSerializableTest, DISABLED_GcMustNotEraseCommittedWriteSetNeededForValidation) {  // NOLINT
+  auto bustub = std::make_unique<BusTubInstance>();
+  Execute(*bustub, "CREATE TABLE maintable(a int, b int)");
+
+  auto txn1 = BeginTxnSerializable(*bustub, "txn1");
+  WithTxn(txn1,
+          QueryShowResult(*bustub, _var, _txn, "SELECT * FROM maintable WHERE a > 20", IntResult{}));
+
+  auto txn2 = BeginTxn(*bustub, "txn2");
+  WithTxn(txn2, ExecuteTxn(*bustub, _var, _txn, "INSERT INTO maintable VALUES (30, 1)"));
+  const auto txn2_id = txn2->GetTransactionId();
+  WithTxn(txn2, CommitTxn(*bustub, _var, _txn));
+
+  WithTxn(txn1, ExecuteTxn(*bustub, _var, _txn, "INSERT INTO maintable VALUES (10, 1)"));
+  GarbageCollection(*bustub);
+  EnsureTxnGCed(*bustub, "txn2", txn2_id);
+
+  EXPECT_FALSE(bustub->txn_manager_->Commit(txn1));
+}
+
 TEST(TxnAbortTest, DISABLED_SimpleAbortTest) {  // NOLINT
   fmt::println(stderr, "--- SimpleAbortTest: Setup without primary key ---");
   auto bustub = std::make_unique<BusTubInstance>();
