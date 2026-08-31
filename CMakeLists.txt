@@ -301,9 +301,11 @@ add_custom_target(check-clang-tidy-p1
         -p ${CMAKE_BINARY_DIR} # using cmake's generated compile commands
         ${P1_FILES}
 )
+
 add_custom_target(submit-p1
         zip project1-submission.zip
         ${P1_FILES}
+        "docs/p1-design.md"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
