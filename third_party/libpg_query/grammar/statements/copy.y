@@ -1,4 +1,4 @@
-CopyStmt:	COPY opt_binary qualified_name opt_column_list opt_oids
+CopyStmt: COPY opt_binary qualified_name opt_column_list opt_oids
 			copy_from opt_program copy_file_name copy_delimiter opt_with copy_options
 				{
 					PGCopyStmt *n = makeNode(PGCopyStmt);
@@ -43,6 +43,25 @@ CopyStmt:	COPY opt_binary qualified_name opt_column_list opt_oids
 								(errcode(PG_ERRCODE_SYNTAX_ERROR),
 								 errmsg("STDIN/STDOUT not allowed with PROGRAM"),
 								 parser_errposition(@5)));
+
+					$$ = (PGNode *)n;
+				}
+			| COPY FROM copy_file_name
+				{
+					PGCopyStmt *n = makeNode(PGCopyStmt);
+					n->relation = NULL;
+					n->query = NULL;
+					n->attlist = NIL;
+					n->is_from = true;
+					n->is_program = false;
+					n->filename = $3;
+					n->options = NIL;
+
+					if (n->filename == NULL)
+						ereport(ERROR,
+								(errcode(PG_ERRCODE_SYNTAX_ERROR),
+								 errmsg("COPYFROMFILE not allowed with NULL"),
+								 parser_errposition(@3)));
 
 					$$ = (PGNode *)n;
 				}
