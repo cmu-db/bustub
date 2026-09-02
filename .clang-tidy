@@ -63,7 +63,6 @@ CheckOptions:
   - { key: readability-identifier-naming.VariableCase,        value: lower_case }
 WarningsAsErrors: '*'
 HeaderFilterRegex: '/(src|test)/include'
-AnalyzeTemporaryDtors: true
 
 #### Disabled checks and why: #####
 #
