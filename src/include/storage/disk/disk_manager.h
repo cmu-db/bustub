@@ -101,7 +101,7 @@ class DiskManager {
 
  protected:
   int num_flushes_{0};
-  int num_writes_{0};
+  std::atomic<int> num_writes_{0};
   int num_deletes_{0};
 
   /** @brief The capacity of the file used for storage on disk. */
