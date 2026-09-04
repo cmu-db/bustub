@@ -107,7 +107,7 @@ TEST(TxnSerializableTest, DISABLED_GcMustNotEraseCommittedWriteSetNeededForValid
   WithTxn(txn1,
           QueryShowResult(*bustub, _var, _txn, "SELECT * FROM maintable WHERE a > 20", IntResult{}));
 
-  auto txn2 = BeginTxn(*bustub, "txn2");
+  auto txn2 = BeginTxnSerializable(*bustub, "txn2");
   WithTxn(txn2, ExecuteTxn(*bustub, _var, _txn, "INSERT INTO maintable VALUES (30, 1)"));
   const auto txn2_id = txn2->GetTransactionId();
   WithTxn(txn2, CommitTxn(*bustub, _var, _txn));
