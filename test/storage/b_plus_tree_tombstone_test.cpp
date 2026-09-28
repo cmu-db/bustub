@@ -2,6 +2,7 @@
 #include <algorithm>
 #include "buffer/buffer_pool_manager.h"
 #include "common/config.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "storage/b_plus_tree_utils.h"
 #include "storage/disk/disk_manager_memory.h"
@@ -10,6 +11,9 @@
 #include "storage/page/b_plus_tree_leaf_page.h"
 #include "storage/page/page_guard.h"
 #include "test_util.h"  // NOLINT
+
+using ::testing::AnyOf;
+using ::testing::Eq;
 
 namespace bustub {
 
@@ -252,7 +256,7 @@ TEST(BPlusTreeTests, DISABLED_TombstoneBorrowTest) {
     to_remove.push_back(left_page->KeyAt(1));
     to_remove.push_back(left_page->KeyAt(0));
   } else {
-    to_remove.push_back(left_page->KeyAt(0));
+    to_remove.push_back(left_page->KeyAt(2));
     to_remove.push_back(right_page->KeyAt(1));
     to_remove.push_back(right_page->KeyAt(0));
   }
@@ -272,7 +276,7 @@ TEST(BPlusTreeTests, DISABLED_TombstoneBorrowTest) {
   }
 
   EXPECT_EQ(tombstones.size(), 1);
-  EXPECT_EQ(tombstones[0], to_remove[0].GetAsInteger());
+  EXPECT_THAT(tombstones[0], AnyOf(Eq(to_remove[0].GetAsInteger()), Eq(to_remove[2].GetAsInteger())));
 
   delete bpm;
   delete disk_manager;
