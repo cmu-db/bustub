@@ -29,3 +29,7 @@ If you made changes aimed at the leaderboard, describe them. What kind of querie
 ## AI Usage
 
 Disclose how you used AI tools on this project. Be specific about which tools and what you used them for: understanding the writeup, generating code you submitted, debugging, explaining an error, or reviewing your design. If AI produced any code you are submitting, say which parts. If you did not use AI at all, write "None".
+
+## AI Reflection
+
+What worked well when you used AI tools? What didn't work well? How did using AI tools affect your understanding of the code and the design process? When you work on Project 4, is there anything you plan on changing about your workflow?
