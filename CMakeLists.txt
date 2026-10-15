@@ -375,6 +375,7 @@ set(P3_FILES
         "src/optimizer/seqscan_as_indexscan.cpp"
         "src/optimizer/column_pruning.cpp"
         "src/common/bustub_ddl.cpp"
+        "docs/p3-design.md"
         ${P2_FILES}
 )
 
