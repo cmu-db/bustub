@@ -247,14 +247,17 @@ TEST(BPlusTreeTests, DISABLED_TombstoneBorrowTest) {
   auto right_page = bpm->ReadPage(left_page->GetNextPageId()).As<LeafPage>();
 
   std::vector<GenericKey<8>> to_remove;
-  if (left_page->GetSize() == left_page->GetMinSize()) {
+  bool left_at_min = left_page->GetSize() == left_page->GetMinSize();
+  if (left_at_min) {
+    // Layout [0,1] [2,3,4]: the left page underflows and borrows right[0].
     to_remove.push_back(right_page->KeyAt(0));
     to_remove.push_back(left_page->KeyAt(1));
     to_remove.push_back(left_page->KeyAt(0));
   } else {
-    to_remove.push_back(left_page->KeyAt(0));
-    to_remove.push_back(right_page->KeyAt(1));
+    // Layout [0,1,2] [3,4]: the right page underflows and borrows left[last].
+    to_remove.push_back(left_page->KeyAt(left_page->GetSize() - 1));
     to_remove.push_back(right_page->KeyAt(0));
+    to_remove.push_back(right_page->KeyAt(1));
   }
 
   for (auto k : to_remove) {
@@ -272,7 +275,13 @@ TEST(BPlusTreeTests, DISABLED_TombstoneBorrowTest) {
   }
 
   EXPECT_EQ(tombstones.size(), 1);
-  EXPECT_EQ(tombstones[0], to_remove[0].GetAsInteger());
+  if (left_at_min) {
+    EXPECT_EQ(tombstones[0], to_remove[0].GetAsInteger());
+  } else {
+    // to_remove[0] survives if the right page borrows or the left page merges into the right page;
+    // to_remove[2] survives if the right page merges into the left page (its tombstone is newer).
+    EXPECT_TRUE(tombstones[0] == to_remove[0].GetAsInteger() || tombstones[0] == to_remove[2].GetAsInteger());
+  }
 
   delete bpm;
   delete disk_manager;
