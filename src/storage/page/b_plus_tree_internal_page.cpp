@@ -25,7 +25,7 @@ namespace bustub {
  * @brief Init method after creating a new internal page.
  *
  * Writes the necessary header information to a newly created page,
- * including set page type, set current size, set page id, set parent id and set max page size,
+ * including set page type, set current size, and set max page size,
  * must be called after the creation of a new page to make a valid BPlusTreeInternalPage.
  *
  * @param max_size Maximal size of the page
