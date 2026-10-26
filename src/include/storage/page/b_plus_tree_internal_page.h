@@ -25,7 +25,7 @@ namespace bustub {
   ((BUSTUB_PAGE_SIZE - INTERNAL_PAGE_HEADER_SIZE) / ((int)(sizeof(KeyType) + sizeof(ValueType))))  // NOLINT
 
 /**
- * Store `n` indexed keys and `n + 1` child pointers (page_id) within internal page.
+ * Store `n` child pointers (page_id) and `n - 1` indexed keys within internal page.
  * Pointer PAGE_ID(i) points to a subtree in which all keys K satisfy:
  * K(i) <= K < K(i+1).
  * NOTE: Since the number of keys does not equal to number of child pointers,
@@ -94,7 +94,7 @@ class BPlusTreeInternalPage : public BPlusTreePage {
   // Array members for page data.
   KeyType key_array_[INTERNAL_PAGE_SLOT_CNT];
   ValueType page_id_array_[INTERNAL_PAGE_SLOT_CNT];
-  // (Spring 2025) Feel free to add more fields and helper functions below if needed
+  // Feel free to add more fields and helper functions below if needed
 };
 
 }  // namespace bustub

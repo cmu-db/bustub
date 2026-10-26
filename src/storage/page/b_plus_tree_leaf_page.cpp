@@ -26,7 +26,7 @@ namespace bustub {
  * @brief Init method after creating a new leaf page
  *
  * After creating a new leaf page from buffer pool, must call initialize method to set default values,
- * including set page type, set current size to zero, set page id/parent id, set
+ * including set page type, set current size to zero, set the number of tombstones, set
  * next page id and set max size.
  *
  * @param max_size Max size of the leaf node
