@@ -396,6 +396,7 @@ set(P4_FILES
         "src/concurrency/transaction_manager.cpp"
         "src/include/concurrency/watermark.h"
         "src/concurrency/watermark.cpp"
+        "docs/p4-design.md"
         ${P3_FILES}
 )
 
