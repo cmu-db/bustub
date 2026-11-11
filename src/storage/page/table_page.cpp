@@ -32,11 +32,10 @@ void TablePage::Init() {
 }
 
 /** Get the next offset to insert, return nullopt if this tuple cannot fit in this page */
-auto TablePage::GetNextTupleOffset(const TupleMeta &meta, const Tuple &tuple) const -> std::optional<uint16_t> {
+auto TablePage::GetNextTupleOffset(const Tuple &tuple) const -> std::optional<uint16_t> {
   size_t slot_end_offset;
   if (num_tuples_ > 0) {
-    auto &[offset, size, meta] = tuple_info_[num_tuples_ - 1];
-    slot_end_offset = offset;
+    slot_end_offset = std::get<0>(tuple_info_[num_tuples_ - 1]);
   } else {
     slot_end_offset = BUSTUB_PAGE_SIZE;
   }
@@ -54,7 +53,7 @@ auto TablePage::GetNextTupleOffset(const TupleMeta &meta, const Tuple &tuple) co
  * @return true if the insert is successful (i.e. there is enough space)
  */
 auto TablePage::InsertTuple(const TupleMeta &meta, const Tuple &tuple) -> std::optional<uint16_t> {
-  auto tuple_offset = GetNextTupleOffset(meta, tuple);
+  auto tuple_offset = GetNextTupleOffset(tuple);
   if (tuple_offset == std::nullopt || !tuple_offset.has_value()) {
     return std::nullopt;
   }

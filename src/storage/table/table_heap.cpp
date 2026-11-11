@@ -59,7 +59,7 @@ auto TableHeap::InsertTuple(const TupleMeta &meta, const Tuple &tuple, LockManag
 
   while (true) {
     auto page = page_guard.AsMut<TablePage>();
-    if (page->GetNextTupleOffset(meta, tuple) != std::nullopt) {
+    if (page->GetNextTupleOffset(tuple) != std::nullopt) {
       break;
     }
 
