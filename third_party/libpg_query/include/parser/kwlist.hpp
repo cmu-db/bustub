@@ -1,7 +1,6 @@
 
 namespace duckdb_libpgquery {
 #define PG_KEYWORD(a,b,c) {a,b,c},
-
 const PGScanKeyword ScanKeywords[] = {
 PG_KEYWORD("abort", ABORT_P, UNRESERVED_KEYWORD)
 PG_KEYWORD("absolute", ABSOLUTE_P, UNRESERVED_KEYWORD)
@@ -467,6 +466,5 @@ PG_KEYWORD("yes", YES_P, UNRESERVED_KEYWORD)
 PG_KEYWORD("zone", ZONE, UNRESERVED_KEYWORD)
 
 };
-
 const int NumScanKeywords = lengthof(ScanKeywords);
 } // namespace duckdb_libpgquery
