@@ -49,12 +49,16 @@ import itertools
 import math  # for log
 import os
 import re
-import sre_compile
 import string
 import sys
 import sysconfig
 import unicodedata
 import xml.etree.ElementTree
+
+try:
+  import re._compiler as sre_compile
+except ImportError:
+  import sre_compile
 
 # if empty, use defaults
 _valid_extensions = set([])
