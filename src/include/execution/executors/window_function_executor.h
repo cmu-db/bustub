@@ -56,7 +56,7 @@ namespace bustub {
  * not allowed, as it contains invalid column id.
  *
  * Your WindowFunctionExecutor does not need to support specified window frames (eg: 1 preceding and 1 following).
- * You can assume that all window frames are UNBOUNDED FOLLOWING AND CURRENT ROW when there is ORDER BY clause, and
+ * You can assume that all window frames are UNBOUNDED PRECEDING AND CURRENT ROW when there is ORDER BY clause, and
  * UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING when there is no ORDER BY clause.
  *
  */
