@@ -6,7 +6,7 @@
 //
 // Identification: src/container/disk/hash/linear_probe_hash_table.cpp
 //
-// Copyright (c) 2015-2025, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2026, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
