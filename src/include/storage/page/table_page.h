@@ -62,7 +62,7 @@ class TablePage {
   /** Set the page id of the next page in the table. */
   void SetNextPageId(page_id_t next_page_id) { next_page_id_ = next_page_id; }
 
-  auto GetNextTupleOffset(const TupleMeta &meta, const Tuple &tuple) const -> std::optional<uint16_t>;
+  auto GetNextTupleOffset(const Tuple &tuple) const -> std::optional<uint16_t>;
 
   auto InsertTuple(const TupleMeta &meta, const Tuple &tuple) -> std::optional<uint16_t>;
 
