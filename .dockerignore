@@ -1,2 +1,13 @@
-# Don't send any build context to Docker.
-**
+build/
+build-*/
+cmake-build-*/
+.cache/
+.git/
+.github/
+*.o
+*.a
+*.so
+*.so.*
+CMakeCache.txt
+CMakeFiles/
+compile_commands.json
