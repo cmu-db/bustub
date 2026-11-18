@@ -35,8 +35,8 @@ jobs:
               tidy: "/usr/bin/clang-tidy-15",
             }
           - {
-              name: "macOS 14 (Sonoma) AppleClang",
-              os: macos-14,
+              name: "macOS 15 (Sequoia) AppleClang",
+              os: macos-15,
               format: "/opt/homebrew/opt/llvm@15/bin/clang-format",
               tidy: "/opt/homebrew/opt/llvm@15/bin/clang-tidy",
             }
