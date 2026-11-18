@@ -160,8 +160,6 @@ endfunction()
 # MUST BE ADDED AFTER CONFIGURING COMPILER PARAMETERS
 # #####################################################################################################################
 set(CMAKE_MODULE_PATH "${BUSTUB_BUILD_SUPPORT_DIR}/cmake;${CMAKE_MODULE_PATH}")
-find_package(LibElf)
-find_package(LibDwarf)
 
 add_subdirectory(third_party)
 add_subdirectory(src)

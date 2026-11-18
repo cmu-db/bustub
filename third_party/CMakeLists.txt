@@ -14,6 +14,11 @@ add_subdirectory(argparse)
 
 add_subdirectory(utf8proc)
 
+# backward-cpp's libdwarf backend is incompatible with libdwarf 0.x, use libdw instead.
+if(NOT APPLE AND NOT EMSCRIPTEN)
+        set(STACK_DETAILS_AUTO_DETECT FALSE CACHE BOOL "" FORCE)
+        set(STACK_DETAILS_DW TRUE CACHE BOOL "" FORCE)
+endif()
 add_subdirectory(backward-cpp)
 
 add_subdirectory(readerwriterqueue)
