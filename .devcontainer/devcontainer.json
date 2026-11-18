@@ -1,0 +1,37 @@
+{
+    "name": "BusTub Dev (Ubuntu 24.04 / clang-15)",
+    "build": {
+        "dockerfile": "../Dockerfile",
+        "context": ".."
+    },
+    "remoteUser": "node",
+    "updateRemoteUserUID": true,
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/bustub,type=bind,consistency=cached",
+    "workspaceFolder": "/workspaces/bustub",
+    "capAdd": ["SYS_PTRACE"],
+    "init": true,
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "ms-vscode.cmake-tools",
+                "llvm-vs-code-extensions.lldb-dap",
+                "twxs.cmake"
+            ],
+            "settings": {
+                "cmake.generator": "Ninja",
+                "cmake.buildDirectory": "${workspaceFolder}/build",
+                "cmake.configureOnOpen": true,
+                "cmake.configureArgs": [
+                    "-DCMAKE_C_COMPILER_LAUNCHER=ccache",
+                    "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+                ],
+                "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
+                "C_Cpp.default.cppStandard": "c++17",
+                "C_Cpp.default.cStandard": "c17",
+                "terminal.integrated.defaultProfile.linux": "bash"
+            }
+        }
+    },
+    "postCreateCommand": "if [ -f build/CMakeCache.txt ] && ! grep -q '^CMAKE_CXX_COMPILER:FILEPATH=.*clang++-15' build/CMakeCache.txt; then echo 'Note: build/ contains a CMake cache created on the host. Consider running rm -rf build before configuring again.'; fi"
+}
