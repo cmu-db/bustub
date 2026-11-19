@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <stdint.h>
 #include <memory>
 #include <string>
 #include <utility>
@@ -70,7 +71,7 @@ class IndexMetadata {
    * NOTE: this must be defined inside the cpp source file because it
    * uses the member of catalog::Schema which is not known here.
    */
-  auto GetIndexColumnCount() const -> std::uint32_t { return static_cast<uint32_t>(key_attrs_.size()); }
+  auto GetIndexColumnCount() const -> uint32_t { return static_cast<uint32_t>(key_attrs_.size()); }
 
   /** @return The mapping relation between indexed columns and base table columns */
   inline auto GetKeyAttrs() const -> const std::vector<uint32_t> & { return key_attrs_; }
@@ -136,7 +137,7 @@ class Index {
   auto GetMetadata() const -> IndexMetadata * { return metadata_.get(); }
 
   /** @return The number of indexed columns */
-  auto GetIndexColumnCount() const -> std::uint32_t { return metadata_->GetIndexColumnCount(); }
+  auto GetIndexColumnCount() const -> uint32_t { return metadata_->GetIndexColumnCount(); }
 
   /** @return The index name */
   auto GetName() const -> const std::string & { return metadata_->GetName(); }
