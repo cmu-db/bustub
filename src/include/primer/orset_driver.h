@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include <cstdint>
+#include <stdint.h>
 #include <memory>
 #include <vector>
 #include "primer/orset.h"
